@@ -6,13 +6,16 @@ import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
 import { useEventLog, useToolboxEvents } from "./hooks/useToolboxAPI";
 
 import { useAppContext } from "./contexts/AppContext";
-import { useSolutionsAsSelectableItems } from "./hooks/useSolutions";
+
 import { GenericTagPicker } from "./components/GenericTagPicker";
+import { useSolutionsAsSelectableItems } from "./hooks/useSolutions";
+import { useCustomApisAsSelectableItems } from "./hooks/useCustomApis";
 
 function App() {
     const { connection, isLoading, instanceId, refreshConnection } = useAppContext();
     const { logs, addLog, clearLogs  } = useEventLog();
-    const { items } = useSolutionsAsSelectableItems();
+    const solutions = useSolutionsAsSelectableItems();
+    const customapis = useCustomApisAsSelectableItems();
 
 
     // Handle platform events
@@ -77,8 +80,12 @@ function App() {
             </header>
 
             <ConnectionStatus />
-            {items &&
-                <GenericTagPicker items={items} onLog={addLog} />
+            {solutions.items &&
+                <GenericTagPicker items={solutions.items} onLog={addLog} />
+            }
+
+            {customapis.items &&
+                <GenericTagPicker items={customapis.items} onLog={addLog} />
             }
             
             {/* <SolutionSelector onLog={addLog} /> */}

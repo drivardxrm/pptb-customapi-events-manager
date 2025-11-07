@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { SolutionDto } from '../types/SolutionDto'
+import { SolutionDto } from '../models/SolutionDto'
 import { useAppContext } from '../contexts/AppContext'
 import { SelectableItem } from '../components/GenericTagPicker';
 import { useMemo } from 'react';
