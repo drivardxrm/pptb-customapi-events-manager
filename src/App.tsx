@@ -4,12 +4,16 @@ import { DataverseAPIDemo } from "./components/DataverseAPIDemo";
 import { EventLog } from "./components/EventLog";
 import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
 import { useEventLog, useToolboxEvents } from "./hooks/useToolboxAPI";
-import { SolutionSelector } from "./components/SolutionSelector";
+
 import { useAppContext } from "./contexts/AppContext";
+import { useSolutionsAsSelectableItems } from "./hooks/useSolutions";
+import { GenericTagPicker } from "./components/GenericTagPicker";
 
 function App() {
     const { connection, isLoading, instanceId, refreshConnection } = useAppContext();
     const { logs, addLog, clearLogs  } = useEventLog();
+    const { items } = useSolutionsAsSelectableItems();
+
 
     // Handle platform events
     const handleEvent = useCallback(
@@ -73,8 +77,11 @@ function App() {
             </header>
 
             <ConnectionStatus />
- 
-            <SolutionSelector onLog={addLog} />
+            {items &&
+                <GenericTagPicker items={items} onLog={addLog} />
+            }
+            
+            {/* <SolutionSelector onLog={addLog} /> */}
 
             <ToolboxAPIDemo onLog={addLog} />
 

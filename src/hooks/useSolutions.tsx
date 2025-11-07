@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { SolutionDto } from '../types/SolutionDto'
 import { useAppContext } from '../contexts/AppContext'
+import { SelectableItem } from '../components/GenericTagPicker';
+import { useMemo } from 'react';
+import { LockClosedKey24Regular, LockOpen24Regular } from '@fluentui/react-icons';
 
 export const useSolutions = () => {
 
@@ -26,3 +29,19 @@ export const useSolutions = () => {
     status, error, isFetching
   }
 }
+
+export const useSolutionsAsSelectableItems = () => {
+  const { solutions, status, error, isFetching } = useSolutions();
+
+  const items: SelectableItem[] = useMemo(
+    () =>
+      solutions.map(s => ({
+        id: s.solutionid,
+        displayText: s.uniquename,
+        image : s.ismanaged ? <LockClosedKey24Regular /> : <LockOpen24Regular />
+      })),
+    [solutions]
+  );
+
+  return { items, status, error, isFetching };
+};
