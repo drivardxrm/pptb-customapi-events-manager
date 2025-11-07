@@ -48,6 +48,7 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         assetsDir: 'assets',
+        sourcemap: true,
         rollupOptions: {
             output: {
                 // Use IIFE format for compatibility with iframe srcdoc loading

@@ -1,11 +1,13 @@
 import React from 'react';
+import { useAppContext } from '../contexts/AppContext';
 
-interface ConnectionStatusProps {
-    connection: ToolBoxAPI.DataverseConnection | null;
-    isLoading: boolean;
-}
+// interface ConnectionStatusProps {
+//     // connection: ToolBoxAPI.DataverseConnection | null;
+//     // isLoading: boolean;
+// }
 
-export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ connection, isLoading }) => {
+export const ConnectionStatus: React.FC = () => {
+    const { connection, isLoading } = useAppContext();
     if (isLoading) {
         return (
             <div className="card">

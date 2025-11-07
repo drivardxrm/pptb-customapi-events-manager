@@ -3,23 +3,37 @@ import { ConnectionStatus } from "./components/ConnectionStatus";
 import { DataverseAPIDemo } from "./components/DataverseAPIDemo";
 import { EventLog } from "./components/EventLog";
 import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
-import { useConnection, useEventLog, useToolboxEvents } from "./hooks/useToolboxAPI";
+import { useEventLog, useToolboxEvents } from "./hooks/useToolboxAPI";
 import { SolutionSelector } from "./components/SolutionSelector";
+import { useAppContext } from "./contexts/AppContext";
 
 function App() {
-    const { connection, isLoading, refreshConnection } = useConnection();
+    const { connection, isLoading, instanceId, refreshConnection } = useAppContext();
     const { logs, addLog, clearLogs  } = useEventLog();
 
     // Handle platform events
     const handleEvent = useCallback(
-        (event: string, _data: any) => {
+        (event: string, data: any) => {
+            
+            console.log(`App received event: ${event}`, data);
+            
             switch (event) {
-                case 'connection:updated':
                 case 'connection:created':
+                case 'connection:updated':
+                    // if (data?.name) {
+                    //     addLog(`Connected to: ${data.name} (${data.url})`, 'success');
+                    // } else {
+                    //     addLog('Connection established', 'success');
+                    // }
                     refreshConnection();
                     break;
-
+                    
                 case 'connection:deleted':
+                    // if (data?.name) {
+                    //     addLog(`Disconnected from: ${data.name}`, 'warning');
+                    // } else {
+                    //     addLog('Connection closed', 'warning');
+                    // }
                     refreshConnection();
                     break;
 
@@ -30,15 +44,26 @@ function App() {
                     break;
             }
         },
-        [refreshConnection]
+        [addLog]
     );
 
     useToolboxEvents(handleEvent);
 
-    // Add initial log (run only once on mount)
+    // Add initial log with instance ID (run only once on mount)
     useEffect(() => {
-        addLog('Dataverse Custom API Manager initialized', 'success');
-    }, [addLog]);
+        addLog(`Dataverse Custom API Manager initialized (Instance: ${instanceId})`, 'success');
+    }, [addLog, instanceId]);
+
+    // Log initial connection status
+    useEffect(() => {
+        if (!isLoading) {
+            if (connection) {
+                addLog(`Initial connection: ${connection.name} (${connection.url})`, 'info');
+            } else {
+                addLog('No active connection detected', 'warning');
+            }
+        }
+    }, [connection, isLoading, addLog]);
 
     return (
         <>
@@ -47,7 +72,7 @@ function App() {
                 <p className="subtitle">A comprehensive management tool for Dataverse Custom APIs</p>
             </header>
 
-            <ConnectionStatus connection={connection} isLoading={isLoading} />
+            <ConnectionStatus />
  
             <SolutionSelector onLog={addLog} />
 

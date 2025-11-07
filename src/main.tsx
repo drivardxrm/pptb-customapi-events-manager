@@ -4,7 +4,7 @@ import App from './App';
 import './index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
-import { v4 as uuidv4 } from 'uuid';
+import { AppProvider } from './contexts/AppContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,16 +20,16 @@ if (rootElement && !rootElement.hasAttribute('data-reactroot-initialized')) {
     // Mark as initialized to prevent double rendering
     rootElement.setAttribute('data-reactroot-initialized', 'true');
     
-    const root = createRoot(rootElement, {
-        identifierPrefix: `pptb-customapi-manager-${uuidv4()}`, // Unique prefix 
-    });
+    const root = createRoot(rootElement);
 
     root.render(
         <StrictMode>
             <QueryClientProvider client={queryClient}>
-                <FluentProvider theme={webLightTheme}> // TODO : get theme from settings
-                    <App />
-                </FluentProvider>        
+                <AppProvider>
+                    <FluentProvider theme={webLightTheme}> 
+                        <App />
+                    </FluentProvider>        
+                </AppProvider>
             </QueryClientProvider>
         </StrictMode>
     );

@@ -6,6 +6,7 @@
         "module": "ESNext",
         "skipLibCheck": true,
         "types": ["@pptb/types"],
+        "sourceMap": true,
 
         /* Bundler mode */
         "moduleResolution": "bundler",
