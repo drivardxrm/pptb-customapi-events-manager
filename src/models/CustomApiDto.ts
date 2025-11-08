@@ -10,7 +10,7 @@ export interface CustomApiDto {
   executeprivilegename: string;
   fxexpressionid : string;
   iscustomizable: boolean;
-  isfunctional: boolean;
+  isfunction: boolean;
   ismanaged: boolean;
   isprivate: boolean;
   ownerid: string;

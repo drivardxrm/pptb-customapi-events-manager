@@ -9,6 +9,7 @@ import { useSolutionsAsSelectableItems } from "./hooks/useSolutions";
 import { useCustomApisAsSelectableItems } from "./hooks/useCustomApis";
 import { useAppStore } from "./store/useAppStore";
 import { useConnectionSync } from "./hooks/useConnectionSync";
+import { useCustomApiRequestParametersAsSelectableItems } from "./hooks/useCustomApiRequestParameters";
 
 function App() {
     // Zustand store
@@ -26,6 +27,7 @@ function App() {
 
     const solutions = useSolutionsAsSelectableItems();
     const customapis = useCustomApisAsSelectableItems();
+    const requestParameters = useCustomApiRequestParametersAsSelectableItems();
 
 
     // Handle platform events (non-connection events)
@@ -89,6 +91,13 @@ function App() {
                                             addLog('Custom API selection cleared', 'warning');
                                         }
                                     }}
+                                />
+                        )}
+                        {requestParameters.items && (
+                                <GenericTagPicker 
+                                    items={requestParameters.items} 
+                                    onLog={addLog} 
+                                    onSelect={() => {}} // No action for now
                                 />
                         )}
             
