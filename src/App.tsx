@@ -1,60 +1,42 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { ConnectionStatus } from "./components/ConnectionStatus";
 import { DataverseAPIDemo } from "./components/DataverseAPIDemo";
 import { EventLog } from "./components/EventLog";
 import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
-import { useEventLog, useToolboxEvents } from "./hooks/useToolboxAPI";
-
-import { useAppContext } from "./contexts/AppContext";
-
+import { useToolboxEvents } from "./hooks/useToolboxAPI";
 import { GenericTagPicker } from "./components/GenericTagPicker";
 import { useSolutionsAsSelectableItems } from "./hooks/useSolutions";
 import { useCustomApisAsSelectableItems } from "./hooks/useCustomApis";
+import { useAppStore } from "./store/useAppStore";
+import { useConnectionSync } from "./hooks/useConnectionSync";
 
 function App() {
-    const { connection, isLoading, instanceId, refreshConnection } = useAppContext();
-    const { logs, addLog, clearLogs  } = useEventLog();
+    // Zustand store
+    const connection = useAppStore((state) => state.connection);
+    const isLoading = useAppStore((state) => state.isLoadingConnection);
+    const instanceId = useAppStore((state) => state.instanceId);
+    const logs = useAppStore((state) => state.logs);
+    const addLog = useAppStore((state) => state.addLog);
+    const clearLogs = useAppStore((state) => state.clearLogs);
+    const setSelectedSolutionId = useAppStore((state) => state.setSelectedSolutionId);
+    const setSelectedCustomApiId = useAppStore((state) => state.setSelectedCustomApiId);
+
+    // Sync connection state with events
+    useConnectionSync();
+
     const solutions = useSolutionsAsSelectableItems();
     const customapis = useCustomApisAsSelectableItems();
 
 
-    // Handle platform events
-    const handleEvent = useCallback(
-        (event: string, data: any) => {
-            
-            console.log(`App received event: ${event}`, data);
-            
-            switch (event) {
-                case 'connection:created':
-                case 'connection:updated':
-                    // if (data?.name) {
-                    //     addLog(`Connected to: ${data.name} (${data.url})`, 'success');
-                    // } else {
-                    //     addLog('Connection established', 'success');
-                    // }
-                    refreshConnection();
-                    break;
-                    
-                case 'connection:deleted':
-                    // if (data?.name) {
-                    //     addLog(`Disconnected from: ${data.name}`, 'warning');
-                    // } else {
-                    //     addLog('Connection closed', 'warning');
-                    // }
-                    refreshConnection();
-                    break;
-
-                case 'terminal:output':
-                case 'terminal:command:completed':
-                case 'terminal:error':
-                    // Terminal events handled by dedicated components
-                    break;
-            }
-        },
-        [addLog]
-    );
-
-    useToolboxEvents(handleEvent);
+    // Handle platform events (non-connection events)
+    useToolboxEvents((event: string, data: any) => {
+        console.log(`🔔 App received event: ${event}`, data);
+        
+        // Terminal events handled by dedicated components
+        if (event.startsWith('terminal:')) {
+            console.log('💻 Terminal event:', event);
+        }
+    });
 
     // Add initial log with instance ID (run only once on mount)
     useEffect(() => {
@@ -80,13 +62,35 @@ function App() {
             </header>
 
             <ConnectionStatus />
-            {solutions.items &&
-                <GenericTagPicker items={solutions.items} onLog={addLog} />
-            }
+                        {solutions.items && (
+                                <GenericTagPicker 
+                                    items={solutions.items} 
+                                    onLog={addLog} 
+                                    onSelect={(id) => {
+                                        setSelectedSolutionId(id);
+                                        if(id){
+                                            addLog(`Solution selected: ${id}`, 'success');
+                                        } else {
+                                            addLog('Solution selection cleared', 'warning');
+                                        }
+                                    }}
+                                />
+                        )}
 
-            {customapis.items &&
-                <GenericTagPicker items={customapis.items} onLog={addLog} />
-            }
+                        {customapis.items && (
+                                <GenericTagPicker 
+                                    items={customapis.items} 
+                                    onLog={addLog} 
+                                    onSelect={(id) => {
+                                        setSelectedCustomApiId(id);
+                                        if(id){
+                                            addLog(`Custom API selected: ${id}`, 'info');
+                                        } else {
+                                            addLog('Custom API selection cleared', 'warning');
+                                        }
+                                    }}
+                                />
+                        )}
             
             {/* <SolutionSelector onLog={addLog} /> */}
 

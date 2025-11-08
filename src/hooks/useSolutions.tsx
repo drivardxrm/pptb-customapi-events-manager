@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import { SolutionDto } from '../models/SolutionDto'
-import { useAppContext } from '../contexts/AppContext'
+import { useAppStore } from '../store/useAppStore'
 import { SelectableItem } from '../components/GenericTagPicker';
 import { useMemo } from 'react';
 import { LockClosedKey24Regular, LockOpen24Regular } from '@fluentui/react-icons';
 
 export const useSolutions = () => {
 
-  // Get connection and instanceId from AppContext
-  const { connection, isLoading, instanceId } = useAppContext();
+  // Get connection and instanceId from Zustand store
+  const connection = useAppStore((state) => state.connection);
+  const isLoading = useAppStore((state) => state.isLoadingConnection);
+  const instanceId = useAppStore((state) => state.instanceId);
 
 
   const { data, status, error, isFetching } =

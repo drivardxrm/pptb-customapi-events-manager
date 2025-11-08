@@ -15,9 +15,10 @@ export interface SelectableItem {
 interface GenericTagPickerProps<T extends SelectableItem> {
     items: T[]
     onLog: (message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
+    onSelect?: (id: string | null, item?: T) => void;
 }
 
-export const GenericTagPicker = <T extends SelectableItem>({ items, onLog }: GenericTagPickerProps<T>) => {
+export const GenericTagPicker = <T extends SelectableItem>({ items, onLog, onSelect }: GenericTagPickerProps<T>) => {
    
     //const { solutions } = useSolutions();
     const [query, setQuery] = useState<string>("");                     
@@ -46,9 +47,10 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, onLog }: Gen
 
     const handleClear: React.MouseEventHandler = (_event) => {
         setSelectedOption(undefined)
+        onSelect?.(null, undefined)
     };
 
-    const onOptionSelect: TagPickerProps["onOptionSelect"] = (_e, data) => {
+     const onOptionSelect: TagPickerProps["onOptionSelect"] = (_e, data) => {
         if (data.value === 'no-matches') {
         setQuery('')
         setInputFocused(false)
@@ -58,13 +60,16 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, onLog }: Gen
         // TODO SET SELECTED SOLUTION
 
         
-        if(data.value === undefined || data.value === '-1'){
-           setSelectedOption(undefined)
-           onLog(`Item selected: none`, 'info');
-        }else{
-           setSelectedOption(data.value)
-           onLog(`Item selected: ${items.find((item) => item.id === data.value)?.displayText ?? ''}`, 'info');
-        }
+          if(data.value === undefined || data.value === '-1'){
+              setSelectedOption(undefined)
+              onLog(`Item selected: none`, 'info');
+              onSelect?.(null, undefined)
+          }else{
+              setSelectedOption(data.value)
+              const item = items.find((item) => item.id === data.value)
+              onLog(`Item selected: ${item?.displayText ?? ''}`, 'info');
+              onSelect?.(data.value, item)
+          }
         setQuery('');
         setInputFocused(false);
     };

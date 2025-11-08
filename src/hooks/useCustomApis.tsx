@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useAppContext } from '../contexts/AppContext'
-
+import { useAppStore } from '../store/useAppStore'
 import { CustomApiDto } from '../models/CustomApiDto';
 import { SelectableItem } from '../components/GenericTagPicker';
 import { useMemo } from 'react';
@@ -8,8 +7,10 @@ import { useMemo } from 'react';
 
 export const useCustomApis = () => {
 
-  // Get connection and instanceId from AppContext
-  const { connection, isLoading, instanceId } = useAppContext();
+  // Get connection and instanceId from Zustand store
+  const connection = useAppStore((state) => state.connection);
+  const isLoading = useAppStore((state) => state.isLoadingConnection);
+  const instanceId = useAppStore((state) => state.instanceId);
 
 
   const { data, status, error, isFetching } =

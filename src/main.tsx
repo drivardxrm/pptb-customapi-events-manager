@@ -4,7 +4,6 @@ import App from './App';
 import './index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
-import { AppProvider } from './contexts/AppContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,11 +24,9 @@ if (rootElement && !rootElement.hasAttribute('data-reactroot-initialized')) {
     root.render(
         <StrictMode>
             <QueryClientProvider client={queryClient}>
-                <AppProvider>
-                    <FluentProvider theme={webLightTheme}> 
-                        <App />
-                    </FluentProvider>        
-                </AppProvider>
+                <FluentProvider theme={webLightTheme}> 
+                    <App />
+                </FluentProvider>
             </QueryClientProvider>
         </StrictMode>
     );
