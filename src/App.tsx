@@ -10,6 +10,7 @@ import { useCustomApisAsSelectableItems } from "./hooks/useCustomApis";
 import { useAppStore } from "./store/useAppStore";
 import { useConnectionSync } from "./hooks/useConnectionSync";
 import { useCustomApiRequestParametersAsSelectableItems } from "./hooks/useCustomApiRequestParameters";
+import { useCustomApiResponsePropertiesAsSelectableItems } from "./hooks/useCustomApiResponseProperties";
 
 function App() {
     // Zustand store
@@ -28,6 +29,7 @@ function App() {
     const solutions = useSolutionsAsSelectableItems();
     const customapis = useCustomApisAsSelectableItems();
     const requestParameters = useCustomApiRequestParametersAsSelectableItems();
+    const responseProperties = useCustomApiResponsePropertiesAsSelectableItems();
 
 
     // Handle platform events (non-connection events)
@@ -96,6 +98,13 @@ function App() {
                         {requestParameters.items && (
                                 <GenericTagPicker 
                                     items={requestParameters.items} 
+                                    onLog={addLog} 
+                                    onSelect={() => {}} // No action for now
+                                />
+                        )}
+                        {responseProperties.items && (
+                                <GenericTagPicker 
+                                    items={responseProperties.items} 
                                     onLog={addLog} 
                                     onSelect={() => {}} // No action for now
                                 />
