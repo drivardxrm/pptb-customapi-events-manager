@@ -1,4 +1,4 @@
-export interface CustomApiRequestParameterDto {
+export interface CustomApiRequestParameter {
   customapirequestparameterid: string;
   name: string;
   logicalentityname: string;

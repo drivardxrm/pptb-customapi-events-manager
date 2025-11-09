@@ -5,13 +5,14 @@ import { EventLog } from "./components/EventLog";
 import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
 import { useToolboxEvents } from "./hooks/useToolboxAPI";
 import { GenericTagPicker } from "./components/GenericTagPicker";
-import { useSolutionsAsSelectableItems } from "./hooks/useSolutions";
+import { useSolutions} from "./hooks/useSolutions";
 import { useCustomApisAsSelectableItems } from "./hooks/useCustomApis";
 import { useAppStore } from "./store/useAppStore";
 import { useConnectionSync } from "./hooks/useConnectionSync";
 import { useCustomApiRequestParametersAsSelectableItems } from "./hooks/useCustomApiRequestParameters";
 import { useCustomApiResponsePropertiesAsSelectableItems } from "./hooks/useCustomApiResponseProperties";
 import { CustomApiDetailsForm } from "./components/CustomApiDetailsForm";
+import { solutionDtoToSelectableItem } from "./models/SolutionDto";
 
 function App() {
     // Zustand store
@@ -27,7 +28,7 @@ function App() {
     // Sync connection state with events
     useConnectionSync();
 
-    const solutions = useSolutionsAsSelectableItems();
+    const solutionsQuery = useSolutions();
     const customapis = useCustomApisAsSelectableItems();
     const requestParameters = useCustomApiRequestParametersAsSelectableItems();
     const responseProperties = useCustomApiResponsePropertiesAsSelectableItems();
@@ -67,49 +68,49 @@ function App() {
             </header>
 
             <ConnectionStatus />
-                        {solutions.items && (
-                                <GenericTagPicker 
-                                    items={solutions.items} 
-                                    onLog={addLog} 
-                                    onSelect={(id) => {
-                                        setSelectedSolutionId(id);
-                                        if(id){
-                                            addLog(`Solution selected: ${id}`, 'success');
-                                        } else {
-                                            addLog('Solution selection cleared', 'warning');
-                                        }
-                                    }}
-                                />
-                        )}
+            {!solutionsQuery.isFetching && solutionsQuery.solutions && (
+                    <GenericTagPicker 
+                        items={solutionsQuery.solutions.map(s => solutionDtoToSelectableItem(s))} 
+                        onLog={addLog} 
+                        onSelect={(id) => {
+                            setSelectedSolutionId(id);
+                            if(id){
+                                addLog(`Solution selected: ${id}`, 'success');
+                            } else {
+                                addLog('Solution selection cleared', 'warning');
+                            }
+                        }}
+                    />
+            )}
 
-                        {customapis.items && (
-                                <GenericTagPicker 
-                                    items={customapis.items} 
-                                    onLog={addLog} 
-                                    onSelect={(id) => {
-                                        setSelectedCustomApiId(id);
-                                        if(id){
-                                            addLog(`Custom API selected: ${id}`, 'info');
-                                        } else {
-                                            addLog('Custom API selection cleared', 'warning');
-                                        }
-                                    }}
-                                />
-                        )}
-                        {requestParameters.items && (
-                                <GenericTagPicker 
-                                    items={requestParameters.items} 
-                                    onLog={addLog} 
-                                    onSelect={() => {}} // No action for now
-                                />
-                        )}
-                        {responseProperties.items && (
-                                <GenericTagPicker 
-                                    items={responseProperties.items} 
-                                    onLog={addLog} 
-                                    onSelect={() => {}} // No action for now
-                                />
-                        )}
+            {customapis.items && (
+                    <GenericTagPicker 
+                        items={customapis.items} 
+                        onLog={addLog} 
+                        onSelect={(id) => {
+                            setSelectedCustomApiId(id);
+                            if(id){
+                                addLog(`Custom API selected: ${id}`, 'info');
+                            } else {
+                                addLog('Custom API selection cleared', 'warning');
+                            }
+                        }}
+                    />
+            )}
+            {requestParameters.items && (
+                    <GenericTagPicker 
+                        items={requestParameters.items} 
+                        onLog={addLog} 
+                        onSelect={() => {}} // No action for now
+                    />
+            )}
+            {responseProperties.items && (
+                    <GenericTagPicker 
+                        items={responseProperties.items} 
+                        onLog={addLog} 
+                        onSelect={() => {}} // No action for now
+                    />
+            )}
             
             <CustomApiDetailsForm />
 

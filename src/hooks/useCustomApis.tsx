@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApiDto } from '../models/CustomApiDto';
 import { SelectableItem } from '../components/GenericTagPicker';
 import { useMemo } from 'react';
+import { CustomApi } from '../models/CustomApi';
 
 
 export const useCustomApis = () => {
@@ -14,12 +14,12 @@ export const useCustomApis = () => {
 
 
   const { data, status, error, isFetching } =
-    useQuery<{ value: CustomApiDto[] }, Error>(
+    useQuery<{ value: CustomApi[] }, Error>(
       {
         queryKey: ['customapi', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           const result = await window.dataverseAPI.queryData("customapis");
-          return result as unknown as { value: CustomApiDto[] };
+          return result as unknown as { value: CustomApi[] };
         },
         enabled: !!connection && !isLoading,
         staleTime: Infinity

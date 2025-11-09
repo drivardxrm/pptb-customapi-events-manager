@@ -1,4 +1,4 @@
-export interface CustomApiResponsePropertyDto {
+export interface CustomApiResponseProperty {
   customapiresponsepropertyid: string;
   name: string;
   logicalentityname: string;

@@ -1,4 +1,4 @@
-export interface CustomApiDto {
+export interface CustomApi {
   customapiid: string;
   name: string;
   allowedcustomprocessingsteptype: number;

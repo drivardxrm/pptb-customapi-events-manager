@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { SolutionDto } from '../models/SolutionDto'
+
 import { useAppStore } from '../store/useAppStore'
-import { SelectableItem } from '../components/GenericTagPicker';
-import { useMemo } from 'react';
-import { LockClosedKey24Regular, LockOpen24Regular } from '@fluentui/react-icons';
+import { Solution } from '../models/Solution';
+
 
 export const useSolutions = () => {
 
@@ -14,12 +13,13 @@ export const useSolutions = () => {
 
 
   const { data, status, error, isFetching } =
-    useQuery<{ value: SolutionDto[] }, Error>(
+    useQuery<{ value: Solution[] }, Error>(
       {
         queryKey: ['solutions', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           const result = await window.dataverseAPI.getSolutions(["solutionid", "uniquename", "friendlyname", "version", "ismanaged"]);
-          return result as unknown as { value: SolutionDto[] };
+          console.log('Fetched solutions:', result);
+          return result as unknown as { value: Solution[] };
         },
         enabled: !!connection && !isLoading,
         staleTime: Infinity
@@ -32,18 +32,18 @@ export const useSolutions = () => {
   }
 }
 
-export const useSolutionsAsSelectableItems = () => {
-  const { solutions, status, error, isFetching } = useSolutions();
+// export const useSolutionsAsSelectableItems = () => {
+//   const { solutions, status, error, isFetching } = useSolutions();
 
-  const items: SelectableItem[] = useMemo(
-    () =>
-      solutions.map(s => ({
-        id: s.solutionid,
-        displayText: s.uniquename,
-        image : s.ismanaged ? <LockClosedKey24Regular /> : <LockOpen24Regular />
-      })),
-    [solutions]
-  );
+//   const items: SelectableItem[] = useMemo(
+//     () =>
+//       solutions.map(s => ({
+//         id: s.solutionid,
+//         displayText: s.uniquename,
+//         image : s.ismanaged ? <LockClosedKey24Regular /> : <LockOpen24Regular />
+//       })),
+//     [solutions]
+//   );
 
-  return { items, status, error, isFetching };
-};
+//   return { items, status, error, isFetching };
+// };
