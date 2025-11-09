@@ -11,6 +11,7 @@ import { useAppStore } from "./store/useAppStore";
 import { useConnectionSync } from "./hooks/useConnectionSync";
 import { useCustomApiRequestParametersAsSelectableItems } from "./hooks/useCustomApiRequestParameters";
 import { useCustomApiResponsePropertiesAsSelectableItems } from "./hooks/useCustomApiResponseProperties";
+import { CustomApiDetailsForm } from "./components/CustomApiDetailsForm";
 
 function App() {
     // Zustand store
@@ -110,6 +111,8 @@ function App() {
                                 />
                         )}
             
+            <CustomApiDetailsForm />
+
             {/* <SolutionSelector onLog={addLog} /> */}
 
             <ToolboxAPIDemo onLog={addLog} />
