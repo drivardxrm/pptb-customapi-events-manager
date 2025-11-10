@@ -11,6 +11,7 @@ import { useAppStore } from "./store/useAppStore";
 import { useConnectionSync } from "./hooks/useConnectionSync";
 import { CustomApiDetailsForm } from "./components/CustomApiDetailsForm";
 import { CustomApiSelectorForm } from "./components/CustomApiSelectorForm";
+import { useToolBoxEvents } from "./hooks/useToolBoxEvents";
 
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
     const addLog = useAppStore((state) => state.addLog);
     const clearLogs = useAppStore((state) => state.clearLogs);
     
+    //subscribe to events
+    useToolBoxEvents();
 
     // Sync connection state with events
     useConnectionSync();

@@ -35,57 +35,58 @@ interface AppState {
 }
 
     export const useAppStore = create<AppState>((set) => ({
-    // Initial state
-    connection: null,
-    isLoadingConnection: true,
-    instanceId: uuidv4(),
-    logs: [],
+        // Initial state
+        connection: null,
+        isLoadingConnection: true,
+        instanceId: uuidv4(),
+        logs: [],
 
-    selectedSolutionId: null,
-    selectedCustomApiId: null,
+        selectedSolutionId: null,
+        selectedCustomApiId: null,
 
-    // Connection actions
-    setConnection: (connection) => set({ connection }),
-    
-    setIsLoadingConnection: (isLoading) => set({ isLoadingConnection: isLoading }),
+        // Connection actions
+        setConnection: (connection) => set({ connection }),
+        
+        setIsLoadingConnection: (isLoading) => set({ isLoadingConnection: isLoading }),
 
-    refreshConnection: async () => {
-        try {
-            set({ isLoadingConnection: true });
-            console.log('Fetching active connection...');
-            const conn = await window.toolboxAPI.connections.getActiveConnection();
-            console.log('Active connection result:', conn);
-            
-            // Handle case where API returns null/undefined or empty object
-            if (!conn || !conn.id) {
-                console.log('No valid active connection, setting to null');
+        refreshConnection: async () => {
+            try {
+                set({ isLoadingConnection: true });
+                console.log('Fetching active connection...');
+                const conn = await window.toolboxAPI.connections.getActiveConnection();
+                console.log('Active connection result:', conn);
+                
+                // Handle case where API returns null/undefined or empty object
+                if (!conn || !conn.id) {
+                    console.log('No valid active connection, setting to null');
+                    set({ connection: null });
+                } else {
+                    console.log('Setting active connection:', conn.name);
+                    set({ connection: conn });
+                }
+            } catch (error) {
+                console.error('Error refreshing connection:', error);
                 set({ connection: null });
-            } else {
-                console.log('Setting active connection:', conn.name);
-                set({ connection: conn });
+            } finally {
+                set({ isLoadingConnection: false });
             }
-        } catch (error) {
-            console.error('Error refreshing connection:', error);
-            set({ connection: null });
-        } finally {
-            set({ isLoadingConnection: false });
-        }
-    },
+        },
 
-    setSelectedSolutionId: (solutionId) => set({ selectedSolutionId: solutionId }),
-    setSelectedCustomApiId: (customApiId) => set({ selectedCustomApiId: customApiId }),
-    // Log actions
-    addLog: (message, type = 'info') => {
-        const newLog: LogEntry = {
-            timestamp: new Date(),
-            message,
-            type,
-        };
-        set((state) => ({
-            logs: [newLog, ...state.logs.slice(0, 49)], // Keep last 50 entries
-        }));
-        console.log(`[${type.toUpperCase()}] ${message}`);
-    },
+        setSelectedSolutionId: (solutionId) => set({ selectedSolutionId: solutionId }),
+        setSelectedCustomApiId: (customApiId) => set({ selectedCustomApiId: customApiId }),
+        // Log actions
+        addLog: (message, type = 'info') => {
+            const newLog: LogEntry = {
+                timestamp: new Date(),
+                message,
+                type,
+            };
+            set((state) => ({
+                logs: [newLog, ...state.logs.slice(0, 49)], // Keep last 50 entries
+            }));
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        },
 
-    clearLogs: () => set({ logs: [] }),
-}));
+        clearLogs: () => set({ logs: [] }),
+    })
+);
