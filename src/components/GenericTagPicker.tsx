@@ -14,18 +14,17 @@ export interface SelectableItem {
 
 interface GenericTagPickerProps<T extends SelectableItem> {
     items: T[]
-    onLog: (message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
+    isDisabled?: boolean;
     onSelect?: (id: string | null, item?: T) => void;
 }
 
-export const GenericTagPicker = <T extends SelectableItem>({ items, onLog, onSelect }: GenericTagPickerProps<T>) => {
+export const GenericTagPicker = <T extends SelectableItem>({ items, isDisabled, onSelect }: GenericTagPickerProps<T>) => {
    
     //const { solutions } = useSolutions();
     const [query, setQuery] = useState<string>("");                     
     const [isFocused, setIsFocused] = useState(false);
     const [isInputFocused, setInputFocused] = useState(false);
     const [selectedOption, setSelectedOption] = useState<string | undefined>(undefined);
-    const [isDisabled] = useState(false)
     const styles = useStyles()
 
 
@@ -62,12 +61,10 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, onLog, onSel
         
           if(data.value === undefined || data.value === '-1'){
               setSelectedOption(undefined)
-              onLog(`Item selected: none`, 'info');
               onSelect?.(null, undefined)
           }else{
               setSelectedOption(data.value)
               const item = items.find((item) => item.id === data.value)
-              onLog(`Item selected: ${item?.displayText ?? ''}`, 'info');
               onSelect?.(data.value, item)
           }
         setQuery('');
@@ -156,17 +153,10 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, onLog, onSel
                             shape={'rounded'}
                             size={'medium'}
                             appearance={'outline'}
-                            // media={
-                            // options.find((option) => option.id === selectedOption)?.imagesrc &&
-                            //     <Image
-                            //         alt={options.find((option) => option.id === selectedOption)?.displaytext}
-                            //         key={options.find((option) => option.id === selectedOption)?.id}
-                            //         shape="square"
-                            //         src={options.find((option) => option.id === selectedOption)?.imagesrc}
-                            //         height={24}
-                            //     />
-                            
-                            // }
+                            media={
+                                items.find((item) => item.id === selectedOption)?.image
+                            }
+                           
                             value={selectedOption}
                             title={items.find((item) => item.id === selectedOption)?.displayText}
                             dismissible = {false}

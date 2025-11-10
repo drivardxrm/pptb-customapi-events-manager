@@ -1,7 +1,41 @@
 import { makeStyles,  tokens } from '@fluentui/react-components';
 
 export const useStyles = makeStyles({
-
+  card: {
+        width: '100%',
+        maxWidth: '1200px',
+        marginTop: tokens.spacingVerticalM,
+    },
+    formGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: tokens.spacingVerticalM,
+        padding: tokens.spacingVerticalL,
+    },
+    formSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: tokens.spacingVerticalS,
+    },
+    fullWidth: {
+        gridColumn: '1 / -1',
+    },
+    readOnlyInput: {
+        backgroundColor: tokens.colorNeutralBackground3,
+    },
+    badgeContainer: {
+        display: 'flex',
+        gap: tokens.spacingHorizontalS,
+        flexWrap: 'wrap',
+        marginTop: tokens.spacingVerticalXS,
+    },
+    infoBox: {
+        padding: tokens.spacingVerticalM,
+        backgroundColor: tokens.colorNeutralBackground3,
+        borderRadius: tokens.borderRadiusMedium,
+        textAlign: 'center',
+        color: tokens.colorNeutralForeground3,
+    },
   tagPickerControl: {
     minWidth: '200px',
     paddingLeft: '3px',

@@ -13,6 +13,8 @@ interface AppState {
     isLoadingConnection: boolean;
     instanceId: string;
 
+    
+
     selectedSolutionId: string | null;
     selectedCustomApiId: string | null;
 

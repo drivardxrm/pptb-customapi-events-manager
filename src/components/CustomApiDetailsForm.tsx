@@ -7,50 +7,13 @@ import {
     Badge,
     Card,
     CardHeader,
-    makeStyles,
-    tokens,
     Divider
 } from '@fluentui/react-components';
 import { useAppStore } from '../store/useAppStore';
 import { useCustomApis } from '../hooks/useCustomApis';
+import { useStyles } from '../styles/Styles';
 
-const useStyles = makeStyles({
-    card: {
-        width: '100%',
-        maxWidth: '1200px',
-        marginTop: tokens.spacingVerticalM,
-    },
-    formGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: tokens.spacingVerticalM,
-        padding: tokens.spacingVerticalL,
-    },
-    formSection: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: tokens.spacingVerticalS,
-    },
-    fullWidth: {
-        gridColumn: '1 / -1',
-    },
-    readOnlyInput: {
-        backgroundColor: tokens.colorNeutralBackground3,
-    },
-    badgeContainer: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalS,
-        flexWrap: 'wrap',
-        marginTop: tokens.spacingVerticalXS,
-    },
-    infoBox: {
-        padding: tokens.spacingVerticalM,
-        backgroundColor: tokens.colorNeutralBackground3,
-        borderRadius: tokens.borderRadiusMedium,
-        textAlign: 'center',
-        color: tokens.colorNeutralForeground3,
-    },
-});
+
 
 export const CustomApiDetailsForm: React.FC = () => {
     const styles = useStyles();

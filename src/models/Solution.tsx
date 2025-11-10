@@ -10,9 +10,9 @@ export interface Solution {
 }
 
 /**
- * Transforms a SolutionDto into a SelectableItem for picker components.
+ * Transforms a Solution into a SelectableItem for picker components.
  */
-export function solutionDtoToSelectableItem(solution: Solution): SelectableItem {
+export function solutionToSelectableItem(solution: Solution): SelectableItem {
   return {
     id: solution.solutionid,
     displayText: solution.uniquename,
