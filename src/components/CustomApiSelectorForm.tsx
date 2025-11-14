@@ -5,15 +5,17 @@ import {
     CardHeader,
     Divider,
     RadioGroup,
-    Radio
+    Radio,
+    Input,
+    ToggleButton
 } from '@fluentui/react-components';
 import { useAppStore } from '../store/useAppStore';
 import { useStyles } from '../styles/Styles';
 import { useSolutions } from '../hooks/useSolutions';
-import { GenericTagPicker } from './GenericTagPicker';
-import { solutionToSelectableItem } from '../models/Solution';
+import { GenericTagPicker, SelectableItem } from './GenericTagPicker';
 import { useCustomApis } from '../hooks/useCustomApis';
-import { customapiToSelectableItem } from '../models/CustomApi';
+import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCircleColor } from '@fluentui/react-icons';
+
 
 
 
@@ -27,7 +29,11 @@ export const CustomApiSelectorForm: React.FC = () => {
     const solutionsQuery = useSolutions();
     const customapisQuery = useCustomApis();
     const [filter, setFilter] = useState<string>("all");   
-    
+    const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true);
+    const [showSolutionManaged, setShowSolutionManaged] = useState(true);
+
+    const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true);
+    const [showCustomApiManaged, setShowCustomApiManaged] = useState(true);
 
     if (!isLoading && connection?.isActive === false) {
         return (
@@ -65,17 +71,71 @@ export const CustomApiSelectorForm: React.FC = () => {
                     
                 </div>
                 <div className={styles.formSection}>
-                    <Field label="Solution">
+                    <Field label={
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>Solution</span>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                                <ToggleButton
+                                    appearance='secondary'
+                                    size="small"
+                                    icon={<LockOpen16Regular />}
+                                    checked={showSolutionUnmanaged}
+                                    onClick={() => setShowSolutionUnmanaged(!showSolutionUnmanaged)}
+                                    title="Show Unmanaged"
+                                >
+                                    <>
+                                        Unmanaged
+                                        {showSolutionUnmanaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
+                                        
+                                    </>
+                                </ToggleButton>
+                                <ToggleButton
+                                    appearance='secondary'
+                                    size="small"
+                                    icon={<LockClosed16Regular />}
+                                    checked={showSolutionManaged}
+                                    onClick={() => setShowSolutionManaged(!showSolutionManaged)}
+                                    title="Show Managed"
+                                >
+                                    <>
+                                        Managed
+                                        {showSolutionManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
+                                    </>
+                                </ToggleButton>
+                            </div>
+                        </div>
+                    }>
+                        {solutionsQuery.isFetching && (
+                            <Input 
+                                value={"Loading solutions..."} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {solutionsQuery.error && (
+                            <Input 
+                                value={`Error loading solutions: ${solutionsQuery.error.message}`} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
                         {!solutionsQuery.isFetching && solutionsQuery.solutions && (
                             <GenericTagPicker 
-                                items={solutionsQuery.solutions.map(s => solutionToSelectableItem(s))} 
+                                items={solutionsQuery.solutions
+                                                                .filter(s => (s.ismanaged && showSolutionManaged) || (!s.ismanaged && showSolutionUnmanaged))
+                                                                .map(s => ({
+                                                                        id: s.solutionid,
+                                                                        displayText: `${s.friendlyname} (${s.uniquename})`,
+                                                                        image: s.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />
+                                                                    } as SelectableItem)      
+                                                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
                                 isDisabled={filter !== 'solution'} 
                                 onSelect={(id) => {
                                     setSelectedSolutionId(id);
                                     if(id){
-                                        addLog(`Solution selected: ${id}`, 'success');
+                                        addLog(`Solution selected: ${id}`, 'info');
                                     } else {
-                                        addLog('Solution selection cleared', 'warning');
+                                        addLog('Solution selection cleared', 'info');
                                     }
                                 }}
                             />
@@ -86,10 +146,64 @@ export const CustomApiSelectorForm: React.FC = () => {
             </div>
             <div className={styles.formGrid}>
                 <div className={styles.formSection}>
-                    <Field label="Custom API">
+                    <Field label={
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>Custom API</span>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                                <ToggleButton
+                                    appearance='secondary'
+                                    size="small"
+                                    icon={<LockOpen16Regular />}
+                                    checked={showCustomApiUnmanaged}
+                                    onClick={() => setShowCustomApiUnmanaged(!showCustomApiUnmanaged)}
+                                    title="Show Unmanaged"
+                                >
+                                    <>
+                                        Unmanaged
+                                        {showCustomApiUnmanaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
+                                        
+                                    </>
+                                </ToggleButton>
+                                <ToggleButton
+                                    appearance='secondary'
+                                    size="small"
+                                    icon={<LockClosed16Regular />}
+                                    checked={showCustomApiManaged}
+                                    onClick={() => setShowCustomApiManaged(!showCustomApiManaged)}
+                                    title="Show Managed"
+                                >
+                                    <>
+                                        Managed
+                                        {showCustomApiManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
+                                    </>
+                                </ToggleButton>
+                            </div>
+                        </div>
+                    }>
+                        {customapisQuery.isFetching && (
+
+                             <Input 
+                                value={"Loading custom apis..."} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {customapisQuery.error && (
+                            <Input 
+                                value={`Error loading custom apis: ${customapisQuery.error.message}`} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
                         {!customapisQuery.isFetching && customapisQuery.customapis && (
                             <GenericTagPicker 
-                                items={customapisQuery.customapis.map(c => customapiToSelectableItem(c))}
+                                items={customapisQuery.customapis
+                                    .filter(s => (s.ismanaged && showCustomApiManaged) || (!s.ismanaged && showCustomApiUnmanaged))
+                                    .map(c => ({
+                                        id: c.customapiid,
+                                        displayText: `${c.name} (${c.uniquename})`
+                                    } as SelectableItem)      
+                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
                                 onSelect={(id) => {
                                     setSelectedCustomApiId(id);
                                     if(id){

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export type LogEntry = {
     timestamp: Date;
@@ -6,20 +6,20 @@ export type LogEntry = {
     type: 'info' | 'success' | 'warning' | 'error';
 };
 
-export function useToolboxEvents(onEvent: (event: string, data: any) => void) {
-    useEffect(() => {
-        const handler = (_event: any, payload: ToolBoxAPI.ToolBoxEventPayload) => {
-            onEvent(payload.event, payload.data);
-        };
+// export function useToolboxEvents(onEvent: (event: string, data: any) => void) {
+//     useEffect(() => {
+//         const handler = (_event: any, payload: ToolBoxAPI.ToolBoxEventPayload) => {
+//             onEvent(payload.event, payload.data);
+//         };
 
-        window.toolboxAPI.events.on(handler);
+//         window.toolboxAPI.events.on(handler);
 
-        return () => {
-            // Note: Current API doesn't support unsubscribe
-            // This would need to be added to the API
-        };
-    }, [onEvent]);
-}
+//         return () => {
+//             // Note: Current API doesn't support unsubscribe
+//             // This would need to be added to the API
+//         };
+//     }, [onEvent]);
+// }
 
 export function useEventLog() {
     const [logs, setLogs] = useState<LogEntry[]>([]);

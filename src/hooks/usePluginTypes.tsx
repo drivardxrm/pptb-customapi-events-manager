@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-
 import { useAppStore } from '../store/useAppStore'
-import { Solution } from '../models/Solution';
+import { PluginType } from '../models/PluginType';
 
 
-export const useSolutions = () => {
+export const usePluginTypes = () => {
 
   // Get connection and instanceId from Zustand store
   const connection = useAppStore((state) => state.connection);
@@ -12,15 +11,15 @@ export const useSolutions = () => {
   const instanceId = useAppStore((state) => state.instanceId);
 
 
+
   const { data, status, error, isFetching } =
-    useQuery<{ value: Solution[] }, Error>(
+    useQuery<{ value: PluginType[] }, Error>(
       {
-        queryKey: ['solutions', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
+        queryKey: ['plugintypes', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          // TODO Ensure connection is valid
-          const result = await window.dataverseAPI.getSolutions(["solutionid", "uniquename", "friendlyname", "version", "ismanaged"]);
-          console.log('Fetched solutions:', result);
-          return result as unknown as { value: Solution[] };
+          const result = window.dataverseAPI.queryData('plugintypes?$select=plugintypeid,typename,ismanaged'); // todo limit fields for perf
+          console.log('Fetched plugintypes:', result);
+          return result as unknown as { value: PluginType[] };
         },
         enabled: !!connection && !isLoading,
         staleTime: Infinity
@@ -28,7 +27,8 @@ export const useSolutions = () => {
     )
 
   return {
-    solutions: data?.value || [],
+    plugintypes: data?.value || [],
     status, error, isFetching
   }
 }
+

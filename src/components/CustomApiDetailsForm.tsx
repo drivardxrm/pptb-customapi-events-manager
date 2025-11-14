@@ -1,29 +1,112 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Field, 
     Input,
     Textarea,
     Switch,
-    Badge,
     Card,
     CardHeader,
-    Divider
+    Divider,
+    Button,
+    Spinner,
 } from '@fluentui/react-components';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useAppStore } from '../store/useAppStore';
 import { useCustomApis } from '../hooks/useCustomApis';
 import { useStyles } from '../styles/Styles';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePrivileges } from '../hooks/usePrivileges';
+import { GenericTagPicker, SelectableItem } from './GenericTagPicker';
+import { usePluginTypes } from '../hooks/usePluginTypes';
 
 
 
 export const CustomApiDetailsForm: React.FC = () => {
     const styles = useStyles();
     const selectedCustomApiId = useAppStore((state) => state.selectedCustomApiId);
+    const addLog = useAppStore((state) => state.addLog);
     const { customapis } = useCustomApis();
+    const privilegesQuery = usePrivileges();
+    const pluginTypesQuery = usePluginTypes();
+    const queryClient = useQueryClient();
 
-    const selectedCustomApi = React.useMemo(
+
+    const selectedCustomApi = useMemo(
         () => customapis.find((api) => api.customapiid === selectedCustomApiId),
         [customapis, selectedCustomApiId]
     );
+
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [editedData, setEditedData] = useState<{ 
+        displayname: string; 
+        executeprivilegename: string;
+        plugintypeid: string;}
+        >(
+        { displayname: '', executeprivilegename: '', plugintypeid: '' }
+    );
+
+    // Sync editedData when selection changes
+    useEffect(() => {
+        if (selectedCustomApi) {
+            setEditedData({
+                displayname: selectedCustomApi.displayname || '',
+                executeprivilegename: selectedCustomApi.executeprivilegename || '',
+                plugintypeid: selectedCustomApi.plugintypeid || ''
+            });
+            setIsEditMode(false);
+        }
+    }, [selectedCustomApi]);
+
+    const handleEdit = () => setIsEditMode(true);
+    const handleCancel = () => {
+        if (selectedCustomApi) {
+            setEditedData({
+                displayname: selectedCustomApi.displayname || '',
+                executeprivilegename: selectedCustomApi.executeprivilegename || '',
+                plugintypeid: selectedCustomApi.plugintypeid || ''
+            });
+        }
+        setIsEditMode(false);
+    };
+
+    const handleSave = async () => {
+        if (!selectedCustomApi) return;
+        try {
+            setIsSaving(true);
+            addLog('Saving Custom API changes...', 'info');
+            // Build payload with only changed fields
+            const original = {
+                displayname: selectedCustomApi.displayname || '',
+                executeprivilegename: selectedCustomApi.executeprivilegename || '',
+                plugintypeid: selectedCustomApi.plugintypeid || ''
+            };
+            const payload: Record<string, any> = {};
+            if (editedData.displayname !== original.displayname) {
+                payload.displayname = editedData.displayname || null;
+            }
+            if (editedData.executeprivilegename !== original.executeprivilegename) {
+                payload.executeprivilegename = editedData.executeprivilegename || null;
+            }
+            if (editedData.plugintypeid !== original.plugintypeid) {
+                payload.plugintypeid = editedData.plugintypeid || null;
+            }
+            if (Object.keys(payload).length === 0) {
+                addLog('No changes to save', 'warning');
+                setIsEditMode(false);
+                return;
+            }
+            await window.dataverseAPI.update('customapi', selectedCustomApi.customapiid, payload);
+            await queryClient.invalidateQueries({ queryKey: ['customapi'] }); // todo might not be needed
+            addLog(`Custom API '${selectedCustomApi.uniquename}' updated successfully`, 'success');
+            setIsEditMode(false);
+        } catch (e) {
+            console.error('Error saving Custom API', e);
+            addLog('Failed to save Custom API changes', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     if (!selectedCustomApiId || !selectedCustomApi) {
         return (
@@ -58,15 +141,45 @@ export const CustomApiDetailsForm: React.FC = () => {
     return (
         <Card className={styles.card}>
             <CardHeader 
-                header={<h3>Custom API Details</h3>}
-                description={selectedCustomApi.displayname || selectedCustomApi.uniquename}
+                header={
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <h3 style={{ margin: 0 }}>Custom API Details</h3>
+                        
+                    </div>
+                }
+                description={
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <h2 style={{ margin: 0 }}>{selectedCustomApi.displayname || selectedCustomApi.uniquename}</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
+                            <LockClosed16Regular />
+                            <span>Fields that cannot be modified after creation</span>
+                        </div>
+                    </div>    
+                    
+                }
+                action={
+                    !isEditMode ? (
+                        <Button appearance="primary" icon={<Edit24Regular />} onClick={handleEdit}>Edit</Button>
+                    ) : (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <Button appearance="primary" icon={isSaving ? <Spinner size="tiny" /> : <Save24Regular />} disabled={isSaving} onClick={handleSave}>
+                                {isSaving ? 'Saving...' : 'Save'}
+                            </Button>
+                            <Button appearance="secondary" icon={<Dismiss24Regular />} disabled={isSaving} onClick={handleCancel}>Cancel</Button>
+                        </div>
+                    )
+                }
             />
             <Divider />
             
             <div className={styles.formGrid}>
                 {/* Basic Information */}
                 <div className={styles.formSection}>
-                    <Field label="Unique Name" required>
+                    <Field label={
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            Unique Name <LockClosed16Regular />
+                        </span>
+                    }>
                         <Input 
                             value={selectedCustomApi.uniquename || ''} 
                             readOnly 
@@ -78,9 +191,10 @@ export const CustomApiDetailsForm: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Display Name">
                         <Input 
-                            value={selectedCustomApi.displayname || ''} 
-                            readOnly 
-                            className={styles.readOnlyInput}
+                            value={isEditMode ? editedData.displayname : (selectedCustomApi.displayname || '')} 
+                            readOnly={!isEditMode} 
+                            className={!isEditMode ? styles.readOnlyInput : undefined}
+                            onChange={(e) => isEditMode && setEditedData({ ...editedData, displayname: e.target.value })}
                         />
                     </Field>
                 </div>
@@ -109,7 +223,10 @@ export const CustomApiDetailsForm: React.FC = () => {
 
                 {/* Configuration */}
                 <div className={styles.formSection}>
-                    <Field label="Binding Type">
+                    <Field label={
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            Binding Type <LockClosed16Regular />
+                        </span>}>
                         <Input 
                             value={getBindingTypeLabel(selectedCustomApi.bindingtype)} 
                             readOnly 
@@ -120,7 +237,10 @@ export const CustomApiDetailsForm: React.FC = () => {
 
                 {selectedCustomApi.bindingtype === 1 && (
                     <div className={styles.formSection}>
-                        <Field label="Bound Entity Logical Name">
+                        <Field label={
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                Bound Entity Logical Name <LockClosed16Regular />
+                            </span>}>
                             <Input 
                                 value={selectedCustomApi.boundentitylogicalname || ''} 
                                 readOnly 
@@ -131,7 +251,10 @@ export const CustomApiDetailsForm: React.FC = () => {
                 )}
 
                 <div className={styles.formSection}>
-                    <Field label="Allowed Custom Processing Step Type">
+                    <Field label={
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                Allowed Custom Processing Step Type <LockClosed16Regular />
+                            </span>}>
                         <Input 
                             value={getAllowedCustomProcessingStepTypeLabel(selectedCustomApi.allowedcustomprocessingsteptype)} 
                             readOnly 
@@ -142,19 +265,59 @@ export const CustomApiDetailsForm: React.FC = () => {
 
                 <div className={styles.formSection}>
                     <Field label="Execute Privilege Name">
-                        <Input 
-                            value={selectedCustomApi.executeprivilegename || '(None)'} 
-                            readOnly 
-                            className={styles.readOnlyInput}
-                        />
+                        {privilegesQuery.isFetching && (
+                            <Input 
+                                value={"Loading privileges..."} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {privilegesQuery.error && (
+                            <Input 
+                                value={`Error loading privileges: ${privilegesQuery.error.message}`} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {!privilegesQuery.isFetching && privilegesQuery.privileges && (
+                            <GenericTagPicker 
+                                 items={privilegesQuery.privileges.map(p => ({
+                                        id: p.privilegeid,
+                                        displayText: p.name || ''
+                                    } as SelectableItem)      
+                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
+                                initialValue={selectedCustomApi.executeprivilegename}
+                                isDisabled={!isEditMode} 
+                                onSelect={(id) => {
+                                    isEditMode && setEditedData({ ...editedData, executeprivilegename: privilegesQuery.privileges.find(priv => priv.privilegeid === id)?.name || '' })                                      
+                                }}
+                            />
+                        )}
                     </Field>
                 </div>
 
                 {/* Boolean Flags */}
                 <div className={styles.formSection}>
-                    <Field label="Is Function">
+                    <Field label={
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            Is Function <LockClosed16Regular />
+                        </span>
+                    }>
                         <Switch 
                             checked={selectedCustomApi.isfunction} 
+                            disabled 
+                        />
+                    </Field>
+                </div>
+
+                <div className={styles.formSection}>
+                    <Field label={
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            Workflow SDK Step Enabled <LockClosed16Regular />
+                        </span>
+                    }>
+                        <Switch 
+                            checked={selectedCustomApi.workflowsdkstepenabled} 
                             disabled 
                         />
                     </Field>
@@ -170,15 +333,18 @@ export const CustomApiDetailsForm: React.FC = () => {
                 </div>
 
                 <div className={styles.formSection}>
-                    <Field label="Workflow SDK Step Enabled">
+                    <Field label="Is Customizable">
                         <Switch 
-                            checked={selectedCustomApi.workflowsdkstepenabled} 
+                            checked={selectedCustomApi.iscustomizable} 
                             disabled 
                         />
                     </Field>
                 </div>
 
-                {/* System Information */}
+
+                
+
+                {/* System Information
                 <div className={`${styles.formSection} ${styles.fullWidth}`}>
                     <Field label="Status">
                         <div className={styles.badgeContainer}>
@@ -199,52 +365,50 @@ export const CustomApiDetailsForm: React.FC = () => {
                             </Badge>
                         </div>
                     </Field>
-                </div>
+                </div> */}
 
-                {/* IDs */}
-                <div className={styles.formSection}>
-                    <Field label="Custom API ID">
-                        <Input 
-                            value={selectedCustomApi.customapiid} 
-                            readOnly 
-                            className={styles.readOnlyInput}
-                            size="small"
-                        />
-                    </Field>
-                </div>
+              
 
                 <div className={styles.formSection}>
                     <Field label="Plugin Type ID">
-                        <Input 
+                        {/* <Input 
                             value={selectedCustomApi.plugintypeid || '(None)'} 
                             readOnly 
                             className={styles.readOnlyInput}
                             size="small"
-                        />
+                        /> */}
+                        {pluginTypesQuery.isFetching && (
+                            <Input 
+                                value={"Loading plugintypes..."} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {pluginTypesQuery.error && (
+                            <Input 
+                                value={`Error loading privileges: ${pluginTypesQuery.error.message}`} 
+                                readOnly 
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {!pluginTypesQuery.isFetching && pluginTypesQuery.plugintypes && (
+                            <GenericTagPicker 
+                                items={pluginTypesQuery.plugintypes.map(p => ({
+                                        id: p.plugintypeid,
+                                        displayText: p.typename || '',
+                                        image: p.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />
+                                    } as SelectableItem)      
+                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
+                                initialValue={selectedCustomApi.plugintypeid}
+                                isDisabled={!isEditMode} 
+                                onSelect={(id) => {
+                                    isEditMode && setEditedData({ ...editedData, plugintypeid: id || '' })                                      
+                                }}
+                            />
+                        )}
                     </Field>
                 </div>
 
-                <div className={styles.formSection}>
-                    <Field label="Solution ID">
-                        <Input 
-                            value={selectedCustomApi.solutionid} 
-                            readOnly 
-                            className={styles.readOnlyInput}
-                            size="small"
-                        />
-                    </Field>
-                </div>
-
-                <div className={styles.formSection}>
-                    <Field label="Owner ID">
-                        <Input 
-                            value={selectedCustomApi.ownerid} 
-                            readOnly 
-                            className={styles.readOnlyInput}
-                            size="small"
-                        />
-                    </Field>
-                </div>
             </div>
         </Card>
     );

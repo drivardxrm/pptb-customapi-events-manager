@@ -1,5 +1,5 @@
 import { Button, mergeClasses, Tag, TagPicker, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerList, TagPickerOption, TagPickerProps, useTagPickerFilter } from '@fluentui/react-components';
-import React, { JSX, useMemo, useState } from 'react';
+import React, { JSX, useMemo, useState, useEffect } from 'react';
 import { useStyles } from '../styles/Styles';
 import { ChevronDown20Regular, DismissRegular } from '@fluentui/react-icons';
 
@@ -14,18 +14,26 @@ export interface SelectableItem {
 
 interface GenericTagPickerProps<T extends SelectableItem> {
     items: T[]
+    initialValue?: string;
     isDisabled?: boolean;
     onSelect?: (id: string | null, item?: T) => void;
 }
 
-export const GenericTagPicker = <T extends SelectableItem>({ items, isDisabled, onSelect }: GenericTagPickerProps<T>) => {
+export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue, isDisabled, onSelect }: GenericTagPickerProps<T>) => {
    
     //const { solutions } = useSolutions();
     const [query, setQuery] = useState<string>("");                     
     const [isFocused, setIsFocused] = useState(false);
     const [isInputFocused, setInputFocused] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<string | undefined>(undefined);
+    const [selectedOption, setSelectedOption] = useState<string | undefined>(initialValue);
     const styles = useStyles()
+
+    // Sync selectedOption when initialValue changes
+    useEffect(() => {
+        if (initialValue !== undefined) {
+            setSelectedOption(initialValue);
+        }
+    }, [initialValue]);
 
 
 

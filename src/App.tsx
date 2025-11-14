@@ -3,7 +3,6 @@ import { ConnectionStatus } from "./components/ConnectionStatus";
 import { DataverseAPIDemo } from "./components/DataverseAPIDemo";
 import { EventLog } from "./components/EventLog";
 import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
-import { useToolboxEvents } from "./hooks/useToolboxAPI";
 
 
 
@@ -28,20 +27,6 @@ function App() {
 
     // Sync connection state with events
     useConnectionSync();
-
-
-
-
-
-    // Handle platform events (non-connection events)
-    useToolboxEvents((event: string, data: any) => {
-        console.log(`🔔 App received event: ${event}`, data);
-        
-        // Terminal events handled by dedicated components
-        if (event.startsWith('terminal:')) {
-            console.log('💻 Terminal event:', event);
-        }
-    });
 
     // Add initial log with instance ID (run only once on mount)
     useEffect(() => {

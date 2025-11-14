@@ -1,5 +1,3 @@
-import { SelectableItem } from "../components/GenericTagPicker";
-
 export interface CustomApi {
   customapiid: string;
   name: string;
@@ -24,13 +22,4 @@ export interface CustomApi {
 
 }
 
-/**
- * Transforms a CustumApi into a SelectableItem for picker components.
- */
-export function customapiToSelectableItem(customapi: CustomApi): SelectableItem {
-  return {
-    id: customapi.customapiid,
-    displayText: customapi.name,
-    image: null 
-  };
-}
+
