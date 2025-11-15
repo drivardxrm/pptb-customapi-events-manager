@@ -1,13 +1,10 @@
-import React from 'react';
 import { Card, CardHeader, Divider, Button, tokens } from '@fluentui/react-components';
 import { Delete24Regular } from '@fluentui/react-icons';
 import type { LogEntry } from '../hooks/useToolboxAPI';
 import { useStyles } from '../styles/Styles';
+import { useAppStore } from '../store/useAppStore';
 
-interface EventLogProps {
-    logs: LogEntry[];
-    onClear: () => void;
-}
+
 
 const getLogColors = (type: LogEntry['type']) => {
     switch (type) {
@@ -22,8 +19,10 @@ const getLogColors = (type: LogEntry['type']) => {
     }
 };
 
-export const EventLog: React.FC<EventLogProps> = ({ logs, onClear }) => {
+export const EventLog = () => {
     const styles = useStyles();
+    const logs = useAppStore((state) => state.logs);
+    const clearLogs = useAppStore((state) => state.clearLogs);
     
     return (
         <Card className={styles.card}>
@@ -33,7 +32,7 @@ export const EventLog: React.FC<EventLogProps> = ({ logs, onClear }) => {
                     <Button 
                         appearance="secondary" 
                         icon={<Delete24Regular />}
-                        onClick={onClear}
+                        onClick={clearLogs}
                     >
                         Clear Log
                     </Button>

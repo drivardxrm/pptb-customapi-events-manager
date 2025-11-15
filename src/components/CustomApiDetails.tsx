@@ -21,7 +21,7 @@ import { usePluginTypes } from '../hooks/usePluginTypes';
 
 
 
-export const CustomApiDetailsForm: React.FC = () => {
+export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
     const selectedCustomApiId = useAppStore((state) => state.selectedCustomApiId);
     const addLog = useAppStore((state) => state.addLog);

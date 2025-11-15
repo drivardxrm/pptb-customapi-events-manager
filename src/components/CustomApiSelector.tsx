@@ -19,7 +19,7 @@ import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCi
 
 
 
-export const CustomApiSelectorForm: React.FC = () => {
+export const CustomApiSelector: React.FC = () => {
     const styles = useStyles();
     const connection = useAppStore((state) => state.connection);
     const isLoading = useAppStore((state) => state.isLoadingConnection);
