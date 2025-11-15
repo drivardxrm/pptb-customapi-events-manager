@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_SETTINGS, Settings, getAllSettings, setSetting } from '../services/settings';
 
 export type LogEntry = {
     timestamp: Date;
@@ -14,12 +15,16 @@ interface AppState {
     instanceId: string;
 
     
-
     selectedSolutionId: string | null;
     selectedCustomApiId: string | null;
 
     // Logs state
     logs: LogEntry[];
+
+    // Settings state
+    settings: Settings;
+
+    isLoadingSettings: boolean;
 
     // Actions
     setConnection: (connection: ToolBoxAPI.DataverseConnection | null) => void;
@@ -32,14 +37,21 @@ interface AppState {
     // Log actions
     addLog: (message: string, type?: LogEntry['type']) => void;
     clearLogs: () => void;
+
+    // Settings actions
+    loadSettings: () => Promise<void>;
+    updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => Promise<void>;
 }
 
-    export const useAppStore = create<AppState>((set) => ({
+    export const useAppStore = create<AppState>((set, get) => ({
         // Initial state
         connection: null,
         isLoadingConnection: true,
         instanceId: uuidv4(),
         logs: [],
+
+        settings: DEFAULT_SETTINGS,
+        isLoadingSettings: true,
 
         selectedSolutionId: null,
         selectedCustomApiId: null,
@@ -88,5 +100,54 @@ interface AppState {
         },
 
         clearLogs: () => set({ logs: [] }),
+
+        // Settings actions
+        loadSettings: async () => {
+            try {
+                set({ isLoadingSettings: true });
+                const loaded = await getAllSettings();
+                set({ settings: loaded });
+                set((state) => ({
+                    logs: [
+                        { timestamp: new Date(), message: 'Settings loaded', type: 'success' },
+                        ...state.logs.slice(0, 49),
+                    ],
+                }));
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                set((state) => ({
+                    logs: [
+                        { timestamp: new Date(), message: 'Failed to load settings', type: 'warning' },
+                        ...state.logs.slice(0, 49),
+                    ],
+                }));
+            } finally {
+                set({ isLoadingSettings: false });
+            }
+        },
+
+        updateSetting: async (key, value) => {
+            const prev = get().settings[key];
+            // optimistic update
+            set({ settings: { ...get().settings, [key]: value } as Settings });
+            const ok = await setSetting(key, value as any);
+            if (!ok) {
+                // rollback and log error
+                set({ settings: { ...get().settings, [key]: prev } as Settings });
+                set((state) => ({
+                    logs: [
+                        { timestamp: new Date(), message: `Failed to persist setting: ${String(key)}`, type: 'error' },
+                        ...state.logs.slice(0, 49),
+                    ],
+                }));
+            } else {
+                set((state) => ({
+                    logs: [
+                        { timestamp: new Date(), message: `Setting updated: ${String(key)}`, type: 'success' },
+                        ...state.logs.slice(0, 49),
+                    ],
+                }));
+            }
+        },
     })
 );

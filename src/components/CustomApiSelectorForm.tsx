@@ -31,7 +31,6 @@ export const CustomApiSelectorForm: React.FC = () => {
     const [filter, setFilter] = useState<string>("all");   
     const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true);
     const [showSolutionManaged, setShowSolutionManaged] = useState(true);
-
     const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true);
     const [showCustomApiManaged, setShowCustomApiManaged] = useState(true);
 

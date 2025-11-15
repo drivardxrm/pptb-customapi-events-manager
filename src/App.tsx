@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { ConnectionStatus } from "./components/ConnectionStatus";
-import { DataverseAPIDemo } from "./components/DataverseAPIDemo";
 import { EventLog } from "./components/EventLog";
-import { ToolboxAPIDemo } from "./components/ToolboxAPIDemo";
 
 
 
@@ -21,6 +19,7 @@ function App() {
     const logs = useAppStore((state) => state.logs);
     const addLog = useAppStore((state) => state.addLog);
     const clearLogs = useAppStore((state) => state.clearLogs);
+    const loadSettings = useAppStore((state) => state.loadSettings);
     
     //subscribe to events
     useToolBoxEvents();
@@ -31,6 +30,8 @@ function App() {
     // Add initial log with instance ID (run only once on mount)
     useEffect(() => {
         addLog(`Dataverse Custom API Manager initialized (Instance: ${instanceId})`, 'success');
+        // Hydrate settings once at startup
+        loadSettings();
     }, [addLog, instanceId]);
 
     // Log initial connection status
@@ -54,27 +55,8 @@ function App() {
             <ConnectionStatus />
             
             <CustomApiSelectorForm />
-            
-            {/* {requestParameters.items && (
-                    <GenericTagPicker 
-                        items={requestParameters.items} 
-                        onSelect={() => {}} // No action for now
-                    />
-            )}
-            {responseProperties.items && (
-                    <GenericTagPicker 
-                        items={responseProperties.items} 
-                        onSelect={() => {}} // No action for now
-                    />
-            )} */}
-            
+             
             <CustomApiDetailsForm />
-
-            {/* <SolutionSelector onLog={addLog} /> */}
-
-            <ToolboxAPIDemo onLog={addLog} />
-
-            <DataverseAPIDemo connection={connection} onLog={addLog} />
 
             <EventLog logs={logs} onClear={clearLogs} />
         </>
