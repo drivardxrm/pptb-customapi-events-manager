@@ -12,7 +12,7 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { useStyles } from '../styles/Styles';
 import { useSolutions } from '../hooks/useSolutions';
-import { GenericTagPicker, SelectableItem } from './GenericTagPicker';
+import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
 import { useCustomApis } from '../hooks/useCustomApis';
 import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 

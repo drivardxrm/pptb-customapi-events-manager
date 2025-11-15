@@ -1,6 +1,6 @@
 import { Button, mergeClasses, Tag, TagPicker, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerList, TagPickerOption, TagPickerProps, useTagPickerFilter } from '@fluentui/react-components';
 import React, { JSX, useMemo, useState, useEffect } from 'react';
-import { useStyles } from '../styles/Styles';
+import { useStyles } from '../../styles/Styles';
 import { ChevronDown20Regular, DismissRegular } from '@fluentui/react-icons';
 
 

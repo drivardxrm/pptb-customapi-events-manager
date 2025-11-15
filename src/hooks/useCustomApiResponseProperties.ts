@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { useMemo } from 'react';
-import { SelectableItem } from '../components/GenericTagPicker';
 import { CustomApiResponseProperty } from '../models/CustomApiResponseProperty';
 
 
@@ -34,18 +32,4 @@ export const useCustomApiResponseProperties = () => {
   }
 }
 
-export const useCustomApiResponsePropertiesAsSelectableItems = () => {
-  const { responseProperties, status, error, isFetching } = useCustomApiResponseProperties();
 
-  const items: SelectableItem[] = useMemo(
-    () =>
-      responseProperties.map(c => ({
-        id: c.customapiresponsepropertyid,
-        displayText: c.uniquename,
-        image : null
-      })),
-    [responseProperties]
-  );
-
-  return { items, status, error, isFetching };
-};

@@ -16,7 +16,7 @@ import { useCustomApis } from '../hooks/useCustomApis';
 import { useStyles } from '../styles/Styles';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePrivileges } from '../hooks/usePrivileges';
-import { GenericTagPicker, SelectableItem } from './GenericTagPicker';
+import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
 import { usePluginTypes } from '../hooks/usePluginTypes';
 
 
@@ -344,28 +344,6 @@ export const CustomApiDetailsForm: React.FC = () => {
 
                 
 
-                {/* System Information
-                <div className={`${styles.formSection} ${styles.fullWidth}`}>
-                    <Field label="Status">
-                        <div className={styles.badgeContainer}>
-                            <Badge 
-                                appearance="filled" 
-                                color={selectedCustomApi.ismanaged ? 'important' : 'success'}
-                            >
-                                {selectedCustomApi.ismanaged ? 'Managed' : 'Unmanaged'}
-                            </Badge>
-                            <Badge 
-                                appearance="filled" 
-                                color={selectedCustomApi.iscustomizable ? 'informative' : 'warning'}
-                            >
-                                {selectedCustomApi.iscustomizable ? 'Customizable' : 'Not Customizable'}
-                            </Badge>
-                            <Badge appearance="outline">
-                                State: {selectedCustomApi.statecode === 0 ? 'Active' : 'Inactive'}
-                            </Badge>
-                        </div>
-                    </Field>
-                </div> */}
 
               
 

@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-
-import { useMemo } from 'react';
-import { SelectableItem } from '../components/GenericTagPicker';
 import { CustomApiRequestParameter } from '../models/CustomApiRequestParameter';
 
 
@@ -35,18 +32,4 @@ export const useCustomApiRequestParameters = () => {
   }
 }
 
-export const useCustomApiRequestParametersAsSelectableItems = () => {
-  const { requestParameters, status, error, isFetching } = useCustomApiRequestParameters();
 
-  const items: SelectableItem[] = useMemo(
-    () =>
-      requestParameters.map(c => ({
-        id: c.customapirequestparameterid,
-        displayText: c.uniquename,
-        image : null
-      })),
-    [requestParameters]
-  );
-
-  return { items, status, error, isFetching };
-};
