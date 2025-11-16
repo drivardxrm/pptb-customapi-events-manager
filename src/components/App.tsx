@@ -73,11 +73,33 @@ function App() {
     const addLog = useAppStore((state) => state.addLog);
     //const clearLogs = useAppStore((state) => state.clearLogs);
     const loadSettings = useAppStore((state) => state.loadSettings);
+    const [navCollapsed, setNavCollapsed] = useState(false);
 
     const [selectedNavItem, setSelectedNavItem] = useState<NavSection>('customapi');
     
+    //icons bundle
+    const ConnectionIcon = bundleIcon(
+        PlugConnected24Filled,
+        PlugConnected24Regular
+    );
+    const SettingsIcon = bundleIcon(
+        Settings24Filled,
+        Settings24Regular
+    );
+    const AboutIcon = bundleIcon(
+        Info24Filled,
+        Info24Regular
+    );
 
-    //Menu Icons
+
+
+    const navItems = [
+        { value: 'customapi', icon: <ServerMultipleRegular />, label: 'Custom API' },
+        { value: 'connection', icon: <ConnectionIcon />, label: 'Connection' },
+        { value: 'logs', icon: <ClipboardBulletListRegular />, label: 'Logs' },
+        { value: 'settings', icon: <SettingsIcon />, label: 'Settings' },
+        { value: 'about', icon: <AboutIcon />, label: 'About' },
+    ];
 
 
 
@@ -105,20 +127,16 @@ function App() {
         }
     }, [connection, isLoading, addLog]);
 
-    //icons bundle
-    const ConnectionIcon = bundleIcon(
-        PlugConnected24Filled,
-        PlugConnected24Regular
-    );
-    const SettingsIcon = bundleIcon(
-        Settings24Filled,
-        Settings24Regular
-    );
-    const AboutIcon = bundleIcon(
-        Info24Filled,
-        Info24Regular
-    );
 
+    const handleNavItemSelect = (
+        _event: Event | React.SyntheticEvent<Element, Event>,
+        data: OnNavItemSelectData
+    ) => {
+        //setSelectedCategoryValue(data.categoryValue as string);
+        setSelectedNavItem(data.value as NavSection);
+    };
+
+     // Render content based on selected navigation item
     const renderContent = () => {
         switch (selectedNavItem) {
             case 'connection':
@@ -141,14 +159,6 @@ function App() {
         }
     };
 
-    const handleItemSelect = (
-        _event: Event | React.SyntheticEvent<Element, Event>,
-        data: OnNavItemSelectData
-    ) => {
-        //setSelectedCategoryValue(data.categoryValue as string);
-        setSelectedNavItem(data.value as NavSection);
-    };
-
     return (
         <>
             {/* <header className="header">
@@ -161,52 +171,29 @@ function App() {
                     <NavDrawer
                         tabbable={true} // enables keyboard tabbing
                         selectedValue={selectedNavItem}
-                        onNavItemSelect={handleItemSelect}
+                        onNavItemSelect={handleNavItemSelect}
                         type={"inline"}
                         open={true}
                         className={styles.nav}
                     >
                         <NavDrawerHeader>
-                            <Tooltip content="Navigation" relationship="label">
-                                <Hamburger />
+                            <Tooltip content={navCollapsed ? "Expand menu" : "Collapse menu"} relationship="label">
+                                <Hamburger onClick={() => setNavCollapsed((prev) => !prev)} />
                             </Tooltip>
                         </NavDrawerHeader>
 
                         <NavDrawerBody>
                             <AppItem icon={<PlugConnected32Regular />} as="a">
-                                Custom API Manager
+                                {!navCollapsed ? "Custom API Manager" : null}
                             </AppItem>
                             
-                            <NavItem 
-                                icon={<ServerMultipleRegular />} 
-                                value="customapi"
-                            >
-                                Custom API
-                            </NavItem>
-                            <NavItem 
-                                icon={<ConnectionIcon />} 
-                                value="connection"
-                            >
-                                Connection
-                            </NavItem>
-                            <NavItem 
-                                icon={<ClipboardBulletListRegular />} 
-                                value="logs"
-                            >
-                                Logs
-                            </NavItem>
-                            <NavItem 
-                                icon={<SettingsIcon />} 
-                                value="settings"
-                            >
-                                Settings
-                            </NavItem>
-                            <NavItem 
-                                icon={<AboutIcon />} 
-                                value="about"
-                            >
-                                About
-                            </NavItem>
+                            {navItems.map(item => (
+                                <Tooltip key={item.value} content={item.label} relationship="label" visible={navCollapsed}>
+                                    <NavItem icon={item.icon} value={item.value}>
+                                        {!navCollapsed ? item.label : null}
+                                    </NavItem>
+                                </Tooltip>
+                            ))}
                         </NavDrawerBody>
                         
                     </NavDrawer>
