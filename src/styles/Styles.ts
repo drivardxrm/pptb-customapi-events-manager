@@ -1,6 +1,20 @@
 import { makeStyles,  tokens } from '@fluentui/react-components';
 
 export const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    gap: tokens.spacingHorizontalM,
+    height: '100vh',
+    padding: tokens.spacingVerticalL,
+  },
+  nav: {
+    minWidth: "200px",
+  },
+  content: {
+      flex: 1,
+      overflowY: 'auto',
+      paddingBottom: tokens.spacingVerticalXXL,
+  },
   card: {
         width: '100%',
         maxWidth: '1200px',

@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import App from './components/App';
 import './index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
@@ -24,7 +24,7 @@ if (rootElement && !rootElement.hasAttribute('data-reactroot-initialized')) {
     root.render(
         <StrictMode>
             <QueryClientProvider client={queryClient}>
-                <FluentProvider theme={webLightTheme}> 
+                <FluentProvider theme={webLightTheme}>  // todo get from settings
                     <App />
                 </FluentProvider>
             </QueryClientProvider>
