@@ -5,7 +5,7 @@ export const useStyles = makeStyles({
     display: 'flex',
     gap: tokens.spacingHorizontalM,
     height: '100vh',
-    padding: tokens.spacingVerticalM,
+    padding: tokens.spacingVerticalL,
   },
   nav: {
     minWidth: "200px",

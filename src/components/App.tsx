@@ -160,6 +160,25 @@ function App() {
         }
     };
 
+    // Get background color based on environment
+    const getEnvironmentColor = () => {
+        if (!connection?.environment) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Default purple gradient
+        
+        const env = connection.environment.toLowerCase();
+        switch (env) {
+            case 'production':
+                return 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)'; // Red gradient
+            case 'uat':
+                return 'linear-gradient(135deg, #ffc107 0%, #e0a800 100%)'; // Yellow gradient
+            case 'test':
+                return 'linear-gradient(135deg, #17a2b8 0%, #138496 100%)'; // Cyan gradient
+            case 'dev':
+                return 'linear-gradient(135deg, #28a745 0%, #218838 100%)'; // Green gradient
+            default:
+                return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Default purple gradient
+        }
+    };
+
     return (
         <>
             {/* <header className="header">
@@ -167,7 +186,7 @@ function App() {
                 <p className="subtitle">A comprehensive management tool for Dataverse Custom APIs</p>
             </header> */}
 
-            <div className={styles.container}> 
+            <div className={styles.container} style={{ background: getEnvironmentColor() }}> 
                 <div className={styles.nav}>
                     <NavDrawer
                         tabbable={true} // enables keyboard tabbing
