@@ -10,13 +10,15 @@ import {
     AppItem
 } from "@fluentui/react-components";
 import { 
-    PlugConnected24Regular, 
     ServerMultipleRegular, 
     ClipboardBulletListRegular, 
     Info24Regular,
     Settings24Regular,
     Settings24Filled,
-    PlugConnectedSettingsRegular, 
+    PlugConnected32Regular, 
+    PlugConnected24Regular,
+    PlugConnected24Filled,
+    Info24Filled,
     bundleIcon
 } from "@fluentui/react-icons";
 import { ConnectionStatus } from "./ConnectionStatus";
@@ -104,9 +106,17 @@ function App() {
     }, [connection, isLoading, addLog]);
 
     //icons bundle
+    const ConnectionIcon = bundleIcon(
+        PlugConnected24Filled,
+        PlugConnected24Regular
+    );
     const SettingsIcon = bundleIcon(
         Settings24Filled,
         Settings24Regular
+    );
+    const AboutIcon = bundleIcon(
+        Info24Filled,
+        Info24Regular
     );
 
     const renderContent = () => {
@@ -163,41 +173,37 @@ function App() {
                         </NavDrawerHeader>
 
                         <NavDrawerBody>
-                            <AppItem icon={<PlugConnectedSettingsRegular />} as="a">
+                            <AppItem icon={<PlugConnected32Regular />} as="a">
                                 Custom API Manager
                             </AppItem>
-                            <NavItem 
-                            icon={<PlugConnected24Regular />} 
-                            value="connection"
-                            //onClick={() => setSelectedNav('connection')}
-                            >
-                                Connection
-                            </NavItem>
+                            
                             <NavItem 
                                 icon={<ServerMultipleRegular />} 
                                 value="customapi"
-                                //onClick={() => setSelectedNav('customapi')}
                             >
                                 Custom API
                             </NavItem>
                             <NavItem 
+                                icon={<ConnectionIcon />} 
+                                value="connection"
+                            >
+                                Connection
+                            </NavItem>
+                            <NavItem 
                                 icon={<ClipboardBulletListRegular />} 
                                 value="logs"
-                                //onClick={() => setSelectedNav('logs')}
                             >
                                 Logs
                             </NavItem>
                             <NavItem 
                                 icon={<SettingsIcon />} 
                                 value="settings"
-                                //onClick={() => setSelectedNav('settings')}
                             >
                                 Settings
                             </NavItem>
                             <NavItem 
-                                icon={<Info24Regular />} 
+                                icon={<AboutIcon />} 
                                 value="about"
-                                //onClick={() => setSelectedNav('about')}
                             >
                                 About
                             </NavItem>
