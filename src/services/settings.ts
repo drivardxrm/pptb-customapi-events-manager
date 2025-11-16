@@ -31,11 +31,15 @@ export async function setSetting<K extends keyof Settings>(key: K, value: Settin
 }
 
 export async function getAllSettings(): Promise<Settings> {
-    const entries = await Promise.all(
-        (Object.keys(DEFAULT_SETTINGS) as Array<keyof Settings>).map(async (k) => {
-            const v = await getSetting(k);
-            return [k, v === undefined ? DEFAULT_SETTINGS[k] : v] as const;
-        })
-    );
-    return Object.fromEntries(entries) as Settings;
+    try {
+        const allSettings = await window.toolboxAPI.settings.getSettings();
+        // Merge with defaults to ensure all required keys exist
+        return {
+            ...DEFAULT_SETTINGS,
+            ...allSettings
+        } as Settings;
+    } catch {
+        // Fallback to defaults when host read fails
+        return DEFAULT_SETTINGS;
+    }
 }

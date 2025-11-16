@@ -5,10 +5,19 @@ export const useStyles = makeStyles({
     display: 'flex',
     gap: tokens.spacingHorizontalM,
     height: '100vh',
-    padding: tokens.spacingVerticalL,
+    padding: tokens.spacingVerticalM,
   },
   nav: {
-    minWidth: '200px',
+    minWidth: "200px",
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    '& .fui-NavItem__content::after': {
+      borderLeftWidth: '2px',
+    },
+    '& .fui-NavDrawer': {
+      height: '100%',
+    },
   },
   content: {
       flex: 1,

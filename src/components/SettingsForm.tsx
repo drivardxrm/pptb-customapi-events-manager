@@ -12,16 +12,16 @@ import {
 import { Save24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
 import { useStyles } from '../styles/Styles';
 import { useAppStore } from '../store/useAppStore';
-import type { Settings as SettingsType } from '../services/settings';
+import type { Settings } from '../services/settings';
 
-export const Settings: React.FC = () => {
+export const SettingsForm: React.FC = () => {
     const styles = useStyles();
     const settings = useAppStore((state) => state.settings);
     const isLoadingSettings = useAppStore((state) => state.isLoadingSettings);
     const updateSetting = useAppStore((state) => state.updateSetting);
     const addLog = useAppStore((state) => state.addLog);
 
-    const [localSettings, setLocalSettings] = useState<SettingsType>(settings);
+    const [localSettings, setLocalSettings] = useState<Settings>(settings);
     const [isSaving, setIsSaving] = useState(false);
 
     // Sync local state when store settings change

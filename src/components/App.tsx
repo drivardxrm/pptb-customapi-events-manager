@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { 
+    Image,
     NavDrawer,
     NavDrawerBody,
     NavDrawerHeader,
@@ -15,7 +16,7 @@ import {
     Info24Regular,
     Settings24Regular,
     Settings24Filled,
-    PlugConnected32Regular, 
+    //PlugConnected32Regular, 
     PlugConnected24Regular,
     PlugConnected24Filled,
     Info24Filled,
@@ -29,8 +30,9 @@ import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
 import { CustomApiSelector } from "./CustomApiSelector";
 import { CustomApiDetails } from "./CustomApiDetails";
-import { Settings } from "./Settings";
 import { useStyles } from '../styles/Styles';
+import logoImage from '../assets/logo_customapi.png';
+import { SettingsForm } from "./SettingsForm";
 
 
 
@@ -63,7 +65,6 @@ type NavSection = 'connection' | 'customapi' | 'logs' | 'settings' | 'about';
 function App() {
     //const styles = useAppStyles();
     const styles = useStyles();
-    //const [selectedNav, setSelectedNav] = useState<NavSection>('connection');
     
     // Zustand store
     const connection = useAppStore((state) => state.connection);
@@ -151,7 +152,7 @@ function App() {
             case 'logs':
                 return <EventLog/>;
             case 'settings':
-                return <Settings />;
+                return <SettingsForm />;
             case 'about':
                 return <About />;
             default:
@@ -183,7 +184,14 @@ function App() {
                         </NavDrawerHeader>
 
                         <NavDrawerBody>
-                            <AppItem icon={<PlugConnected32Regular />} as="a">
+                            <AppItem icon={
+                                <Image
+                                    alt="Custom API Manager logo"
+                                    src={logoImage}
+                                    height={40}
+                                    width={40}
+                                />} as="a"
+                            >
                                 {!navCollapsed ? "Custom API Manager" : null}
                             </AppItem>
                             
