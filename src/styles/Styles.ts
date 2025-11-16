@@ -5,13 +5,23 @@ export const useStyles = makeStyles({
     display: 'flex',
     gap: tokens.spacingHorizontalM,
     height: '100vh',
-    padding: tokens.spacingVerticalL,
+    padding: tokens.spacingVerticalS,
+  },
+  appWrapper: {
+    display: 'flex',
+    gap: tokens.spacingHorizontalM,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: tokens.borderRadiusMedium,
+    overflow: 'hidden',
   },
   nav: {
     minWidth: "200px",
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    backgroundColor: 'white',
     '& .fui-NavItem__content::after': {
       borderLeftWidth: '2px',
     },
@@ -23,6 +33,7 @@ export const useStyles = makeStyles({
       flex: 1,
       overflowY: 'auto',
       paddingBottom: tokens.spacingVerticalXXL,
+      backgroundColor: 'white',
   },
   card: {
       width: '100%',
