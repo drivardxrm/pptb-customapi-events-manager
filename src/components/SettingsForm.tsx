@@ -13,6 +13,7 @@ import { Save24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
 import { useStyles } from '../styles/Styles';
 import { useAppStore } from '../store/useAppStore';
 import type { Settings } from '../services/settings';
+import { usePublishers } from '../hooks/usePublishers';
 
 export const SettingsForm: React.FC = () => {
     const styles = useStyles();
@@ -20,6 +21,8 @@ export const SettingsForm: React.FC = () => {
     const isLoadingSettings = useAppStore((state) => state.isLoadingSettings);
     const updateSetting = useAppStore((state) => state.updateSetting);
     const addLog = useAppStore((state) => state.addLog);
+
+    const publishersQuery = usePublishers()
 
     const [localSettings, setLocalSettings] = useState<Settings>(settings);
     const [isSaving, setIsSaving] = useState(false);

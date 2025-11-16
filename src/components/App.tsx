@@ -8,7 +8,8 @@ import {
     Tooltip,
     Hamburger,
     OnNavItemSelectData,
-    AppItem
+    AppItem,
+    mergeClasses
 } from "@fluentui/react-components";
 import { 
     ServerMultipleRegular, 
@@ -160,22 +161,18 @@ function App() {
         }
     };
 
-    // Get background color based on environment
-    const getEnvironmentColor = () => {
-        if (!connection?.environment) return 'linear-gradient(135deg, #8f9ff7 0%, #9d8bc0 100%)'; // Default medium purple gradient
+    // Get environment-specific class based on environment
+    const getEnvironmentClass = () => {
+        if (!connection?.environment) return styles.containerDefault;
         
         const env = connection.environment.toLowerCase();
         switch (env) {
             case 'production':
-                return 'linear-gradient(135deg, #e57373 0%, #dc6b73 100%)'; // Medium red gradient
+                return styles.containerProduction;
             case 'uat':
-                return 'linear-gradient(135deg, #ffd54f 0%, #ffc933 100%)'; // Medium yellow gradient
-            case 'test':
-                return 'linear-gradient(135deg, #4dd0e1 0%, #26c6da 100%)'; // Medium cyan gradient
-            case 'dev':
-                return 'linear-gradient(135deg, #66bb6a 0%, #4caf50 100%)'; // Medium green gradient
+                return styles.containerUat;
             default:
-                return 'linear-gradient(135deg, #8f9ff7 0%, #9d8bc0 100%)'; // Default medium purple gradient
+                return styles.containerDefault;
         }
     };
 
@@ -186,7 +183,7 @@ function App() {
                 <p className="subtitle">A comprehensive management tool for Dataverse Custom APIs</p>
             </header> */}
 
-            <div className={styles.container} style={{ background: getEnvironmentColor() }}> 
+            <div className={mergeClasses(styles.container, getEnvironmentClass())}> 
                 <div className={styles.appWrapper}>
                     <div className={styles.nav}>
                     <NavDrawer

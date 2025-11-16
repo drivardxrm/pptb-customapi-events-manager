@@ -7,6 +7,15 @@ export const useStyles = makeStyles({
     height: '100vh',
     padding: tokens.spacingVerticalS,
   },
+  containerProduction: {
+    background: tokens.colorPaletteRedBackground3,
+  },
+  containerUat: {
+    background: tokens.colorPaletteYellowBackground2,
+  },
+  containerDefault: {
+    background: tokens.colorNeutralBackground1,
+  },
   appWrapper: {
     display: 'flex',
     gap: tokens.spacingHorizontalM,
