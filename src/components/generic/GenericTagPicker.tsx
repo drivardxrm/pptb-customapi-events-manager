@@ -14,7 +14,7 @@ export interface SelectableItem {
 
 interface GenericTagPickerProps<T extends SelectableItem> {
     items: T[]
-    initialValue?: string;
+    initialValue?: string ;
     isDisabled?: boolean;
     onSelect?: (id: string | null, item?: T) => void;
 }

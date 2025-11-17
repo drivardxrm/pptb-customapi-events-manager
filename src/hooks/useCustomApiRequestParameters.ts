@@ -18,7 +18,7 @@ export const useCustomApiRequestParameters = () => {
       {
         queryKey: ['customapirequestparameter', selectedCustomApiId, instanceId, connection?.id], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          const result = await window.dataverseAPI.queryData(`customapirequestparameters?$filter=_customapiid_value eq ${selectedCustomApiId}`);
+          const result = window.dataverseAPI.queryData(`customapirequestparameters?$filter=_customapiid_value eq ${selectedCustomApiId}`);
           return result as unknown as { value: CustomApiRequestParameter[] };
         },
         enabled: !!connection && !isLoading,

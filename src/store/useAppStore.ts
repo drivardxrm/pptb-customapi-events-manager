@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import { DEFAULT_SETTINGS, Settings, getAllSettings, setSetting } from '../services/settings';
+import { AppSettings, DEFAULT_SETTINGS } from '../models/AppSettings';
 
 export type LogEntry = {
     timestamp: Date;
@@ -22,9 +22,10 @@ interface AppState {
     logs: LogEntry[];
 
     // Settings state
-    settings: Settings;
+    settings: AppSettings;
 
     isLoadingSettings: boolean;
+    loadingSettingsError?: string;
 
     // Actions
     setConnection: (connection: ToolBoxAPI.DataverseConnection | null) => void;
@@ -40,7 +41,7 @@ interface AppState {
 
     // Settings actions
     loadSettings: () => Promise<void>;
-    updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => Promise<void>;
+    updateSettings: (updated:AppSettings) => Promise<void>;
 }
 
     export const useAppStore = create<AppState>((set, get) => ({
@@ -94,7 +95,7 @@ interface AppState {
                 type,
             };
             set((state) => ({
-                logs: [newLog, ...state.logs.slice(0, 49)], // Keep last 50 entries
+                logs: [newLog, ...state.logs], // Keep last 50 entries
             }));
             console.log(`[${type.toUpperCase()}] ${message}`);
         },
@@ -105,20 +106,33 @@ interface AppState {
         loadSettings: async () => {
             try {
                 set({ isLoadingSettings: true });
-                const loaded = await getAllSettings();
+                // const allSettings = await window.toolboxAPI.settings.getSettings();
+                // const loaded = mapRecordToSettings(allSettings);
+
+                const defaultPublisherId = await window.toolboxAPI.settings.getSetting('defaultPublisherId');
+                const requestParameterDefaultName = await window.toolboxAPI.settings.getSetting('requestParameterDefaultName');
+                const responsePropertyDefaultName = await window.toolboxAPI.settings.getSetting('responsePropertyDefaultName');
+
+                const loaded: AppSettings = {
+                    defaultPublisherId: defaultPublisherId ?? DEFAULT_SETTINGS.defaultPublisherId,
+                    requestParameterDefaultName: requestParameterDefaultName ?? DEFAULT_SETTINGS.requestParameterDefaultName,
+                    responsePropertyDefaultName: responsePropertyDefaultName ?? DEFAULT_SETTINGS.responsePropertyDefaultName,
+                };
+
                 set({ settings: loaded });
                 set((state) => ({
                     logs: [
                         { timestamp: new Date(), message: 'Settings loaded', type: 'success' },
-                        ...state.logs.slice(0, 49),
+                        ...state.logs,
                     ],
                 }));
             } catch (error) {
                 console.error('Error loading settings:', error);
+                set({ loadingSettingsError: (error as Error).message });
                 set((state) => ({
                     logs: [
                         { timestamp: new Date(), message: 'Failed to load settings', type: 'warning' },
-                        ...state.logs.slice(0, 49),
+                        ...state.logs,
                     ],
                 }));
             } finally {
@@ -126,27 +140,36 @@ interface AppState {
             }
         },
 
-        updateSetting: async (key, value) => {
-            const prev = get().settings[key];
-            // optimistic update
-            set({ settings: { ...get().settings, [key]: value } as Settings });
-            const ok = await setSetting(key, value as any);
-            if (!ok) {
-                // rollback and log error
-                set({ settings: { ...get().settings, [key]: prev } as Settings });
-                set((state) => ({
-                    logs: [
-                        { timestamp: new Date(), message: `Failed to persist setting: ${String(key)}`, type: 'error' },
-                        ...state.logs.slice(0, 49),
-                    ],
-                }));
-            } else {
-                set((state) => ({
-                    logs: [
-                        { timestamp: new Date(), message: `Setting updated: ${String(key)}`, type: 'success' },
-                        ...state.logs.slice(0, 49),
-                    ],
-                }));
+        updateSettings: async (updated: AppSettings) => {
+            const current = get().settings;
+            
+            // Compare and update only changed properties
+            const changedKeys: (keyof AppSettings)[] = [];
+            for (const key in updated) {
+                if (updated.hasOwnProperty(key)) {
+                    const typedKey = key as keyof AppSettings;
+                    if (updated[typedKey] !== current[typedKey]) {
+                        changedKeys.push(typedKey);
+                    }
+                }
+            }
+
+            // Optimistic update
+            set({ settings: updated });
+
+            // Persist each changed setting
+            try {
+                await Promise.all(
+                    changedKeys.map(key => 
+                        window.toolboxAPI.settings.setSetting(key, updated[key] as any)
+                    )
+                );
+                
+            } catch (error) {
+                // Rollback on failure
+                set({ settings: current });
+                // throw error to be handled by caller
+                throw error;
             }
         },
     })

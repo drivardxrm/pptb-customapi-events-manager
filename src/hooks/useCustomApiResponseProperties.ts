@@ -18,7 +18,7 @@ export const useCustomApiResponseProperties = () => {
       {
         queryKey: ['customapiresponseproperty', selectedCustomApiId, instanceId, connection?.id], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          const result = await window.dataverseAPI.queryData(`customapiresponseproperties?$filter=_customapiid_value eq ${selectedCustomApiId}`);
+          const result = window.dataverseAPI.queryData(`customapiresponseproperties?$filter=_customapiid_value eq ${selectedCustomApiId}`);
           return result as unknown as { value: CustomApiResponseProperty[] };
         },
         enabled: !!connection && !isLoading && !!selectedCustomApiId,
