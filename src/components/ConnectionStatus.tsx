@@ -5,10 +5,10 @@ import { useStyles } from '../styles/Styles';
 
 export const ConnectionStatus: React.FC = () => {
     const styles = useStyles();
-    const connection = useAppStore((state) => state.connection);
-    const isLoading = useAppStore((state) => state.isLoadingConnection);
+    const {connection, isLoadingConnection} = useAppStore();
+
     
-    if (isLoading) {
+    if (isLoadingConnection) {
         return (
             <Card className={styles.card}>
                 <CardHeader header={<h3>🔗 Connection Status</h3>} />

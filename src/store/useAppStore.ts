@@ -56,20 +56,21 @@ interface AppState {
         refreshConnection: async () => {
             try {
                 set({ isLoadingConnection: true });
-                console.log('Fetching active connection...');
+                //console.log('Fetching active connection...');
                 const conn = await window.toolboxAPI.connections.getActiveConnection();
-                console.log('Active connection result:', conn);
+            
+                //console.log('Active connection result:', conn);
                 
                 // Handle case where API returns null/undefined or empty object
                 if (!conn || !conn.id) {
-                    console.log('No valid active connection, setting to null');
+                    //console.log('No valid active connection, setting to null');
                     set({ connection: null });
                 } else {
-                    console.log('Setting active connection:', conn.name);
+                    //console.log('Setting active connection:', conn.name);
                     set({ connection: conn });
                 }
             } catch (error) {
-                console.error('Error refreshing connection:', error);
+                //console.error('Error refreshing connection:', error);
                 set({ connection: null });
             } finally {
                 set({ isLoadingConnection: false });
