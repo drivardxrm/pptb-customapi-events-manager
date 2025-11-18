@@ -68,13 +68,11 @@ function App() {
     const styles = useStyles();
     
     // Zustand store
-    const connection = useAppStore((state) => state.connection);
-    const isLoading = useAppStore((state) => state.isLoadingConnection);
-    const instanceId = useAppStore((state) => state.instanceId);
-    //const logs = useAppStore((state) => state.logs);
-    const addLog = useAppStore((state) => state.addLog);
-    //const clearLogs = useAppStore((state) => state.clearLogs);
-    const loadSettings = useAppStore((state) => state.loadSettings);
+    const {connection, isLoadingConnection, instanceId, addLog} = useAppStore();
+    // const isLoading = useAppStore((state) => state.isLoadingConnection);
+    // const instanceId = useAppStore((state) => state.instanceId);
+    // const addLog = useAppStore((state) => state.addLog);
+
     const [navCollapsed, setNavCollapsed] = useState(false);
 
     const [selectedNavItem, setSelectedNavItem] = useState<NavSection>('customapi');
@@ -103,8 +101,6 @@ function App() {
         { value: 'about', icon: <AboutIcon />, label: 'About' },
     ];
 
-
-
     //subscribe to events
     useToolBoxEvents();
 
@@ -114,20 +110,18 @@ function App() {
     // Add initial log with instance ID (run only once on mount)
     useEffect(() => {
         addLog(`Dataverse Custom API Manager initialized (Instance: ${instanceId})`, 'success');
-        // Hydrate settings once at startup
-        loadSettings();
     }, [addLog, instanceId]);
 
     // Log initial connection status
     useEffect(() => {
-        if (!isLoading) {
+        if (!isLoadingConnection) {
             if (connection) {
                 addLog(`Initial connection: ${connection.name} (${connection.url})`, 'info');
             } else {
                 addLog('No active connection detected', 'warning');
             }
         }
-    }, [connection, isLoading, addLog]);
+    }, [connection, isLoadingConnection, addLog]);
 
 
     const handleNavItemSelect = (

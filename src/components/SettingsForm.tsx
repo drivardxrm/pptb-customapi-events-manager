@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     Card, 
     CardHeader, 
@@ -15,11 +15,11 @@ import { useAppStore } from '../store/useAppStore';
 import { usePublishers } from '../hooks/usePublishers';
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
 import { AppSettings } from '../models/AppSettings';
-import { useAppSettings } from '../hooks/useAppSettings';
+import { useAppSettings, useUpdateAppSettings } from '../hooks/useAppSettings';
 
 export const SettingsForm: React.FC = () => {
     const styles = useStyles();
-    const {settings, updateSettings, isLoadingSettings,loadingSettingsError, addLog} = useAppStore();
+    const {addLog} = useAppStore();
 
 
     const publishersQuery = usePublishers()
@@ -28,13 +28,20 @@ export const SettingsForm: React.FC = () => {
     const [localSettings, setLocalSettings] = useState<AppSettings | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const settingsQuery = useAppSettings();
+    const { mutateAsync: updateAppSettings } = useUpdateAppSettings();
+    
 
+    useEffect(() => {
+        if (settingsQuery.status === 'success' && settingsQuery.appsettings) {
+            setLocalSettings(settingsQuery.appsettings);
+        }
+    }, [settingsQuery.status, settingsQuery.appsettings]);
 
     const hasChanges = () => {
-        return ( localSettings &&
-            (localSettings.defaultPublisherId !== settings.defaultPublisherId ||
-            localSettings.requestParameterDefaultName !== settings.requestParameterDefaultName ||
-            localSettings.responsePropertyDefaultName !== settings.responsePropertyDefaultName)
+        return ( settingsQuery.appsettings && localSettings &&
+            (localSettings.defaultPublisherId !== settingsQuery.appsettings.defaultPublisherId ||
+            localSettings.requestParameterDefaultName !== settingsQuery.appsettings.requestParameterDefaultName ||
+            localSettings.responsePropertyDefaultName !== settingsQuery.appsettings.responsePropertyDefaultName)
         );
     };
 
@@ -42,8 +49,11 @@ export const SettingsForm: React.FC = () => {
         setIsSaving(true);
         try {
             
-            updateSettings(localSettings!); // Update Zustand store immediately
-
+            // wait for query to resolve 
+            if (settingsQuery.status !== 'success' || !settingsQuery.appsettings) {
+                return; 
+            }
+            await updateAppSettings({ current: settingsQuery.appsettings, next: localSettings! });
             addLog('Settings saved successfully', 'success');
         } catch (error) {
             addLog('Failed to save some settings', 'error');
@@ -53,11 +63,11 @@ export const SettingsForm: React.FC = () => {
     };
 
     const handleReset = () => {
-        setLocalSettings(settings);
+        setLocalSettings(settingsQuery.appsettings!);
         addLog('Changes discarded', 'info');
     };
 
-    if ((isLoadingSettings || !localSettings) && !loadingSettingsError) {
+    if ((settingsQuery.status === 'pending')) {
         return (
             <Card className={styles.card}>
                 <CardHeader header={<h3>⚙️ Settings</h3>} />
@@ -74,7 +84,7 @@ export const SettingsForm: React.FC = () => {
             </Card>
         );
     }
-    else if (loadingSettingsError && settingsQuery.appsettings) {
+    else if (settingsQuery.status === 'error') {
         return (
             <Card className={styles.card}>
                 <CardHeader header={<h3>⚙️ Settings</h3>} />
@@ -86,15 +96,12 @@ export const SettingsForm: React.FC = () => {
                     borderRadius: tokens.borderRadiusMedium
                 }}>
                     <p style={{ margin: 0, fontWeight: 600 }}>❌ Error loading settings</p>
-                    <p style={{ margin: '8px 0 0 0' }}>{loadingSettingsError}</p>
-                    <p style={{ margin: '8px 0 0 0' }}>{settingsQuery.appsettings.defaultPublisherId}</p>
-                    <p style={{ margin: '8px 0 0 0' }}>{settingsQuery.appsettings.requestParameterDefaultName}</p>
-                    <p style={{ margin: '8px 0 0 0' }}>{settingsQuery.appsettings.responsePropertyDefaultName}</p>
+                    <p style={{ margin: '8px 0 0 0' }}>{settingsQuery.error?.message}</p>
                 </div>
             </Card>
         );
-    }else if(localSettings && settings) {
-   
+    }else if (localSettings) {
+        
         return (
             <Card className={styles.card}>
                 <CardHeader 
@@ -129,36 +136,29 @@ export const SettingsForm: React.FC = () => {
                             label="Default Publisher ID"
                             hint="Default publisher for new Custom APIs"
                         >
-                            {/* <Input 
-                                value={localSettings.defaultPublisherId || ''} 
-                                onChange={(e) => setLocalSettings({
-                                    ...localSettings,
-                                    defaultPublisherId: e.target.value || null
-                                })}
-                                placeholder="Enter publisher GUID"
-                            /> */}
-                            {publishersQuery.isFetching && (
+                           
+                            {publishersQuery.status === "pending" && (
                                 <Input 
                                     value={"Loading publishers..."} 
                                     readOnly 
                                     className={styles.readOnlyInput}
                                 />
                             )}
-                            {publishersQuery.error && (
+                            {publishersQuery.status === "error" && (
                                 <Input 
-                                    value={`Error loading publishers: ${publishersQuery.error.message}`} 
+                                    value={`Error loading publishers: ${publishersQuery.error?.message}`} 
                                     readOnly 
                                     className={styles.readOnlyInput}
                                 />
                             )}
-                            {!publishersQuery.isFetching && publishersQuery.publishers  && (
+                            {publishersQuery.status === "success"  && (
                                 <GenericTagPicker 
                                         items={publishersQuery.publishers.map(p => ({
                                             id: p.publisherid,
                                             displayText: `${p.friendlyname} (${p.customizationprefix})` || ''
                                         } as SelectableItem)      
                                     ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
-                                    initialValue={settings?.defaultPublisherId ?? undefined}
+                                    initialValue={settingsQuery.appsettings?.defaultPublisherId ?? undefined}
                                     //isDisabled={!isEditMode} 
                                     onSelect={(id) =>  setLocalSettings({
                                         ...localSettings,
@@ -175,12 +175,12 @@ export const SettingsForm: React.FC = () => {
                             hint="Template for new request parameter names"
                         >
                             <Input 
-                                value={settings.requestParameterDefaultName ?? undefined} 
+                                value={localSettings.requestParameterDefaultName ?? undefined} 
                                 onChange={(e) => setLocalSettings({
                                     ...localSettings,
                                     requestParameterDefaultName: e.target.value || null
                                 })}
-                                placeholder="{customapiname}-In-{uniquename}"
+                                
                             />
                         </Field>
                     </div>
@@ -191,12 +191,12 @@ export const SettingsForm: React.FC = () => {
                             hint="Template for new response property names"
                         >
                             <Input 
-                                value={settings.responsePropertyDefaultName ?? undefined} 
+                                value={localSettings.responsePropertyDefaultName ?? undefined} 
                                 onChange={(e) => setLocalSettings({
                                     ...localSettings,
                                     responsePropertyDefaultName: e.target.value || null
                                 })}
-                                placeholder="{customapiname}-Out-{uniquename}"
+                                
                             />
                         </Field>
                     </div>

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { AppSettings, mapRecordToSettings } from '../models/AppSettings';
+import { AppSettings, getAllSettings, updateSetting } from '../models/AppSettings';
 
 
 
@@ -9,20 +9,14 @@ export const useAppSettings = () => {
   // Get connection and instanceId from Zustand store
   //const connection = useAppStore((state) => state.connection);
   //const isLoading = useAppStore((state) => state.isLoadingConnection);
-  const instanceId = useAppStore((state) => state.instanceId);
+  const {instanceId} = useAppStore();
 
 
   const { data, status, error, isFetching } =
     useQuery<AppSettings, Error>(
       {
         queryKey: ['appsettings', instanceId], // Include instanceId and connection id for proper cache management
-        queryFn: async () => {
-          // TODO Ensure connection is valid
-          const result = await window.toolboxAPI.settings.getSettings();
-          console.log('Fetched settings:', result);
-          const mapped = mapRecordToSettings(result);
-          return mapped;
-        },
+        queryFn: () => getAllSettings(),
         //enabled: !!connection && !isLoading,
         staleTime: Infinity
       }
@@ -32,4 +26,28 @@ export const useAppSettings = () => {
     appsettings: data,
     status, error, isFetching
   }
+}
+
+export const useUpdateAppSettings = () => {
+  const {instanceId} = useAppStore();
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ current, next }: { current: AppSettings; next: AppSettings }) => {
+      const diffKeys = (Object.keys(next) as Array<keyof AppSettings>).filter(
+        (key) => current[key] !== next[key],
+      );
+
+      if (diffKeys.length === 0) return current;
+
+      await Promise.all(diffKeys.map((key) => updateSetting(key, next[key])));
+      return { ...current, ...next };
+    },
+    onSuccess: (merged) => {
+      queryClient.setQueryData(['appsettings', instanceId], merged);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['appsettings', instanceId] });
+    },
+  });
 }
