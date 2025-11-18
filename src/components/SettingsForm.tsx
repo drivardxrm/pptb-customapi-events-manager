@@ -7,7 +7,9 @@ import {
     Input, 
     Button,
     Spinner,
-    tokens 
+    tokens, 
+    Switch,
+    Rating
 } from '@fluentui/react-components';
 import { Save24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
 import { useStyles } from '../styles/Styles';
@@ -200,6 +202,40 @@ export const SettingsForm: React.FC = () => {
                             />
                         </Field>
                     </div>
+
+                    <div className={styles.formSection}>
+                        <Field 
+                            label="Boolean Test"
+                            hint="TO REMOVE"
+                        >
+                            <Switch  
+                                checked={localSettings.booleantest ?? false} 
+                                onChange={(e) => setLocalSettings({
+                                    ...localSettings,
+                                    booleantest: e.target.checked || false
+                                })}
+                                
+                            />
+                        </Field>
+                    </div>
+
+                    <div className={styles.formSection}>
+                        <Field 
+                            label="Numeric Test"
+                            hint="TO REMOVE"
+                        >
+                            <Rating value={localSettings.numbertest ?? 1} 
+                                    onChange={(_e, data) => setLocalSettings({
+                                    ...localSettings,
+                                    numbertest: data.value || 1
+                                })}
+                                size="extra-large" />
+                            
+                        </Field>
+                    </div>
+
+
+
                 </div>
 
                 <div style={{ 
