@@ -21,20 +21,17 @@ import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCi
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles();
-    const connection = useAppStore((state) => state.connection);
-    const isLoading = useAppStore((state) => state.isLoadingConnection);
-    const addLog = useAppStore((state) => state.addLog);
-    const setSelectedSolutionId = useAppStore((state) => state.setSelectedSolutionId);
-    const setSelectedCustomApiId = useAppStore((state) => state.setSelectedCustomApiId);
+    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId } = useAppStore();
     const solutionsQuery = useSolutions();
     const customapisQuery = useCustomApis();
+    
     const [filter, setFilter] = useState<string>("all");   
     const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true);
     const [showSolutionManaged, setShowSolutionManaged] = useState(true);
     const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true);
     const [showCustomApiManaged, setShowCustomApiManaged] = useState(true);
 
-    if (!isLoading && connection?.isActive === false) {
+    if (!isLoadingConnection && connection?.isActive === false) {
         return (
             <Card className={styles.card}>
                 <CardHeader header={<h3>Custom API Selector</h3>} />

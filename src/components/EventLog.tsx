@@ -21,8 +21,8 @@ const getLogColors = (type: LogEntry['type']) => {
 
 export const EventLog = () => {
     const styles = useStyles();
-    const logs = useAppStore((state) => state.logs);
-    const clearLogs = useAppStore((state) => state.clearLogs);
+    const { logs, clearLogs}  = useAppStore();
+   
     
     return (
         <Card className={styles.card}>

@@ -21,7 +21,7 @@ import { useAppSettings, useUpdateAppSettings } from '../hooks/useAppSettings';
 
 export const SettingsForm: React.FC = () => {
     const styles = useStyles();
-    const {addLog} = useAppStore();
+    const {addLog } = useAppStore();
 
 
     const publishersQuery = usePublishers()
@@ -139,21 +139,21 @@ export const SettingsForm: React.FC = () => {
                             hint="Default publisher for new Custom APIs"
                         >
                            
-                            {publishersQuery.status === "pending" && (
+                            {publishersQuery.isFetching && (
                                 <Input 
                                     value={"Loading publishers..."} 
                                     readOnly 
                                     className={styles.readOnlyInput}
                                 />
                             )}
-                            {publishersQuery.status === "error" && (
+                            {publishersQuery.error && (
                                 <Input 
-                                    value={`Error loading publishers: ${publishersQuery.error?.message}`} 
+                                    value={`Error loading publishers: ${publishersQuery.error.message}`} 
                                     readOnly 
                                     className={styles.readOnlyInput}
                                 />
                             )}
-                            {publishersQuery.status === "success"  && (
+                            {!publishersQuery.isFetching && publishersQuery.publishers  && (
                                 <GenericTagPicker 
                                         items={publishersQuery.publishers.map(p => ({
                                             id: p.publisherid,
