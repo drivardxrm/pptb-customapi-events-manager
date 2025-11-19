@@ -1,30 +1,25 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApi } from '../models/CustomApi';
+import { CustomApi, CustomApiUpdateable } from '../models/CustomApi';
+import { buildDiffPayload } from '../utils/diff';
 
 
 export const useCustomApis = () => {
 
   // Get connection and instanceId from Zustand store
-  const connection = useAppStore((state) => state.connection);
-  const isLoading = useAppStore((state) => state.isLoadingConnection);
-  const instanceId = useAppStore((state) => state.instanceId);
-  const selectedSolutionId = useAppStore((state) => state.selectedSolutionId);
-
+  const { connection, isLoadingConnection, instanceId }  = useAppStore();
 
   const { data, status, error, isFetching } =
     useQuery<{ value: CustomApi[] }, Error>(
       {
-        queryKey: ['customapi', instanceId, connection?.id, selectedSolutionId], // Include instanceId and connection id for proper cache management
+        queryKey: ['customapi', instanceId, connection?.id ], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          // const result = selectedSolutionId == null ? 
-          //   await window.dataverseAPI.retrieveMultiple(fetchXmlAllCutomApis) :
-          //   await window.dataverseAPI.retrieveMultiple(fetchXmlCutomApisForSolution(selectedSolutionId));
+         
           const result =  window.dataverseAPI.queryData('customapis'); // todo limit fields for perf
           console.log('Fetched customapis:', result);
           return result as unknown as { value: CustomApi[] };
         },
-        enabled: !!connection && !isLoading,
+        enabled: !!connection && !isLoadingConnection,
         staleTime: Infinity
       }
     )
@@ -34,6 +29,53 @@ export const useCustomApis = () => {
     status, error, isFetching
   }
 }
+
+type UpdateCustomApiInput = {
+  current: CustomApi;
+  next: CustomApiUpdateable;
+};
+
+type UpdateCustomApiResult = {
+  updated: boolean;
+};
+
+export const useUpdateCustomApi = () => {
+  const queryClient = useQueryClient();
+  const {addLog} = useAppStore();
+
+  return useMutation<UpdateCustomApiResult, unknown, UpdateCustomApiInput>({
+    mutationFn: async ({ current, next }) => {
+      
+
+      const comparableCurrent = current as CustomApiUpdateable;
+
+      const payload = buildDiffPayload<CustomApiUpdateable>(comparableCurrent, next);
+      console.log('CustomApi update payload:', payload);
+
+      if (Object.keys(payload).length === 0) {
+        addLog('No changes to save', 'warning');
+        return { updated: false };
+      }
+
+      addLog('Saving Custom API changes...', 'info');
+
+      try {
+        await window.dataverseAPI.update('customapi', current.customapiid, payload);
+        addLog(`Custom API '${current.uniquename}' updated successfully`, 'success');
+        return { updated: true };
+      } catch (error) {
+        console.error('Error saving Custom API', error);
+        addLog('Failed to save Custom API changes', 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.updated) {
+        queryClient.invalidateQueries({ queryKey: ['customapi'] });
+      }
+    },
+  });
+};
 
 // todo would be nice to apply filter afterwards as well
 

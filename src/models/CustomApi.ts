@@ -22,4 +22,16 @@ export interface CustomApi {
 
 }
 
+// A subset of CustomApi properties that are updateable
+export interface CustomApiUpdateable extends 
+  Pick<CustomApi,  
+  'name' |   
+  'displayname' | 
+  'description' |
+  'plugintypeid'| 
+  'executeprivilegename' |
+  'isprivate' |
+  'iscustomizable' 
+  > {}
+
 

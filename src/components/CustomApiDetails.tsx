@@ -12,23 +12,22 @@ import {
 } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useAppStore } from '../store/useAppStore';
-import { useCustomApis } from '../hooks/useCustomApis';
+import { useCustomApis, useUpdateCustomApi } from '../hooks/useCustomApis';
 import { useStyles } from '../styles/Styles';
-import { useQueryClient } from '@tanstack/react-query';
 import { usePrivileges } from '../hooks/usePrivileges';
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
 import { usePluginTypes } from '../hooks/usePluginTypes';
+import { CustomApiUpdateable } from '../models/CustomApi';
 
 
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const selectedCustomApiId = useAppStore((state) => state.selectedCustomApiId);
-    const addLog = useAppStore((state) => state.addLog);
+    const {selectedCustomApiId} = useAppStore();
     const { customapis } = useCustomApis();
+    const updateCustomApi = useUpdateCustomApi();
     const privilegesQuery = usePrivileges();
     const pluginTypesQuery = usePluginTypes();
-    const queryClient = useQueryClient();
 
 
     const selectedCustomApi = useMemo(
@@ -37,22 +36,21 @@ export const CustomApiDetails: React.FC = () => {
     );
 
     const [isEditMode, setIsEditMode] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [editedData, setEditedData] = useState<{ 
-        displayname: string; 
-        executeprivilegename: string;
-        plugintypeid: string;}
-        >(
-        { displayname: '', executeprivilegename: '', plugintypeid: '' }
-    );
+    const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null)
+        
+
 
     // Sync editedData when selection changes
     useEffect(() => {
         if (selectedCustomApi) {
             setEditedData({
+                name: selectedCustomApi.name || '',
                 displayname: selectedCustomApi.displayname || '',
+                description: selectedCustomApi.description || '',
                 executeprivilegename: selectedCustomApi.executeprivilegename || '',
-                plugintypeid: selectedCustomApi.plugintypeid || ''
+                plugintypeid: selectedCustomApi.plugintypeid || '',
+                iscustomizable: selectedCustomApi.iscustomizable,
+                isprivate: selectedCustomApi.isprivate,
             });
             setIsEditMode(false);
         }
@@ -62,49 +60,30 @@ export const CustomApiDetails: React.FC = () => {
     const handleCancel = () => {
         if (selectedCustomApi) {
             setEditedData({
+                name: selectedCustomApi.name || '',
                 displayname: selectedCustomApi.displayname || '',
+                description: selectedCustomApi.description || '',
                 executeprivilegename: selectedCustomApi.executeprivilegename || '',
-                plugintypeid: selectedCustomApi.plugintypeid || ''
+                plugintypeid: selectedCustomApi.plugintypeid || '',
+                iscustomizable: selectedCustomApi.iscustomizable,
+                isprivate: selectedCustomApi.isprivate,
             });
         }
         setIsEditMode(false);
     };
 
     const handleSave = async () => {
-        if (!selectedCustomApi) return;
+        if (!selectedCustomApi || !editedData) return;
+
         try {
-            setIsSaving(true);
-            addLog('Saving Custom API changes...', 'info');
-            // Build payload with only changed fields
-            const original = {
-                displayname: selectedCustomApi.displayname || '',
-                executeprivilegename: selectedCustomApi.executeprivilegename || '',
-                plugintypeid: selectedCustomApi.plugintypeid || ''
-            };
-            const payload: Record<string, any> = {};
-            if (editedData.displayname !== original.displayname) {
-                payload.displayname = editedData.displayname || null;
-            }
-            if (editedData.executeprivilegename !== original.executeprivilegename) {
-                payload.executeprivilegename = editedData.executeprivilegename || null;
-            }
-            if (editedData.plugintypeid !== original.plugintypeid) {
-                payload.plugintypeid = editedData.plugintypeid || null;
-            }
-            if (Object.keys(payload).length === 0) {
-                addLog('No changes to save', 'warning');
-                setIsEditMode(false);
-                return;
-            }
-            await window.dataverseAPI.update('customapi', selectedCustomApi.customapiid, payload);
-            await queryClient.invalidateQueries({ queryKey: ['customapi'] }); // todo might not be needed
-            addLog(`Custom API '${selectedCustomApi.uniquename}' updated successfully`, 'success');
+            await updateCustomApi.mutateAsync({
+                current: selectedCustomApi,
+                next: editedData,
+            });
+
             setIsEditMode(false);
-        } catch (e) {
-            console.error('Error saving Custom API', e);
-            addLog('Failed to save Custom API changes', 'error');
-        } finally {
-            setIsSaving(false);
+        } catch (error) {
+            console.error('Error saving Custom API', error);
         }
     };
 
@@ -162,10 +141,10 @@ export const CustomApiDetails: React.FC = () => {
                         <Button appearance="primary" icon={<Edit24Regular />} onClick={handleEdit}>Edit</Button>
                     ) : (
                         <div style={{ display: 'flex', gap: '8px' }}>
-                            <Button appearance="primary" icon={isSaving ? <Spinner size="tiny" /> : <Save24Regular />} disabled={isSaving} onClick={handleSave}>
-                                {isSaving ? 'Saving...' : 'Save'}
+                            <Button appearance="primary" icon={updateCustomApi.isPending ? <Spinner size="tiny" /> : <Save24Regular />} disabled={updateCustomApi.isPending} onClick={handleSave}>
+                                {updateCustomApi.isPending ? 'Saving...' : 'Save'}
                             </Button>
-                            <Button appearance="secondary" icon={<Dismiss24Regular />} disabled={isSaving} onClick={handleCancel}>Cancel</Button>
+                            <Button appearance="secondary" icon={<Dismiss24Regular />} disabled={updateCustomApi.isPending} onClick={handleCancel}>Cancel</Button>
                         </div>
                     )
                 }
@@ -191,10 +170,14 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Display Name">
                         <Input 
-                            value={isEditMode ? editedData.displayname : (selectedCustomApi.displayname || '')} 
+                            value={isEditMode ? editedData?.displayname ?? '' : (selectedCustomApi.displayname || '')} 
                             readOnly={!isEditMode} 
                             className={!isEditMode ? styles.readOnlyInput : undefined}
-                            onChange={(e) => isEditMode && setEditedData({ ...editedData, displayname: e.target.value })}
+                            onChange={(e) => {
+                                if (isEditMode && editedData) {
+                                    setEditedData({ ...editedData, displayname: e.target.value });
+                                }
+                            }}
                         />
                     </Field>
                 </div>
@@ -202,9 +185,14 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Name">
                         <Input 
-                            value={selectedCustomApi.name || ''} 
-                            readOnly 
-                            className={styles.readOnlyInput}
+                            value={isEditMode ? editedData?.name ?? '' : (selectedCustomApi.name || '')} 
+                            readOnly={!isEditMode} 
+                            className={!isEditMode ? styles.readOnlyInput : undefined}
+                            onChange={(e) => {
+                                if (isEditMode && editedData) {
+                                    setEditedData({ ...editedData, name: e.target.value });
+                                }
+                            }}
                         />
                     </Field>
                 </div>
@@ -212,11 +200,16 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={`${styles.formSection} ${styles.fullWidth}`}>
                     <Field label="Description">
                         <Textarea 
-                            value={selectedCustomApi.description || ''} 
-                            readOnly 
-                            className={styles.readOnlyInput}
+                            value={isEditMode ? editedData?.description ?? '' : (selectedCustomApi.description || '')} 
+                            readOnly={!isEditMode} 
+                            className={!isEditMode ? styles.readOnlyInput : undefined}
                             resize="vertical"
                             rows={3}
+                            onChange={(e) => {
+                                if (isEditMode && editedData) {
+                                    setEditedData({ ...editedData, description: e.target.value });
+                                }
+                            }}
                         />
                     </Field>
                 </div>
@@ -286,10 +279,15 @@ export const CustomApiDetails: React.FC = () => {
                                         displayText: p.name || ''
                                     } as SelectableItem)      
                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
-                                initialValue={selectedCustomApi.executeprivilegename}
+                                initialValue={editedData?.executeprivilegename ?? selectedCustomApi.executeprivilegename}
                                 isDisabled={!isEditMode} 
                                 onSelect={(id) => {
-                                    isEditMode && setEditedData({ ...editedData, executeprivilegename: privilegesQuery.privileges.find(priv => priv.privilegeid === id)?.name || '' })                                      
+                                    if (isEditMode && editedData) {
+                                        setEditedData({
+                                            ...editedData,
+                                            executeprivilegename: privilegesQuery.privileges.find(priv => priv.privilegeid === id)?.name || '',
+                                        });
+                                    }
                                 }}
                             />
                         )}
@@ -326,8 +324,13 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Is Private">
                         <Switch 
-                            checked={selectedCustomApi.isprivate} 
-                            disabled 
+                            checked={editedData!.isprivate} 
+                            disabled = {!isEditMode}
+                            onChange={(e) => {
+                                if (isEditMode && editedData) {
+                                    setEditedData({ ...editedData, isprivate: e.target.checked });
+                                }
+                            }}
                         />
                     </Field>
                 </div>
@@ -335,8 +338,13 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Is Customizable">
                         <Switch 
-                            checked={selectedCustomApi.iscustomizable} 
-                            disabled 
+                            checked={editedData!.iscustomizable} 
+                            disabled = {!isEditMode}
+                            onChange={(e) => {
+                                if (isEditMode && editedData) {
+                                    setEditedData({ ...editedData, iscustomizable: e.target.checked });
+                                }
+                            }}
                         />
                     </Field>
                 </div>
@@ -377,10 +385,12 @@ export const CustomApiDetails: React.FC = () => {
                                         image: p.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />
                                     } as SelectableItem)      
                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
-                                initialValue={selectedCustomApi.plugintypeid}
+                                initialValue={editedData?.plugintypeid ?? selectedCustomApi.plugintypeid}
                                 isDisabled={!isEditMode} 
                                 onSelect={(id) => {
-                                    isEditMode && setEditedData({ ...editedData, plugintypeid: id || '' })                                      
+                                    if (isEditMode && editedData) {
+                                        setEditedData({ ...editedData, plugintypeid: id || '' });
+                                    }
                                 }}
                             />
                         )}
