@@ -48,7 +48,7 @@ export const CustomApiDetails: React.FC = () => {
                 displayname: selectedCustomApi.displayname || '',
                 description: selectedCustomApi.description || '',
                 executeprivilegename: selectedCustomApi.executeprivilegename || '',
-                plugintypeid: selectedCustomApi.plugintypeid || '',
+                _plugintypeid_value: selectedCustomApi._plugintypeid_value || '',
                 iscustomizable: selectedCustomApi.iscustomizable,
                 isprivate: selectedCustomApi.isprivate,
             });
@@ -64,7 +64,7 @@ export const CustomApiDetails: React.FC = () => {
                 displayname: selectedCustomApi.displayname || '',
                 description: selectedCustomApi.description || '',
                 executeprivilegename: selectedCustomApi.executeprivilegename || '',
-                plugintypeid: selectedCustomApi.plugintypeid || '',
+                _plugintypeid_value: selectedCustomApi._plugintypeid_value || '',
                 iscustomizable: selectedCustomApi.iscustomizable,
                 isprivate: selectedCustomApi.isprivate,
             });
@@ -324,7 +324,7 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Is Private">
                         <Switch 
-                            checked={editedData!.isprivate} 
+                            checked={isEditMode ? editedData!.isprivate : selectedCustomApi.isprivate} 
                             disabled = {!isEditMode}
                             onChange={(e) => {
                                 if (isEditMode && editedData) {
@@ -338,7 +338,7 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={styles.formSection}>
                     <Field label="Is Customizable">
                         <Switch 
-                            checked={editedData!.iscustomizable} 
+                            checked={isEditMode ? editedData!.iscustomizable : selectedCustomApi.iscustomizable} 
                             disabled = {!isEditMode}
                             onChange={(e) => {
                                 if (isEditMode && editedData) {
@@ -385,11 +385,11 @@ export const CustomApiDetails: React.FC = () => {
                                         image: p.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />
                                     } as SelectableItem)      
                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
-                                initialValue={editedData?.plugintypeid ?? selectedCustomApi.plugintypeid}
+                                initialValue={editedData?._plugintypeid_value ?? selectedCustomApi._plugintypeid_value}
                                 isDisabled={!isEditMode} 
                                 onSelect={(id) => {
                                     if (isEditMode && editedData) {
-                                        setEditedData({ ...editedData, plugintypeid: id || '' });
+                                        setEditedData({ ...editedData, _plugintypeid_value: id || '' });
                                     }
                                 }}
                             />

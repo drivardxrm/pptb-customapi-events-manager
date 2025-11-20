@@ -34,6 +34,7 @@ import { CustomApiDetails } from "./CustomApiDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
+import { CustomApiList } from "./CustomApiList";
 
 
 
@@ -140,6 +141,7 @@ function App() {
             case 'customapi':
                 return (
                     <>
+                        <CustomApiList/>
                         <CustomApiSelector />
                         <CustomApiDetails />
                     </>

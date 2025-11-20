@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 
+
 export interface LogEntry  {
     timestamp: Date;
     message: string;
@@ -36,14 +37,14 @@ interface AppState {
 
 }
 
-    export const useAppStore = create<AppState>((set, _get) => ({
+export const useAppStore = create<AppState>((set, _get) => ({
         // Initial state
         connection: null,
         isLoadingConnection: true,
         instanceId: uuidv4(),
         logs: [],
 
-       
+    
 
         selectedSolutionId: null,
         selectedCustomApiId: null,
@@ -78,7 +79,9 @@ interface AppState {
         },
 
         setSelectedSolutionId: (solutionId) => set({ selectedSolutionId: solutionId }),
-        setSelectedCustomApiId: (customApiId) => set({ selectedCustomApiId: customApiId }),
+        setSelectedCustomApiId: (customApiId) => set(
+            { selectedCustomApiId: customApiId }    
+        ),
         // Log actions
         addLog: (message, type = 'info') => {
             const newLog: LogEntry = {
@@ -95,3 +98,4 @@ interface AppState {
         clearLogs: () => set({ logs: [] }),
     })
 );
+

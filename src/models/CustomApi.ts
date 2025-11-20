@@ -8,13 +8,13 @@ export interface CustomApi {
   displayname: string;
   workflowsdkstepenabled: boolean;  
   executeprivilegename: string;
-  fxexpressionid : string;
+  _fxexpressionid_value : string;
   iscustomizable: boolean;
   isfunction: boolean;
   ismanaged: boolean;
   isprivate: boolean;
   ownerid: string;
-  plugintypeid: string;
+  _plugintypeid_value: string;
   solutionid: string;
   statecode: number;
   statuscode: number;
@@ -28,10 +28,10 @@ export interface CustomApiUpdateable extends
   'name' |   
   'displayname' | 
   'description' |
-  'plugintypeid'| 
+  '_plugintypeid_value'| 
   'executeprivilegename' |
   'isprivate' |
   'iscustomizable' 
   > {}
 
-
+// TODO : find a way to handle lookups (ownerid, plugintypeid)

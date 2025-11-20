@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools/production';
 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -29,6 +30,7 @@ if (rootElement && !rootElement.hasAttribute('data-reactroot-initialized')) {
                     <App />
                 </FluentProvider>
                 <ReactQueryDevtools initialIsOpen={false} />
+               
             </QueryClientProvider>
         </StrictMode>
     );
