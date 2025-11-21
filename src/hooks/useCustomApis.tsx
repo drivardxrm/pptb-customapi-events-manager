@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApi, CustomApiUpdateable } from '../models/CustomApi';
+import { CustomApi, CustomApiLookups, CustomApiUpdateable } from '../models/CustomApi';
 import { buildDiffPayload } from '../utils/diff';
 
 
@@ -49,7 +49,11 @@ export const useUpdateCustomApi = () => {
 
       const comparableCurrent = current as CustomApiUpdateable;
 
-      const payload = buildDiffPayload<CustomApiUpdateable>(comparableCurrent, next);
+      const diffOptions = {
+        lookupKeys: CustomApiLookups
+      };
+
+      const payload = buildDiffPayload<CustomApiUpdateable>(comparableCurrent, next, diffOptions);
       console.log('CustomApi update payload:', payload);
 
       if (Object.keys(payload).length === 0) {

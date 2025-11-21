@@ -1,4 +1,9 @@
-export interface CustomApi {
+import { EntityService } from "../services/EntityService";
+import { PluginTypeService } from "../services/PluginTypeService";
+
+
+
+export interface CustomApi  {
   customapiid: string;
   name: string;
   allowedcustomprocessingsteptype: number;
@@ -22,6 +27,11 @@ export interface CustomApi {
 
 }
 
+
+
+
+
+
 // A subset of CustomApi properties that are updateable
 export interface CustomApiUpdateable extends 
   Pick<CustomApi,  
@@ -34,4 +44,7 @@ export interface CustomApiUpdateable extends
   'iscustomizable' 
   > {}
 
-// TODO : find a way to handle lookups (ownerid, plugintypeid)
+// Record<keyof T, EntityService> for lookups
+export const CustomApiLookups: Partial<Record<keyof CustomApiUpdateable, [string, EntityService]>> = {
+  _plugintypeid_value: ['PluginTypeId', new PluginTypeService()],
+};
