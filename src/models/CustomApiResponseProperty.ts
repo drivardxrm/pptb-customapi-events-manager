@@ -2,7 +2,7 @@ export interface CustomApiResponseProperty {
   customapiresponsepropertyid: string;
   name: string;
   logicalentityname: string;
-  customapiid: string;
+  _customapiid_value: string;
   description: string;
   displayname: string;
   entitylogicalname: string;
@@ -10,9 +10,9 @@ export interface CustomApiResponseProperty {
   iscustomizable: boolean;
   ismanaged: boolean;
 
-  ownerid: string;
+  _ownerid_value: string;
 
-  solutionid: string;
+  _solutionid_value: string;
   type: number;
   statecode: number;
   statuscode: number;

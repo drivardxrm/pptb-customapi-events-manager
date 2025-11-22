@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApi, CustomApiLookups, CustomApiUpdateable } from '../models/CustomApi';
-import { buildDiffPayload } from '../utils/diff';
+import { CustomApi, CustomApiUpdateable } from '../models/CustomApi';
+import { customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
 
 
 export const useCustomApis = () => {
@@ -14,10 +14,9 @@ export const useCustomApis = () => {
       {
         queryKey: ['customapi', instanceId, connection?.id ], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-         
-          const result =  window.dataverseAPI.queryData('customapis'); // todo limit fields for perf
-          console.log('Fetched customapis:', result);
-          return result as unknown as { value: CustomApi[] };
+          const result = await customApiService.fetchAll();
+          //console.log('Fetched customapis:', result);
+          return result;
         },
         enabled: !!connection && !isLoadingConnection,
         staleTime: Infinity
@@ -35,41 +34,25 @@ type UpdateCustomApiInput = {
   next: CustomApiUpdateable;
 };
 
-type UpdateCustomApiResult = {
-  updated: boolean;
-};
-
 export const useUpdateCustomApi = () => {
   const queryClient = useQueryClient();
   const {addLog} = useAppStore();
 
-  return useMutation<UpdateCustomApiResult, unknown, UpdateCustomApiInput>({
+  return useMutation<CustomApiUpdateResult, unknown, UpdateCustomApiInput>({
     mutationFn: async ({ current, next }) => {
-      
-
-      const comparableCurrent = current as CustomApiUpdateable;
-
-      const diffOptions = {
-        lookupKeys: CustomApiLookups
-      };
-
-      const payload = buildDiffPayload<CustomApiUpdateable>(comparableCurrent, next, diffOptions);
-      console.log('CustomApi update payload:', payload);
-
-      if (Object.keys(payload).length === 0) {
-        addLog('No changes to save', 'warning');
-        return { updated: false };
-      }
-
-      addLog('Saving Custom API changes...', 'info');
-
       try {
-        await window.dataverseAPI.update('customapi', current.customapiid, payload);
+        const result = await customApiService.updateCustomApi(current, next);
+
+        if (!result.updated) {
+          addLog('No changes to save', 'warning');
+          return result;
+        }
+
         addLog(`Custom API '${current.uniquename}' updated successfully`, 'success');
-        return { updated: true };
+        return result;
       } catch (error) {
         console.error('Error saving Custom API', error);
-        addLog('Failed to save Custom API changes', 'error');
+        addLog(`Failed to save Custom API changes. ${error}`, 'error');
         throw error;
       }
     },
