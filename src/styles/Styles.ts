@@ -41,6 +41,7 @@ export const useStyles = makeStyles({
   content: {
       flex: 1,
       overflowY: 'auto',
+      height: '100%',
       paddingBottom: tokens.spacingVerticalXXL,
       backgroundColor: 'white',
   },
