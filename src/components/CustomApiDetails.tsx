@@ -17,7 +17,7 @@ import { useStyles } from '../styles/Styles';
 import { usePrivileges } from '../hooks/usePrivileges';
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
 import { usePluginTypes } from '../hooks/usePluginTypes';
-import { CustomApiUpdateable } from '../models/CustomApi';
+import { CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../models/CustomApi';
 
 
 
@@ -99,23 +99,23 @@ export const CustomApiDetails: React.FC = () => {
         );
     }
 
-    const getBindingTypeLabel = (type: number): string => {
-        switch (type) {
-            case 0: return 'Global';
-            case 1: return 'Entity';
-            case 2: return 'Entity Collection';
-            default: return `Unknown (${type})`;
-        }
-    };
+    // const getBindingTypeLabel = (type: number): string => {
+    //     switch (type) {
+    //         case 0: return 'Global';
+    //         case 1: return 'Entity';
+    //         case 2: return 'Entity Collection';
+    //         default: return `Unknown (${type})`;
+    //     }
+    // };
 
-    const getAllowedCustomProcessingStepTypeLabel = (type: number): string => {
-        switch (type) {
-            case 0: return 'None';
-            case 1: return 'Async Only';
-            case 2: return 'Sync and Async';
-            default: return `Unknown (${type})`;
-        }
-    };
+    // const getAllowedCustomProcessingStepTypeLabel = (type: number): string => {
+    //     switch (type) {
+    //         case 0: return 'None';
+    //         case 1: return 'Async Only';
+    //         case 2: return 'Sync and Async';
+    //         default: return `Unknown (${type})`;
+    //     }
+    // };
 
     return (
         <Card className={styles.card}>
@@ -221,7 +221,7 @@ export const CustomApiDetails: React.FC = () => {
                             Binding Type <LockClosed16Regular />
                         </span>}>
                         <Input 
-                            value={getBindingTypeLabel(selectedCustomApi.bindingtype)} 
+                            value={Customapisbindingtype[selectedCustomApi.bindingtype]} 
                             readOnly 
                             className={styles.readOnlyInput}
                         />
@@ -249,7 +249,7 @@ export const CustomApiDetails: React.FC = () => {
                                 Allowed Custom Processing Step Type <LockClosed16Regular />
                             </span>}>
                         <Input 
-                            value={getAllowedCustomProcessingStepTypeLabel(selectedCustomApi.allowedcustomprocessingsteptype)} 
+                            value={Customapisallowedcustomprocessingsteptype[selectedCustomApi.allowedcustomprocessingsteptype]} 
                             readOnly 
                             className={styles.readOnlyInput}
                         />
