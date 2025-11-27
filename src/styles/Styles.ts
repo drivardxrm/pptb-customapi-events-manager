@@ -72,6 +72,26 @@ export const useStyles = makeStyles({
   fullWidth: {
       gridColumn: '1 / -1',
   },
+  twoColumn: {
+    gridColumn: 'span 2',
+  },
+    switchColumn: {
+      display: 'flex',
+      flexDirection: 'column',
+        gap: tokens.spacingVerticalXS,
+        gridColumn: '1 / -1',
+        alignItems: 'flex-start',
+    },
+      switchRow: {
+        display: 'flex',
+        alignItems: 'center',
+      },
+    readOnlySwitchLabel: {
+      display: 'inline-flex',
+      alignItems: 'center',
+        gap: '4px',
+        minWidth: '215px',
+    },
   readOnlyInput: {
       backgroundColor: tokens.colorNeutralBackground3,
   },
