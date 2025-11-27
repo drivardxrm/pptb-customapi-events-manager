@@ -10,7 +10,7 @@ export const useCustomApis = () => {
   const { connection, isLoadingConnection, instanceId }  = useAppStore();
 
   const { data, status, error, isFetching } =
-    useQuery<{ value: CustomApi[] }, Error>(
+    useQuery<CustomApi[], Error>(
       {
         queryKey: ['customapi', instanceId, connection?.id ], // Include instanceId and connection id for proper cache management
         queryFn: async () => {
@@ -24,7 +24,7 @@ export const useCustomApis = () => {
     )
 
   return {
-    customapis: data?.value || [],
+    customapis: data || [],
     status, error, isFetching
   }
 }

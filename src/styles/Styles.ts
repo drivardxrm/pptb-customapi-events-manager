@@ -6,6 +6,8 @@ export const useStyles = makeStyles({
     gap: tokens.spacingHorizontalM,
     height: '100vh',
     padding: tokens.spacingVerticalS,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
   },
   containerProduction: {
     background: tokens.colorPaletteRedBackground3,
@@ -15,6 +17,11 @@ export const useStyles = makeStyles({
   },
   containerDefault: {
     background: tokens.colorNeutralBackground1,
+  },
+  label :{
+    display: 'inline-flex', 
+    alignItems: 'center', 
+    gap: '4px'
   },
   appWrapper: {
     display: 'flex',
@@ -42,6 +49,7 @@ export const useStyles = makeStyles({
       flex: 1,
       overflowY: 'auto',
       height: '100%',
+      minHeight: 0,
       paddingBottom: tokens.spacingVerticalXXL,
       backgroundColor: 'white',
   },

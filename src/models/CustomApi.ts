@@ -20,6 +20,9 @@ export interface CustomApi  {
   ownerid: string;
   _fxexpressionid_value: string;
   _plugintypeid_value: string;
+  '_plugintypeid_value@Microsoft.Dynamics.CRM.associatednavigationproperty': string;
+  '_plugintypeid_value@Microsoft.Dynamics.CRM.lookuplogicalname': string;
+  '_plugintypeid_value@OData.Community.Display.V1.FormattedValue': string;
   solutionid: string;
   statecode: Customapisstatecode;
   statuscode: Customapisstatuscode;

@@ -11,9 +11,11 @@ export class CustomApiService extends EntityService {
     entityName = 'customapi';
     entityCollectionName = 'customapis';
 
-    async fetchAll() {
+    async fetchAll(): Promise<CustomApi[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
-        return result as unknown as { value: CustomApi[] };
+        console.log('CustomApiService.fetchAll result:', result);
+        const typed = result as unknown as { value: CustomApi[] };
+        return typed.value;
     }
 
     private toUpdateable(current: CustomApi): CustomApiUpdateable {
