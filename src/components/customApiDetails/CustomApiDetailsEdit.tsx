@@ -1,5 +1,5 @@
 import React from 'react';
-import { Field, Input, Textarea, Switch, mergeClasses } from '@fluentui/react-components';
+import { Field, Input, Textarea, Switch, mergeClasses, Tooltip } from '@fluentui/react-components';
 import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { CustomApi, CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
@@ -163,7 +163,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </Field>
             </div>
 
-            <div className={styles.formSection}>
+            {/* <div className={styles.formSection}>
                 <Field label={<span className={styles.editableLabel}>Is Private</span>}>
                     <Switch
                         checked={editedData.isprivate}
@@ -179,6 +179,67 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                         onChange={(_, data) => updateField('iscustomizable', data.checked)}
                     />
                 </Field>
+            </div> */}
+
+            <div className={styles.switchColumn}>
+                <Tooltip content={api.isfunction ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                    <div className={styles.switchRow}>
+                        <Switch
+                            checked={api.isfunction}
+                            aria-disabled={true}
+                            tabIndex={-1}
+                            className={styles.readOnlySwitch}
+                            label={
+                                <span className={styles.readOnlySwitchLabel}>
+                                    <span>Is Function</span>
+                                    <LockClosed16Regular />
+                                </span>
+                            }
+                            labelPosition="before"
+                        />
+                    </div>
+                </Tooltip>
+                <Tooltip content={api.workflowsdkstepenabled ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                    <div className={styles.switchRow}>
+                        <Switch
+                            checked={api.workflowsdkstepenabled}
+                            aria-disabled={true}
+                            tabIndex={-1}
+                            className={styles.readOnlySwitch}
+                            label={
+                                <span className={styles.readOnlySwitchLabel}>
+                                    <span>Workflow SDK Step Enabled</span>
+                                    <LockClosed16Regular />
+                                </span>
+                            }
+                            labelPosition="before"
+                        />
+                    </div>
+                </Tooltip>
+                <Tooltip content={editedData.isprivate ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                    <div className={styles.switchRow}>
+                        <Switch
+                            checked={editedData.isprivate}
+                            onChange={(_, data) => updateField('isprivate', data.checked)}
+                            className={styles.readOnlySwitch}
+                            tabIndex={-1}
+                            label={<span className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}>Is Private</span>}
+                            labelPosition="before"
+                        />
+                    </div>
+                </Tooltip>
+                <Tooltip content={editedData.iscustomizable ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                    <div className={styles.switchRow}>
+                        <Switch
+                            checked={editedData.iscustomizable}
+                            onChange={(_, data) => updateField('iscustomizable', data.checked)}
+                            tabIndex={-1}
+                            className={styles.readOnlySwitch}
+                            label={<span className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}>Is Customizable</span>}
+                            labelPosition="before"
+                        />
+                    </div>
+                </Tooltip>
             </div>
 
         </div>
