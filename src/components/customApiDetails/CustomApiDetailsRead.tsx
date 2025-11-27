@@ -1,5 +1,5 @@
 import React from 'react';
-import { Field, Input, Textarea, Switch } from '@fluentui/react-components';
+import { Field, Input, Textarea, Switch, mergeClasses } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
@@ -115,13 +115,28 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                 </Field>
             </div>
 
+            <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
+                <Field label="Plugin Type">
+                    <Input
+                        value={api['_plugintypeid_value@OData.Community.Display.V1.FormattedValue']}
+                        readOnly
+                        className={styles.readOnlyInput}
+                    />
+                </Field>
+            </div>
+
             <div className={styles.formSection}>
                 <Field label={
                     <span className={styles.label}>
                         Is Function <LockClosed16Regular />
                     </span>
                 }>
-                    <Switch checked={api.isfunction} disabled />
+                    <Switch
+                        checked={api.isfunction}
+                        aria-disabled={true}
+                        tabIndex={-1}
+                        className={styles.readOnlySwitch}
+                    />
                 </Field>
             </div>
 
@@ -131,31 +146,38 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                         Workflow SDK Step Enabled <LockClosed16Regular />
                     </span>
                 }>
-                    <Switch checked={api.workflowsdkstepenabled} disabled />
+                    <Switch
+                        checked={api.workflowsdkstepenabled}
+                        aria-disabled={true}
+                        tabIndex={-1}
+                        className={styles.readOnlySwitch}
+                    />
                 </Field>
             </div>
 
             <div className={styles.formSection}>
                 <Field label="Is Private">
-                    <Switch checked={api.isprivate} disabled />
+                    <Switch
+                        checked={api.isprivate}
+                        aria-disabled={true}
+                        tabIndex={-1}
+                        className={styles.readOnlySwitch}
+                    />
                 </Field>
             </div>
 
             <div className={styles.formSection}>
                 <Field label="Is Customizable">
-                    <Switch checked={api.iscustomizable} disabled />
-                </Field>
-            </div>
-
-            <div className={styles.formSection}>
-                <Field label="Plugin Type">
-                    <Input
-                        value={api['_plugintypeid_value@OData.Community.Display.V1.FormattedValue']}
-                        readOnly
-                        className={styles.readOnlyInput}
+                    <Switch
+                        checked={api.iscustomizable}
+                        aria-disabled={true}
+                        tabIndex={-1}
+                        className={styles.readOnlySwitch}
                     />
                 </Field>
             </div>
+
+            
         </div>
     );
 };

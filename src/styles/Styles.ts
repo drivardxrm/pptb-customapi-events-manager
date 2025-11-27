@@ -88,6 +88,13 @@ export const useStyles = makeStyles({
       textAlign: 'center',
       color: tokens.colorNeutralForeground3,
   },
+  readOnlySwitch: {
+      pointerEvents: 'none',
+      opacity: 1,
+      '& span': {
+        opacity: 1,
+      },
+  },
   tagPickerControl: {
     minWidth: '200px',
     paddingLeft: '3px',
