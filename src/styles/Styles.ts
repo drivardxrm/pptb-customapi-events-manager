@@ -72,6 +72,9 @@ export const useStyles = makeStyles({
   fullWidth: {
       gridColumn: '1 / -1',
   },
+    editableLabel: {
+      fontWeight: tokens.fontWeightSemibold,
+    },
   twoColumn: {
     gridColumn: 'span 2',
   },

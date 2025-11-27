@@ -1,5 +1,5 @@
 import React from 'react';
-import { Field, Input, Textarea, Switch } from '@fluentui/react-components';
+import { Field, Input, Textarea, Switch, mergeClasses } from '@fluentui/react-components';
 import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { CustomApi, CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
@@ -35,7 +35,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Display Name">
+                <Field label={<span className={styles.editableLabel}>Display Name</span>}>
                     <Input
                         value={editedData.displayname ?? ''}
                         onChange={(event) => updateField('displayname', event.target.value || '')}
@@ -44,7 +44,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Name">
+                <Field label={<span className={styles.editableLabel}>Name</span>}>
                     <Input
                         value={editedData.name ?? ''}
                         onChange={(event) => updateField('name', event.target.value || '')}
@@ -52,13 +52,27 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </Field>
             </div>
 
-            <div className={`${styles.formSection} ${styles.fullWidth}`}>
-                <Field label="Description">
+            <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
+                <Field label={<span className={styles.editableLabel}>Description</span>}>
                     <Textarea
                         value={editedData.description ?? ''}
                         onChange={(event) => updateField('description', event.target.value || '')}
                         resize="vertical"
-                        rows={3}
+                        rows={2}
+                    />
+                </Field>
+            </div>
+
+            <div className={styles.formSection}>
+                <Field label={
+                    <span className={styles.label}>
+                        Allowed Custom Processing Step Type <LockClosed16Regular />
+                    </span>}
+                >
+                    <Input
+                        value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype]}
+                        readOnly
+                        className={styles.readOnlyInput}
                     />
                 </Field>
             </div>
@@ -85,22 +99,41 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </div>
             )}
 
-            <div className={styles.formSection}>
-                <Field label={
-                    <span className={styles.label}>
-                        Allowed Custom Processing Step Type <LockClosed16Regular />
-                    </span>}
-                >
-                    <Input
-                        value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype]}
-                        readOnly
-                        className={styles.readOnlyInput}
-                    />
+            
+
+           
+
+            <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
+                <Field label={<span className={styles.editableLabel}>Plugin Type</span>}>
+                    {pluginTypesQuery.isFetching && (
+                        <Input value="Loading plugintypes..." readOnly className={styles.readOnlyInput} />
+                    )}
+                    {pluginTypesQuery.error && (
+                        <Input
+                            value={`Error loading privileges: ${pluginTypesQuery.error.message}`}
+                            readOnly
+                            className={styles.readOnlyInput}
+                        />
+                    )}
+                    {!pluginTypesQuery.isFetching && pluginTypesQuery.plugintypes && (
+                        <GenericTagPicker
+                            items={pluginTypesQuery.plugintypes
+                                .map((type) => ({
+                                    id: type.plugintypeid,
+                                    displayText: type.typename || '',
+                                    image: type.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />,
+                                } as SelectableItem))
+                                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                            initialValue={editedData._plugintypeid_value}
+                            isDisabled={false}
+                            onSelect={(id) => updateField('_plugintypeid_value', id || '')}
+                        />
+                    )}
                 </Field>
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Execute Privilege Name">
+                <Field label={<span className={styles.editableLabel}>Execute Privilege Name</span>}>
                     {privilegesQuery.isFetching && (
                         <Input value="Loading privileges..." readOnly className={styles.readOnlyInput} />
                     )}
@@ -131,7 +164,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Is Private">
+                <Field label={<span className={styles.editableLabel}>Is Private</span>}>
                     <Switch
                         checked={editedData.isprivate}
                         onChange={(_, data) => updateField('isprivate', data.checked)}
@@ -140,7 +173,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Is Customizable">
+                <Field label={<span className={styles.editableLabel}>Is Customizable</span>}>
                     <Switch
                         checked={editedData.iscustomizable}
                         onChange={(_, data) => updateField('iscustomizable', data.checked)}
@@ -148,34 +181,6 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </Field>
             </div>
 
-            <div className={styles.formSection}>
-                <Field label="Plugin Type">
-                    {pluginTypesQuery.isFetching && (
-                        <Input value="Loading plugintypes..." readOnly className={styles.readOnlyInput} />
-                    )}
-                    {pluginTypesQuery.error && (
-                        <Input
-                            value={`Error loading privileges: ${pluginTypesQuery.error.message}`}
-                            readOnly
-                            className={styles.readOnlyInput}
-                        />
-                    )}
-                    {!pluginTypesQuery.isFetching && pluginTypesQuery.plugintypes && (
-                        <GenericTagPicker
-                            items={pluginTypesQuery.plugintypes
-                                .map((type) => ({
-                                    id: type.plugintypeid,
-                                    displayText: type.typename || '',
-                                    image: type.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />,
-                                } as SelectableItem))
-                                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                            initialValue={editedData._plugintypeid_value}
-                            isDisabled={false}
-                            onSelect={(id) => updateField('_plugintypeid_value', id || '')}
-                        />
-                    )}
-                </Field>
-            </div>
         </div>
     );
 };
