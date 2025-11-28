@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, Tooltip, mergeClasses } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
+import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 
 interface CustomApiDetailsReadProps {
@@ -14,57 +15,17 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
     const privateLabelRef = useRef<HTMLSpanElement | null>(null);
     const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
-    const [columnWidths, setColumnWidths] = useState({ left: 0, right: 0 });
+    const columnRefGroups = useMemo(
+        () => [
+            [functionLabelRef, workflowLabelRef],
+            [privateLabelRef, customizableLabelRef],
+        ],
+        []
+    );
 
-    const measureLabel = useCallback((ref: React.RefObject<HTMLSpanElement | null>) => {
-        if (!ref.current) {
-            return 0;
-        }
-        const previousMinWidth = ref.current.style.minWidth;
-        ref.current.style.minWidth = '0px';
-        const width = ref.current.getBoundingClientRect().width;
-        ref.current.style.minWidth = previousMinWidth;
-        return width;
-    }, []);
-
-    const updateColumnWidths = useCallback(() => {
-        const left = Math.max(
-            measureLabel(functionLabelRef),
-            measureLabel(workflowLabelRef)
-        );
-        const right = Math.max(
-            measureLabel(privateLabelRef),
-            measureLabel(customizableLabelRef)
-        );
-
-        const paddedLeft = left ? Math.ceil(left + 15) : 0;
-        const paddedRight = right ? Math.ceil(right + 15) : 0;
-
-        setColumnWidths((prev) => {
-            if (prev.left === paddedLeft && prev.right === paddedRight) {
-                return prev;
-            }
-            return { left: paddedLeft, right: paddedRight };
-        });
-    }, [measureLabel]);
-
-    useLayoutEffect(() => {
-        updateColumnWidths();
-    }, [updateColumnWidths]);
-
-    useEffect(() => {
-        window.addEventListener('resize', updateColumnWidths);
-        return () => {
-            window.removeEventListener('resize', updateColumnWidths);
-        };
-    }, [updateColumnWidths]);
-
-    const leftColumnStyle = columnWidths.left
-        ? { minWidth: `${columnWidths.left}px` }
-        : undefined;
-    const rightColumnStyle = columnWidths.right
-        ? { minWidth: `${columnWidths.right}px` }
-        : undefined;
+    const [column1Width, column2Width] = useDynamicColumnWidths(columnRefGroups);
+    const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
+    const column2Style = column2Width ? { minWidth: `${column2Width}px` } : undefined;
 
     return (
         <div className={styles.formGrid}>
@@ -183,7 +144,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                                     <span
                                         ref={functionLabelRef}
                                         className={styles.readOnlySwitchLabel}
-                                        style={leftColumnStyle}
+                                        style={column1Style}
                                     >
                                         <span>Is Function</span>
                                         <LockClosed16Regular />
@@ -204,7 +165,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                                     <span
                                         ref={workflowLabelRef}
                                         className={styles.readOnlySwitchLabel}
-                                        style={leftColumnStyle}
+                                        style={column1Style}
                                     >
                                         <span>Workflow SDK Step Enabled</span>
                                         <LockClosed16Regular />
@@ -230,7 +191,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                                     <span
                                         ref={privateLabelRef}
                                         className={styles.readOnlySwitchLabel}
-                                        style={rightColumnStyle}
+                                        style={column2Style}
                                     >
                                         Is Private
                                     </span>
@@ -250,7 +211,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                                     <span
                                         ref={customizableLabelRef}
                                         className={styles.readOnlySwitchLabel}
-                                        style={rightColumnStyle}
+                                        style={column2Style}
                                     >
                                         Is Customizable
                                     </span>

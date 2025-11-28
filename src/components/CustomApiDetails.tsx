@@ -8,6 +8,7 @@ import { CustomApi, CustomApiCreateable, CustomApiUpdateable, Customapisallowedc
 import { CustomApiDetailsRead } from './customApiDetails/CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './customApiDetails/CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './customApiDetails/CustomApiDetailsCreate';
+import { RequestParametersList } from './RequestParametersList';
 
 
 
@@ -236,6 +237,7 @@ export const CustomApiDetails: React.FC = () => {
     })();
 
     return (
+        
         <Card className={styles.card}>
             <CardHeader 
                 header={
@@ -253,6 +255,8 @@ export const CustomApiDetails: React.FC = () => {
             />
             <Divider />
             {content}
+            <Divider/>
+            <RequestParametersList/>
         </Card>
     );
 };

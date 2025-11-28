@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, mergeClasses, Tooltip } from '@fluentui/react-components';
 import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
@@ -6,6 +6,7 @@ import { CustomApi, CustomApiUpdateable, Customapisallowedcustomprocessingstepty
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { usePrivileges } from '../../hooks/usePrivileges';
 import { usePluginTypes } from '../../hooks/usePluginTypes';
+import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 
 interface CustomApiDetailsEditProps {
     api: CustomApi;
@@ -17,6 +18,23 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
     const styles = useStyles();
     const privilegesQuery = usePrivileges();
     const pluginTypesQuery = usePluginTypes();
+
+    const functionLabelRef = useRef<HTMLSpanElement | null>(null);
+        const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
+        const privateLabelRef = useRef<HTMLSpanElement | null>(null);
+        const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
+        const columnRefGroups = useMemo(
+            () => [
+                [functionLabelRef, workflowLabelRef],
+                [privateLabelRef, customizableLabelRef],
+            ],
+            []
+        );
+    
+        const [column1Width, column2Width] = useDynamicColumnWidths(columnRefGroups);
+        const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
+        const column2Style = column2Width ? { minWidth: `${column2Width}px` } : undefined;
+
 
     const updateField = <K extends keyof CustomApiUpdateable>(field: K, value: CustomApiUpdateable[K]) => {
         onChange((current) => ({ ...current, [field]: value }));
@@ -163,84 +181,98 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </Field>
             </div>
 
-            {/* <div className={styles.formSection}>
-                <Field label={<span className={styles.editableLabel}>Is Private</span>}>
-                    <Switch
-                        checked={editedData.isprivate}
-                        onChange={(_, data) => updateField('isprivate', data.checked)}
-                    />
-                </Field>
-            </div>
+
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.editableLabel}>Is Customizable</span>}>
-                    <Switch
-                        checked={editedData.iscustomizable}
-                        onChange={(_, data) => updateField('iscustomizable', data.checked)}
-                    />
-                </Field>
-            </div> */}
-
-            <div className={styles.switchColumn}>
-                <Tooltip content={api.isfunction ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <div className={styles.switchRow}>
-                        <Switch
-                            checked={api.isfunction}
-                            aria-disabled={true}
-                            tabIndex={-1}
-                            className={styles.readOnlySwitch}
-                            label={
-                                <span className={styles.readOnlySwitchLabel}>
-                                    <span>Is Function</span>
-                                    <LockClosed16Regular />
-                                </span>
-                            }
-                            labelPosition="before"
-                        />
-                    </div>
-                </Tooltip>
-                <Tooltip content={api.workflowsdkstepenabled ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <div className={styles.switchRow}>
-                        <Switch
-                            checked={api.workflowsdkstepenabled}
-                            aria-disabled={true}
-                            tabIndex={-1}
-                            className={styles.readOnlySwitch}
-                            label={
-                                <span className={styles.readOnlySwitchLabel}>
-                                    <span>Workflow SDK Step Enabled</span>
-                                    <LockClosed16Regular />
-                                </span>
-                            }
-                            labelPosition="before"
-                        />
-                    </div>
-                </Tooltip>
-                <Tooltip content={editedData.isprivate ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <div className={styles.switchRow}>
-                        <Switch
-                            checked={editedData.isprivate}
-                            onChange={(_, data) => updateField('isprivate', data.checked)}
-                            className={styles.readOnlySwitch}
-                            tabIndex={-1}
-                            label={<span className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}>Is Private</span>}
-                            labelPosition="before"
-                        />
-                    </div>
-                </Tooltip>
-                <Tooltip content={editedData.iscustomizable ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <div className={styles.switchRow}>
-                        <Switch
-                            checked={editedData.iscustomizable}
-                            onChange={(_, data) => updateField('iscustomizable', data.checked)}
-                            tabIndex={-1}
-                            className={styles.readOnlySwitch}
-                            label={<span className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}>Is Customizable</span>}
-                            labelPosition="before"
-                        />
-                    </div>
-                </Tooltip>
+                <div className={styles.switchColumn}>
+                    <Tooltip content={api.isfunction ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                        <div className={styles.switchRow}>
+                            <Switch
+                                
+                                checked={api.isfunction}
+                                aria-disabled={true}
+                                tabIndex={-1}
+                                className={styles.readOnlySwitch}
+                                label={
+                                    <span 
+                                        ref={functionLabelRef}
+                                        className={styles.readOnlySwitchLabel}
+                                        style={column1Style}
+                                    >
+                                        <span>Is Function</span>
+                                        <LockClosed16Regular />
+                                    </span>
+                                }
+                                labelPosition="before"
+                            />
+                        </div>
+                    </Tooltip>
+                    <Tooltip content={api.workflowsdkstepenabled ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                        <div className={styles.switchRow}>
+                            <Switch
+                                checked={api.workflowsdkstepenabled}
+                                aria-disabled={true}
+                                tabIndex={-1}
+                                className={styles.readOnlySwitch}
+                                label={
+                                    <span 
+                                        ref={workflowLabelRef}
+                                        className={styles.readOnlySwitchLabel}
+                                        style={column1Style}
+                                    >
+                                        <span>Workflow SDK Step Enabled</span>
+                                        <LockClosed16Regular />
+                                    </span>
+                                }
+                                labelPosition="before"
+                            />
+                        </div>
+                    </Tooltip>
+                </div>
             </div>
+            <div className={styles.formSection}>
+                <div className={styles.switchColumn}>
+                    <Tooltip content={editedData.isprivate ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                        <div className={styles.switchRow}>
+                            <Switch
+                                checked={editedData.isprivate}
+                                onChange={(_, data) => updateField('isprivate', data.checked)}
+                                className={styles.readOnlySwitch}
+                                tabIndex={-1}
+                                label={
+                                    <span 
+                                        ref={privateLabelRef}
+                                        className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}
+                                        style={column2Style}
+                                    >
+                                        Is Private</span>}
+                                labelPosition="before"
+                            />
+                        </div>
+                    </Tooltip>
+                    <Tooltip content={editedData.iscustomizable ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                        <div className={styles.switchRow}>
+                            <Switch
+                                checked={editedData.iscustomizable}
+                                onChange={(_, data) => updateField('iscustomizable', data.checked)}
+                                tabIndex={-1}
+                                className={styles.readOnlySwitch}
+                                label={
+                                    <span 
+                                        ref={customizableLabelRef}
+                                        className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}
+                                        style={column2Style}
+                                    >
+                                        Is Customizable
+                                    </span>}
+                                labelPosition="before"
+                            />
+                        </div>
+                    </Tooltip>
+                </div>
+            </div>
+            
+                
 
         </div>
     );
