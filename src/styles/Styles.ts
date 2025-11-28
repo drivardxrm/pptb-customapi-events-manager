@@ -93,7 +93,6 @@ export const useStyles = makeStyles({
       display: 'inline-flex',
       alignItems: 'center',
         gap: '4px',
-        minWidth: '215px',
     },
   readOnlyInput: {
       backgroundColor: tokens.colorNeutralBackground3,
@@ -111,9 +110,19 @@ export const useStyles = makeStyles({
       textAlign: 'center',
       color: tokens.colorNeutralForeground3,
   },
+    headerActionGroup: {
+      display: 'flex',
+      gap: '4px',
+      flexWrap: 'nowrap',
+      alignItems: 'center',
+    },
+    headerActionButton: {
+      whiteSpace: 'nowrap',
+    },
   readOnlySwitch: {
       pointerEvents: 'none',
       opacity: 1,
+      columnGap: tokens.spacingHorizontalXS,
       '& span': {
         opacity: 1,
       },

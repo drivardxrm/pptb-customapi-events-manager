@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular } from '@fluentui/react-icons';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi } from '../hooks/useCustomApis';
 import { useStyles } from '../styles/Styles';
@@ -71,6 +71,11 @@ export const CustomApiDetails: React.FC = () => {
         setMode('edit');
     };
 
+    const handleCreate = () => {
+        setCreateData(DEFAULT_CREATE_TEMPLATE);
+        setMode('create');
+    };
+
     const handleCancel = () => {
         if (selectedCustomApi) {
             setEditedData(toEditable(selectedCustomApi));
@@ -106,7 +111,21 @@ export const CustomApiDetails: React.FC = () => {
     if (mode !== 'create' && (!selectedCustomApiId || !selectedCustomApi)) {
         return (
             <Card className={styles.card}>
-                <CardHeader header={<h3>Custom API Details</h3>} />
+                <CardHeader
+                    header={<h3>Custom API Details</h3>}
+                    action={
+                        <div className={styles.headerActionGroup}>
+                            <Button
+                                appearance='secondary'
+                                icon={<AddCircleColor/>}
+                                onClick={handleCreate}
+                                className={styles.headerActionButton}
+                            >
+                                New Custom API
+                            </Button>
+                        </div>
+                    }
+                />
                 <div className={styles.infoBox}>
                     <p>No Custom API selected</p>
                     <p>Please select a Custom API from the list above</p>
@@ -151,27 +170,54 @@ export const CustomApiDetails: React.FC = () => {
         switch (mode) {
             case 'read':
                 return (
-                    <Button appearance="primary" icon={<Edit24Regular />} onClick={handleEdit}>
-                        Edit
-                    </Button>
+                    <div className={styles.headerActionGroup}>
+                        <Button
+                            appearance='secondary'
+                            icon={<AddCircleColor/>}
+                            onClick={handleCreate}
+                            className={styles.headerActionButton}
+                        >
+                            New Custom API
+                        </Button>
+                        <Button
+                            appearance="primary"
+                            icon={<Edit24Regular />}
+                            onClick={handleEdit}
+                            className={styles.headerActionButton}
+                        >
+                            Edit
+                        </Button>
+                    </div>
                 );
             case 'edit':
                 return (
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className={styles.headerActionGroup}>
                         <Button
                             appearance="primary"
                             icon={updateCustomApi.isPending ? <Spinner size="tiny" /> : <Save24Regular />}
                             disabled={updateCustomApi.isPending}
                             onClick={handleSave}
+                            className={styles.headerActionButton}
                         >
                             {updateCustomApi.isPending ? 'Saving...' : 'Save'}
                         </Button>
-                        <Button appearance="secondary" icon={<Dismiss24Regular />} disabled={updateCustomApi.isPending} onClick={handleCancel}>
+                        <Button
+                            appearance="secondary"
+                            icon={<Dismiss24Regular />}
+                            disabled={updateCustomApi.isPending}
+                            onClick={handleCancel}
+                            className={styles.headerActionButton}
+                        >
                             Cancel
                         </Button>
                     </div>
                 );
             case 'create':
+                return (
+                    <Button appearance='secondary' onClick={handleCancel} className={styles.headerActionButton}>
+                        Back to Details
+                    </Button>
+                );
             default:
                 return null;
         }
