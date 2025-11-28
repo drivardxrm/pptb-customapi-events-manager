@@ -9,6 +9,7 @@ import { CustomApiDetailsRead } from './customApiDetails/CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './customApiDetails/CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './customApiDetails/CustomApiDetailsCreate';
 import { RequestParametersList } from './RequestParametersList';
+import { ResponsePropertyList } from './ResponsePropertyList';
 
 
 
@@ -257,6 +258,8 @@ export const CustomApiDetails: React.FC = () => {
             {content}
             <Divider/>
             <RequestParametersList/>
+            <Divider/>
+            <ResponsePropertyList/>
         </Card>
     );
 };

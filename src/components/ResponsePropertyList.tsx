@@ -13,20 +13,20 @@ import {
     TableRowId
 } from '@fluentui/react-components';
 import { useStyles } from '../styles/Styles';
-import { CustomApi } from '../models/CustomApi';
-import { useCustomApiRequestParameters } from '../hooks/useCustomApiRequestParameters';
-import { CustomApiRequestParameter } from '../models/CustomApiRequestParameter';
+import { CustomApi } from '../models/CustomApi';;
 import { useAppStore } from '../store/useAppStore';
+import { useCustomApiResponseProperties } from '../hooks/useCustomApiResponseProperties';
+import { CustomApiResponseProperty } from '../models/CustomApiResponseProperty';
 
 
 
 
 
 
-export const RequestParametersList: React.FC = () => {
+export const ResponsePropertyList: React.FC = () => {
     const styles = useStyles();
-    const requestParametersQuery = useCustomApiRequestParameters();
-    const { setSelectedRequestParameterId } = useAppStore();
+    const responsePropertiesQuery = useCustomApiResponseProperties();
+    const { setSelectedResponsePropertyId } = useAppStore();
 
     const [selectedRows, setSelectedRows] = useState(
         new Set<TableRowId>([-1]) 
@@ -39,12 +39,12 @@ export const RequestParametersList: React.FC = () => {
     useEffect(() => {
         if (selectedRows.size > 0) {
             const selectedId = Array.from(selectedRows)[0] as string;
-            setSelectedRequestParameterId(selectedId);
+            setSelectedResponsePropertyId(selectedId);
         }
-    }, [selectedRows, setSelectedRequestParameterId]);
+    }, [selectedRows, setSelectedResponsePropertyId]);
     
-    const columns: TableColumnDefinition<CustomApiRequestParameter>[] = [
-        createTableColumn<CustomApiRequestParameter>({
+    const columns: TableColumnDefinition<CustomApiResponseProperty>[] = [
+        createTableColumn<CustomApiResponseProperty>({
             columnId: 'name',
             compare: (a, b) => {
                 return a.name.localeCompare(b.name);
@@ -60,27 +60,12 @@ export const RequestParametersList: React.FC = () => {
                 );
             },
         }),
-        createTableColumn<CustomApiRequestParameter>({
-            columnId: 'isoptional',
-            compare: (a, b) => {
-                return a.isoptional === b.isoptional ? 0 : a.isoptional ? 1 : -1;
-            },
-            renderHeaderCell: () => {
-                return "Name";
-            },
-            renderCell: (item) => {
-                return (
-                    <TableCellLayout>
-                        {item.isoptional ? "Yes" : "No"}
-                    </TableCellLayout>
-                );
-            },
-        }),
+        
         
     ];
     
 
-    if (requestParametersQuery.isFetching) {
+    if (responsePropertiesQuery.isFetching) {
         return (
             <div className={styles.infoBox}>
                 <p>Loading Request Parameters...</p>
@@ -88,22 +73,22 @@ export const RequestParametersList: React.FC = () => {
         );
     }
 
-    if (requestParametersQuery.error) {
+    if (responsePropertiesQuery.error) {
         return (
             
             <div  className={styles.infoBox}>
                 <p>Error loading Request Parameters:</p>
-                <pre>{requestParametersQuery.error.message}</pre>
+                <pre>{responsePropertiesQuery.error.message}</pre>
             </div>
           
         );
     }
 
-    if(requestParametersQuery.requestParameters)
+    if(responsePropertiesQuery.responseProperties)
     {
         return (
             <DataGrid
-                items={requestParametersQuery.requestParameters}
+                items={responsePropertiesQuery.responseProperties}
                 columns={columns}
                 selectionMode="single"
                 selectedItems={selectedRows}
