@@ -15,7 +15,7 @@ import {
 import { useStyles } from '../styles/Styles';
 import { CustomApi } from '../models/CustomApi';
 import { useCustomApiRequestParameters } from '../hooks/useCustomApiRequestParameters';
-import { CustomApiRequestParameter } from '../models/CustomApiRequestParameter';
+import { CustomApiRequestParameter, Customapirequestparameterstype } from '../models/CustomApiRequestParameter';
 import { useAppStore } from '../store/useAppStore';
 
 
@@ -33,13 +33,18 @@ export const RequestParametersList: React.FC = () => {
     );
     const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
         setSelectedRows(data.selectedItems);
-        //setSelectedCustomApiId(Array.from(data.selectedItems)[0] as string);
     };
 
     useEffect(() => {
-        if (selectedRows.size > 0) {
-            const selectedId = Array.from(selectedRows)[0] as string;
-            setSelectedRequestParameterId(selectedId);
+        if (selectedRows.size > 0 && Array.from(selectedRows)[0] !== -1) {
+            const selectedId = Array.from(selectedRows)[0] as string
+            if(selectedId === '-1') {
+                setSelectedRequestParameterId(null);
+            } else {
+                setSelectedRequestParameterId(selectedId)
+            }
+        }else {
+            setSelectedRequestParameterId(null)
         }
     }, [selectedRows, setSelectedRequestParameterId]);
     
@@ -47,10 +52,10 @@ export const RequestParametersList: React.FC = () => {
         createTableColumn<CustomApiRequestParameter>({
             columnId: 'name',
             compare: (a, b) => {
-                return a.name.localeCompare(b.name);
+                return a.name.localeCompare(b.name)
             },
             renderHeaderCell: () => {
-                return "Name";
+                return "Name"
             },
             renderCell: (item) => {
                 return (
@@ -63,15 +68,31 @@ export const RequestParametersList: React.FC = () => {
         createTableColumn<CustomApiRequestParameter>({
             columnId: 'isoptional',
             compare: (a, b) => {
-                return a.isoptional === b.isoptional ? 0 : a.isoptional ? 1 : -1;
+                return a.isoptional === b.isoptional ? 0 : a.isoptional ? 1 : -1
             },
             renderHeaderCell: () => {
-                return "Name";
+                return "Is Optional"
             },
             renderCell: (item) => {
                 return (
                     <TableCellLayout>
                         {item.isoptional ? "Yes" : "No"}
+                    </TableCellLayout>
+                );
+            },
+        }),
+        createTableColumn<CustomApiRequestParameter>({
+            columnId: 'type',
+            compare: (a, b) => {
+                return Customapirequestparameterstype[a.type].localeCompare(Customapirequestparameterstype[b.type]);
+            },
+            renderHeaderCell: () => {
+                return "Type";
+            },
+            renderCell: (item) => {
+                return (
+                    <TableCellLayout>
+                        {Customapirequestparameterstype[item.type]}
                     </TableCellLayout>
                 );
             },
@@ -102,35 +123,39 @@ export const RequestParametersList: React.FC = () => {
     if(requestParametersQuery.requestParameters)
     {
         return (
-            <DataGrid
-                items={requestParametersQuery.requestParameters}
-                columns={columns}
-                selectionMode="single"
-                selectedItems={selectedRows}
-                onSelectionChange={onSelectionChange}
-                getRowId={(item) => item.customapirequestparameterid} // Set the key
-                style={{ minWidth: "300px" }}
-            >
-                <DataGridHeader>
-                    <DataGridRow>
-                    {({ renderHeaderCell }) => (
-                        <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
-                    )}
-                    </DataGridRow>
-                </DataGridHeader>
-                <DataGridBody<CustomApi>>
-                    {({ item, rowId }) => (
-                    <DataGridRow<CustomApi>
-                        key={rowId}
-                        selectionCell={{ radioIndicator: { "aria-label": "Select row" } }}
-                    >
-                        {({ renderCell }) => (
-                            <DataGridCell>{renderCell(item)}</DataGridCell>
+            <div>              
+                <DataGrid
+                    items={requestParametersQuery.requestParameters}
+                    columns={columns}
+                    selectionMode='single'
+                    selectedItems={selectedRows}
+                    sortable
+                    onSelectionChange={onSelectionChange}
+                    getRowId={(item) => item.customapirequestparameterid} // Set the key
+                    style={{ minWidth: "300px" }}
+                >
+                    <DataGridHeader>
+                        <DataGridRow>
+                        {({ renderHeaderCell }) => (
+                            <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
                         )}
-                    </DataGridRow>
-                    )}
-                </DataGridBody>
-            </DataGrid>
+                        </DataGridRow>
+                    </DataGridHeader>
+                    <DataGridBody<CustomApi>>
+                        {({ item, rowId }) => (
+                        <DataGridRow<CustomApi>
+                            key={rowId}
+                            selectionCell={{ radioIndicator: { "aria-label": "Select row" } }}
+                        >
+                            {({ renderCell }) => (
+                                <DataGridCell>{renderCell(item)}</DataGridCell>
+                            )}
+                        </DataGridRow>
+                        )}
+                    </DataGridBody>
+                </DataGrid>
+            </div>
+            
             
             
         );

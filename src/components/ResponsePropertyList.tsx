@@ -39,7 +39,11 @@ export const ResponsePropertyList: React.FC = () => {
     useEffect(() => {
         if (selectedRows.size > 0) {
             const selectedId = Array.from(selectedRows)[0] as string;
-            setSelectedResponsePropertyId(selectedId);
+            if(selectedId === '-1') {
+                setSelectedResponsePropertyId(null);
+            } else {
+                setSelectedResponsePropertyId(selectedId);
+            }
         }
     }, [selectedRows, setSelectedResponsePropertyId]);
     

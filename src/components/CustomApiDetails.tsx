@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor } from '@fluentui/react-icons';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi } from '../hooks/useCustomApis';
 import { useStyles } from '../styles/Styles';
@@ -8,8 +8,8 @@ import { CustomApi, CustomApiCreateable, CustomApiUpdateable, Customapisallowedc
 import { CustomApiDetailsRead } from './customApiDetails/CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './customApiDetails/CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './customApiDetails/CustomApiDetailsCreate';
-import { RequestParametersList } from './RequestParametersList';
 import { ResponsePropertyList } from './ResponsePropertyList';
+import { RequestParametersDetails } from './RequestParametersDetails';
 
 
 
@@ -182,12 +182,20 @@ export const CustomApiDetails: React.FC = () => {
                             New Custom API
                         </Button>
                         <Button
-                            appearance="primary"
+                            appearance='secondary'
                             icon={<Edit24Regular />}
                             onClick={handleEdit}
                             className={styles.headerActionButton}
                         >
                             Edit
+                        </Button>
+                        <Button
+                            appearance='secondary'
+                            icon={<DismissCircleColor />}
+                            onClick={() => {}} 
+                            className={styles.headerActionButton}
+                        >
+                            Delete
                         </Button>
                     </div>
                 );
@@ -195,8 +203,8 @@ export const CustomApiDetails: React.FC = () => {
                 return (
                     <div className={styles.headerActionGroup}>
                         <Button
-                            appearance="primary"
-                            icon={updateCustomApi.isPending ? <Spinner size="tiny" /> : <Save24Regular />}
+                            appearance='primary'
+                            icon={updateCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
                             disabled={updateCustomApi.isPending}
                             onClick={handleSave}
                             className={styles.headerActionButton}
@@ -257,7 +265,7 @@ export const CustomApiDetails: React.FC = () => {
             <Divider />
             {content}
             <Divider/>
-            <RequestParametersList/>
+            <RequestParametersDetails/>
             <Divider/>
             <ResponsePropertyList/>
         </Card>
