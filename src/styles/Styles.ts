@@ -63,6 +63,14 @@ export const useStyles = makeStyles({
       gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
       gap: tokens.spacingVerticalM,
       padding: tokens.spacingVerticalL,
+      
+  },
+  formGridBig: {
+      display: 'grid',
+      gridTemplateColumns: 'minmax(340px, 1fr) minmax(420px, 1fr)',
+      gap: tokens.spacingVerticalM,
+      padding: tokens.spacingVerticalL,
+      alignItems: 'start',
   },
   formSection: {
       display: 'flex',

@@ -130,9 +130,15 @@ export const RequestParameterDetails: React.FC = () => {
                 }
 
             />
+            <div className={styles.formGridBig}>
+                <div className={styles.formSection}>
+                    <RequestParametersList requestParameters={requestParameters} />
+                </div>
+                {content}
+                
+            </div>
             
-            <RequestParametersList requestParameters={requestParameters} />
-            {content}
+            
         </Card>
     );
 
