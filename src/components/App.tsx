@@ -39,28 +39,6 @@ import { SettingsForm } from "./SettingsForm";
 
 
 
-// const useAppStyles = makeStyles({
-//     container: {
-//         display: 'flex',
-//         gap: tokens.spacingHorizontalM,
-//         height: '100vh',
-//         padding: tokens.spacingVerticalL,
-//     },
-//     nav: {
-//         width: '200px',
-//         flexShrink: 0,
-//         backgroundColor: 'white',
-//         borderRadius: tokens.borderRadiusMedium,
-//         padding: tokens.spacingVerticalM,
-//         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
-//     },
-//     content: {
-//         flex: 1,
-//         overflowY: 'auto',
-//         paddingBottom: tokens.spacingVerticalXXL,
-//     },
-// });
-
 type NavSection = 'connection' | 'customapi' | 'logs' | 'settings' | 'about';
 
 

@@ -12,20 +12,20 @@ import {
     TableColumnDefinition,
     TableRowId
 } from '@fluentui/react-components';
-import { useStyles } from '../styles/Styles';
-import { CustomApi } from '../models/CustomApi';
-import { useCustomApiRequestParameters } from '../hooks/useCustomApiRequestParameters';
-import { CustomApiRequestParameter, Customapirequestparameterstype } from '../models/CustomApiRequestParameter';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
+import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
+import { CustomApi } from '../../models/CustomApi';
+
+
+interface RequestParametersListProps {
+    requestParameters: CustomApiRequestParameter[];
+}
 
 
 
 
-
-
-export const RequestParametersList: React.FC = () => {
-    const styles = useStyles();
-    const requestParametersQuery = useCustomApiRequestParameters();
+export const RequestParametersList: React.FC<RequestParametersListProps> = ({requestParameters}) => {
+    //const styles = useStyles();
     const { setSelectedRequestParameterId } = useAppStore();
 
     const [selectedRows, setSelectedRows] = useState(
@@ -76,7 +76,7 @@ export const RequestParametersList: React.FC = () => {
             renderCell: (item) => {
                 return (
                     <TableCellLayout>
-                        {item.isoptional ? "Yes" : "No"}
+                        {item.isoptional ? 'Yes' : 'No'}
                     </TableCellLayout>
                 );
             },
@@ -87,7 +87,7 @@ export const RequestParametersList: React.FC = () => {
                 return Customapirequestparameterstype[a.type].localeCompare(Customapirequestparameterstype[b.type]);
             },
             renderHeaderCell: () => {
-                return "Type";
+                return 'Type';
             },
             renderCell: (item) => {
                 return (
@@ -99,67 +99,66 @@ export const RequestParametersList: React.FC = () => {
         }),
         
     ];
+
+    const columnSizingOptions = {
+        name: {
+            defaultWidth: 250,
+            minWidth: 250,
+            idealWidth: 250,
+            
+        },
+        isoptional: {
+            minWidth: 80,
+            defaultWidth: 80,
+        },
+        type: {
+            minWidth: 120,
+            defaultWidth: 120,
+        },
+    };
     
 
-    if (requestParametersQuery.isFetching) {
-        return (
-            <div className={styles.infoBox}>
-                <p>Loading Request Parameters...</p>
-            </div>
-        );
-    }
-
-    if (requestParametersQuery.error) {
-        return (
-            
-            <div  className={styles.infoBox}>
-                <p>Error loading Request Parameters:</p>
-                <pre>{requestParametersQuery.error.message}</pre>
-            </div>
-          
-        );
-    }
-
-    if(requestParametersQuery.requestParameters)
-    {
-        return (
-            <div>              
-                <DataGrid
-                    items={requestParametersQuery.requestParameters}
-                    columns={columns}
-                    selectionMode='single'
-                    selectedItems={selectedRows}
-                    sortable
-                    onSelectionChange={onSelectionChange}
-                    getRowId={(item) => item.customapirequestparameterid} // Set the key
-                    style={{ minWidth: "300px" }}
-                >
-                    <DataGridHeader>
-                        <DataGridRow>
-                        {({ renderHeaderCell }) => (
-                            <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+    
+    return (
+        <div style={{ width: "450px" }}>              
+            <DataGrid
+                items={requestParameters}
+                columns={columns}
+                selectionMode='single'
+                selectedItems={selectedRows}
+                sortable
+                onSelectionChange={onSelectionChange}
+                getRowId={(item) => item.customapirequestparameterid} // Set the key
+                resizableColumns
+                columnSizingOptions={columnSizingOptions}
+                //style={{ maxWidth: "300px" }}
+            >
+                <DataGridHeader>
+                    <DataGridRow>
+                    {({ renderHeaderCell }) => (
+                        <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+                    )}
+                    </DataGridRow>
+                </DataGridHeader>
+                <DataGridBody<CustomApi>>
+                    {({ item, rowId }) => (
+                    <DataGridRow<CustomApi>
+                        key={rowId}
+                        selectionCell={{ radioIndicator: { "aria-label": "Select row" } }}
+                    >
+                        {({ renderCell }) => (
+                            <DataGridCell>{renderCell(item)}</DataGridCell>
                         )}
-                        </DataGridRow>
-                    </DataGridHeader>
-                    <DataGridBody<CustomApi>>
-                        {({ item, rowId }) => (
-                        <DataGridRow<CustomApi>
-                            key={rowId}
-                            selectionCell={{ radioIndicator: { "aria-label": "Select row" } }}
-                        >
-                            {({ renderCell }) => (
-                                <DataGridCell>{renderCell(item)}</DataGridCell>
-                            )}
-                        </DataGridRow>
-                        )}
-                    </DataGridBody>
-                </DataGrid>
-            </div>
+                    </DataGridRow>
+                    )}
+                </DataGridBody>
+            </DataGrid>
+        </div>
             
             
             
         );
 
-    }
+    
     
 };

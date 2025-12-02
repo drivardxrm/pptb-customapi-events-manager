@@ -9,6 +9,8 @@ export const useCustomApis = () => {
   // Get connection and instanceId from Zustand store
   const { connection, isLoadingConnection, instanceId }  = useAppStore();
 
+  
+
   const { data, status, error, isFetching } =
     useQuery<CustomApi[], Error>(
       {

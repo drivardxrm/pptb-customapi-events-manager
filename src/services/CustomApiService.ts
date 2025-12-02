@@ -13,26 +13,16 @@ export class CustomApiService extends EntityService {
 
     async fetchAll(): Promise<CustomApi[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
-        console.log('CustomApiService.fetchAll result:', result);
+        //console.log('CustomApiService.fetchAll result:', result);
         const typed = result as unknown as { value: CustomApi[] };
         return typed.value;
     }
 
-    private toUpdateable(current: CustomApi): CustomApiUpdateable {
-        return {
-            name: current.name,
-            displayname: current.displayname,
-            description: current.description,
-            executeprivilegename: current.executeprivilegename,
-            _plugintypeid_value: current._plugintypeid_value,
-            isprivate: current.isprivate,
-            iscustomizable: current.iscustomizable,
-        };
-    }
+
 
     async updateCustomApi(current: CustomApi, next: CustomApiUpdateable): Promise<CustomApiUpdateResult> {
-        const comparableCurrent = this.toUpdateable(current);
-        const payload = buildDiffPayload<CustomApiUpdateable>(comparableCurrent, next, {
+        
+        const payload = buildDiffPayload<CustomApiUpdateable>(current, next, {
             lookupKeys: CustomApiLookups,
         });
 

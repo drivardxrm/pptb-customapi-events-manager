@@ -24,6 +24,15 @@ export interface CustomApiRequestParameter {
 
 }
 
+// A subset of CustomApiRequestParameter properties that are updateable
+export interface CustomApiRequestParameterUpdateable extends 
+  Pick<CustomApiRequestParameter,  
+  'name' |   
+  'displayname' | 
+  'description' |
+  'iscustomizable' 
+  > {}
+
 
 // OPTIONSETS ENUMS
 export const Customapirequestparameterstype = {

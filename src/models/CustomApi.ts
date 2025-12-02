@@ -106,3 +106,20 @@ export const Customapisstatuscode = {
 export type Customapisstatuscode = keyof typeof Customapisstatuscode;
 
 
+// TEMPLATE FOR CREATING NEW CustomApi
+export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
+    name: '',
+    displayname: '',
+    description: '',
+    allowedcustomprocessingsteptype: 0 as Customapisallowedcustomprocessingsteptype,
+    bindingtype: 0 as Customapisbindingtype,
+    boundentitylogicalname: '',
+    workflowsdkstepenabled: false,
+    isfunction: false,
+    executeprivilegename: '',
+    _plugintypeid_value: '',
+    isprivate: false,
+    iscustomizable: true,
+};
+
+

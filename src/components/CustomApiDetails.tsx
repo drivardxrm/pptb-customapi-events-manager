@@ -1,34 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi } from '../hooks/useCustomApis';
 import { useStyles } from '../styles/Styles';
-import { CustomApi, CustomApiCreateable, CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../models/CustomApi';
+import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEMPLATE } from '../models/CustomApi';
 import { CustomApiDetailsRead } from './customApiDetails/CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './customApiDetails/CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './customApiDetails/CustomApiDetailsCreate';
 import { ResponsePropertyList } from './ResponsePropertyList';
-import { RequestParametersDetails } from './RequestParametersDetails';
+import { RequestParameterDetails } from './RequestParameterDetails';
 
 
 
 type CustomApiDetailsMode = 'read' | 'edit' | 'create';
 
-const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
-    name: '',
-    displayname: '',
-    description: '',
-    allowedcustomprocessingsteptype: 0 as Customapisallowedcustomprocessingsteptype,
-    bindingtype: 0 as Customapisbindingtype,
-    boundentitylogicalname: '',
-    workflowsdkstepenabled: false,
-    isfunction: false,
-    executeprivilegename: '',
-    _plugintypeid_value: '',
-    isprivate: false,
-    iscustomizable: true,
-};
+
 
 const toEditable = (api: CustomApi): CustomApiUpdateable => ({
     name: api.name || '',
@@ -47,10 +34,8 @@ export const CustomApiDetails: React.FC = () => {
     const updateCustomApi = useUpdateCustomApi();
 
 
-    const selectedCustomApi = useMemo(
-        () => customapis.find((api) => api.customapiid === selectedCustomApiId),
-        [customapis, selectedCustomApiId]
-    );
+    const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
+
 
     const [mode, setMode] = useState<CustomApiDetailsMode>('read');
     const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
@@ -110,7 +95,7 @@ export const CustomApiDetails: React.FC = () => {
         setCreateData((current) => updater(current));
     };
 
-    if (mode !== 'create' && (!selectedCustomApiId || !selectedCustomApi)) {
+    if (mode !== 'create' && (!selectedCustomApi)) {
         return (
             <Card className={styles.card}>
                 <CardHeader
@@ -264,8 +249,7 @@ export const CustomApiDetails: React.FC = () => {
             />
             <Divider />
             {content}
-            <Divider/>
-            <RequestParametersDetails/>
+            <RequestParameterDetails/>
             <Divider/>
             <ResponsePropertyList/>
         </Card>
