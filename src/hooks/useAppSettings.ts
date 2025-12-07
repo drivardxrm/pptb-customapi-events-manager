@@ -9,15 +9,15 @@ export const useAppSettings = () => {
   // Get connection and instanceId from Zustand store
   //const connection = useAppStore((state) => state.connection);
   //const isLoading = useAppStore((state) => state.isLoadingConnection);
-  const {instanceId} = useAppStore();
+  const {instanceId, connection} = useAppStore();
 
 
   const { data, status, error, isFetching } =
     useQuery<AppSettings, Error>(
       {
-        queryKey: ['appsettings', instanceId], // Include instanceId and connection id for proper cache management
-        queryFn: () => getAllSettings(),
-        //enabled: !!connection && !isLoading,
+        queryKey: ['appsettings', connection, instanceId], // Include instanceId and connection id for proper cache management
+        queryFn: () => getAllSettings(connection!.id),
+        enabled: !!connection,
         staleTime: Infinity
       }
     )
@@ -29,7 +29,7 @@ export const useAppSettings = () => {
 }
 
 export const useUpdateAppSettings = () => {
-  const {instanceId} = useAppStore();
+  const {instanceId, connection } = useAppStore();
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -40,14 +40,16 @@ export const useUpdateAppSettings = () => {
 
       if (diffKeys.length === 0) return current;
 
-      await Promise.all(diffKeys.map((key) => updateSetting(key, next[key])));
+
+
+      await Promise.all(diffKeys.map((key) => updateSetting(key, next[key], connection!.id)));
       return { ...current, ...next };
     },
     onSuccess: (merged) => {
-      queryClient.setQueryData(['appsettings', instanceId], merged);
+      queryClient.setQueryData(['appsettings', connection, instanceId], merged);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['appsettings', instanceId] });
+      queryClient.invalidateQueries({ queryKey: ['appsettings', connection, instanceId] });
     },
   });
 }
