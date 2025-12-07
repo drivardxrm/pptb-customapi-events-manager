@@ -17,7 +17,6 @@ import {
     Info24Regular,
     Settings24Regular,
     Settings24Filled,
-    //PlugConnected32Regular, 
     PlugConnected24Regular,
     PlugConnected24Filled,
     Info24Filled,
@@ -34,12 +33,13 @@ import { CustomApiDetails } from "./CustomApiDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
+import { StoreDebugView } from "./StoreDebugView";
 //import { CustomApiList } from "./CustomApiList";
 
 
 
 
-type NavSection = 'connection' | 'customapi' | 'logs' | 'settings' | 'about';
+type NavSection = 'connection' | 'customapi' | 'logs' | 'settings' | 'about' | 'debug';
 
 
 function App() {
@@ -69,15 +69,13 @@ function App() {
         Info24Filled,
         Info24Regular
     );
-
-
-
     const navItems = [
         { value: 'customapi', icon: <ServerMultipleRegular />, label: 'Custom API' },
         { value: 'connection', icon: <ConnectionIcon />, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular />, label: 'Logs' },
         { value: 'settings', icon: <SettingsIcon />, label: 'Settings' },
         { value: 'about', icon: <AboutIcon />, label: 'About' },
+        { value: 'debug', icon: <ServerMultipleRegular />, label: 'Debug' },
     ];
 
     //subscribe to events
@@ -130,6 +128,8 @@ function App() {
                 return <SettingsForm />;
             case 'about':
                 return <About />;
+            case 'debug':
+                return <StoreDebugView />;
             default:
                 return null;
         }
