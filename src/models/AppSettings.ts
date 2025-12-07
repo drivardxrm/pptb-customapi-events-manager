@@ -3,14 +3,15 @@ export interface AppSettings  {
     defaultPublisherId: string | null;  
     requestParameterDefaultName: string | null;
     responsePropertyDefaultName: string | null;
+  showDebug: boolean;
 
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
-    defaultPublisherId: null,
-    requestParameterDefaultName: '{customapiname}-In-{uniquename}',
-    responsePropertyDefaultName: '{customapiname}-Out-{uniquename}',
-
+  defaultPublisherId: null,
+  requestParameterDefaultName: '{customapiname}-In-{uniquename}',
+  responsePropertyDefaultName: '{customapiname}-Out-{uniquename}',
+  showDebug: false,
 };
 
 export async function getAllSettings(connectionId:string): Promise<AppSettings> {
@@ -37,6 +38,11 @@ export function mapRecordToSettings(record: Record<string, any>, connectionId:st
         defaultPublisherId: getScopedValue(record, 'defaultPublisherId', connectionId) ?? DEFAULT_SETTINGS.defaultPublisherId,
         requestParameterDefaultName: record.requestParameterDefaultName ?? DEFAULT_SETTINGS.requestParameterDefaultName,
         responsePropertyDefaultName: record.responsePropertyDefaultName ??  DEFAULT_SETTINGS.responsePropertyDefaultName,
+        showDebug: typeof record.showDebug === 'boolean'
+          ? record.showDebug
+          : record.showDebug === 'true'
+            ? true
+            : DEFAULT_SETTINGS.showDebug,
 
     };
 }

@@ -7,6 +7,7 @@ import {
     Input, 
     Button,
     Spinner,
+    Switch,
     tokens
 } from '@fluentui/react-components';
 import { Save24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
@@ -41,7 +42,8 @@ export const SettingsForm: React.FC = () => {
         return ( settingsQuery.appsettings && localSettings &&
             (localSettings.defaultPublisherId !== settingsQuery.appsettings.defaultPublisherId ||
             localSettings.requestParameterDefaultName !== settingsQuery.appsettings.requestParameterDefaultName ||
-            localSettings.responsePropertyDefaultName !== settingsQuery.appsettings.responsePropertyDefaultName)
+            localSettings.responsePropertyDefaultName !== settingsQuery.appsettings.responsePropertyDefaultName ||
+            localSettings.showDebug !== settingsQuery.appsettings.showDebug)
         );
     };
 
@@ -197,6 +199,24 @@ export const SettingsForm: React.FC = () => {
                                     responsePropertyDefaultName: e.target.value || null
                                 })}
                                 
+                            />
+                        </Field>
+                    </div>
+
+                    <div className={styles.formSection}>
+                        <Field 
+                            label="Show Debug Tools"
+                            hint="Toggle visibility of debug features within the app"
+                        >
+                            <Switch
+                                checked={localSettings.showDebug}
+                                onChange={(_, data) =>
+                                    setLocalSettings({
+                                        ...localSettings,
+                                        showDebug: data.checked,
+                                    })
+                                }
+                                label={localSettings.showDebug ? 'Enabled' : 'Disabled'}
                             />
                         </Field>
                     </div>

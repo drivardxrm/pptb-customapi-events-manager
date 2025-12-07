@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { 
     Image,
     NavDrawer,
@@ -34,6 +34,7 @@ import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
 import { StoreDebugView } from "./StoreDebugView";
+import { useAppSettings } from "../hooks/useAppSettings";
 //import { CustomApiList } from "./CustomApiList";
 
 
@@ -48,6 +49,7 @@ function App() {
     
     // Zustand store
     const {connection, isLoadingConnection, instanceId, addLog} = useAppStore();
+    const { appsettings } = useAppSettings();
     // const isLoading = useAppStore((state) => state.isLoadingConnection);
     // const instanceId = useAppStore((state) => state.instanceId);
     // const addLog = useAppStore((state) => state.addLog);
@@ -69,14 +71,23 @@ function App() {
         Info24Filled,
         Info24Regular
     );
-    const navItems = [
+    const navItems: Array<{ value: NavSection; icon: ReactElement; label: string }> = [
         { value: 'customapi', icon: <ServerMultipleRegular />, label: 'Custom API' },
         { value: 'connection', icon: <ConnectionIcon />, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular />, label: 'Logs' },
         { value: 'settings', icon: <SettingsIcon />, label: 'Settings' },
         { value: 'about', icon: <AboutIcon />, label: 'About' },
-        { value: 'debug', icon: <ServerMultipleRegular />, label: 'Debug' },
     ];
+
+    if (appsettings?.showDebug) {
+        navItems.push({ value: 'debug', icon: <ServerMultipleRegular />, label: 'Debug' });
+    }
+
+    useEffect(() => {
+        if (!appsettings?.showDebug && selectedNavItem === 'debug') {
+            setSelectedNavItem('customapi');
+        }
+    }, [appsettings?.showDebug, selectedNavItem]);
 
     //subscribe to events
     useToolBoxEvents();
@@ -129,7 +140,7 @@ function App() {
             case 'about':
                 return <About />;
             case 'debug':
-                return <StoreDebugView />;
+                return appsettings?.showDebug ? <StoreDebugView /> : null;
             default:
                 return null;
         }
