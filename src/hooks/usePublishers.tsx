@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { Publisher } from '../models/Publisher';
+import { queryKeys } from '../utils/queryKeys';
 
 
 
@@ -16,7 +17,7 @@ export const usePublishers = () => {
   const { data, status, error, isFetching } =
     useQuery<{ value: Publisher[] }, Error>(
       {
-        queryKey: ['publishers', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.publishers(connection?.id ?? '', instanceId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           const result = window.dataverseAPI.queryData('publishers?$select=publisherid,uniquename,friendlyname,customizationprefix'); // todo limit fields for perf
           return result as unknown as { value: Publisher[] };

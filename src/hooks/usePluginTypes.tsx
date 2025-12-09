@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { PluginType } from '../models/PluginType';
+import { queryKeys } from '../utils/queryKeys';
 
 
 export const usePluginTypes = () => {
@@ -15,7 +16,7 @@ export const usePluginTypes = () => {
   const { data, status, error, isFetching } =
     useQuery<{ value: PluginType[] }, Error>(
       {
-        queryKey: ['plugintypes', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.plugintypes(connection?.id ?? '', instanceId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           const result = window.dataverseAPI.queryData('plugintypes?$select=plugintypeid,typename,ismanaged'); // todo limit fields for perf
           console.log('Fetched plugintypes:', result);

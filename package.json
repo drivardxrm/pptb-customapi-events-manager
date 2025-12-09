@@ -27,16 +27,17 @@
   "dependencies": {
     "@fluentui/react-components": "^9.72.8",
     "@sucoza/zustand-devtools-plugin": "^0.1.9",
-    "@tanstack/react-devtools": "^0.8.2",
+    "@tanstack/react-devtools": "^0.8.4",
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-query-devtools": "^5.91.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
+    "react-query-key-manager": "^0.0.113",
     "uuid": "^13.0.0",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
-    "@pptb/types": "^1.0.8",
+    "@pptb/types": "^1.0.9",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^10.0.0",

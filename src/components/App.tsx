@@ -71,17 +71,16 @@ function App() {
         Info24Filled,
         Info24Regular
     );
-    const navItems: Array<{ value: NavSection; icon: ReactElement; label: string }> = [
+    const navItems: Array<{ value: NavSection; icon: ReactElement; label: string; hidden?:boolean }> = [
         { value: 'customapi', icon: <ServerMultipleRegular />, label: 'Custom API' },
         { value: 'connection', icon: <ConnectionIcon />, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular />, label: 'Logs' },
         { value: 'settings', icon: <SettingsIcon />, label: 'Settings' },
         { value: 'about', icon: <AboutIcon />, label: 'About' },
+        { value: 'debug', icon: <ServerMultipleRegular />, label: 'Debug', hidden: !appsettings?.showDebug }
     ];
 
-    if (appsettings?.showDebug) {
-        navItems.push({ value: 'debug', icon: <ServerMultipleRegular />, label: 'Debug' });
-    }
+
 
     useEffect(() => {
         if (!appsettings?.showDebug && selectedNavItem === 'debug') {
@@ -197,7 +196,7 @@ function App() {
                                 {!navCollapsed ? "Custom API Manager" : null}
                             </AppItem>
                             
-                            {navItems.map(item => (
+                            {navItems.filter(i => !i.hidden).map(item => (
                                 <Tooltip key={item.value} content={item.label} relationship="label" visible={navCollapsed}>
                                     <NavItem icon={item.icon} value={item.value}>
                                         {!navCollapsed ? item.label : null}

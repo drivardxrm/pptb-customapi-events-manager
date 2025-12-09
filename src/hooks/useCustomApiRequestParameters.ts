@@ -2,26 +2,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { CustomApiRequestParameter, CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
 import { customApiRequestParameterService, CustomApiRequestParameterUpdateResult } from '../services/CustomApiRequestParameterService';
+import { queryKeys } from '../utils/queryKeys';
 
 
 export const useCustomApiRequestParameters = () => {
 
-  // Get connection and instanceId from Zustand store
-  const connection = useAppStore((state) => state.connection);
-  const isLoading = useAppStore((state) => state.isLoadingConnection);
-  const instanceId = useAppStore((state) => state.instanceId);
-  const selectedCustomApiId = useAppStore((state) => state.selectedCustomApiId);
-
+  
+  const { connection, isLoadingConnection , instanceId, selectedCustomApiId  } = useAppStore()
 
   const { data, status, error, isFetching } =
     useQuery<{ value: CustomApiRequestParameter[] }, Error>(
       {
-        queryKey: ['customapirequestparameter', selectedCustomApiId, instanceId, connection?.id], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.requestparameters(selectedCustomApiId ?? "", connection?.id ?? '', instanceId), 
         queryFn: async () => {
           const result = window.dataverseAPI.queryData(`customapirequestparameters?$filter=_customapiid_value eq ${selectedCustomApiId}`);
           return result as unknown as { value: CustomApiRequestParameter[] };
         },
-        enabled: !!connection && !isLoading,
+        enabled: !!connection && !isLoadingConnection,
         staleTime: Infinity
       }
     )
@@ -39,7 +36,7 @@ type UpdateCustomApiRequestParameterInput = {
 
 export const useUpdateCustomApiRequestParameter = () => {
   const queryClient = useQueryClient();
-  const {addLog} = useAppStore();
+  const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
   return useMutation<CustomApiRequestParameterUpdateResult, unknown, UpdateCustomApiRequestParameterInput>({
     mutationFn: async ({ current, next }) => {
@@ -61,7 +58,7 @@ export const useUpdateCustomApiRequestParameter = () => {
     },
     onSuccess: (result) => {
       if (result.updated) {
-        queryClient.invalidateQueries({ queryKey: ['customapirequestparameter'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
       }
     },
   });

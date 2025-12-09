@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { CustomApi, CustomApiUpdateable } from '../models/CustomApi';
 import { customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
+import { queryKeys } from '../utils/queryKeys';
 
 
 export const useCustomApis = () => {
@@ -14,7 +15,7 @@ export const useCustomApis = () => {
   const { data, status, error, isFetching } =
     useQuery<CustomApi[], Error>(
       {
-        queryKey: ['customapi', instanceId, connection?.id ], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.customapis(connection?.id ?? '', instanceId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           const result = await customApiService.fetchAll();
           //console.log('Fetched customapis:', result);
@@ -39,6 +40,7 @@ type UpdateCustomApiInput = {
 export const useUpdateCustomApi = () => {
   const queryClient = useQueryClient();
   const {addLog} = useAppStore();
+  const { connection, instanceId }  = useAppStore();
 
   return useMutation<CustomApiUpdateResult, unknown, UpdateCustomApiInput>({
     mutationFn: async ({ current, next }) => {
@@ -60,7 +62,7 @@ export const useUpdateCustomApi = () => {
     },
     onSuccess: (result) => {
       if (result.updated) {
-        queryClient.invalidateQueries({ queryKey: ['customapi'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.appsettings(connection?.id ?? '', instanceId) });
       }
     },
   });

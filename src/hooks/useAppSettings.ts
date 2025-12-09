@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { AppSettings, getAllSettings, updateSetting } from '../models/AppSettings';
+import { queryKeys } from '../utils/queryKeys';
 
 
 
@@ -15,7 +16,7 @@ export const useAppSettings = () => {
   const { data, status, error, isFetching } =
     useQuery<AppSettings, Error>(
       {
-        queryKey: ['appsettings', connection, instanceId], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.appsettings(connection?.id ?? '', instanceId), //['appsettings', connection?.id, instanceId], // Include instanceId and connection id for proper cache management
         queryFn: () => getAllSettings(connection!.id),
         enabled: !!connection,
         staleTime: Infinity
@@ -46,10 +47,10 @@ export const useUpdateAppSettings = () => {
       return { ...current, ...next };
     },
     onSuccess: (merged) => {
-      queryClient.setQueryData(['appsettings', connection, instanceId], merged);
+      queryClient.setQueryData(queryKeys.appsettings(connection?.id ?? '', instanceId), merged);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['appsettings', connection, instanceId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.appsettings(connection?.id ?? '', instanceId) });
     },
   });
 }

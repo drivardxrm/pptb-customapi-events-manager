@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export async function getAllSettings(connectionId:string): Promise<AppSettings> {
-  const result = await window.toolboxAPI.settings.getSettings();
+  const result = await window.toolboxAPI.settings.getAll();
   return mapRecordToSettings(result, connectionId);
 }
 
@@ -61,7 +61,7 @@ export async function updateSetting<K extends keyof AppSettings>(
     keyStr = (`defaultPublisherId_${connectionId}`);
   }
 
-  await window.toolboxAPI.settings.setSetting(keyStr, value);
+  await window.toolboxAPI.settings.set(keyStr, value);
   
 }
 

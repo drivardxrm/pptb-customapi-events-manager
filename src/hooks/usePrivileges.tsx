@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { Privilege } from '../models/Privilege';
+import { queryKeys } from '../utils/queryKeys';
 
 
 export const usePrivileges = () => {
@@ -15,7 +16,7 @@ export const usePrivileges = () => {
   const { data, status, error, isFetching } =
     useQuery<{ value: Privilege[] }, Error>(
       {
-        queryKey: ['privileges', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.privileges(connection?.id ?? '', instanceId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           const result = window.dataverseAPI.queryData('privileges?$select=privilegeid,name'); // todo limit fields for perf
           return result as unknown as { value: Privilege[] };
