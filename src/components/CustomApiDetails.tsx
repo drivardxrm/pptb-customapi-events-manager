@@ -64,28 +64,48 @@ export const CustomApiDetails: React.FC = () => {
     };
 
     const handleCancel = () => {
-        if (selectedCustomApi) {
+        if (mode === "edit" && selectedCustomApi) {
             setEditedData(toEditable(selectedCustomApi));
+        }else if (mode === "create") {
+            setCreateData(DEFAULT_CREATE_TEMPLATE);
         }
         setMode('read');
     };
 
     const handleSave = async () => {
-        if (!selectedCustomApi || !editedData) {
-            return;
-        }
+        
 
         try {
-            await updateCustomApi.mutateAsync({
-                current: selectedCustomApi,
-                next: editedData,
-            });
+        
+            if(mode === 'create') {
+                // Creating new Custom API
+                if (selectedCustomApi || !createData) {
+                    return;
+                }
+                // await updateCustomApi.mutateAsync({
+                //     current: selectedCustomApi,
+                //     next: editedData,
+                // });
+            }
+            else if(mode !== 'edit') {
+                
+                if (!selectedCustomApi || !editedData) {
+                    return;
+                }
+                await updateCustomApi.mutateAsync({
+                    current: selectedCustomApi,
+                    next: editedData,
+                });
 
+            }
+            
             setMode('read');
         } catch (error) {
             console.error('Error saving Custom API', error);
         }
     };
+
+
 
     const handleEditedDataChange = (updater: (current: CustomApiUpdateable) => CustomApiUpdateable) => {
         setEditedData((current) => (current ? updater(current) : current));
@@ -185,6 +205,7 @@ export const CustomApiDetails: React.FC = () => {
                     </div>
                 );
             case 'edit':
+            
                 return (
                     <div className={styles.headerActionGroup}>
                         <Button
@@ -209,9 +230,26 @@ export const CustomApiDetails: React.FC = () => {
                 );
             case 'create':
                 return (
-                    <Button appearance='secondary' onClick={handleCancel} className={styles.headerActionButton}>
-                        Back to Details
-                    </Button>
+                    <div className={styles.headerActionGroup}>
+                        <Button
+                            appearance='primary'
+                            icon={updateCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
+                            disabled={updateCustomApi.isPending}
+                            onClick={handleSave}
+                            className={styles.headerActionButton}
+                        >
+                            {updateCustomApi.isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button
+                            appearance="secondary"
+                            icon={<Dismiss24Regular />}
+                            disabled={updateCustomApi.isPending}
+                            onClick={handleCancel}
+                            className={styles.headerActionButton}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
                 );
             default:
                 return null;
@@ -220,7 +258,7 @@ export const CustomApiDetails: React.FC = () => {
 
     const content = (() => {
         if (mode === 'create') {
-            return <CustomApiDetailsCreate template={createData} onChange={handleCreateDataChange} />;
+            return <CustomApiDetailsCreate createData={createData} onChange={handleCreateDataChange} />;
         }
 
         if (mode === 'edit' && selectedCustomApi && editedData) {

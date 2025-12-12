@@ -1,3 +1,4 @@
+import { SelectableItem } from "../components/generic/GenericTagPicker";
 import { EntityService } from "../services/EntityService";
 import { PluginTypeService } from "../services/PluginTypeService";
 
@@ -34,6 +35,7 @@ export interface CustomApi  {
 // A subset of CustomApi properties that used at creation time
 export interface CustomApiCreateable  extends 
   Pick<CustomApi,  
+  'uniquename' |
   'name' |   
   'allowedcustomprocessingsteptype' | 
   'bindingtype' | 
@@ -76,12 +78,31 @@ export const Customapisallowedcustomprocessingsteptype = {
 } as const;
 export type Customapisallowedcustomprocessingsteptype = keyof typeof Customapisallowedcustomprocessingsteptype;
 
+
+// Helper to get options for AllowedCustomProcessingStepType
+export const getAllowedCustomProcessingStepTypeOptions = (): Array<SelectableItem> =>
+  Object.entries(Customapisallowedcustomprocessingsteptype).map(([key, value]) => ({
+    id: Number(key).toString(),
+    displayText: value,
+    image: null,
+  }));
+
+
+
 export const Customapisbindingtype = {
   0: 'Global',
   1: 'Entity',
   2: 'EntityCollection'
 } as const;
 export type Customapisbindingtype = keyof typeof Customapisbindingtype;
+
+// Helper to get options for BindingType
+export const getBindingTypeOptions = (): Array<SelectableItem> =>
+  Object.entries(Customapisbindingtype).map(([key, value]) => ({
+    id: Number(key).toString(),
+    displayText: value,
+    image: null,
+  }));
 
 // export const Customapiscomponentstate = {
 //   0: 'Published',
@@ -108,6 +129,7 @@ export type Customapisstatuscode = keyof typeof Customapisstatuscode;
 
 // TEMPLATE FOR CREATING NEW CustomApi
 export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
+    uniquename: '',
     name: '',
     displayname: '',
     description: '',
