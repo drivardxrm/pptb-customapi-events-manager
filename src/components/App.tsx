@@ -29,7 +29,7 @@ import { useConnectionSync } from "../hooks/useConnectionSync";
 import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
 import { CustomApiSelector } from "./CustomApiSelector";
-import { CustomApiDetails } from "./CustomApiDetails";
+import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";

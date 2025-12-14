@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
-import { useAppStore } from '../store/useAppStore';
-import { useCustomApis, useUpdateCustomApi } from '../hooks/useCustomApis';
-import { useStyles } from '../styles/Styles';
-import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEMPLATE } from '../models/CustomApi';
-import { CustomApiDetailsRead } from './customApiDetails/CustomApiDetailsRead';
-import { CustomApiDetailsEdit } from './customApiDetails/CustomApiDetailsEdit';
-import { CustomApiDetailsCreate } from './customApiDetails/CustomApiDetailsCreate';
-import { ResponsePropertyList } from './ResponsePropertyList';
-import { RequestParameterDetails } from './RequestParameterDetails';
+import { useAppStore } from '../../store/useAppStore';
+import { useCustomApis, useUpdateCustomApi } from '../../hooks/useCustomApis';
+import { useStyles } from '../../styles/Styles';
+import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEMPLATE } from '../../models/CustomApi';
+import { CustomApiDetailsRead } from './CustomApiDetailsRead';
+import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
+import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
+import { ResponsePropertyList } from './../ResponsePropertyList';
+import { RequestParameterDetails } from './../RequestParameterDetails';
 
 
 
@@ -287,9 +287,15 @@ export const CustomApiDetails: React.FC = () => {
             />
             <Divider />
             {content}
-            <RequestParameterDetails/>
-            <Divider/>
-            <ResponsePropertyList/>
+            {
+                selectedCustomApi &&
+                <>
+                    <RequestParameterDetails/>
+                    <Divider/>
+                    <ResponsePropertyList/>
+                </>
+            }
+            
         </Card>
     );
 };

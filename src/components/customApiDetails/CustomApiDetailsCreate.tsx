@@ -62,7 +62,20 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             </Text>
                         }
                         value={uniqueNameSuffix} 
-                        onChange={(event) => updateField('uniquename', 'driv_' + event.target.value || '')}
+                        onChange={(event) => {
+
+                               
+                                updateField('uniquename', 'driv_' + event.target.value || '')
+                                if(createData.displayname === '' || createData.displayname === uniqueNameSuffix) {
+                                    updateField('displayname', event.target.value || '');
+                                }
+                                if(createData.name === '' || createData.name === uniqueNameSuffix) {
+                                    updateField('name', event.target.value || '');
+                                }
+                            
+                            }
+
+                        }
                     />
                 </Field>
             </div>
@@ -106,7 +119,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                         items={
                             getAllowedCustomProcessingStepTypeOptions()
                                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                        initialValue={Customapisallowedcustomprocessingsteptype[createData.allowedcustomprocessingsteptype]}
+                        initialValue={createData.allowedcustomprocessingsteptype.toString()}
                         isDisabled={false}
                         onSelect={(id) => updateField('allowedcustomprocessingsteptype', Number(id) as Customapisallowedcustomprocessingsteptype)}
                     />
@@ -123,7 +136,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                         items={
                             getBindingTypeOptions()
                                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                        initialValue={Customapisbindingtype[createData.bindingtype]}
+                        initialValue={createData.bindingtype.toString()}
                         isDisabled={false}
                         onSelect={(id) => updateField('bindingtype', Number(id) as Customapisbindingtype)}
                     />
