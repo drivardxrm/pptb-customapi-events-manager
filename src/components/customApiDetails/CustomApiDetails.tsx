@@ -23,7 +23,6 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
     description: api.description || '',
     executeprivilegename: api.executeprivilegename || '',
     _plugintypeid_value: api._plugintypeid_value || '',
-    iscustomizable: api.iscustomizable,
     isprivate: api.isprivate,
 });
 
@@ -60,6 +59,7 @@ export const CustomApiDetails: React.FC = () => {
     };
 
     const handleCreate = () => {
+        setSelectedCustomApiId(null);
         setCreateData(DEFAULT_CREATE_TEMPLATE);
         setMode('create');
     };

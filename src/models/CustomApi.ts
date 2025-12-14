@@ -14,7 +14,6 @@ export interface CustomApi  {
   displayname: string;
   workflowsdkstepenabled: boolean;  
   executeprivilegename: string;
-  iscustomizable: boolean;
   isfunction: boolean;
   ismanaged: boolean;
   isprivate: boolean;
@@ -46,8 +45,7 @@ export interface CustomApiCreateable  extends
   'description' |
   '_plugintypeid_value'| 
   'executeprivilegename' |
-  'isprivate' |
-  'iscustomizable' 
+  'isprivate' 
   > {}
 
 
@@ -60,8 +58,7 @@ export interface CustomApiUpdateable extends
   'description' |
   '_plugintypeid_value'| 
   'executeprivilegename' |
-  'isprivate' |
-  'iscustomizable' 
+  'isprivate' 
   > {}
 
 // Record<keyof T, EntityService> for lookups
@@ -140,8 +137,7 @@ export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
     isfunction: false,
     executeprivilegename: '',
     _plugintypeid_value: '',
-    isprivate: false,
-    iscustomizable: true,
+    isprivate: false
 };
 
 

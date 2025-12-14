@@ -22,11 +22,11 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
         const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
         const privateLabelRef = useRef<HTMLSpanElement | null>(null);
-        const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
+
         const columnRefGroups = useMemo(
             () => [
                 [functionLabelRef, workflowLabelRef],
-                [privateLabelRef, customizableLabelRef],
+                [privateLabelRef],
             ],
             []
         );
@@ -250,25 +250,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                             />
                         </div>
                     </Tooltip>
-                    <Tooltip content={editedData.iscustomizable ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                        <div className={styles.switchRow}>
-                            <Switch
-                                checked={editedData.iscustomizable}
-                                onChange={(_, data) => updateField('iscustomizable', data.checked)}
-                                tabIndex={-1}
-                                //className={styles.readOnlySwitch}
-                                label={
-                                    <span 
-                                        ref={customizableLabelRef}
-                                        className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}
-                                        style={column2Style}
-                                    >
-                                        Is Customizable
-                                    </span>}
-                                labelPosition="before"
-                            />
-                        </div>
-                    </Tooltip>
+                    
                 </div>
             </div>
             

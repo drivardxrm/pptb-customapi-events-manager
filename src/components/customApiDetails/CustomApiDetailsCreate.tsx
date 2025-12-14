@@ -27,11 +27,11 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
     const privateLabelRef = useRef<HTMLSpanElement | null>(null);
-    const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
+
     const columnRefGroups = useMemo(
         () => [
             [functionLabelRef, workflowLabelRef],
-            [privateLabelRef, customizableLabelRef],
+            [privateLabelRef],
         ],
         []
     );
@@ -344,7 +344,6 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                     <Switch
                                         checked={createData.isprivate}
                                         onChange={(_, data) => updateField('isprivate', data.checked)}
-                                        className={styles.readOnlySwitch}
                                         tabIndex={-1}
                                         label={
                                             <span 
@@ -353,25 +352,6 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                                 style={column2Style}
                                             >
                                                 Is Private</span>}
-                                        labelPosition="before"
-                                    />
-                                </div>
-                            </Tooltip>
-                            <Tooltip content={createData.iscustomizable ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                                <div className={styles.switchRow}>
-                                    <Switch
-                                        checked={createData.iscustomizable}
-                                        onChange={(_, data) => updateField('iscustomizable', data.checked)}
-                                        tabIndex={-1}
-                                        className={styles.readOnlySwitch}
-                                        label={
-                                            <span 
-                                                ref={customizableLabelRef}
-                                                className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}
-                                                style={column2Style}
-                                            >
-                                                Is Customizable
-                                            </span>}
                                         labelPosition="before"
                                     />
                                 </div>

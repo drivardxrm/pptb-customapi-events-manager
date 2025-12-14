@@ -14,11 +14,11 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
     const privateLabelRef = useRef<HTMLSpanElement | null>(null);
-    const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
+
     const columnRefGroups = useMemo(
         () => [
             [functionLabelRef, workflowLabelRef],
-            [privateLabelRef, customizableLabelRef],
+            [privateLabelRef],
         ],
         []
     );
@@ -200,26 +200,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                             />
                         </div>
                     </Tooltip>
-                    <Tooltip content={api.iscustomizable ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                        <div className={styles.switchRow}>
-                            <Switch
-                                checked={api.iscustomizable}
-                                aria-disabled={true}
-                                tabIndex={-1}
-                                className={styles.readOnlySwitch}
-                                label={
-                                    <span
-                                        ref={customizableLabelRef}
-                                        className={styles.readOnlySwitchLabel}
-                                        style={column2Style}
-                                    >
-                                        Is Customizable
-                                    </span>
-                                }
-                                labelPosition="before"
-                            />
-                        </div>
-                    </Tooltip>
+                    
                 </div>
             </div>
             
