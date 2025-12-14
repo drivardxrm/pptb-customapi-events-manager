@@ -20,6 +20,9 @@ interface AppState {
     selectedRequestParameterId: string | null;
     selectedResponsePropertyId: string | null;
 
+    selectedPublisherId: string | null;
+
+
     // Logs state
     logs: LogEntry[];
 
@@ -33,6 +36,9 @@ interface AppState {
     setSelectedCustomApiId: (customApiId: string | null) => void;
     setSelectedRequestParameterId: (requestParameterId: string | null) => void;
     setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
+    setSelectedPublisherId: (publisherId: string | null) => void;
+
+
 
     // Log actions
     addLog: (message: string, type?: LogEntry['type']) => void;
@@ -54,6 +60,8 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedCustomApiId: null,
         selectedRequestParameterId: null,
         selectedResponsePropertyId: null,
+        selectedPublisherId: null,
+
 
         // Connection actions
         setConnection: (connection) => set({ connection }),
@@ -94,6 +102,10 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setSelectedResponsePropertyId: (responsePropertyId) => set(
             { selectedResponsePropertyId: responsePropertyId }
         ),
+        setSelectedPublisherId: (publisherId) => set(
+            { selectedPublisherId: publisherId }
+        ),
+        
         // Log actions
         addLog: (message, type = 'info') => {
             const newLog: LogEntry = {

@@ -237,7 +237,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                             <Switch
                                 checked={editedData.isprivate}
                                 onChange={(_, data) => updateField('isprivate', data.checked)}
-                                className={styles.readOnlySwitch}
+                                //className={styles.readOnlySwitch}
                                 tabIndex={-1}
                                 label={
                                     <span 
@@ -256,7 +256,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                                 checked={editedData.iscustomizable}
                                 onChange={(_, data) => updateField('iscustomizable', data.checked)}
                                 tabIndex={-1}
-                                className={styles.readOnlySwitch}
+                                //className={styles.readOnlySwitch}
                                 label={
                                     <span 
                                         ref={customizableLabelRef}

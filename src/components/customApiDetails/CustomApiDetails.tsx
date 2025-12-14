@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
-import { useCustomApis, useUpdateCustomApi } from '../../hooks/useCustomApis';
+import { useCustomApis, useUpdateCustomApi, useCreateCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
 import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEMPLATE } from '../../models/CustomApi';
 import { CustomApiDetailsRead } from './CustomApiDetailsRead';
@@ -29,9 +29,10 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const {selectedCustomApiId} = useAppStore();
+    const {selectedCustomApiId, setSelectedCustomApiId} = useAppStore();
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
+    const createCustomApi = useCreateCustomApi();
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -82,12 +83,17 @@ export const CustomApiDetails: React.FC = () => {
                 if (selectedCustomApi || !createData) {
                     return;
                 }
-                // await updateCustomApi.mutateAsync({
-                //     current: selectedCustomApi,
-                //     next: editedData,
-                // });
+                let result = await createCustomApi.mutateAsync({
+                    next: createData,
+                });
+
+                if(result.created && result.customApiId) {
+                    setSelectedCustomApiId(result.customApiId);
+                    setCreateData(DEFAULT_CREATE_TEMPLATE);
+                }
+                
             }
-            else if(mode !== 'edit') {
+            else if(mode === 'edit') {
                 
                 if (!selectedCustomApi || !editedData) {
                     return;
@@ -96,6 +102,7 @@ export const CustomApiDetails: React.FC = () => {
                     current: selectedCustomApi,
                     next: editedData,
                 });
+                
 
             }
             

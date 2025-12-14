@@ -1,5 +1,5 @@
 import { CustomApiRequestParameter, CustomApiRequestParameterUpdateable } from "../models/CustomApiRequestParameter";
-import { buildDiffPayload } from "../utils/diff";
+import { buildUpdatePayload } from "../utils/diff";
 import { EntityService } from "./EntityService";
 
 // todo make a more generic type for this
@@ -14,7 +14,7 @@ export class CustomApiRequestParameterService extends EntityService {
 
     async updateCustomApiRequestParameter(current: CustomApiRequestParameter, next: CustomApiRequestParameterUpdateable): Promise<CustomApiRequestParameterUpdateResult> {
             
-        const payload = buildDiffPayload<CustomApiRequestParameterUpdateable>(current, next);
+        const payload = buildUpdatePayload<CustomApiRequestParameterUpdateable>(current, next);
 
         if (Object.keys(payload).length === 0) {
             return { updated: false, payload };

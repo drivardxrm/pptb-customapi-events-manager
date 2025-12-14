@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApi, CustomApiUpdateable } from '../models/CustomApi';
-import { customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
+import { CustomApi, CustomApiCreateable, CustomApiUpdateable } from '../models/CustomApi';
+import { CustomApiCreateResult, customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
 import { queryKeys } from '../utils/queryKeys';
 
 
@@ -31,6 +31,38 @@ export const useCustomApis = () => {
     status, error, isFetching
   }
 }
+
+type CreateCustomApiInput = {
+  next: CustomApiCreateable;
+};
+
+export const useCreateCustomApi = () => {
+  const queryClient = useQueryClient();
+  const {addLog} = useAppStore();
+  const { connection, instanceId }  = useAppStore();
+
+  return useMutation<CustomApiCreateResult, unknown, CreateCustomApiInput>({
+    mutationFn: async ({  next }) => {
+      try {
+        const result = await customApiService.createCustomApi( next);
+
+       
+        addLog(`Custom API '${next.uniquename}' created successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error creating Custom API', error);
+        addLog(`Failed to create Custom API. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.created) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId) });
+      }
+    },
+  });
+};
+
 
 type UpdateCustomApiInput = {
   current: CustomApi;
@@ -62,11 +94,13 @@ export const useUpdateCustomApi = () => {
     },
     onSuccess: (result) => {
       if (result.updated) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.appsettings(connection?.id ?? '', instanceId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId) });
       }
     },
   });
 };
+
+
 
 // todo would be nice to apply filter afterwards as well
 
