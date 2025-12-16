@@ -8,16 +8,18 @@ import { queryKeys } from '../utils/queryKeys';
 export const useCustomApis = () => {
 
   // Get connection and instanceId from Zustand store
-  const { connection, isLoadingConnection, instanceId }  = useAppStore();
+  const { connection, isLoadingConnection, instanceId, selectedSolutionId }  = useAppStore();
 
   
 
   const { data, status, error, isFetching } =
     useQuery<CustomApi[], Error>(
       {
-        queryKey: queryKeys.customapis(connection?.id ?? '', instanceId), // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.customapis(connection?.id ?? '', instanceId , selectedSolutionId ?? ''), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          const result = await customApiService.fetchAll();
+          const result = selectedSolutionId == null || selectedSolutionId == '' ? 
+            await customApiService.fetchAllCustomApi() :
+            await customApiService.fetchSolutionCustomApi(selectedSolutionId);
           //console.log('Fetched customapis:', result);
           return result;
         },
@@ -39,7 +41,7 @@ type CreateCustomApiInput = {
 export const useCreateCustomApi = () => {
   const queryClient = useQueryClient();
   const {addLog} = useAppStore();
-  const { connection, instanceId }  = useAppStore();
+  const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
   return useMutation<CustomApiCreateResult, unknown, CreateCustomApiInput>({
     mutationFn: async ({  next }) => {
@@ -57,7 +59,7 @@ export const useCreateCustomApi = () => {
     },
     onSuccess: (result) => {
       if (result.created) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
       }
     },
   });
@@ -72,7 +74,7 @@ type UpdateCustomApiInput = {
 export const useUpdateCustomApi = () => {
   const queryClient = useQueryClient();
   const {addLog} = useAppStore();
-  const { connection, instanceId }  = useAppStore();
+  const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
   return useMutation<CustomApiUpdateResult, unknown, UpdateCustomApiInput>({
     mutationFn: async ({ current, next }) => {
@@ -94,7 +96,7 @@ export const useUpdateCustomApi = () => {
     },
     onSuccess: (result) => {
       if (result.updated) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
       }
     },
   });

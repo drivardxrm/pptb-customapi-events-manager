@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { 
     Field, 
     Card,
@@ -8,28 +8,29 @@ import {
     Radio,
     Input,
     ToggleButton
-} from '@fluentui/react-components';
-import { useAppStore } from '../store/useAppStore';
-import { useStyles } from '../styles/Styles';
-import { useSolutions } from '../hooks/useSolutions';
-import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
-import { useCustomApis } from '../hooks/useCustomApis';
-import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCircleColor } from '@fluentui/react-icons';
+} from '@fluentui/react-components'
+import { useAppStore } from '../store/useAppStore'
+import { useStyles } from '../styles/Styles'
+import { useSolutions } from '../hooks/useSolutions'
+import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
+import { useCustomApis } from '../hooks/useCustomApis'
+import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCircleColor } from '@fluentui/react-icons'
 
 
 
 
 export const CustomApiSelector: React.FC = () => {
-    const styles = useStyles();
-    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId } = useAppStore();
-    const solutionsQuery = useSolutions();
-    const customapisQuery = useCustomApis();
+    const styles = useStyles()
+    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId } = useAppStore()
+    const solutionsQuery = useSolutions()
+    const customapisQuery = useCustomApis()
     
-    const [filter, setFilter] = useState<string>("all");   
-    const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true);
-    const [showSolutionManaged, setShowSolutionManaged] = useState(true);
-    const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true);
-    const [showCustomApiManaged, setShowCustomApiManaged] = useState(true);
+    
+    const [filter, setFilter] = useState<string>("all")
+    const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true)
+    const [showSolutionManaged, setShowSolutionManaged] = useState(true)
+    const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true)
+    const [showCustomApiManaged, setShowCustomApiManaged] = useState(true)
 
     if (!isLoadingConnection && connection?.isActive === false) {
         return (

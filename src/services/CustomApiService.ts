@@ -17,8 +17,25 @@ export class CustomApiService extends EntityService {
     entityName = 'customapi';
     entityCollectionName = 'customapis';
 
-    async fetchAll(): Promise<CustomApi[]> {
+    async fetchAllCustomApi(): Promise<CustomApi[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
+        //console.log('CustomApiService.fetchAll result:', result);
+        const typed = result as unknown as { value: CustomApi[] };
+        return typed.value;
+    }
+
+    async fetchSolutionCustomApi(solutionid:string): Promise<CustomApi[]> {
+        const result = await window.dataverseAPI.fetchXmlQuery(`
+            <fetch>
+                <entity name='customapi'>
+                    <link-entity name='solutioncomponent' from='objectid' to='customapiid' link-type='inner' alias='sc'>
+                    <filter>
+                        <condition attribute='solutionid' operator='eq' value='${solutionid}' />
+                    </filter>
+                    </link-entity>
+                </entity>
+            </fetch>
+        `);
         //console.log('CustomApiService.fetchAll result:', result);
         const typed = result as unknown as { value: CustomApi[] };
         return typed.value;
