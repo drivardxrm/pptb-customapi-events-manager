@@ -53,7 +53,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.editableLabel}>Display Name</span>}>
+                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                     <Input
                         value={editedData.displayname ?? ''}
                         onChange={(event) => updateField('displayname', event.target.value || '')}
@@ -62,7 +62,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.editableLabel}>Name</span>}>
+                <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
                         value={editedData.name ?? ''}
                         onChange={(event) => updateField('name', event.target.value || '')}
@@ -71,7 +71,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
-                <Field label={<span className={styles.editableLabel}>Description</span>}>
+                <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
                     <Textarea
                         value={editedData.description ?? ''}
                         onChange={(event) => updateField('description', event.target.value || '')}
@@ -122,7 +122,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
            
 
             <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
-                <Field label={<span className={styles.editableLabel}>Plugin Type</span>}>
+                <Field label={<span className={styles.semiBoldLabel}>Plugin Type</span>}>
                     {pluginTypesQuery.isFetching && (
                         <Input value="Loading plugintypes..." readOnly className={styles.readOnlyInput} />
                     )}
@@ -151,7 +151,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.editableLabel}>Execute Privilege Name</span>}>
+                <Field label={<span className={styles.semiBoldLabel}>Execute Privilege Name</span>}>
                     {privilegesQuery.isFetching && (
                         <Input value="Loading privileges..." readOnly className={styles.readOnlyInput} />
                     )}
@@ -242,7 +242,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                                 label={
                                     <span 
                                         ref={privateLabelRef}
-                                        className={mergeClasses(styles.readOnlySwitchLabel,styles.editableLabel)}
+                                        className={mergeClasses(styles.readOnlySwitchLabel,styles.semiBoldLabel)}
                                         style={column2Style}
                                     >
                                         Is Private</span>}

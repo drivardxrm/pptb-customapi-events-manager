@@ -4,8 +4,6 @@ import {
     Card,
     CardHeader,
     Divider,
-    RadioGroup,
-    Radio,
     Input,
     ToggleButton
 } from '@fluentui/react-components'
@@ -21,12 +19,12 @@ import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCi
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId } = useAppStore()
+    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     
     
-    const [filter, setFilter] = useState<string>("all")
+    //const [filter, setFilter] = useState<string>("all")
     const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true)
     const [showSolutionManaged, setShowSolutionManaged] = useState(true)
     const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true)
@@ -54,23 +52,11 @@ export const CustomApiSelector: React.FC = () => {
             <Divider />
             
             <div className={styles.formGrid}>
-                {/* Filters */}
-                <div className={styles.formSection}>
-                    <Field label="Filter" >
-                        <RadioGroup layout="horizontal"
-                            value={filter}
-                            onChange={(_, data) => setFilter(data.value)}
-                        >
-                            <Radio value="all" label="All" />
-                            <Radio value="solution" label="BySolution" />
-                        </RadioGroup>
-                    </Field>
-                    
-                </div>
+               
                 <div className={styles.formSection}>
                     <Field label={
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>Solution</span>
+                            <span className={styles.semiBoldLabel}>Selected Solution</span>
                             <div style={{ display: 'flex', gap: '4px' }}>
                                 <ToggleButton
                                     appearance='secondary'
@@ -101,7 +87,9 @@ export const CustomApiSelector: React.FC = () => {
                                 </ToggleButton>
                             </div>
                         </div>
-                    }>
+                    }
+                    hint={selectedSolutionId != null && selectedSolutionId != '' ? 'Clear to show all Custom APIs' : ''}
+                    >
                         {solutionsQuery.isFetching && (
                             <Input 
                                 value={"Loading solutions..."} 
@@ -126,7 +114,7 @@ export const CustomApiSelector: React.FC = () => {
                                                                         image: s.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />
                                                                     } as SelectableItem)      
                                                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
-                                isDisabled={filter !== 'solution'} 
+                                //isDisabled={filter !== 'solution'} 
                                 onSelect={(id) => {
                                     setSelectedSolutionId(id);
                                     if(id){
@@ -140,12 +128,12 @@ export const CustomApiSelector: React.FC = () => {
                     </Field>
                     
                 </div>
-            </div>
-            <div className={styles.formGrid}>
+            {/* </div>
+            <div className={styles.formGrid}> */}
                 <div className={styles.formSection}>
                     <Field label={
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>Custom API</span>
+                            <span className={styles.semiBoldLabel}>Selected Custom API</span>
                             <div style={{ display: 'flex', gap: '4px' }}>
                                 <ToggleButton
                                     appearance='secondary'
