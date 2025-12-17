@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react';
 import {  
     Button,
     Card,
-    CardHeader
+    CardHeader,
+    Drawer,
+    DrawerBody,
+    DrawerHeader,
+    DrawerHeaderTitle,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 
-import { AddCircleColor, DismissCircleColor, Edit24Regular, DismissCircleRegular } from '@fluentui/react-icons';
+import { AddCircleColor, Dismiss24Regular } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
 import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
@@ -16,7 +20,7 @@ import { RequestParameterDetailsRead } from './RequestParameterRead';
 
 
 
-type RequestParametersMode = 'read' | 'edit' | 'create';
+export type RequestParametersMode = 'read' | 'edit' | 'create';
 
 
 export const RequestParameterDetails: React.FC = () => {
@@ -25,6 +29,7 @@ export const RequestParameterDetails: React.FC = () => {
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
     const {requestParameters} = useCustomApiRequestParameters();
+    const [isOpen, setIsOpen] = useState(false);
     //const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
 
     const selectedRequestParameter = requestParameters?.find((param) => param.customapirequestparameterid === selectedRequestParameterId)
@@ -82,7 +87,7 @@ export const RequestParameterDetails: React.FC = () => {
         }
 
         if(mode === 'read' && selectedRequestParameter) {
-            return <RequestParameterDetailsRead parameter={selectedRequestParameter}/>;
+            return <RequestParameterDetailsRead parameter={selectedRequestParameter} />;
         }
         return <></>;
     })();
@@ -108,7 +113,7 @@ export const RequestParameterDetails: React.FC = () => {
                         >
                             New
                         </Button>
-                        <Button
+                        {/* <Button
                             aria-label='Edit Request Parameter'
                             appearance='secondary'
                             icon={<Edit24Regular />}
@@ -125,16 +130,50 @@ export const RequestParameterDetails: React.FC = () => {
                             disabled={selectedRequestParameterId === null || selectedRequestParameterId === undefined || selectedRequestParameterId === ''}
                         >
                             Delete
-                        </Button>    
+                        </Button>     */}
                     </div>
                 }
 
             />
+            
+            <Drawer 
+                type='inline'
+                open={isOpen}
+                onOpenChange={(_, { open }) => setIsOpen(open)}
+                position='start'
+                size='medium'
+            >
+                <DrawerHeader>
+                    <DrawerHeaderTitle
+                        action={
+                            <Button
+                            appearance="subtle"
+                            aria-label="Close"
+                            icon={<Dismiss24Regular />}
+                            onClick={() => setIsOpen(false)}
+                            />
+                        }
+                        >
+                        Request Parameter Details
+                    </DrawerHeaderTitle>
+                </DrawerHeader>
+                <DrawerBody>
+                    {content}
+                </DrawerBody>
+                    
+            </Drawer >
+
+
             <div className={styles.formGridBig}>
                 <div className={styles.formSection}>
-                    <RequestParametersList requestParameters={requestParameters} />
+                    <RequestParametersList requestParameters={requestParameters} setIsOpen={setIsOpen} setMode={setMode} />
                 </div>
-                {content}
+
+                
+
+
+
+                
                 
             </div>
             

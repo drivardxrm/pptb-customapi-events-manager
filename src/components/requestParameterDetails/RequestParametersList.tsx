@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {  
+    Button,
     createTableColumn,
     DataGrid,
     DataGridBody,
@@ -15,16 +16,21 @@ import {
 import { useAppStore } from '../../store/useAppStore';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { CustomApi } from '../../models/CustomApi';
+import { GlassesRegular , DismissCircleColor, Edit24Regular } from '@fluentui/react-icons';
+import { RequestParametersMode } from './RequestParameterDetails';
+
 
 
 interface RequestParametersListProps {
     requestParameters: CustomApiRequestParameter[];
+    setIsOpen: (isOpen: boolean) => void;
+    setMode: (mode: RequestParametersMode) => void;
 }
 
 
 
 
-export const RequestParametersList: React.FC<RequestParametersListProps> = ({requestParameters}) => {
+export const RequestParametersList: React.FC<RequestParametersListProps> = ({requestParameters, setIsOpen, setMode}) => {
     //const styles = useStyles();
     const { setSelectedRequestParameterId } = useAppStore();
 
@@ -94,6 +100,28 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
                     <TableCellLayout>
                         {Customapirequestparameterstype[item.type]}
                     </TableCellLayout>
+                );
+            },
+        }),
+        createTableColumn<CustomApiRequestParameter>({
+            columnId: 'actions',
+            
+            renderHeaderCell: () => {
+                return 'Actions';
+            },
+            renderCell: () => {
+                return (
+                <>
+                    <Button aria-label="View" icon={<GlassesRegular />} 
+                        onClick={
+                            () => {
+                                setMode('read');
+                                setIsOpen(true);  
+                            } 
+                        }/>
+                    <Button aria-label="Edit" icon={<Edit24Regular />} />
+                    <Button aria-label="Delete" icon={<DismissCircleColor />} />
+                </>
                 );
             },
         }),

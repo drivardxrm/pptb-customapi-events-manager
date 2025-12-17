@@ -19,7 +19,6 @@ interface AppState {
     selectedCustomApiId: string | null;
     selectedRequestParameterId: string | null;
     selectedResponsePropertyId: string | null;
-
     selectedPublisherId: string | null;
 
 
