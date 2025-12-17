@@ -10,6 +10,7 @@ import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
 import { ResponsePropertyList } from './../ResponsePropertyList';
 import { RequestParameterDetails } from './../RequestParameterDetails';
+import { CustomApiSelector } from '../CustomApiSelector';
 
 
 
@@ -124,7 +125,10 @@ export const CustomApiDetails: React.FC = () => {
 
     if (mode !== 'create' && (!selectedCustomApi)) {
         return (
-            <Card className={styles.card}>
+            <>
+                <CustomApiSelector/>
+                
+                <Card className={styles.card}>
                 <CardHeader
                     header={<h3>Custom API Details</h3>}
                     action={
@@ -145,6 +149,8 @@ export const CustomApiDetails: React.FC = () => {
                     <p>Please select a Custom API from the list above</p>
                 </div>
             </Card>
+            </>
+            
         );
     }
 
@@ -276,33 +282,37 @@ export const CustomApiDetails: React.FC = () => {
     })();
 
     return (
-        
-        <Card className={styles.card}>
-            <CardHeader 
-                header={
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                            <h3 style={{ margin: 0 }}>{headerTitle}</h3>
-                            <Badge appearance="tint" color={headerChip.color} shape="rounded">
-                                {headerChip.label}
-                            </Badge>
-                        </div>
-                    </div>
-                }
-                description={headerDescription}
-                action={headerAction}
-            />
-            <Divider />
-            {content}
-            {
-                selectedCustomApi &&
-                <>
-                    <RequestParameterDetails/>
-                    <Divider/>
-                    <ResponsePropertyList/>
-                </>
-            }
+        <>
+            <CustomApiSelector/>
             
-        </Card>
+            <Card className={styles.card}>
+                <CardHeader 
+                    header={
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                                <h3 style={{ margin: 0 }}>{headerTitle}</h3>
+                                <Badge appearance="tint" color={headerChip.color} shape="rounded">
+                                    {headerChip.label}
+                                </Badge>
+                            </div>
+                        </div>
+                    }
+                    description={headerDescription}
+                    action={headerAction}
+                />
+                <Divider />
+                {content}
+                {
+                    selectedCustomApi &&
+                    <>
+                        <RequestParameterDetails/>
+                        <Divider/>
+                        <ResponsePropertyList/>
+                    </>
+                }
+                
+            </Card>
+        </>
+        
     );
 };

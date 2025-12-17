@@ -28,7 +28,7 @@ import { useAppStore } from "../store/useAppStore";
 import { useConnectionSync } from "../hooks/useConnectionSync";
 import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
-import { CustomApiSelector } from "./CustomApiSelector";
+//import { CustomApiSelector } from "./CustomApiSelector";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
@@ -128,7 +128,7 @@ function App() {
                 return (
                     <>
                         {/* <CustomApiList/> */}
-                        <CustomApiSelector />
+                        {/* <CustomApiSelector /> */}
                         <CustomApiDetails />
                     </>
                 );
