@@ -9,7 +9,7 @@ import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
 import { ResponsePropertyList } from './../ResponsePropertyList';
-import { RequestParameterDetails } from './../RequestParameterDetails';
+import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
 
 

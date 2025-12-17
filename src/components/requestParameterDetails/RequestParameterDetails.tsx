@@ -4,14 +4,14 @@ import {
     Card,
     CardHeader
 } from '@fluentui/react-components';
-import { useStyles } from '../styles/Styles';
+import { useStyles } from '../../styles/Styles';
 
 import { AddCircleColor, DismissCircleColor, Edit24Regular, DismissCircleRegular } from '@fluentui/react-icons';
-import { useAppStore } from '../store/useAppStore';
-import { RequestParametersList } from './requestParameterDetails/RequestParametersList';
-import { CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
-import { useCustomApiRequestParameters } from '../hooks/useCustomApiRequestParameters';
-import { RequestParameterDetailsRead } from './requestParameterDetails/RequestParameterRead';
+import { useAppStore } from '../../store/useAppStore';
+import { RequestParametersList } from './RequestParametersList';
+import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
+import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
+import { RequestParameterDetailsRead } from './RequestParameterRead';
 
 
 
