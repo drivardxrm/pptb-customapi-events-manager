@@ -10,7 +10,7 @@ import {
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 
-import { AddCircleColor, Dismiss24Regular } from '@fluentui/react-icons';
+import { AddCircleColor, Dismiss24Regular, Edit24Regular, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
 import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
@@ -94,6 +94,11 @@ export const RequestParameterDetails: React.FC = () => {
 
 
 
+
+    function handleEdit(_event:any): void {
+        throw new Error('Function not implemented.');
+    }
+
     return (
         <Card className={styles.card}>
             <CardHeader 
@@ -146,12 +151,32 @@ export const RequestParameterDetails: React.FC = () => {
                 <DrawerHeader>
                     <DrawerHeaderTitle
                         action={
-                            <Button
-                            appearance="subtle"
-                            aria-label="Close"
-                            icon={<Dismiss24Regular />}
-                            onClick={() => setIsOpen(false)}
-                            />
+                            <div className={styles.headerActionGroup}>
+                                
+                                <Button
+                                    appearance='secondary'
+                                    icon={<Edit24Regular />}
+                                    onClick={handleEdit}
+                                    className={styles.headerActionButton}
+                                >
+                                    Edit
+                                </Button>
+                                <Button
+                                    appearance='secondary'
+                                    icon={<DismissCircleColor />}
+                                    onClick={() => {}} 
+                                    className={styles.headerActionButton}
+                                >
+                                    Delete
+                                </Button>
+                                <Button
+                                    appearance="subtle"
+                                    aria-label="Close"
+                                    icon={<Dismiss24Regular />}
+                                    onClick={() => setIsOpen(false)}
+                                />
+                            </div>
+                            
                         }
                         >
                         Request Parameter Details

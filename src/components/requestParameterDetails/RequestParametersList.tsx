@@ -56,33 +56,17 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
     
     const columns: TableColumnDefinition<CustomApiRequestParameter>[] = [
         createTableColumn<CustomApiRequestParameter>({
-            columnId: 'name',
+            columnId: 'uniquename',
             compare: (a, b) => {
                 return a.name.localeCompare(b.name)
             },
             renderHeaderCell: () => {
-                return "Name"
+                return "Unique Name"
             },
             renderCell: (item) => {
                 return (
                     <TableCellLayout>
-                        {item.name}
-                    </TableCellLayout>
-                );
-            },
-        }),
-        createTableColumn<CustomApiRequestParameter>({
-            columnId: 'isoptional',
-            compare: (a, b) => {
-                return a.isoptional === b.isoptional ? 0 : a.isoptional ? 1 : -1
-            },
-            renderHeaderCell: () => {
-                return "Is Optional"
-            },
-            renderCell: (item) => {
-                return (
-                    <TableCellLayout>
-                        {item.isoptional ? 'Yes' : 'No'}
+                        {item.uniquename}
                     </TableCellLayout>
                 );
             },
@@ -103,6 +87,23 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
                 );
             },
         }),
+        createTableColumn<CustomApiRequestParameter>({
+            columnId: 'isoptional',
+            compare: (a, b) => {
+                return a.isoptional === b.isoptional ? 0 : a.isoptional ? 1 : -1
+            },
+            renderHeaderCell: () => {
+                return "Is Optional"
+            },
+            renderCell: (item) => {
+                return (
+                    <TableCellLayout>
+                        {item.isoptional ? 'Yes' : 'No'}
+                    </TableCellLayout>
+                );
+            },
+        }),
+        
         createTableColumn<CustomApiRequestParameter>({
             columnId: 'actions',
             

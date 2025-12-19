@@ -9,8 +9,7 @@ export interface CustomApiResponseProperty {
   description: string;
   displayname: string;
   entitylogicalname: string;
- 
-  iscustomizable: boolean;
+
   ismanaged: boolean;
 
   _ownerid_value: string;

@@ -5,11 +5,11 @@ import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 
-interface RequestParameterDetailsReadProps {
+interface RequestParameterDetailsEditProps {
     parameter: CustomApiRequestParameter;
 }
 
-export const RequestParameterDetailsRead: React.FC<RequestParameterDetailsReadProps> = ({ parameter }) => {
+export const RequestParameterDetailsRead: React.FC<RequestParameterDetailsEditProps> = ({ parameter }) => {
     const styles = useStyles();
     const isOptionalLabelRef = useRef<HTMLSpanElement | null>(null);
     const customizableLabelRef = useRef<HTMLSpanElement | null>(null);

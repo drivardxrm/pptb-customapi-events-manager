@@ -10,7 +10,7 @@ export interface CustomApiRequestParameter {
   displayname: string;
   entitylogicalname: string;
  
-  iscustomizable: boolean;
+
   isoptional: boolean;
   ismanaged: boolean;
 
@@ -29,8 +29,7 @@ export interface CustomApiRequestParameterUpdateable extends
   Pick<CustomApiRequestParameter,  
   'name' |   
   'displayname' | 
-  'description' |
-  'iscustomizable' 
+  'description' 
   > {}
 
 
