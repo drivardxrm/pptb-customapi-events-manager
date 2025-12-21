@@ -3,19 +3,19 @@ import {
     Button,
     Card,
     CardHeader,
-    Drawer,
-    DrawerBody,
-    DrawerHeader,
-    DrawerHeaderTitle,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 
-import { AddCircleColor, Dismiss24Regular, Edit24Regular, DismissCircleColor } from '@fluentui/react-icons';
+import { 
+    AddCircleColor, 
+} from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
 import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 import { RequestParameterDetailsRead } from './RequestParameterRead';
+import { Allotment } from 'allotment';
+import "allotment/dist/style.css";
 
 
 
@@ -29,8 +29,7 @@ export const RequestParameterDetails: React.FC = () => {
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
     const {requestParameters} = useCustomApiRequestParameters();
-    const [isOpen, setIsOpen] = useState(false);
-    //const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
+
 
     const selectedRequestParameter = requestParameters?.find((param) => param.customapirequestparameterid === selectedRequestParameterId)
 
@@ -44,6 +43,9 @@ export const RequestParameterDetails: React.FC = () => {
         setMode('read');
     }, [selectedRequestParameter]);
 
+    // const handleResize = (size: number) => {
+    //     setLeftPaneSize(size);
+    // };
 
     // const handleEdit = () => {
     //     if (!selectedRequestParameter) {
@@ -95,9 +97,9 @@ export const RequestParameterDetails: React.FC = () => {
 
 
 
-    function handleEdit(_event:any): void {
-        throw new Error('Function not implemented.');
-    }
+    // function handleEdit(_event:any): void {
+    //     throw new Error('Function not implemented.');
+    // }
 
     return (
         <Card className={styles.card}>
@@ -141,66 +143,25 @@ export const RequestParameterDetails: React.FC = () => {
 
             />
             
-            <Drawer 
-                type='inline'
-                open={isOpen}
-                onOpenChange={(_, { open }) => setIsOpen(open)}
-                position='start'
-                size='medium'
-            >
-                <DrawerHeader>
-                    <DrawerHeaderTitle
-                        action={
-                            <div className={styles.headerActionGroup}>
-                                
-                                <Button
-                                    appearance='secondary'
-                                    icon={<Edit24Regular />}
-                                    onClick={handleEdit}
-                                    className={styles.headerActionButton}
-                                >
-                                    Edit
-                                </Button>
-                                <Button
-                                    appearance='secondary'
-                                    icon={<DismissCircleColor />}
-                                    onClick={() => {}} 
-                                    className={styles.headerActionButton}
-                                >
-                                    Delete
-                                </Button>
-                                <Button
-                                    appearance="subtle"
-                                    aria-label="Close"
-                                    icon={<Dismiss24Regular />}
-                                    onClick={() => setIsOpen(false)}
-                                />
-                            </div>
-                            
-                        }
-                        >
-                        Request Parameter Details
-                    </DrawerHeaderTitle>
-                </DrawerHeader>
-                <DrawerBody>
-                    {content}
-                </DrawerBody>
+          
+
+
+            {/* <div className={styles.formGridBig}> */}
+            
+                <Allotment className={styles.splitContainer} >
+                    <Allotment.Pane minSize={200}>
+                        <div className={styles.formSection}>
+                            <RequestParametersList requestParameters={requestParameters} />
+                        </div>
+                    </Allotment.Pane>
+                    <Allotment.Pane snap>
+                        <div>
+                            {content}
+                        </div>
+                    </Allotment.Pane>
                     
-            </Drawer >
-
-
-            <div className={styles.formGridBig}>
-                <div className={styles.formSection}>
-                    <RequestParametersList requestParameters={requestParameters} setIsOpen={setIsOpen} setMode={setMode} />
-                </div>
-
-                
-
-
-
-                
-                
-            </div>
+                </Allotment>                
+            {/* </div> */}
             
             
         </Card>

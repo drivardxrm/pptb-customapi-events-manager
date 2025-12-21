@@ -174,7 +174,10 @@ export const useStyles = makeStyles({
     paddingRight: '0',
     minWidth: '10px'
   },
-  
+  splitContainer: {
+    height: '400px',
+    display: 'flex',
+  },
   elementVisible: {
     visibility: 'visible'
   },

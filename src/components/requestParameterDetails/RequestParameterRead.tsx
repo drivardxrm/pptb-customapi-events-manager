@@ -26,88 +26,90 @@ export const RequestParameterDetailsRead: React.FC<RequestParameterDetailsReadPr
     
 
     return (
-
-        <div className={styles.formSection}>
-            <Field
-                label={
-                    <span className={styles.label}>
-                        Unique Name <LockClosed16Regular />
-                    </span>
-                }
-            >
-                <Input value={parameter.uniquename || ''} readOnly className={styles.readOnlyInput} />
-            </Field>
-
-            <Field label="Name">
-                <Input value={parameter.name || ''} readOnly className={styles.readOnlyInput} />
-            </Field>
-
-            <Field label="Display Name">
-                <Input value={parameter.displayname || ''} readOnly className={styles.readOnlyInput} />
-            </Field>
-
-            <Field label="Description">
-                <Textarea
-                    value={parameter.description || ''}
-                    readOnly
-                    className={styles.readOnlyInput}
-                    resize="vertical"
-                    rows={2}
-                />
-            </Field>
-
-            <Field
-                label={
-                    <span className={styles.label}>
-                        Type <LockClosed16Regular />
-                    </span>
-                }
-            >
-                <Input
-                    value={Customapirequestparameterstype[parameter.type]}
-                    readOnly
-                    className={styles.readOnlyInput}
-                />
-            </Field>
-            {(Customapirequestparameterstype[parameter.type] === 'Entity' ||
-                Customapirequestparameterstype[parameter.type] === 'EntityReference') &&
+        <div className={styles.formGrid}>
+            <div className={styles.formSection}>
                 <Field
                     label={
                         <span className={styles.label}>
-                            Logical Entity Name <LockClosed16Regular />
+                            Unique Name <LockClosed16Regular />
                         </span>
                     }
                 >
-                    <Input value={parameter.entitylogicalname || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={parameter.uniquename || ''} readOnly className={styles.readOnlyInput} />
                 </Field>
-            }
-            
 
-            <div className={styles.switchColumn}>
-                <Tooltip content={parameter.isoptional ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <div className={styles.switchRow}>
-                        <Switch
-                            checked={parameter.isoptional}
-                            aria-disabled={true}
-                            tabIndex={-1}
-                            className={styles.readOnlySwitch}
-                            label={
-                                <span
-                                    ref={isOptionalLabelRef}
-                                    className={styles.readOnlySwitchLabel}
-                                    style={column1Style}
-                                >
-                                    <span>Is Optional</span>
-                                    <LockClosed16Regular />
-                                </span>
-                            }
-                            labelPosition="before"
-                        />
-                    </div>
-                </Tooltip>
+                <Field label="Name">
+                    <Input value={parameter.name || ''} readOnly className={styles.readOnlyInput} />
+                </Field>
+
+                <Field label="Display Name">
+                    <Input value={parameter.displayname || ''} readOnly className={styles.readOnlyInput} />
+                </Field>
+
+                <Field label="Description">
+                    <Textarea
+                        value={parameter.description || ''}
+                        readOnly
+                        className={styles.readOnlyInput}
+                        resize="vertical"
+                        rows={2}
+                    />
+                </Field>
+
+                <Field
+                    label={
+                        <span className={styles.label}>
+                            Type <LockClosed16Regular />
+                        </span>
+                    }
+                >
+                    <Input
+                        value={Customapirequestparameterstype[parameter.type]}
+                        readOnly
+                        className={styles.readOnlyInput}
+                    />
+                </Field>
+                {(Customapirequestparameterstype[parameter.type] === 'Entity' ||
+                    Customapirequestparameterstype[parameter.type] === 'EntityReference') &&
+                    <Field
+                        label={
+                            <span className={styles.label}>
+                                Logical Entity Name <LockClosed16Regular />
+                            </span>
+                        }
+                    >
+                        <Input value={parameter.entitylogicalname || ''} readOnly className={styles.readOnlyInput} />
+                    </Field>
+                }
                 
+
+                <div className={styles.switchColumn}>
+                    <Tooltip content={parameter.isoptional ? 'True' : 'False'} relationship='description' positioning='above-end'>
+                        <div className={styles.switchRow}>
+                            <Switch
+                                checked={parameter.isoptional}
+                                aria-disabled={true}
+                                tabIndex={-1}
+                                className={styles.readOnlySwitch}
+                                label={
+                                    <span
+                                        ref={isOptionalLabelRef}
+                                        className={styles.readOnlySwitchLabel}
+                                        style={column1Style}
+                                    >
+                                        <span>Is Optional</span>
+                                        <LockClosed16Regular />
+                                    </span>
+                                }
+                                labelPosition="before"
+                            />
+                        </div>
+                    </Tooltip>
+                    
+                </div>
             </div>
         </div>
+        
 
     );
 };
