@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Activity, useEffect, useState } from 'react';
 import {  
     Button,
     Card,
@@ -7,7 +7,9 @@ import {
 import { useStyles } from '../../styles/Styles';
 
 import { 
-    AddCircleColor, 
+    AddCircleColor,
+    Edit24Regular,
+    DismissCircleColor 
 } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
@@ -94,6 +96,61 @@ export const RequestParameterDetails: React.FC = () => {
         return <></>;
     })();
 
+    const headerActions = (() => {
+        
+       
+        return (
+            <div className={styles.headerActionGroup}>
+                <Activity mode={mode === 'read' ? 'visible' : 'hidden'}>
+                    <Button
+                        aria-label='New Request Parameter'
+                        appearance='secondary'
+                        icon={<AddCircleColor/>}
+                        onClick={() => {}}
+                        className={styles.headerActionButton}
+                    >
+                        New Request Parameter
+                    </Button>
+                </Activity>
+                <Activity mode={mode === 'read' && selectedRequestParameter? 'visible' : 'hidden'}>
+                     <Button
+                        appearance='secondary'
+                        icon={<Edit24Regular />}
+                        onClick={() => {}} 
+                        className={styles.headerActionButton}
+                    >
+                        Edit
+                    </Button>
+                </Activity>
+                <Activity mode={mode === 'read' && selectedRequestParameter? 'visible' : 'hidden'}>
+                    <Button
+                        appearance='secondary'
+                        icon={<DismissCircleColor />}
+                        onClick={() => {}} 
+                        className={styles.headerActionButton}
+                    >
+                        Delete
+                    </Button>
+                </Activity>
+                
+            </div>
+        )
+        
+        
+        
+        
+        if (mode === 'create') {
+            return <>TODO</>
+        }
+
+        if (mode === 'edit') {
+            return <>TODO</>;
+        }
+
+        
+        return <></>;
+    })();
+
 
 
 
@@ -112,33 +169,9 @@ export const RequestParameterDetails: React.FC = () => {
                     </div>
                 }
                 action={
-                    <div className={styles.headerActionGroup}>
-                        <Button
-                            aria-label='New Request Parameter'
-                            appearance='secondary'
-                            icon={<AddCircleColor/>}
-                        >
-                            New
-                        </Button>
-                        {/* <Button
-                            aria-label='Edit Request Parameter'
-                            appearance='secondary'
-                            icon={<Edit24Regular />}
-                            disabled={selectedRequestParameterId === null || selectedRequestParameterId === undefined || selectedRequestParameterId === ''}
-                        >
-                            Edit
-                        </Button>
-                        <Button
-                            aria-label='Delete Request Parameter'
-                            appearance='secondary'
-                            icon={selectedRequestParameterId === null || selectedRequestParameterId === undefined || selectedRequestParameterId === '' ? <DismissCircleRegular/> : <DismissCircleColor />}
-                            onClick={() => {}} 
-                            className={styles.headerActionButton}
-                            disabled={selectedRequestParameterId === null || selectedRequestParameterId === undefined || selectedRequestParameterId === ''}
-                        >
-                            Delete
-                        </Button>     */}
-                    </div>
+                    <>
+                        {headerActions}
+                    </>     
                 }
 
             />
@@ -146,22 +179,22 @@ export const RequestParameterDetails: React.FC = () => {
           
 
 
-            {/* <div className={styles.formGridBig}> */}
+            <div className={styles.cardBody}>
             
                 <Allotment className={styles.splitContainer} >
                     <Allotment.Pane minSize={200}>
-                        <div className={styles.formSection}>
+                        <div className={styles.splitPaneContent}>
                             <RequestParametersList requestParameters={requestParameters} />
                         </div>
                     </Allotment.Pane>
                     <Allotment.Pane snap>
-                        <div>
+                        <div className={styles.splitPaneContent}>
                             {content}
                         </div>
                     </Allotment.Pane>
                     
                 </Allotment>                
-            {/* </div> */}
+            </div>
             
             
         </Card>

@@ -57,13 +57,25 @@ export const useStyles = makeStyles({
       width: '100%',
       maxWidth: '1200px',
       marginTop: tokens.spacingVerticalM,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+  },
+  cardBody: {
+      flex: 1,
+      minHeight: 0,
+      display: 'flex',
+      height: '100%',
   },
   formGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
       gap: tokens.spacingVerticalM,
       padding: tokens.spacingVerticalL,
-      
+      flex: 1,
+      minHeight: 0,
+      height: '100%',
+      alignContent: 'start',
   },
   formGridBig: {
       display: 'grid',
@@ -76,6 +88,8 @@ export const useStyles = makeStyles({
       display: 'flex',
       flexDirection: 'column',
       gap: tokens.spacingVerticalS,
+      flex: 1,
+      minHeight: 0,
   },
   fullWidth: {
       gridColumn: '1 / -1',
@@ -177,6 +191,12 @@ export const useStyles = makeStyles({
   splitContainer: {
     height: '400px',
     display: 'flex',
+  },
+  splitPaneContent: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0,
   },
   elementVisible: {
     visibility: 'visible'
