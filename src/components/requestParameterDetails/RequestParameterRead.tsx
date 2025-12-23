@@ -9,7 +9,7 @@ interface RequestParameterDetailsReadProps {
     parameter: CustomApiRequestParameter;
 }
 
-export const RequestParameterDetailsRead: React.FC<RequestParameterDetailsReadProps> = ({ parameter }) => {
+export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = ({ parameter }) => {
     const styles = useStyles();
     const isOptionalLabelRef = useRef<HTMLSpanElement | null>(null);
     const customizableLabelRef = useRef<HTMLSpanElement | null>(null);

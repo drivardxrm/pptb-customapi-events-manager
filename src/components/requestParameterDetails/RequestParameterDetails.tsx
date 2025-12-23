@@ -4,19 +4,23 @@ import {
     Card,
     CardHeader,
     Divider,
+    Spinner,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 
 import { 
     AddCircleColor,
     Edit24Regular,
-    DismissCircleColor 
+    DismissCircleColor,
+    Save24Regular,
+    Dismiss24Regular, 
 } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
 import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
-import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
-import { RequestParameterDetailsRead } from './RequestParameterRead';
+import { useCustomApiRequestParameters, useUpdateCustomApiRequestParameter } from '../../hooks/useCustomApiRequestParameters';
+import { RequestParameterRead } from './RequestParameterRead';
+import { RequestParameterEdit } from './RequestParameterEdit';
 
 
 
@@ -30,7 +34,8 @@ export const RequestParameterDetails: React.FC = () => {
     const { selectedRequestParameterId } = useAppStore();
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
-    const {requestParameters} = useCustomApiRequestParameters();
+    const {requestParameters } = useCustomApiRequestParameters();
+    const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
 
 
     const selectedRequestParameter = requestParameters?.find((param) => param.customapirequestparameterid === selectedRequestParameterId)
@@ -49,37 +54,41 @@ export const RequestParameterDetails: React.FC = () => {
     //     setLeftPaneSize(size);
     // };
 
-    // const handleEdit = () => {
-    //     if (!selectedRequestParameter) {
-    //         return;
-    //     }
-    //     setEditedData(selectedRequestParameter);
-    //     setMode('edit');
-    // };
+    const handleEdit = () => {
+        if (!selectedRequestParameter) {
+            return;
+        }
+        setEditedData(selectedRequestParameter);
+        setMode('edit');
+    };
 
-    // const handleCancel = () => {
-    //     if (selectedRequestParameter) {
-    //         setEditedData(selectedRequestParameter);
-    //     }
-    //     setMode('read');
-    // };
+    const handleCancel = () => {
+        if (selectedRequestParameter) {
+            setEditedData(selectedRequestParameter);
+        }
+        setMode('read');
+    };
 
-    // const handleSave = async () => {
-    //     if (!selectedRequestParameter || !editedData) {
-    //         return;
-    //     }
+    const handleSave = async () => {
+        if (!selectedRequestParameter || !editedData) {
+            return;
+        }
 
-    //     try {
-    //         await updateCustomApiRequestParameter.mutateAsync({
-    //             current: selectedRequestParameter,
-    //             next: editedData,
-    //         });
+        try {
+            await updateCustomApiRequestParameter.mutateAsync({
+                current: selectedRequestParameter,
+                next: editedData,
+            });
 
-    //         setMode('read');
-    //     } catch (error) {
-    //         console.error('Error saving Custom API', error);
-    //     }
-    // };
+            setMode('read');
+        } catch (error) {
+            console.error('Error saving Request Parameter', error);
+        }
+    };
+
+    const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => {
+        setEditedData((current) => (current ? updater(current) : current));
+    };
 
     const content = (() => {
         if (mode === 'create') {
@@ -87,11 +96,11 @@ export const RequestParameterDetails: React.FC = () => {
         }
 
         if (mode === 'edit' && selectedRequestParameter && editedData) {
-            return <>TODO</>;
+            return <RequestParameterEdit parameter={selectedRequestParameter} editedData={editedData} onChange={handleEditedDataChange} />;
         }
 
         if(mode === 'read' && selectedRequestParameter) {
-            return <RequestParameterDetailsRead parameter={selectedRequestParameter} />;
+            return <RequestParameterRead parameter={selectedRequestParameter} />;
         }
         return <></>;
     })();
@@ -116,7 +125,7 @@ export const RequestParameterDetails: React.FC = () => {
                      <Button
                         appearance='secondary'
                         icon={<Edit24Regular />}
-                        onClick={() => {}} 
+                        onClick={handleEdit} 
                         className={styles.headerActionButton}
                     >
                         Edit
@@ -131,6 +140,28 @@ export const RequestParameterDetails: React.FC = () => {
                     >
                         Delete
                     </Button>
+                </Activity>
+                <Activity mode={mode === 'edit' ? 'visible' : 'hidden'}>
+                    <>
+                        <Button
+                            appearance='primary'
+                            icon={updateCustomApiRequestParameter.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
+                            disabled={updateCustomApiRequestParameter.isPending}
+                            onClick={handleSave}
+                            className={styles.headerActionButton}
+                        >
+                            {updateCustomApiRequestParameter.isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button
+                            appearance="secondary"
+                            icon={<Dismiss24Regular />}
+                            disabled={updateCustomApiRequestParameter.isPending}
+                            onClick={handleCancel}
+                            className={styles.headerActionButton}
+                        >
+                            Cancel
+                        </Button>
+                    </>
                 </Activity>
                 
             </div>
