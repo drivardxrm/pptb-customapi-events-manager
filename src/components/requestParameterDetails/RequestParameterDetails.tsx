@@ -3,6 +3,7 @@ import {
     Button,
     Card,
     CardHeader,
+    Divider,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 
@@ -16,8 +17,7 @@ import { RequestParametersList } from './RequestParametersList';
 import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 import { RequestParameterDetailsRead } from './RequestParameterRead';
-import { Allotment } from 'allotment';
-import "allotment/dist/style.css";
+
 
 
 
@@ -135,20 +135,7 @@ export const RequestParameterDetails: React.FC = () => {
                 
             </div>
         )
-        
-        
-        
-        
-        if (mode === 'create') {
-            return <>TODO</>
-        }
-
-        if (mode === 'edit') {
-            return <>TODO</>;
-        }
-
-        
-        return <></>;
+    
     })();
 
 
@@ -180,22 +167,16 @@ export const RequestParameterDetails: React.FC = () => {
 
 
             <div className={styles.cardBody}>
-            
-                <Allotment className={styles.splitContainer} >
-                    <Allotment.Pane minSize={200}>
-                        <div className={styles.splitPaneContent}>
-                            <RequestParametersList requestParameters={requestParameters} />
-                        </div>
-                    </Allotment.Pane>
-                    <Allotment.Pane snap>
-                        <div className={styles.splitPaneContent}>
-                            {content}
-                        </div>
-                    </Allotment.Pane>
-                    
-                </Allotment>                
-            </div>
-            
+                <div className={styles.splitContainer} >
+                    <div className={styles.splitPaneContent}>
+                        <RequestParametersList requestParameters={requestParameters} />
+                    </div>
+                    <Divider inset vertical/>
+                    <div className={styles.splitPaneContent}>
+                        {content}
+                    </div>                                         
+                </div>
+             </div>
             
         </Card>
     );

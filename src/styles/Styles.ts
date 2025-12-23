@@ -189,14 +189,17 @@ export const useStyles = makeStyles({
     minWidth: '10px'
   },
   splitContainer: {
-    height: '400px',
+    minHeight: '400px',
     display: 'flex',
   },
   splitPaneContent: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0,
+      flex: '1 1 50%',
+      paddingLeft: tokens.spacingVerticalM,
+      paddingRight: tokens.spacingVerticalM,
+      // display: 'flex',
+      // flexDirection: 'column',
+      // minHeight: 0,
+      
   },
   elementVisible: {
     visibility: 'visible'

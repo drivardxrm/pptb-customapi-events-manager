@@ -146,7 +146,7 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
 
     
     return (
-        <div style={{ width: "450px" }}>              
+        <div style={{ width: "450px", overflow: "auto" }}>              
             <DataGrid
                 items={requestParameters}
                 columns={columns}
