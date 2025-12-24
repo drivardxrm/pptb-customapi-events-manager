@@ -1,3 +1,7 @@
+import { SelectableItem } from "../components/generic/GenericTagPicker";
+import { CustomApiService } from "../services/CustomApiService";
+import { EntityService } from "../services/EntityService";
+
 export interface CustomApiRequestParameter {
   customapirequestparameterid: string;
   name: string;
@@ -8,7 +12,7 @@ export interface CustomApiRequestParameter {
   '_customapiid_value@OData.Community.Display.V1.FormattedValue': string;
   description: string;
   displayname: string;
-  entitylogicalname: string;
+
  
 
   isoptional: boolean;
@@ -23,6 +27,24 @@ export interface CustomApiRequestParameter {
   uniquename: string;
 
 }
+
+// Record<keyof T, EntityService> for lookups
+export const CustomApiRequestParameterLookups: Partial<Record<keyof CustomApiRequestParameter, [string, EntityService]>> = {
+  _customapiid_value: ['CustomAPIId', new CustomApiService()],
+};
+
+// A subset of CustomApiRequestParameter properties that used at creation time
+export interface CustomApiRequestParameterCreateable extends 
+  Pick<CustomApiRequestParameter,  
+  'uniquename' |
+  'name' |   
+  'displayname' | 
+  'description' |
+  'logicalentityname' |
+  'isoptional' |
+  'type' |
+  '_customapiid_value'
+  > {}
 
 // A subset of CustomApiRequestParameter properties that are updateable
 export interface CustomApiRequestParameterUpdateable extends 
@@ -50,3 +72,24 @@ export const Customapirequestparameterstype = {
   12: 'Guid'
 } as const;
 export type Customapirequestparameterstype = keyof typeof Customapirequestparameterstype;
+
+// Helper to get options for Customapirequestparameterstype
+export const getCustomApiRequestParametersTypeOptions = (): Array<SelectableItem> =>
+  Object.entries(Customapirequestparameterstype).map(([key, value]) => ({
+    id: Number(key).toString(),
+    displayText: value,
+    image: null,
+  }));
+
+
+  // TEMPLATE FOR CREATING NEW CustomApi Request Parameter
+export const getRequestParameterCreateTemplate = (customApiId: string) : CustomApiRequestParameterCreateable => ({
+      uniquename: '',
+      name: '',
+      displayname: '',
+      description: '',
+      logicalentityname: '',
+      isoptional: false,
+      type: 10, // Default to 'String'
+      _customapiid_value: customApiId,
+  });

@@ -246,17 +246,17 @@ export const CustomApiDetails: React.FC = () => {
                     <div className={styles.headerActionGroup}>
                         <Button
                             appearance='primary'
-                            icon={updateCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={updateCustomApi.isPending}
+                            icon={createCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
+                            disabled={createCustomApi.isPending}
                             onClick={handleSave}
                             className={styles.headerActionButton}
                         >
-                            {updateCustomApi.isPending ? 'Saving...' : 'Save'}
+                            {createCustomApi.isPending ? 'Saving...' : 'Save'}
                         </Button>
                         <Button
                             appearance="secondary"
                             icon={<Dismiss24Regular />}
-                            disabled={updateCustomApi.isPending}
+                            disabled={createCustomApi.isPending}
                             onClick={handleCancel}
                             className={styles.headerActionButton}
                         >

@@ -1,5 +1,6 @@
 import React, { Activity, useEffect, useState } from 'react';
 import {  
+    Badge,
     Button,
     Card,
     CardHeader,
@@ -17,10 +18,12 @@ import {
 } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
-import { CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
-import { useCustomApiRequestParameters, useUpdateCustomApiRequestParameter } from '../../hooks/useCustomApiRequestParameters';
+import { CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable, getRequestParameterCreateTemplate } from '../../models/CustomApiRequestParameter';
+import { useCreateCustomApiRequestParameter, useCustomApiRequestParameters,  useUpdateCustomApiRequestParameter } from '../../hooks/useCustomApiRequestParameters';
 import { RequestParameterRead } from './RequestParameterRead';
 import { RequestParameterEdit } from './RequestParameterEdit';
+import { RequestParameterCreate } from './RequestParameterCreate';
+
 
 
 
@@ -31,11 +34,13 @@ export type RequestParametersMode = 'read' | 'edit' | 'create';
 
 export const RequestParameterDetails: React.FC = () => {
     const styles = useStyles();
-    const { selectedRequestParameterId } = useAppStore();
+    const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId } = useAppStore();
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
+    const [createData, setCreateData] = useState<CustomApiRequestParameterCreateable | null>(null);
     const {requestParameters } = useCustomApiRequestParameters();
     const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
+    const createCustomApiRequestParameter = useCreateCustomApiRequestParameter();
 
 
     const selectedRequestParameter = requestParameters?.find((param) => param.customapirequestparameterid === selectedRequestParameterId)
@@ -47,12 +52,16 @@ export const RequestParameterDetails: React.FC = () => {
         } else {
             setEditedData(null);
         }
-        setMode('read');
     }, [selectedRequestParameter]);
 
-    // const handleResize = (size: number) => {
-    //     setLeftPaneSize(size);
-    // };
+
+
+    const handleCreate = () => {
+        setSelectedRequestParameterId(null);
+        setCreateData(getRequestParameterCreateTemplate(selectedCustomApiId!));
+        setMode('create');
+    };
+
 
     const handleEdit = () => {
         if (!selectedRequestParameter) {
@@ -70,15 +79,34 @@ export const RequestParameterDetails: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!selectedRequestParameter || !editedData) {
-            return;
-        }
-
+        
         try {
-            await updateCustomApiRequestParameter.mutateAsync({
-                current: selectedRequestParameter,
-                next: editedData,
-            });
+
+            if(mode === 'create') {
+                
+                if (selectedRequestParameter || !createData) {
+                    return;
+                }
+                let result = await createCustomApiRequestParameter.mutateAsync({
+                    next: createData,
+                });
+
+                if(result.created && result.customApiRequestParameterId) {
+                    setSelectedRequestParameterId(result.customApiRequestParameterId);
+                    setCreateData(getRequestParameterCreateTemplate(selectedCustomApiId!));
+                }
+                
+            }
+            else if(mode === 'edit') {
+                
+                if (!selectedRequestParameter || !editedData) {
+                    return;
+                }
+                await updateCustomApiRequestParameter.mutateAsync({
+                    current: selectedRequestParameter,
+                    next: editedData,
+                });
+            }
 
             setMode('read');
         } catch (error) {
@@ -86,13 +114,18 @@ export const RequestParameterDetails: React.FC = () => {
         }
     };
 
+    const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => {
+        setCreateData((current) => (current ? updater(current) : current));
+    };
+
+
     const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => {
         setEditedData((current) => (current ? updater(current) : current));
     };
 
     const content = (() => {
         if (mode === 'create') {
-            return <>TODO</>
+            return <RequestParameterCreate createData={createData!} onChange={handleCreateDataChange} />;
         }
 
         if (mode === 'edit' && selectedRequestParameter && editedData) {
@@ -105,6 +138,17 @@ export const RequestParameterDetails: React.FC = () => {
         return <></>;
     })();
 
+    const headerChip = (() => {
+        switch (mode) {
+            case 'edit':
+                return { label: 'Editing', color: 'warning' as const };
+            case 'create':
+                return { label: 'Create mode', color: 'success' as const };
+            default:
+                return { label: 'Read-only', color: 'informative' as const };
+        }
+    })();
+
     const headerActions = (() => {
         
        
@@ -115,7 +159,7 @@ export const RequestParameterDetails: React.FC = () => {
                         aria-label='New Request Parameter'
                         appearance='secondary'
                         icon={<AddCircleColor/>}
-                        onClick={() => {}}
+                        onClick={handleCreate}
                         className={styles.headerActionButton}
                     >
                         New Request Parameter
@@ -141,21 +185,22 @@ export const RequestParameterDetails: React.FC = () => {
                         Delete
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'edit' ? 'visible' : 'hidden'}>
+
+                <Activity mode={mode === 'edit' || mode === 'create'? 'visible' : 'hidden'}>
                     <>
                         <Button
                             appearance='primary'
-                            icon={updateCustomApiRequestParameter.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={updateCustomApiRequestParameter.isPending}
+                            icon={createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
+                            disabled={createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending}
                             onClick={handleSave}
                             className={styles.headerActionButton}
                         >
-                            {updateCustomApiRequestParameter.isPending ? 'Saving...' : 'Save'}
+                            { createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending ? 'Saving...' : 'Save'}
                         </Button>
                         <Button
                             appearance="secondary"
                             icon={<Dismiss24Regular />}
-                            disabled={updateCustomApiRequestParameter.isPending}
+                            disabled={createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending}
                             onClick={handleCancel}
                             className={styles.headerActionButton}
                         >
@@ -183,6 +228,9 @@ export const RequestParameterDetails: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                             <h3 style={{ margin: 0 }}>Request Parameters (Input)</h3>
+                            <Badge appearance="tint" color={headerChip.color} shape="rounded">
+                                {headerChip.label}
+                            </Badge>
                         </div>
                     </div>
                 }

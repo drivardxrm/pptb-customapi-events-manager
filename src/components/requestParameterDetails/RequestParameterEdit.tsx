@@ -89,7 +89,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                             </span>
                         }
                     >
-                        <Input value={parameter.entitylogicalname || ''} readOnly className={styles.readOnlyInput} />
+                        <Input value={parameter.logicalentityname || ''} readOnly className={styles.readOnlyInput} />
                     </Field>
                 }
                 

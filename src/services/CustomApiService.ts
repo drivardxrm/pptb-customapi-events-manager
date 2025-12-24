@@ -43,7 +43,7 @@ export class CustomApiService extends EntityService {
 
     async createCustomApi(newCustomApi: CustomApiCreateable): Promise<CustomApiCreateResult> {
         
-        const payload = buildCreatePayload<CustomApiUpdateable>(newCustomApi, {
+        const payload = buildCreatePayload<CustomApiCreateable>(newCustomApi, {
             lookupKeys: CustomApiLookups,
         });
 

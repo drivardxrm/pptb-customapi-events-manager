@@ -1,6 +1,13 @@
-import { CustomApiRequestParameter, CustomApiRequestParameterUpdateable } from "../models/CustomApiRequestParameter";
-import { buildUpdatePayload } from "../utils/diff";
+import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterLookups, CustomApiRequestParameterUpdateable } from "../models/CustomApiRequestParameter";
+import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { EntityService } from "./EntityService";
+
+
+export type CustomApiRequestParameterCreateResult = {
+    created: boolean;
+    payload: Record<string, unknown>;
+    customApiRequestParameterId: string;
+};
 
 // todo make a more generic type for this
 export type CustomApiRequestParameterUpdateResult = {
@@ -11,6 +18,18 @@ export type CustomApiRequestParameterUpdateResult = {
 export class CustomApiRequestParameterService extends EntityService {
     entityName = 'customapirequestparameter';
     entityCollectionName = 'customapirequestparameters';
+
+
+    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateable): Promise<CustomApiRequestParameterCreateResult> {
+            
+        const payload = buildCreatePayload<CustomApiRequestParameterCreateable>(newCustomApiRequestParameter, {
+            lookupKeys: CustomApiRequestParameterLookups,
+        });
+
+        let result = await window.dataverseAPI.create(this.entityName,  payload);
+        return { created: true, payload, customApiRequestParameterId: result.id };
+    }
+
 
     async updateCustomApiRequestParameter(current: CustomApiRequestParameter, next: CustomApiRequestParameterUpdateable): Promise<CustomApiRequestParameterUpdateResult> {
             

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApiRequestParameter, CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
-import { customApiRequestParameterService, CustomApiRequestParameterUpdateResult } from '../services/CustomApiRequestParameterService';
+import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
+import { CustomApiRequestParameterCreateResult, customApiRequestParameterService, CustomApiRequestParameterUpdateResult } from '../services/CustomApiRequestParameterService';
 import { queryKeys } from '../utils/queryKeys';
 
 
@@ -28,6 +28,36 @@ export const useCustomApiRequestParameters = () => {
     status, error, isFetching
   }
 }
+
+type CreateCustomApiRequestParameterInput = {
+  next: CustomApiRequestParameterCreateable;
+};
+
+export const useCreateCustomApiRequestParameter = () => {
+  const queryClient = useQueryClient();
+  const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
+
+  return useMutation<CustomApiRequestParameterCreateResult, unknown, CreateCustomApiRequestParameterInput>({
+    mutationFn: async ({  next }) => {
+      try {
+        const result = await customApiRequestParameterService.createCustomApiRequestParameter( next);
+
+       
+        addLog(`Custom API Request Parameter '${next.uniquename}' created successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error creating Custom API Request Parameter', error);
+        addLog(`Failed to create Custom API Request Parameter. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.created) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
+      }
+    },
+  });
+};
 
 type UpdateCustomApiRequestParameterInput = {
   current: CustomApiRequestParameter;

@@ -41,15 +41,17 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                 </Field>
             </div>
 
-            <div className={styles.formSection}>
-                <Field label="Display Name">
-                    <Input value={api.displayname || ''} readOnly className={styles.readOnlyInput} />
-                </Field>
-            </div>
+           
 
             <div className={styles.formSection}>
                 <Field label="Name">
                     <Input value={api.name || ''} readOnly className={styles.readOnlyInput} />
+                </Field>
+            </div>
+
+            <div className={styles.formSection}>
+                <Field label="Display Name">
+                    <Input value={api.displayname || ''} readOnly className={styles.readOnlyInput} />
                 </Field>
             </div>
 

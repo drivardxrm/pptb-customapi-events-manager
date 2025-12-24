@@ -150,6 +150,15 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     </div>
 
                     <div className={styles.formSection}>
+                        <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                            <Input
+                                value={createData.name ?? ''}
+                                onChange={(event) => updateField('name', event.target.value || '')}
+                            />
+                        </Field>
+                    </div>
+
+                    <div className={styles.formSection}>
                         <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                             <Input
                                 value={createData.displayname ?? ''}
@@ -158,14 +167,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                         </Field>
                     </div>
 
-                    <div className={styles.formSection}>
-                        <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
-                            <Input
-                                value={createData.name ?? ''}
-                                onChange={(event) => updateField('name', event.target.value || '')}
-                            />
-                        </Field>
-                    </div>
+                    
 
                     <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
                         <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
@@ -298,7 +300,6 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                         
                                         checked={createData.isfunction}
                                         onChange={(_, data) => updateField('isfunction', data.checked)}
-                                        className={styles.readOnlySwitch}
                                         tabIndex={-1}
                                         label={
                                             <span 
@@ -319,7 +320,6 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                     <Switch
                                         checked={createData.workflowsdkstepenabled}
                                         onChange={(_, data) => updateField('workflowsdkstepenabled', data.checked)}
-                                        className={styles.readOnlySwitch}
                                         tabIndex={-1}
                                         label={
                                             <span 

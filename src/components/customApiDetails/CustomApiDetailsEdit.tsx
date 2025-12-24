@@ -52,20 +52,22 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </Field>
             </div>
 
-            <div className={styles.formSection}>
-                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
-                    <Input
-                        value={editedData.displayname ?? ''}
-                        onChange={(event) => updateField('displayname', event.target.value || '')}
-                    />
-                </Field>
-            </div>
+            
 
             <div className={styles.formSection}>
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
                         value={editedData.name ?? ''}
                         onChange={(event) => updateField('name', event.target.value || '')}
+                    />
+                </Field>
+            </div>
+
+            <div className={styles.formSection}>
+                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                    <Input
+                        value={editedData.displayname ?? ''}
+                        onChange={(event) => updateField('displayname', event.target.value || '')}
                     />
                 </Field>
             </div>
