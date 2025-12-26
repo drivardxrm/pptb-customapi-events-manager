@@ -1,3 +1,7 @@
+import { SelectableItem } from "../components/generic/GenericTagPicker";
+import { CustomApiService } from "../services/CustomApiService";
+import { EntityService } from "../services/EntityService";
+
 export interface CustomApiResponseProperty {
   customapiresponsepropertyid: string;
   name: string;
@@ -8,7 +12,6 @@ export interface CustomApiResponseProperty {
   '_customapiid_value@OData.Community.Display.V1.FormattedValue': string;
   description: string;
   displayname: string;
-  entitylogicalname: string;
 
   ismanaged: boolean;
 
@@ -21,6 +24,31 @@ export interface CustomApiResponseProperty {
   uniquename: string;
 
 }
+
+// Record<keyof T, EntityService> for lookups
+export const CustomApiResponsePropertyLookups: Partial<Record<keyof CustomApiResponseProperty, [string, EntityService]>> = {
+  _customapiid_value: ['CustomAPIId', new CustomApiService()],
+};
+
+// A subset of CustomApiRequestParameter properties that used at creation time
+export interface CustomApiResponsePropertyCreateable extends 
+  Pick<CustomApiResponseProperty,  
+  'uniquename' |
+  'name' |   
+  'displayname' | 
+  'description' |
+  'logicalentityname' |
+  'type' |
+  '_customapiid_value'
+  > {}
+
+// A subset of CustomApiRequestParameter properties that are updateable
+export interface CustomApiResponsePropertyUpdateable extends 
+  Pick<CustomApiResponseProperty,  
+  'name' |   
+  'displayname' | 
+  'description' 
+  > {}
 
 // OPTIONSETS ENUMS
 export const Customapiresponsepropertiestype = {
@@ -39,3 +67,23 @@ export const Customapiresponsepropertiestype = {
   12: 'Guid'
 } as const;
 export type Customapiresponsepropertiestype = keyof typeof Customapiresponsepropertiestype;
+
+// Helper to get options for Customapiresponsepropertiestype
+export const getCustomApiResponsePropertiesTypeOptions = (): Array<SelectableItem> =>
+  Object.entries(Customapiresponsepropertiestype).map(([key, value]) => ({
+    id: Number(key).toString(),
+    displayText: value,
+    image: null,
+  }));
+
+
+  // TEMPLATE FOR CREATING NEW CustomApi Response Property
+export const getResponsePropertyCreateTemplate = (customApiId: string) : CustomApiResponsePropertyCreateable => ({
+      uniquename: '',
+      name: '',
+      displayname: '',
+      description: '',
+      logicalentityname: '',
+      type: 10, // Default to 'String'
+      _customapiid_value: customApiId,
+  });

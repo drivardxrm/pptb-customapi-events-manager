@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {  
+    //Button,
     createTableColumn,
     DataGrid,
     DataGridBody,
@@ -12,20 +13,22 @@ import {
     TableColumnDefinition,
     TableRowId
 } from '@fluentui/react-components';
-import { useStyles } from '../styles/Styles';
-import { CustomApi } from '../models/CustomApi';;
-import { useAppStore } from '../store/useAppStore';
-import { useCustomApiResponseProperties } from '../hooks/useCustomApiResponseProperties';
-import { CustomApiResponseProperty } from '../models/CustomApiResponseProperty';
+import { useAppStore } from '../../store/useAppStore';
+import { CustomApi } from '../../models/CustomApi';
+import { Customapiresponsepropertiestype, CustomApiResponseProperty } from '../../models/CustomApiResponseProperty';
 
 
 
 
+interface ResponsePropertyListProps {
+    responseProperties: CustomApiResponseProperty[];
+}
 
 
-export const ResponsePropertyList: React.FC = () => {
-    const styles = useStyles();
-    const responsePropertiesQuery = useCustomApiResponseProperties();
+
+
+export const ResponsePropertyList: React.FC<ResponsePropertyListProps> = ({responseProperties}) => {
+    //const styles = useStyles();
     const { setSelectedResponsePropertyId } = useAppStore();
 
     const [selectedRows, setSelectedRows] = useState(
@@ -33,72 +36,85 @@ export const ResponsePropertyList: React.FC = () => {
     );
     const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
         setSelectedRows(data.selectedItems);
-        //setSelectedCustomApiId(Array.from(data.selectedItems)[0] as string);
     };
 
     useEffect(() => {
-        if (selectedRows.size > 0) {
-            const selectedId = Array.from(selectedRows)[0] as string;
+        if (selectedRows.size > 0 && Array.from(selectedRows)[0] !== -1) {
+            const selectedId = Array.from(selectedRows)[0] as string
             if(selectedId === '-1') {
                 setSelectedResponsePropertyId(null);
             } else {
-                setSelectedResponsePropertyId(selectedId);
+                setSelectedResponsePropertyId(selectedId)
             }
+        }else {
+            setSelectedResponsePropertyId(null)
         }
     }, [selectedRows, setSelectedResponsePropertyId]);
     
     const columns: TableColumnDefinition<CustomApiResponseProperty>[] = [
         createTableColumn<CustomApiResponseProperty>({
-            columnId: 'name',
+            columnId: 'uniquename',
             compare: (a, b) => {
-                return a.name.localeCompare(b.name);
+                return a.name.localeCompare(b.name)
             },
             renderHeaderCell: () => {
-                return "Name";
+                return "Unique Name"
             },
             renderCell: (item) => {
                 return (
                     <TableCellLayout>
-                        {item.name}
+                        {item.uniquename}
+                    </TableCellLayout>
+                );
+            },
+        }),
+        createTableColumn<CustomApiResponseProperty>({
+            columnId: 'type',
+            compare: (a, b) => {
+                return Customapiresponsepropertiestype[a.type].localeCompare(Customapiresponsepropertiestype[b.type]);
+            },
+            renderHeaderCell: () => {
+                return 'Type';
+            },
+            renderCell: (item) => {
+                return (
+                    <TableCellLayout>
+                        {Customapiresponsepropertiestype[item.type]}
                     </TableCellLayout>
                 );
             },
         }),
         
-        
     ];
+
+    const columnSizingOptions = {
+        name: {
+            defaultWidth: 250,
+            minWidth: 250,
+            idealWidth: 250,
+            
+        },
+        type: {
+            minWidth: 120,
+            defaultWidth: 120,
+        },
+    };
     
 
-    if (responsePropertiesQuery.isFetching) {
-        return (
-            <div className={styles.infoBox}>
-                <p>Loading Request Parameters...</p>
-            </div>
-        );
-    }
-
-    if (responsePropertiesQuery.error) {
-        return (
-            
-            <div  className={styles.infoBox}>
-                <p>Error loading Request Parameters:</p>
-                <pre>{responsePropertiesQuery.error.message}</pre>
-            </div>
-          
-        );
-    }
-
-    if(responsePropertiesQuery.responseProperties)
-    {
-        return (
+    
+    return (
+        <div style={{ width: "450px", overflow: "auto" }}>              
             <DataGrid
-                items={responsePropertiesQuery.responseProperties}
+                items={responseProperties}
                 columns={columns}
-                selectionMode="single"
+                selectionMode='single'
                 selectedItems={selectedRows}
+                sortable
                 onSelectionChange={onSelectionChange}
-                getRowId={(item) => item.customapirequestparameterid} // Set the key
-                style={{ minWidth: "300px" }}
+                getRowId={(item) => item.customapiresponsepropertyid} // Set the key
+                resizableColumns
+                columnSizingOptions={columnSizingOptions}
+                //style={{ maxWidth: "300px" }}
             >
                 <DataGridHeader>
                     <DataGridRow>
@@ -120,10 +136,12 @@ export const ResponsePropertyList: React.FC = () => {
                     )}
                 </DataGridBody>
             </DataGrid>
+        </div>
+            
             
             
         );
 
-    }
+    
     
 };

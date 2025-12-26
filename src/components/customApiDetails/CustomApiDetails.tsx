@@ -8,9 +8,10 @@ import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEM
 import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
-import { ResponsePropertyList } from './../ResponsePropertyList';
+
 import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
+import { ResponsePropertyDetails } from '../responsePropertyDetails/ResponsePropertyDetails';
 
 
 
@@ -306,8 +307,8 @@ export const CustomApiDetails: React.FC = () => {
                     selectedCustomApi &&
                     <>
                         <RequestParameterDetails/>
-                        <Divider/>
-                        <ResponsePropertyList/>
+            
+                        <ResponsePropertyDetails/>
                     </>
                 }
                 

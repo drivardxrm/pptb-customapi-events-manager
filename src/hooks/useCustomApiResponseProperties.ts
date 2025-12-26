@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApiResponseProperty } from '../models/CustomApiResponseProperty';
+import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomApiResponsePropertyUpdateable } from '../models/CustomApiResponseProperty';
 import { queryKeys } from '../utils/queryKeys';
+import { CustomApiResponsePropertyCreateResult, customApiResponsePropertyService, CustomApiResponsePropertyUpdateResult } from '../services/CustomApiResponsePropertyService';
 
 
 
@@ -29,4 +30,67 @@ export const useCustomApiResponseProperties = () => {
   }
 }
 
+type CreateCustomApiResponsePropertyInput = {
+  next: CustomApiResponsePropertyCreateable;
+};
 
+export const useCreateCustomApiResponseProperty = () => {
+  const queryClient = useQueryClient();
+  const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
+
+  return useMutation<CustomApiResponsePropertyCreateResult, unknown, CreateCustomApiResponsePropertyInput>({
+    mutationFn: async ({  next }) => {
+      try {
+        const result = await customApiResponsePropertyService.createCustomApiResponseProperty( next);
+
+       
+        addLog(`Custom API Response Property '${next.uniquename}' created successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error creating Custom API Response Property', error);
+        addLog(`Failed to create Custom API Response Property. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.created) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
+      }
+    },
+  });
+};
+
+type UpdateCustomApiResponsePropertyInput = {
+  current: CustomApiResponseProperty;
+  next: CustomApiResponsePropertyUpdateable;
+};
+
+export const useUpdateCustomApiResponseProperty = () => {
+  const queryClient = useQueryClient();
+  const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
+
+  return useMutation<CustomApiResponsePropertyUpdateResult, unknown, UpdateCustomApiResponsePropertyInput>({
+    mutationFn: async ({ current, next }) => {
+      try {
+        const result = await customApiResponsePropertyService.updateCustomApiResponseProperty(current, next);
+
+        if (!result.updated) {
+          addLog('No changes to save', 'warning');
+          return result;
+        }
+
+        addLog(`Custom API Response Property'${current.uniquename}' updated successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error saving Custom API Response Property', error);
+        addLog(`Failed to save Custom API Response Property changes. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.updated) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
+      }
+    },
+  });
+};
