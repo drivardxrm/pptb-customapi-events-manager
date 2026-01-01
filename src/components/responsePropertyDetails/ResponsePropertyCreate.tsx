@@ -1,12 +1,14 @@
 import React, {  useCallback } from 'react';
-import { Field, Input, Textarea } from '@fluentui/react-components';
+import { Field, Input, Link, Textarea } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { useCustomApis } from '../../hooks/useCustomApis';
 import { useAppStore } from '../../store/useAppStore';
-import { GenericTagPicker } from '../generic/GenericTagPicker';
 import { CustomApiResponsePropertyCreateable, getCustomApiResponsePropertiesTypeOptions, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
+import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
+import { useEntities } from '../../hooks/useEntities';
+
 
 interface ResponsePropertyCreateProps {
     createData: CustomApiResponsePropertyCreateable;
@@ -17,6 +19,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
     const styles = useStyles();   
     const customApiQuery = useCustomApis();
     const settingsQuery = useAppSettings();
+    const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
 
 
@@ -129,8 +132,38 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }
+                        hint={
+                            <>
+                                Leave blank for <Link href='https://powermaverick.dev/2021/11/17/dataverse-custom-api-that-supports-complex-json-schema/'>expando</Link> entity
+                            </>
+                        }
                     >
-                        <Input value={createData.logicalentityname || ''} readOnly className={styles.readOnlyInput} />
+                        {entityQuery.isFetching && (
+                            <Input value="Loading entities..." readOnly className={styles.readOnlyInput} />
+                        )}
+                        {entityQuery.error && (
+                            <Input
+                                value={`Error loading entities: ${entityQuery.error.message}`}
+                                readOnly
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {!entityQuery.isFetching && entityQuery.entities && (
+                            <GenericTagPicker
+                                items={entityQuery.entities
+                                    .map((entity) => ({
+                                        id: entity.entityid,
+                                        displayText: entity.logicalname || '',
+                                    } as SelectableItem))
+                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                //initialValue={createData.logicalentityname || ''}
+                                isDisabled={false}
+                                onSelect={(id) => {
+                                    const selected = entityQuery.entities?.find((entity) => entity.entityid === id);
+                                    updateField('logicalentityname', selected?.logicalname || '');
+                                }}
+                            />
+                        )}
                     </Field>
                 }
                 
