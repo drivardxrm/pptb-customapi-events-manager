@@ -75,7 +75,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                             </span>
                         }
                     >
-                        <Input value={property.logicalentityname || ''} readOnly className={styles.readOnlyInput} />
+                        <Input value={property.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
                     </Field>
                 }
                 

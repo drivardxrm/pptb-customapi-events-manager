@@ -78,7 +78,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                             </span>
                         }
                     >
-                        <Input value={parameter.logicalentityname || ''} readOnly className={styles.readOnlyInput} />
+                        <Input value={parameter.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
                     </Field>
                 }
                 

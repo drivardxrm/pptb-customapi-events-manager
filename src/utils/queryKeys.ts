@@ -10,7 +10,8 @@ export const queryKeys = QueryKeyManager.create("keys", {
   privileges : defineKey((connectionid: string, instanceId:string) => ['privileges', instanceId, connectionid]),
   publishers : defineKey((connectionid: string, instanceId:string) => ['publishers', instanceId, connectionid]), 
   solutions : defineKey((connectionid: string, instanceId:string) => ['solutions', instanceId, connectionid]), 
-  solutioncomponentss : defineKey((connectionid: string, instanceId:string) => ['solutioncomponents', instanceId, connectionid]), 
+  solutioncomponents : defineKey((connectionid: string, instanceId:string) => ['solutioncomponents', instanceId, connectionid]), 
+  entities : defineKey((connectionid: string, instanceId:string) => ['entities', instanceId, connectionid]),
 });
 
 // Debugging — list all registered keys

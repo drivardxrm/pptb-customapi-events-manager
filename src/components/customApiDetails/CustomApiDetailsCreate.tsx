@@ -279,7 +279,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                             displayText: privilege.name || '',
                                         } as SelectableItem))
                                         .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                    initialValue={createData.executeprivilegename}
+                                    //initialValue={createData.executeprivilegename}
                                     isDisabled={false}
                                     onSelect={(id) => {
                                         const selected = privilegesQuery.privileges?.find((priv) => priv.privilegeid === id);

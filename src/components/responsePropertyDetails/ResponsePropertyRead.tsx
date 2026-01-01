@@ -64,7 +64,7 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                             </span>
                         }
                     >
-                        <Input value={property.logicalentityname || ''} readOnly className={styles.readOnlyInput} />
+                        <Input value={property.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
                     </Field>
                 }
                 

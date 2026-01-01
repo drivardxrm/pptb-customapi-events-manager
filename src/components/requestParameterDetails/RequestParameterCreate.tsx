@@ -1,5 +1,5 @@
 import React, {  useCallback, useMemo, useRef } from 'react';
-import { Field, Input, Textarea, Switch, Tooltip } from '@fluentui/react-components';
+import { Field, Input, Textarea, Switch, Tooltip, Link } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import {  CustomApiRequestParameterCreateable, Customapirequestparameterstype, getCustomApiRequestParametersTypeOptions } from '../../models/CustomApiRequestParameter';
@@ -7,7 +7,8 @@ import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { useCustomApis } from '../../hooks/useCustomApis';
 import { useAppStore } from '../../store/useAppStore';
-import { GenericTagPicker } from '../generic/GenericTagPicker';
+import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
+import { useEntities } from '../../hooks/useEntities';
 
 interface RequestParameterCreateProps {
     createData: CustomApiRequestParameterCreateable;
@@ -29,6 +30,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
     const customApiQuery = useCustomApis();
     const settingsQuery = useAppSettings();
+    const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
 
 
@@ -128,7 +130,17 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
-                        onSelect={(id) => updateField('type', Number(id) as Customapirequestparameterstype)}
+                        onSelect={(id) => {
+                            const selectedType = Number(id) as Customapirequestparameterstype
+                            updateField('type', selectedType)
+                            if (createData.logicalentityname.length > 0 && 
+                                Customapirequestparameterstype[selectedType] !== 'Entity' &&
+                                Customapirequestparameterstype[selectedType] !== 'EntityReference') {
+                                updateField('logicalentityname', '');
+                            }
+                        }
+                            
+                        }
                     />
                 </Field>
 
@@ -141,8 +153,38 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }
+                        hint={
+                            <>
+                                Leave blank for <Link href='https://powermaverick.dev/2021/11/17/dataverse-custom-api-that-supports-complex-json-schema/'>expando</Link> entity
+                            </>
+                        }
                     >
-                        <Input value={createData.logicalentityname || ''} readOnly className={styles.readOnlyInput} />
+                        {entityQuery.isFetching && (
+                            <Input value="Loading entities..." readOnly className={styles.readOnlyInput} />
+                        )}
+                        {entityQuery.error && (
+                            <Input
+                                value={`Error loading entities: ${entityQuery.error.message}`}
+                                readOnly
+                                className={styles.readOnlyInput}
+                            />
+                        )}
+                        {!entityQuery.isFetching && entityQuery.entities && (
+                            <GenericTagPicker
+                                items={entityQuery.entities
+                                    .map((entity) => ({
+                                        id: entity.entityid,
+                                        displayText: entity.logicalname || '',
+                                    } as SelectableItem))
+                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                //initialValue={createData.logicalentityname || ''}
+                                isDisabled={false}
+                                onSelect={(id) => {
+                                    const selected = entityQuery.entities?.find((entity) => entity.entityid === id);
+                                    updateField('logicalentityname', selected?.logicalname || '');
+                                }}
+                            />
+                        )}
                     </Field>
                 }
                 
