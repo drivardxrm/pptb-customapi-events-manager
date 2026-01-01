@@ -28,28 +28,43 @@ interface ResponsePropertyListProps {
 
 
 export const ResponsePropertyList: React.FC<ResponsePropertyListProps> = ({responseProperties}) => {
-    //const styles = useStyles();
-    const { setSelectedResponsePropertyId } = useAppStore();
-
-    const [selectedRows, setSelectedRows] = useState(
-        new Set<TableRowId>([-1]) 
+    
+    const { setSelectedResponsePropertyId, selectedResponsePropertyId } = useAppStore();
+        
+    const [selectedRows, setSelectedRows] = useState<Set<TableRowId>>(
+        () => new Set<TableRowId>()
     );
+
     const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
         setSelectedRows(data.selectedItems);
     };
 
     useEffect(() => {
-        if (selectedRows.size > 0 && Array.from(selectedRows)[0] !== -1) {
-            const selectedId = Array.from(selectedRows)[0] as string
-            if(selectedId === '-1') {
-                setSelectedResponsePropertyId(null);
-            } else {
-                setSelectedResponsePropertyId(selectedId)
-            }
-        }else {
-            setSelectedResponsePropertyId(null)
-        }
+        const [first] = Array.from(selectedRows) as string[];
+        setSelectedResponsePropertyId(first ?? null);
     }, [selectedRows, setSelectedResponsePropertyId]);
+
+    useEffect(() => {
+        setSelectedRows(prev => {
+            if (!selectedResponsePropertyId) {
+                return prev.size ? new Set<TableRowId>() : prev;
+            }
+
+            const exists = responseProperties.some(
+                rp => rp.customapiresponsepropertyid === selectedResponsePropertyId
+            );
+
+            if (!exists) {
+                return prev.size ? new Set<TableRowId>() : prev;
+            }
+
+            if (prev.size === 1 && prev.has(selectedResponsePropertyId)) {
+                return prev;
+            }
+
+            return new Set<TableRowId>([selectedResponsePropertyId]);
+        });
+    }, [responseProperties, selectedResponsePropertyId]);
     
     const columns: TableColumnDefinition<CustomApiResponseProperty>[] = [
         createTableColumn<CustomApiResponseProperty>({
@@ -105,7 +120,7 @@ export const ResponsePropertyList: React.FC<ResponsePropertyListProps> = ({respo
     return (
         <div style={{ width: "450px", overflow: "auto" }}>              
             <DataGrid
-                items={responseProperties}
+                items={responseProperties.sort((a, b) => a.uniquename.localeCompare(b.uniquename))}
                 columns={columns}
                 selectionMode='single'
                 selectedItems={selectedRows}

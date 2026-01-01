@@ -28,16 +28,13 @@ interface RequestParametersListProps {
 
 
 export const RequestParametersList: React.FC<RequestParametersListProps> = ({requestParameters}) => {
-    //const styles = useStyles();
+
     const { setSelectedRequestParameterId, selectedRequestParameterId } = useAppStore();
     
     const [selectedRows, setSelectedRows] = useState<Set<TableRowId>>(
         () => new Set<TableRowId>()
     );
 
-
-
-    
     const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
         setSelectedRows(data.selectedItems);
     };
@@ -142,7 +139,7 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
     return (
         <div style={{ width: "450px", overflow: "auto" }}>              
             <DataGrid
-                items={requestParameters}
+                items={requestParameters.sort((a, b) => a.uniquename.localeCompare(b.uniquename))}
                 columns={columns}
                 selectionMode='single'
                 selectedItems={selectedRows}
