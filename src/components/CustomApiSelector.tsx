@@ -19,7 +19,7 @@ import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCi
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId } = useAppStore()
+    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     
@@ -189,6 +189,7 @@ export const CustomApiSelector: React.FC = () => {
                                         displayText: `${c.name} (${c.uniquename})`
                                     } as SelectableItem)      
                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
+                                initialValue={customapisQuery.customapis.find(c => c.customapiid === selectedCustomApiId)?.customapiid || ''}
                                 onSelect={(id) => {
                                     setSelectedCustomApiId(id);
                                     if(id){
