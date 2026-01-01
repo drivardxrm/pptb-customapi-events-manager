@@ -29,27 +29,45 @@ interface RequestParametersListProps {
 
 export const RequestParametersList: React.FC<RequestParametersListProps> = ({requestParameters}) => {
     //const styles = useStyles();
-    const { setSelectedRequestParameterId } = useAppStore();
-
-    const [selectedRows, setSelectedRows] = useState(
-        new Set<TableRowId>([-1]) 
+    const { setSelectedRequestParameterId, selectedRequestParameterId } = useAppStore();
+    
+    const [selectedRows, setSelectedRows] = useState<Set<TableRowId>>(
+        () => new Set<TableRowId>()
     );
+
+
+
+    
     const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
         setSelectedRows(data.selectedItems);
     };
 
     useEffect(() => {
-        if (selectedRows.size > 0 && Array.from(selectedRows)[0] !== -1) {
-            const selectedId = Array.from(selectedRows)[0] as string
-            if(selectedId === '-1') {
-                setSelectedRequestParameterId(null);
-            } else {
-                setSelectedRequestParameterId(selectedId)
-            }
-        }else {
-            setSelectedRequestParameterId(null)
-        }
+        const [first] = Array.from(selectedRows) as string[];
+        setSelectedRequestParameterId(first ?? null);
     }, [selectedRows, setSelectedRequestParameterId]);
+
+    useEffect(() => {
+        setSelectedRows(prev => {
+            if (!selectedRequestParameterId) {
+                return prev.size ? new Set<TableRowId>() : prev;
+            }
+
+            const exists = requestParameters.some(
+                rp => rp.customapirequestparameterid === selectedRequestParameterId
+            );
+
+            if (!exists) {
+                return prev.size ? new Set<TableRowId>() : prev;
+            }
+
+            if (prev.size === 1 && prev.has(selectedRequestParameterId)) {
+                return prev;
+            }
+
+            return new Set<TableRowId>([selectedRequestParameterId]);
+        });
+    }, [requestParameters, selectedRequestParameterId]);
     
     const columns: TableColumnDefinition<CustomApiRequestParameter>[] = [
         createTableColumn<CustomApiRequestParameter>({
@@ -100,30 +118,6 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
                 );
             },
         }),
-        
-        // createTableColumn<CustomApiRequestParameter>({
-        //     columnId: 'actions',
-            
-        //     renderHeaderCell: () => {
-        //         return 'Actions';
-        //     },
-        //     renderCell: () => {
-        //         return (
-        //         <>
-        //             <Button aria-label="View" icon={<GlassesRegular />} 
-        //                 onClick={
-        //                     () => {
-        //                         setMode('read');
-        //                         setIsOpen(true);  
-        //                     } 
-        //                 }/>
-        //             <Button aria-label="Edit" icon={<Edit24Regular />} />
-        //             <Button aria-label="Delete" icon={<DismissCircleColor />} />
-        //         </>
-        //         );
-        //     },
-        // }),
-        
     ];
 
     const columnSizingOptions = {
