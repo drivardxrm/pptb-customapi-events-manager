@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
+import { Badge, Button, Card, CardHeader, Divider, MessageBar, MessageBarBody, MessageBarTitle, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi } from '../../hooks/useCustomApis';
@@ -12,6 +12,7 @@ import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
 import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { ResponsePropertyDetails } from '../responsePropertyDetails/ResponsePropertyDetails';
+import { ValidationStatus } from '../../utils/validation';
 
 
 
@@ -42,6 +43,11 @@ export const CustomApiDetails: React.FC = () => {
     const [mode, setMode] = useState<CustomApiDetailsMode>('read');
     const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiCreateable>(DEFAULT_CREATE_TEMPLATE);
+    const [createValidation, setCreateValidation] = useState<ValidationStatus>({
+        isValid: true,
+    });
+
+
 
     useEffect(() => {
         if (selectedCustomApi) {
@@ -248,7 +254,7 @@ export const CustomApiDetails: React.FC = () => {
                         <Button
                             appearance='primary'
                             icon={createCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={createCustomApi.isPending}
+                            disabled={!createValidation.isValid || createCustomApi.isPending}
                             onClick={handleSave}
                             className={styles.headerActionButton}
                         >
@@ -270,9 +276,32 @@ export const CustomApiDetails: React.FC = () => {
         }
     })();
 
+
+    const messages = (() => {
+        if (mode === 'create' && !createValidation.isValid) {
+            return <MessageBar intent={'error'}>
+                        <MessageBarBody>
+                            <MessageBarTitle>Validation error</MessageBarTitle>
+                            {createValidation.message}
+                        </MessageBarBody>
+                    </MessageBar>
+        }
+
+        // if (mode === 'edit' && selectedCustomApi && editedData) {
+        //     return <CustomApiDetailsEdit api={selectedCustomApi} editedData={editedData} onChange={handleEditedDataChange} />;
+        // }
+
+        // return <CustomApiDetailsRead api={selectedCustomApi!} />;
+        return <></>;
+    })();
+
     const content = (() => {
         if (mode === 'create') {
-            return <CustomApiDetailsCreate createData={createData} onChange={handleCreateDataChange} />;
+            return <CustomApiDetailsCreate 
+                    createData={createData} 
+                    onChange={handleCreateDataChange} 
+                    onValidationChange={setCreateValidation}
+                />;
         }
 
         if (mode === 'edit' && selectedCustomApi && editedData) {
@@ -302,6 +331,7 @@ export const CustomApiDetails: React.FC = () => {
                     action={headerAction}
                 />
                 <Divider />
+                {messages}
                 {content}
                 {
                     selectedCustomApi &&

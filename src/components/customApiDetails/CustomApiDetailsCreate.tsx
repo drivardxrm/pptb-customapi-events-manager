@@ -10,17 +10,21 @@ import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 import { usePublishers } from '../../hooks/usePublishers';
 import { useAppStore } from '../../store/useAppStore';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { ValidationStatus } from '../../utils/validation';
+import { useCustomApis } from '../../hooks/useCustomApis';
 
 interface CustomApiDetailsCreateProps {
     createData: CustomApiCreateable;
     onChange: (updater: (current: CustomApiCreateable) => CustomApiCreateable) => void;
+    onValidationChange?: (validationStatus: ValidationStatus) => void;
 }
 
-export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ createData, onChange }) => {
+export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ createData, onChange, onValidationChange }) => {
     const styles = useStyles();
     const privilegesQuery = usePrivileges();
     const pluginTypesQuery = usePluginTypes();
     const publishersQuery = usePublishers()
+    const customApiQuery = useCustomApis()
     const { selectedPublisherId, setSelectedPublisherId } = useAppStore();
     const settingsQuery = useAppSettings();
 
@@ -40,6 +44,25 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
     const column2Style = column2Width ? { minWidth: `${column2Width}px` } : undefined;
 
+    const validation:ValidationStatus = useMemo(() => {
+        if (!selectedPublisherId) {
+            return { isValid: false, message: 'Select a publisher.' };
+        }
+        if (!createData.uniquename || createData.uniquename.trim() === '') {
+            return { isValid: false, message: 'Unique name is required.' };
+        }
+
+        if (customApiQuery.customapis && customApiQuery.customapis.some(api => api.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+            return { isValid: false, message: `Custom API ${createData.uniquename} already exist.` };
+        }
+
+        return { isValid: true };
+    }, [createData.uniquename, selectedPublisherId, customApiQuery.customapis]);
+
+
+    useEffect(() => {
+        onValidationChange?.(validation);
+    }, [validation, onValidationChange]);
 
     const updateField = <K extends keyof CustomApiCreateable>(field: K, value: CustomApiCreateable[K]) => {
         onChange((current) => ({ ...current, [field]: value }));
