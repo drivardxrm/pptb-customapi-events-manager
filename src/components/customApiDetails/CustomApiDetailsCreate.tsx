@@ -12,6 +12,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { ValidationStatus } from '../../utils/validation';
 import { useCustomApis } from '../../hooks/useCustomApis';
+import { produce } from 'immer';
+import { useEntities } from '../../hooks/useEntities';
 
 interface CustomApiDetailsCreateProps {
     createData: CustomApiCreateable;
@@ -27,6 +29,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const customApiQuery = useCustomApis()
     const { selectedPublisherId, setSelectedPublisherId } = useAppStore();
     const settingsQuery = useAppSettings();
+    const entityQuery = useEntities();
 
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -48,25 +51,36 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
         if (!selectedPublisherId) {
             return { isValid: false, message: 'Select a publisher.' };
         }
-        if (!createData.uniquename || createData.uniquename.trim() === '') {
-            return { isValid: false, message: 'Unique name is required.' };
+        
+        // Required Fields
+        if (!createData.uniquename || createData.uniquename.trim() === '' ||
+            !createData.name || createData.name.trim() === '' ||
+            !createData.displayname || createData.displayname.trim() === '' ||
+            !createData.description || createData.description.trim() === '' ||
+            createData.allowedcustomprocessingsteptype === null ||
+            createData.bindingtype === null ||
+            (createData.bindingtype === 1 && (!createData.boundentitylogicalname || createData.boundentitylogicalname.trim() === ''))
+        ) {
+            return { isValid: false, message: 'Please fill all required fields.' };
         }
 
         if (customApiQuery.customapis && customApiQuery.customapis.some(api => api.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
-            return { isValid: false, message: `Custom API ${createData.uniquename} already exist.` };
+            return { isValid: false, message: `Custom API named '${createData.uniquename}' already exist.` };
         }
 
         return { isValid: true };
-    }, [createData.uniquename, selectedPublisherId, customApiQuery.customapis]);
+    }, [createData, selectedPublisherId, customApiQuery.customapis]);
 
 
     useEffect(() => {
         onValidationChange?.(validation);
     }, [validation, onValidationChange]);
 
-    const updateField = <K extends keyof CustomApiCreateable>(field: K, value: CustomApiCreateable[K]) => {
-        onChange((current) => ({ ...current, [field]: value }));
+    // Helper to update fields, can change multiple fields at once
+    const updateFields = (updater: (draft: CustomApiCreateable) => void) => {
+        onChange(current => produce(current, draft => updater(draft)));
     };
+
 
     const uniqueNameSuffix = useMemo(() => {
         if (!createData.uniquename) {
@@ -142,11 +156,14 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
             {selectedPublisherPrefix !== '' && (
                 <div className={styles.formGrid}>
                     <div className={styles.formSection}>
-                        <Field label={
-                            <span className={styles.label}>
-                                Unique Name <LockClosed16Regular />
-                            </span>
-                        }>
+                        <Field 
+                            label={
+                                <span className={styles.semiBoldLabel}>
+                                    Unique Name <LockClosed16Regular />
+                                </span>
+                            }
+                            required
+                        >
                             <Input 
                                 contentBefore={
                                     <Text size={400}>
@@ -156,15 +173,20 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                 value={uniqueNameSuffix} 
                                 onChange={(event) => {
 
-                                    
-                                        updateField('uniquename', `${selectedPublisherPrefix}_${event.target.value}` || '')
-                                        if(createData.displayname === '' || createData.displayname === uniqueNameSuffix) {
-                                            updateField('displayname', event.target.value || '');
+                                    const suffix = event.target.value ?? '';
+                                    updateFields((next) => {
+                                        const previousSuffix = next.uniquename?.split('_')[1] ?? '';
+                                        next.uniquename = `${selectedPublisherPrefix}_${suffix}`;
+                                        if (!next.displayname || next.displayname === previousSuffix) {
+                                            next.displayname = suffix;
                                         }
-                                        if(createData.name === '' || createData.name === uniqueNameSuffix) {
-                                            updateField('name', event.target.value || '');
+                                        if (!next.name || next.name === previousSuffix) {
+                                            next.name = suffix;
                                         }
-                                    
+                                        if (!next.description || next.description === previousSuffix) {
+                                            next.description = suffix;
+                                        }
+                                    });
                                     }
 
                                 }
@@ -173,19 +195,33 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     </div>
 
                     <div className={styles.formSection}>
-                        <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                        <Field 
+                            label={<span className={styles.semiBoldLabel}>Name</span>}
+                            required
+                        >
                             <Input
                                 value={createData.name ?? ''}
-                                onChange={(event) => updateField('name', event.target.value || '')}
+                                onChange={(event) => {
+                                    updateFields((next) => {
+                                        next.name = event.target.value || '';
+                                    })
+                                }}
                             />
                         </Field>
                     </div>
 
                     <div className={styles.formSection}>
-                        <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                        <Field 
+                            label={<span className={styles.semiBoldLabel}>Display Name</span>}
+                            required
+                        >
                             <Input
                                 value={createData.displayname ?? ''}
-                                onChange={(event) => updateField('displayname', event.target.value || '')}
+                                onChange={(event) => {
+                                    updateFields((next) => {
+                                        next.displayname = event.target.value || '';
+                                    })
+                                }}
                             />
                         </Field>
                     </div>
@@ -193,10 +229,14 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     
 
                     <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
-                        <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
+                        <Field label={<span className={styles.semiBoldLabel}>Description</span>} required>
                             <Textarea
                                 value={createData.description ?? ''}
-                                onChange={(event) => updateField('description', event.target.value || '')}
+                                onChange={(event) => {
+                                    updateFields((next) => {
+                                        next.description = event.target.value || '';
+                                    })
+                                }}
                                 resize="vertical"
                                 rows={2}
                             />
@@ -204,35 +244,54 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     </div>
 
                     <div className={styles.formSection}>
-                        <Field label={
-                            <span className={styles.label}>
-                                Allowed Custom Processing Step Type <LockClosed16Regular />
-                            </span>}
+                        <Field 
+                            label={
+                                <span className={styles.semiBoldLabel}>
+                                    Allowed Custom Processing Step Type <LockClosed16Regular />
+                                </span>
+                            }
+                            required
                         >
                             <GenericTagPicker
                                 items={
                                     getAllowedCustomProcessingStepTypeOptions()
                                         .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                initialValue={createData.allowedcustomprocessingsteptype.toString()}
+                                initialValue={createData.allowedcustomprocessingsteptype?.toString()}
                                 isDisabled={false}
-                                onSelect={(id) => updateField('allowedcustomprocessingsteptype', Number(id) as Customapisallowedcustomprocessingsteptype)}
+                                onSelect={(id) => {
+                                    const value = id === null ? null : Number(id) as Customapisallowedcustomprocessingsteptype;
+
+                                    updateFields((next) => {
+                                        next.allowedcustomprocessingsteptype = value;
+                                    })
+                                }}
                             />
                         </Field>
                     </div>
 
                     <div className={styles.formSection}>
                         <Field label={
-                            <span className={styles.label}>
+                            <span className={styles.semiBoldLabel}>
                                 Binding Type <LockClosed16Regular />
                             </span>}
+                            required
                         >
                             <GenericTagPicker
                                 items={
                                     getBindingTypeOptions()
                                         .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                initialValue={createData.bindingtype.toString()}
+                                initialValue={createData.bindingtype?.toString()}
                                 isDisabled={false}
-                                onSelect={(id) => updateField('bindingtype', Number(id) as Customapisbindingtype)}
+                                onSelect={(id) => {
+                                    
+                                    const value = id === null ? null : Number(id) as Customapisbindingtype;
+                                    updateFields((next) => {
+                                        next.bindingtype = value;
+                                        if (value !== 1) {
+                                            next.boundentitylogicalname = '';
+                                        }
+                                    })
+                                }}
                             />
                         </Field>
                     </div>
@@ -240,11 +299,38 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     {createData.bindingtype === 1 && (
                         <div className={styles.formSection}>
                             <Field label={
-                                <span className={styles.label}>
+                                <span className={styles.semiBoldLabel}>
                                     Bound Entity Logical Name <LockClosed16Regular />
                                 </span>}
+                                required
                             >
-                                <Input value={createData.boundentitylogicalname || ''} readOnly className={styles.readOnlyInput} />
+                                {entityQuery.isFetching && (
+                                    <Input value="Loading entities..." readOnly className={styles.readOnlyInput} />
+                                )}
+                                {entityQuery.error && (
+                                    <Input
+                                        value={`Error loading entities: ${entityQuery.error.message}`}
+                                        readOnly
+                                        className={styles.readOnlyInput}
+                                    />
+                                )}
+                                {!entityQuery.isFetching && entityQuery.entities && (
+                                    <GenericTagPicker
+                                        items={entityQuery.entities
+                                            .map((entity) => ({
+                                                id: entity.entityid,
+                                                displayText: entity.logicalname || '',
+                                            } as SelectableItem))
+                                            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                        isDisabled={false}
+                                        onSelect={(id) => {
+                                            const selected = entityQuery.entities?.find((entity) => entity.entityid === id);
+                                            updateFields((next) => {
+                                                next.boundentitylogicalname = selected?.logicalname || '';
+                                            })
+                                        }}
+                                    />
+                                )}
                             </Field>
                         </div>
                     )}
@@ -276,7 +362,11 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                         .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
                                     initialValue={createData._plugintypeid_value}
                                     isDisabled={false}
-                                    onSelect={(id) => updateField('_plugintypeid_value', id || '')}
+                                    onSelect={(id) => {
+                                        updateFields((next) => {
+                                            next._plugintypeid_value = id || '';
+                                        })
+                                    }}
                                 />
                             )}
                         </Field>
@@ -306,7 +396,9 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                     isDisabled={false}
                                     onSelect={(id) => {
                                         const selected = privilegesQuery.privileges?.find((priv) => priv.privilegeid === id);
-                                        updateField('executeprivilegename', selected?.name || '');
+                                        updateFields((next) => {
+                                            next.executeprivilegename = selected?.name || '';
+                                        })
                                     }}
                                 />
                             )}
@@ -322,7 +414,11 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                     <Switch
                                         
                                         checked={createData.isfunction}
-                                        onChange={(_, data) => updateField('isfunction', data.checked)}
+                                        onChange={(_, data) => {
+                                            updateFields((next) => {
+                                                next.isfunction = data.checked;
+                                            })
+                                        }}
                                         tabIndex={-1}
                                         label={
                                             <span 
@@ -342,7 +438,11 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                 <div className={styles.switchRow}>
                                     <Switch
                                         checked={createData.workflowsdkstepenabled}
-                                        onChange={(_, data) => updateField('workflowsdkstepenabled', data.checked)}
+                                        onChange={(_, data) => {
+                                            updateFields((next) => {
+                                                next.workflowsdkstepenabled = data.checked;
+                                            })
+                                        }}
                                         tabIndex={-1}
                                         label={
                                             <span 
@@ -366,15 +466,21 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                 <div className={styles.switchRow}>
                                     <Switch
                                         checked={createData.isprivate}
-                                        onChange={(_, data) => updateField('isprivate', data.checked)}
+                                        onChange={(_, data) => {
+                                            updateFields((next) => {
+                                                next.isprivate = data.checked;
+                                            })
+                                        }}
                                         tabIndex={-1}
                                         label={
-                                            <span 
+                                            <span
                                                 ref={privateLabelRef}
-                                                className={mergeClasses(styles.readOnlySwitchLabel,styles.semiBoldLabel)}
+                                                className={mergeClasses(styles.readOnlySwitchLabel, styles.semiBoldLabel)}
                                                 style={column2Style}
                                             >
-                                                Is Private</span>}
+                                                Is Private
+                                            </span>
+                                        }
                                         labelPosition="before"
                                     />
                                 </div>
@@ -383,11 +489,6 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     </div>
                 </div>
             )}
-            
-                
-                    
-
-           
         </>
     )
 }

@@ -227,4 +227,7 @@ export const useStyles = makeStyles({
     maxWidth: '100%',
     display: 'inline-block',
   },
+  required: {
+    color: tokens.colorPaletteRedForeground1,
+  }
 });

@@ -76,7 +76,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     }
                 >
                     <Input
-                        value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype]}
+                        value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype!]}
                         readOnly
                         className={styles.readOnlyInput}
                     />
@@ -92,7 +92,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     }
                 >
                     <Input
-                        value={Customapisbindingtype[api.bindingtype]}
+                        value={Customapisbindingtype[api.bindingtype!]}
                         readOnly
                         className={styles.readOnlyInput}
                     />

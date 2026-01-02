@@ -7,8 +7,8 @@ import { PluginTypeService } from "../services/PluginTypeService";
 export interface CustomApi  {
   customapiid: string;
   name: string;
-  allowedcustomprocessingsteptype: Customapisallowedcustomprocessingsteptype;
-  bindingtype: Customapisbindingtype;
+  allowedcustomprocessingsteptype: Customapisallowedcustomprocessingsteptype | null;
+  bindingtype: Customapisbindingtype | null;
   boundentitylogicalname: string;
   description: string;
   displayname: string;

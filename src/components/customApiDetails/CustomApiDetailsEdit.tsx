@@ -7,6 +7,7 @@ import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { usePrivileges } from '../../hooks/usePrivileges';
 import { usePluginTypes } from '../../hooks/usePluginTypes';
 import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
+import { produce } from 'immer';
 
 interface CustomApiDetailsEditProps {
     api: CustomApi;
@@ -36,8 +37,9 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
         const column2Style = column2Width ? { minWidth: `${column2Width}px` } : undefined;
 
 
-    const updateField = <K extends keyof CustomApiUpdateable>(field: K, value: CustomApiUpdateable[K]) => {
-        onChange((current) => ({ ...current, [field]: value }));
+    // Helper to update fields, can change multiple fields at once
+    const updateFields = (updater: (draft: CustomApiUpdateable) => void) => {
+        onChange(current => produce(current, draft => updater(draft)));
     };
 
     return (
@@ -58,7 +60,11 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
                         value={editedData.name ?? ''}
-                        onChange={(event) => updateField('name', event.target.value || '')}
+                        onChange={(event) => 
+                            updateFields((next) => {
+                                        next.name = event.target.value || '';
+                            })
+                        }
                     />
                 </Field>
             </div>
@@ -67,7 +73,11 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                     <Input
                         value={editedData.displayname ?? ''}
-                        onChange={(event) => updateField('displayname', event.target.value || '')}
+                        onChange={(event) => 
+                            updateFields((next) => {
+                                next.displayname = event.target.value || '';
+                            })
+                        }
                     />
                 </Field>
             </div>
@@ -76,7 +86,11 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
                     <Textarea
                         value={editedData.description ?? ''}
-                        onChange={(event) => updateField('description', event.target.value || '')}
+                        onChange={(event) => 
+                            updateFields((next) => {
+                                next.description = event.target.value || '';
+                            })
+                        }
                         resize="vertical"
                         rows={2}
                     />
@@ -90,7 +104,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                     </span>}
                 >
                     <Input
-                        value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype]}
+                        value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype!]}
                         readOnly
                         className={styles.readOnlyInput}
                     />
@@ -103,7 +117,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                         Binding Type <LockClosed16Regular />
                     </span>}
                 >
-                    <Input value={Customapisbindingtype[api.bindingtype]} readOnly className={styles.readOnlyInput} />
+                    <Input value={Customapisbindingtype[api.bindingtype!]} readOnly className={styles.readOnlyInput} />
                 </Field>
             </div>
 
@@ -146,7 +160,14 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
                             initialValue={editedData._plugintypeid_value}
                             isDisabled={false}
-                            onSelect={(id) => updateField('_plugintypeid_value', id || '')}
+                            onSelect={(id) => 
+                                
+                                updateFields((next) => {
+                                        next._plugintypeid_value = id || '';
+                                    }
+                                )
+
+                            }
                         />
                     )}
                 </Field>
@@ -176,7 +197,10 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                             isDisabled={false}
                             onSelect={(id) => {
                                 const selected = privilegesQuery.privileges?.find((priv) => priv.privilegeid === id);
-                                updateField('executeprivilegename', selected?.name || '');
+                                updateFields((next) => {
+                                        next.executeprivilegename = selected?.name || '';
+                                    }
+                                )
                             }}
                         />
                     )}
@@ -238,7 +262,12 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                         <div className={styles.switchRow}>
                             <Switch
                                 checked={editedData.isprivate}
-                                onChange={(_, data) => updateField('isprivate', data.checked)}
+                                onChange={(_, data) => 
+                                    updateFields((next) => {
+                                            next.isprivate = data.checked;
+                                        }
+                                    )
+                                }
                                 //className={styles.readOnlySwitch}
                                 tabIndex={-1}
                                 label={
