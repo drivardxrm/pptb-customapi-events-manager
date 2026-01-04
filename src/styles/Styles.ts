@@ -5,18 +5,9 @@ export const useStyles = makeStyles({
     display: 'flex',
     gap: tokens.spacingHorizontalM,
     height: '100vh',
-    padding: tokens.spacingVerticalS,
+    //padding: tokens.spacingVerticalS,
     boxSizing: 'border-box',
     overflow: 'hidden',
-  },
-  containerProduction: {
-    background: tokens.colorPaletteRedBackground3,
-  },
-  containerUat: {
-    background: tokens.colorPaletteYellowBackground2,
-  },
-  containerDefault: {
-    background: tokens.colorNeutralBackground1,
   },
   label :{
     display: 'inline-flex', 
@@ -28,7 +19,7 @@ export const useStyles = makeStyles({
     gap: tokens.spacingHorizontalM,
     height: '100%',
     width: '100%',
-    backgroundColor: 'white',
+    //backgroundColor: 'white',
     borderRadius: tokens.borderRadiusMedium,
     overflow: 'hidden',
   },
@@ -37,7 +28,7 @@ export const useStyles = makeStyles({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: 'white',
+    //backgroundColor: 'white',
     '& .fui-NavItem__content::after': {
       borderLeftWidth: '2px',
     },
@@ -51,7 +42,7 @@ export const useStyles = makeStyles({
       height: '100%',
       minHeight: 0,
       paddingBottom: tokens.spacingVerticalXXL,
-      backgroundColor: 'white',
+      //backgroundColor: 'white',
   },
   card: {
       width: '100%',

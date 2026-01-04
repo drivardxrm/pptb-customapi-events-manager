@@ -9,7 +9,6 @@ import {
     Hamburger,
     OnNavItemSelectData,
     AppItem,
-    mergeClasses
 } from "@fluentui/react-components";
 import { 
     ServerMultipleRegular, 
@@ -145,29 +144,11 @@ function App() {
         }
     };
 
-    // Get environment-specific class based on environment
-    const getEnvironmentClass = () => {
-        if (!connection?.environment) return styles.containerDefault;
-        
-        const env = connection.environment.toLowerCase();
-        switch (env) {
-            case 'production':
-                return styles.containerProduction;
-            case 'uat':
-                return styles.containerUat;
-            default:
-                return styles.containerDefault;
-        }
-    };
+
 
     return (
         <>
-            {/* <header className="header">
-                <h1>Dataverse Custom API Manager</h1>
-                <p className="subtitle">A comprehensive management tool for Dataverse Custom APIs</p>
-            </header> */}
-
-            <div className={mergeClasses(styles.container, getEnvironmentClass())}> 
+            <div className={styles.container}> 
                 <div className={styles.appWrapper}>
                     <div className={styles.nav}>
                     <NavDrawer

@@ -167,30 +167,34 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                         >
                             <Input 
                                 contentBefore={
-                                    <Text size={400}>
-                                        {`${selectedPublisherPrefix}_`}
-                                    </Text>
+                                    <Text size={400}>{`${selectedPublisherPrefix}_`}</Text>
                                 }
-                                value={uniqueNameSuffix} 
+                                value={uniqueNameSuffix}
                                 onChange={(event) => {
-
                                     const suffix = event.target.value ?? '';
+
                                     updateFields((next) => {
-                                        const previousSuffix = next.uniquename?.split('_')[1] ?? '';
+                                        const currentSuffix = next.uniquename?.split('_')[1] ?? '';
+
+                                        if (suffix === currentSuffix) {
+                                            return;
+                                        }
+
                                         next.uniquename = `${selectedPublisherPrefix}_${suffix}`;
-                                        if (!next.displayname || next.displayname === previousSuffix) {
+
+                                        if (!next.displayname || next.displayname === currentSuffix) {
                                             next.displayname = suffix;
                                         }
-                                        if (!next.name || next.name === previousSuffix) {
+
+                                        if (!next.name || next.name === currentSuffix) {
                                             next.name = suffix;
                                         }
-                                        if (!next.description || next.description === previousSuffix) {
+
+                                        if (!next.description || next.description === currentSuffix) {
                                             next.description = suffix;
                                         }
                                     });
-                                    }
-
-                                }
+                                }}
                             />
                         </Field>
                     </div>
