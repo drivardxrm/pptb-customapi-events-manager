@@ -8,6 +8,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { CustomApiResponsePropertyCreateable, getCustomApiResponsePropertiesTypeOptions, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
+import { produce } from 'immer';
 
 
 interface ResponsePropertyCreateProps {
@@ -23,8 +24,9 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
     const { selectedCustomApiId } = useAppStore();
 
 
-    const updateField = <K extends keyof CustomApiResponsePropertyCreateable>(field: K, value: CustomApiResponsePropertyCreateable[K]) => {
-        onChange((current) => ({ ...current, [field]: value }));
+    // Helper to update fields, can change multiple fields at once
+    const updateFields = (updater: (draft: CustomApiResponsePropertyCreateable) => void) => {
+        onChange(current => produce(current, draft => updater(draft)));
     };
 
     const buildDefaultName = useCallback(
@@ -63,50 +65,65 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                 >
                     <Input
                         value={createData.uniquename ?? ''}
-                        onChange={(event) => 
-                            {
-                                var previousUniquename = createData.uniquename ?? '';
-                                var previousDefaultName = buildDefaultName(previousUniquename);
-                                
-                                updateField('uniquename', event.target.value || '')
-                                
-                                if(createData.name === '' || createData.name === previousDefaultName) {
-                                    updateField('name', buildDefaultName(event.target.value) || '');
+                        onChange={(event) => {
+                            const value = event.target.value ?? '';
+                            const previousUniquename = createData.uniquename ?? '';
+                            const previousDefaultName = buildDefaultName(previousUniquename);
+                            const nextDefaultName = buildDefaultName(value);
+
+                            updateFields((draft) => {
+                                draft.uniquename = value;
+
+                                const prevName = createData.name ?? '';
+                                if (prevName === '' || prevName === previousDefaultName) {
+                                    draft.name = nextDefaultName;
                                 }
-                                if(createData.displayname === '' || createData.displayname === previousDefaultName) {
-                                    updateField('displayname', buildDefaultName(event.target.value) || '');
+
+                                const prevDisplayName = createData.displayname ?? '';
+                                if (prevDisplayName === '' || prevDisplayName === previousDefaultName) {
+                                    draft.displayname = nextDefaultName;
                                 }
-                                
-                            }
-                        }
+                            });
+                        }}
                     />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
                         value={createData.name ?? ''}
-                        onChange={(event) => updateField('name', event.target.value || '')}
+                        onChange={(event) =>
+                            updateFields((draft) => {
+                                draft.name = event.target.value ?? '';
+                            })
+                        }
                     />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                     <Input
                         value={createData.displayname ?? ''}
-                        onChange={(event) => updateField('displayname', event.target.value || '')}
+                        onChange={(event) =>
+                            updateFields((draft) => {
+                                draft.displayname = event.target.value ?? '';
+                            })
+                        }
                     />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
                     <Textarea
                         value={createData.description ?? ''}
-                        onChange={(event) => updateField('description', event.target.value || '')}
+                        onChange={(event) =>
+                            updateFields((draft) => {
+                                draft.description = event.target.value ?? '';
+                            })
+                        }
                         resize="vertical"
                         rows={2}
                     />
                 </Field>
 
-
-                <Field 
+                <Field
                     label={
                         <span className={styles.label}>
                             Type <LockClosed16Regular />
@@ -114,12 +131,24 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     }
                 >
                     <GenericTagPicker
-                        items={
-                            getCustomApiResponsePropertiesTypeOptions()
-                                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                        items={getCustomApiResponsePropertiesTypeOptions()
+                            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
-                        onSelect={(id) => updateField('type', Number(id) as Customapiresponsepropertiestype)}
+                        onSelect={(id) => {
+                            const selectedType = Number(id) as Customapiresponsepropertiestype;
+                            updateFields((draft) => {
+                                draft.type = selectedType;
+
+                                if (
+                                    draft.logicalentityname.length > 0 &&
+                                    Customapiresponsepropertiestype[selectedType] !== 'Entity' &&
+                                    Customapiresponsepropertiestype[selectedType] !== 'EntityReference'
+                                ) {
+                                    draft.logicalentityname = '';
+                                }
+                            });
+                        }}
                     />
                 </Field>
 
@@ -156,11 +185,12 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                                         displayText: entity.logicalname || '',
                                     } as SelectableItem))
                                     .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                //initialValue={createData.logicalentityname || ''}
                                 isDisabled={false}
                                 onSelect={(id) => {
                                     const selected = entityQuery.entities?.find((entity) => entity.entityid === id);
-                                    updateField('logicalentityname', selected?.logicalname || '');
+                                    updateFields((draft) => {
+                                        draft.logicalentityname = selected?.logicalname || '';
+                                    });
                                 }}
                             />
                         )}

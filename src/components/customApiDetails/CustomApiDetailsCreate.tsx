@@ -47,6 +47,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
     const column2Style = column2Width ? { minWidth: `${column2Width}px` } : undefined;
 
+    // Validation logic
     const validation:ValidationStatus = useMemo(() => {
         if (!selectedPublisherId) {
             return { isValid: false, message: 'Select a publisher.' };

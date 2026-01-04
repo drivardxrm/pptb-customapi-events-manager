@@ -4,6 +4,7 @@ import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype, CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
 import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
+import { produce } from 'immer';
 
 interface RequestParameterEditProps {
     parameter: CustomApiRequestParameter;
@@ -26,8 +27,9 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
 
 
-    const updateField = <K extends keyof CustomApiRequestParameterUpdateable>(field: K, value: CustomApiRequestParameterUpdateable[K]) => {
-        onChange((current) => ({ ...current, [field]: value }));
+    // Helper to update fields, can change multiple fields at once
+    const updateFields = (updater: (draft: CustomApiRequestParameterUpdateable) => void) => {
+        onChange(current => produce(current, draft => updater(draft)));
     };
     
 
@@ -47,21 +49,27 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
                         value={editedData.name ?? ''}
-                        onChange={(event) => updateField('name', event.target.value || '')}
+                        onChange={(event) => updateFields((draft) => {
+                            draft.name = event.target.value ?? '';
+                        })}
                     />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                     <Input
                         value={editedData.displayname ?? ''}
-                        onChange={(event) => updateField('displayname', event.target.value || '')}
+                        onChange={(event) => updateFields((draft) => {
+                            draft.displayname = event.target.value ?? '';
+                        })}
                     />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
                     <Textarea
                         value={editedData.description ?? ''}
-                        onChange={(event) => updateField('description', event.target.value || '')}
+                        onChange={(event) => updateFields((draft) => {
+                            draft.description = event.target.value ?? '';
+                        })}
                         resize="vertical"
                         rows={2}
                     />
