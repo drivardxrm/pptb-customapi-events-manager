@@ -1,10 +1,12 @@
-import { StrictMode } from 'react';
+import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './components/App';
 //import './index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FluentProvider, webLightTheme } from '@fluentui/react-components';
+import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools/production';
+import { useAppStore } from './store/useAppStore';
+
 
 
 const queryClient = new QueryClient({
@@ -23,17 +25,30 @@ if (rootElement && !rootElement.hasAttribute('data-reactroot-initialized')) {
     
     const root = createRoot(rootElement);
 
-    root.render(
-        <StrictMode>
-            <QueryClientProvider client={queryClient}>
-                <FluentProvider theme={webLightTheme}>
-                    <App />
-                </FluentProvider>
-                <ReactQueryDevtools initialIsOpen={false} />
-               
-            </QueryClientProvider>
-        </StrictMode>
-    );
+
+    const RootApp = () => {
+      const { theme, initTheme } = useAppStore();
+
+      // execute initTheme only once when RootApp mounts
+      useEffect(() => {
+        initTheme();
+      }, []);
+      
+
+
+      return (
+          <StrictMode>
+              <QueryClientProvider client={queryClient}>
+                  <FluentProvider theme={theme === 'light' ? webLightTheme : webDarkTheme}>
+                      <App />
+                  </FluentProvider>
+                  <ReactQueryDevtools initialIsOpen={false} />
+              </QueryClientProvider>
+          </StrictMode>
+      );
+  };
+
+  root.render(<RootApp />);
 } else if (!rootElement) {
     console.error('Root element not found. Make sure the HTML contains <div id="root"></div>');
 }

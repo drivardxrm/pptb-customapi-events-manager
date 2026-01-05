@@ -12,13 +12,18 @@ import {
 } from "@fluentui/react-components";
 import { 
     ServerMultipleRegular, 
+    ServerMultipleFilled,
     ClipboardBulletListRegular, 
+    ClipboardBulletListFilled, 
     Info24Regular,
+    Info24Filled,
     Settings24Regular,
     Settings24Filled,
     PlugConnected24Regular,
     PlugConnected24Filled,
-    Info24Filled,
+    BugRegular,
+    BugFilled
+    
 } from "@fluentui/react-icons";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { EventLog } from "./EventLog";
@@ -31,7 +36,7 @@ import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
-import { StoreDebugView } from "./StoreDebugView";
+import { DebugView } from "./DebugView";
 import { useAppSettings } from "../hooks/useAppSettings";
 //import { CustomApiList } from "./CustomApiList";
 import { mergeClasses } from '@fluentui/react-components';
@@ -76,12 +81,12 @@ function App() {
         label: string;
         hidden?: boolean;
     }> = [
-        { value: 'customapi', icon: <ServerMultipleRegular className={styles.navIcon} />, iconSelected: <ServerMultipleRegular className={styles.navIconSelected}/>, label: 'Custom API' },
+        { value: 'customapi', icon: <ServerMultipleRegular className={styles.navIcon} />, iconSelected: <ServerMultipleFilled className={styles.navIconSelected}/>, label: 'Custom API' },
         { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
-        { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListRegular className={styles.navIconSelected}/>, label: 'Logs' },
+        { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListFilled className={styles.navIconSelected}/>, label: 'Logs' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         { value: 'about', icon: <Info24Regular className={styles.navIcon}/>, iconSelected: <Info24Filled className={styles.navIconSelected}/>, label: 'About' },
-        { value: 'debug', icon: <ServerMultipleRegular className={styles.navIcon}/>, iconSelected: <ServerMultipleRegular className={styles.navIconSelected}/>, label: 'Debug', hidden: !appsettings?.showDebug },
+        { value: 'debug', icon: <BugRegular className={styles.navIcon}/>, iconSelected: <BugFilled className={styles.navIconSelected}/>, label: 'Debug', hidden: !appsettings?.showDebug },
     ];
 
 
@@ -143,7 +148,7 @@ function App() {
             case 'about':
                 return <About />;
             case 'debug':
-                return appsettings?.showDebug ? <StoreDebugView /> : null;
+                return appsettings?.showDebug ? <DebugView /> : null;
             default:
                 return null;
         }

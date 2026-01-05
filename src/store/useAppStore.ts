@@ -21,6 +21,9 @@ interface AppState {
     selectedResponsePropertyId: string | null;
     selectedPublisherId: string | null;
 
+    theme : 'light' | 'dark';
+    initTheme: () => void;
+
 
     // Logs state
     logs: LogEntry[];
@@ -61,6 +64,12 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
 
+        theme:  'light',
+
+        initTheme: async() => {
+            let toolboxTheme = await window.toolboxAPI.utils.getCurrentTheme();
+            set({ theme : toolboxTheme });
+        },
 
         // Connection actions
         setConnection: (connection) => set({ connection }),
