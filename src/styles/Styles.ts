@@ -57,6 +57,13 @@ export const useStyles = makeStyles({
       paddingBottom: tokens.spacingVerticalXXL,
       //backgroundColor: 'white',
   },
+  navIcon: {
+    fontSize: "24px",
+  },
+  navIconSelected: {
+    fontSize: "24px",
+    color: tokens.colorBrandForeground1,
+  },
   card: {
       width: '100%',
       maxWidth: '1200px',

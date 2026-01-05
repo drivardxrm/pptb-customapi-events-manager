@@ -19,7 +19,6 @@ import {
     PlugConnected24Regular,
     PlugConnected24Filled,
     Info24Filled,
-    bundleIcon
 } from "@fluentui/react-icons";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { EventLog } from "./EventLog";
@@ -57,26 +56,32 @@ function App() {
 
     const [selectedNavItem, setSelectedNavItem] = useState<NavSection>('customapi');
     
-    //icons bundle
-    const ConnectionIcon = bundleIcon(
-        PlugConnected24Filled,
-        PlugConnected24Regular
-    );
-    const SettingsIcon = bundleIcon(
-        Settings24Filled,
-        Settings24Regular
-    );
-    const AboutIcon = bundleIcon(
-        Info24Filled,
-        Info24Regular
-    );
-    const navItems: Array<{ value: NavSection; icon: ReactElement; label: string; hidden?:boolean }> = [
-        { value: 'customapi', icon: <ServerMultipleRegular />, label: 'Custom API' },
-        { value: 'connection', icon: <ConnectionIcon />, label: 'Connection' },
-        { value: 'logs', icon: <ClipboardBulletListRegular />, label: 'Logs' },
-        { value: 'settings', icon: <SettingsIcon />, label: 'Settings' },
-        { value: 'about', icon: <AboutIcon />, label: 'About' },
-        { value: 'debug', icon: <ServerMultipleRegular />, label: 'Debug', hidden: !appsettings?.showDebug }
+    // //icons bundle
+    // const ConnectionIcon = bundleIcon(
+    //     PlugConnected24Filled,
+    //     PlugConnected24Regular
+    // );
+    // const SettingsIcon = bundleIcon(
+    //     Settings24Filled,
+    //     Settings24Regular
+    // );
+    // const AboutIcon = bundleIcon(
+    //     Info24Filled,
+    //     Info24Regular
+    // );
+    const navItems: Array<{
+        value: NavSection;
+        icon: ReactElement;
+        iconSelected: ReactElement;
+        label: string;
+        hidden?: boolean;
+    }> = [
+        { value: 'customapi', icon: <ServerMultipleRegular className={styles.navIcon} />, iconSelected: <ServerMultipleRegular className={styles.navIconSelected}/>, label: 'Custom API' },
+        { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
+        { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListRegular className={styles.navIconSelected}/>, label: 'Logs' },
+        { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
+        { value: 'about', icon: <Info24Regular className={styles.navIcon}/>, iconSelected: <Info24Filled className={styles.navIconSelected}/>, label: 'About' },
+        { value: 'debug', icon: <ServerMultipleRegular className={styles.navIcon}/>, iconSelected: <ServerMultipleRegular className={styles.navIconSelected}/>, label: 'Debug', hidden: !appsettings?.showDebug },
     ];
 
 
@@ -144,26 +149,29 @@ function App() {
         }
     };
 
-    const renderNavIcon = (item: typeof navItems[number]) =>
-        navCollapsed ? (
+    const renderNavIcon = (item: typeof navItems[number], isSelected: boolean) => {
+        const iconElement = isSelected ? item.iconSelected : item.icon;
+
+        return navCollapsed ? (
             <Tooltip content={item.label} relationship="label">
                 <span
-                    onClick={event => {
+                    onClick={(event) => {
                         handleNavItemSelect(event, { value: item.value } as OnNavItemSelectData);
                     }}
                 >
-                    {item.icon}
+                    {iconElement}
                 </span>
             </Tooltip>
         ) : (
             <span
-                onClick={event => {
+                onClick={(event) => {
                     handleNavItemSelect(event, { value: item.value } as OnNavItemSelectData);
                 }}
             >
-                {item.icon}
+                {iconElement}
             </span>
         );
+    };
 
 
 
@@ -193,15 +201,18 @@ function App() {
                                 >
                                     {!navCollapsed ? "Custom API Manager" : null}
                                 </AppItem>
-                                {navItems.filter(i => !i.hidden).map(item => (
-                                    <NavItem
-                                        key={item.value}
-                                        value={item.value}
-                                        icon={renderNavIcon(item)}
-                                    >
-                                        {!navCollapsed ? item.label : null}
-                                    </NavItem>
-                                ))}
+                                {navItems.filter(i => !i.hidden).map(item => {
+                                    const isSelected = selectedNavItem === item.value;
+                                    return (
+                                        <NavItem
+                                            key={item.value}
+                                            value={item.value}
+                                            icon={renderNavIcon(item, isSelected)}
+                                        >
+                                            {!navCollapsed ? item.label : null}
+                                        </NavItem>
+                                    );
+                                })}
                             </NavDrawerBody>
                         </NavDrawer>
                     </div>
