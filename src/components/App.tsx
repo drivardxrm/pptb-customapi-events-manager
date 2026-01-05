@@ -8,7 +8,7 @@ import {
     Tooltip,
     Hamburger,
     OnNavItemSelectData,
-    AppItem,
+    AppItem
 } from "@fluentui/react-components";
 import { 
     ServerMultipleRegular, 
@@ -35,7 +35,7 @@ import { SettingsForm } from "./SettingsForm";
 import { StoreDebugView } from "./StoreDebugView";
 import { useAppSettings } from "../hooks/useAppSettings";
 //import { CustomApiList } from "./CustomApiList";
-
+import { mergeClasses } from '@fluentui/react-components';
 
 
 
@@ -144,57 +144,74 @@ function App() {
         }
     };
 
+    const renderNavIcon = (item: typeof navItems[number]) =>
+        navCollapsed ? (
+            <Tooltip content={item.label} relationship="label">
+                <span
+                    onClick={event => {
+                        handleNavItemSelect(event, { value: item.value } as OnNavItemSelectData);
+                    }}
+                >
+                    {item.icon}
+                </span>
+            </Tooltip>
+        ) : (
+            <span
+                onClick={event => {
+                    handleNavItemSelect(event, { value: item.value } as OnNavItemSelectData);
+                }}
+            >
+                {item.icon}
+            </span>
+        );
+
 
 
     return (
-        <>
+       
             <div className={styles.container}> 
-                <div className={styles.appWrapper}>
-                    <div className={styles.nav}>
-                    <NavDrawer
-                        tabbable={true} // enables keyboard tabbing
-                        selectedValue={selectedNavItem}
-                        onNavItemSelect={handleNavItemSelect}
-                        type={"inline"}
-                        open={true}
-                        className={styles.nav}
-                    >
-                        <NavDrawerHeader>
-                            <Tooltip content={navCollapsed ? "Expand menu" : "Collapse menu"} relationship="label">
-                                <Hamburger onClick={() => setNavCollapsed((prev) => !prev)} />
-                            </Tooltip>
-                        </NavDrawerHeader>
-
-                        <NavDrawerBody>
-                            <AppItem icon={
-                                <Image
-                                    alt="Custom API Manager logo"
-                                    src={logoImage}
-                                    height={40}
-                                    width={40}
-                                />} as="a"
-                            >
-                                {!navCollapsed ? "Custom API Manager" : null}
-                            </AppItem>
-                            
-                            {navItems.filter(i => !i.hidden).map(item => (
-                                <Tooltip key={item.value} content={item.label} relationship="label" visible={navCollapsed}>
-                                    <NavItem icon={item.icon} value={item.value}>
+                {/* <div className={styles.appWrapper}> */}
+                    <div className={mergeClasses(styles.nav, navCollapsed && styles.navCollapsed)}>
+                        <NavDrawer
+                          style={{ '--fui-NavDrawer-width': navCollapsed ? '72px' : '280px' } as React.CSSProperties}
+                          tabbable
+                          selectedValue={selectedNavItem}
+                          onNavItemSelect={handleNavItemSelect}
+                          type="inline"
+                          open
+                          className={mergeClasses(styles.nav, navCollapsed && styles.navCollapsed)}
+                        >
+                            <NavDrawerHeader>
+                                <Tooltip content={navCollapsed ? "Expand menu" : "Collapse menu"} relationship="label">
+                                    <Hamburger onClick={() => setNavCollapsed(prev => !prev)} />
+                                </Tooltip>
+                            </NavDrawerHeader>
+                            <NavDrawerBody>
+                                <AppItem
+                                    icon={<Image alt="Custom API Manager logo" src={logoImage} height={40} width={40} />}
+                                    as="a"
+                                >
+                                    {!navCollapsed ? "Custom API Manager" : null}
+                                </AppItem>
+                                {navItems.filter(i => !i.hidden).map(item => (
+                                    <NavItem
+                                        key={item.value}
+                                        value={item.value}
+                                        icon={renderNavIcon(item)}
+                                    >
                                         {!navCollapsed ? item.label : null}
                                     </NavItem>
-                                </Tooltip>
-                            ))}
-                        </NavDrawerBody>
-                        
-                    </NavDrawer>
+                                ))}
+                            </NavDrawerBody>
+                        </NavDrawer>
                     </div>
 
                     <div className={styles.content}>
                         {renderContent()}
                     </div>
-                </div>
+                {/* </div> */}
             </div>
-        </>
+       
     );
 }
 

@@ -6,7 +6,7 @@ export const useStyles = makeStyles({
     gap: tokens.spacingHorizontalM,
     height: '100vh',
     //padding: tokens.spacingVerticalS,
-    boxSizing: 'border-box',
+    //boxSizing: 'border-box',
     overflow: 'hidden',
   },
   label :{
@@ -24,16 +24,29 @@ export const useStyles = makeStyles({
     overflow: 'hidden',
   },
   nav: {
-    minWidth: "200px",
+    minWidth: '200px',
     height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    //backgroundColor: 'white',
-    '& .fui-NavItem__content::after': {
-      borderLeftWidth: '2px',
-    },
+    //display: 'flex',
+    //flexDirection: 'column',
     '& .fui-NavDrawer': {
-      height: '100%',
+      '--fui-NavDrawer-width': '280px',
+      width: 'var(--fui-NavDrawer-width)',
+      minWidth: 'var(--fui-NavDrawer-width)',
+    },
+    '& .fui-NavItem[data-selected="false"] .fui-NavItem__icon svg[data-slot="filled"]': {
+      display: 'none',
+    },
+    '& .fui-NavItem[data-selected="true"] .fui-NavItem__icon svg[data-slot="regular"]': {
+      display: 'none',
+    },
+  },
+  navCollapsed: {
+    width: '72px',
+    minWidth: '72px',
+    '& .fui-NavDrawer': {
+      '--fui-NavDrawer-width': '72px',
+      width: '72px',
+      minWidth: '72px',
     },
   },
   content: {
