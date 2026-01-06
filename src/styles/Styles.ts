@@ -64,6 +64,14 @@ export const useStyles = makeStyles({
     fontSize: "24px",
     color: tokens.colorBrandForeground1,
   },
+  messageBarGroup: {
+    padding: tokens.spacingHorizontalSNudge,
+    display: "flex",
+    flexDirection: "column",
+    marginTop: "5px",
+    gap: "5px",
+    overflow: "auto",
+  },
   card: {
       width: '100%',
       maxWidth: '1200px',

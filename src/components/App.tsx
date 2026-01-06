@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import { 
     Image,
     NavDrawer,
@@ -8,7 +8,13 @@ import {
     Tooltip,
     Hamburger,
     OnNavItemSelectData,
-    AppItem
+    AppItem,
+    MessageBar,
+    MessageBarBody,
+    MessageBarTitle,
+    MessageBarActions,
+    Button,
+    MessageBarGroup,
 } from "@fluentui/react-components";
 import { 
     ServerMultipleRegular, 
@@ -22,7 +28,8 @@ import {
     PlugConnected24Regular,
     PlugConnected24Filled,
     BugRegular,
-    BugFilled
+    BugFilled,
+    DismissRegular
     
 } from "@fluentui/react-icons";
 import { ConnectionStatus } from "./ConnectionStatus";
@@ -31,14 +38,12 @@ import { useAppStore } from "../store/useAppStore";
 import { useConnectionSync } from "../hooks/useConnectionSync";
 import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
-//import { CustomApiSelector } from "./CustomApiSelector";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
 import { DebugView } from "./DebugView";
 import { useAppSettings } from "../hooks/useAppSettings";
-//import { CustomApiList } from "./CustomApiList";
 import { mergeClasses } from '@fluentui/react-components';
 
 
@@ -61,19 +66,7 @@ function App() {
 
     const [selectedNavItem, setSelectedNavItem] = useState<NavSection>('customapi');
     
-    // //icons bundle
-    // const ConnectionIcon = bundleIcon(
-    //     PlugConnected24Filled,
-    //     PlugConnected24Regular
-    // );
-    // const SettingsIcon = bundleIcon(
-    //     Settings24Filled,
-    //     Settings24Regular
-    // );
-    // const AboutIcon = bundleIcon(
-    //     Info24Filled,
-    //     Info24Regular
-    // );
+
     const navItems: Array<{
         value: NavSection;
         icon: ReactElement;
@@ -82,9 +75,9 @@ function App() {
         hidden?: boolean;
     }> = [
         { value: 'customapi', icon: <ServerMultipleRegular className={styles.navIcon} />, iconSelected: <ServerMultipleFilled className={styles.navIconSelected}/>, label: 'Custom API' },
+        { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListFilled className={styles.navIconSelected}/>, label: 'Logs' },
-        { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         { value: 'about', icon: <Info24Regular className={styles.navIcon}/>, iconSelected: <Info24Filled className={styles.navIconSelected}/>, label: 'About' },
         { value: 'debug', icon: <BugRegular className={styles.navIcon}/>, iconSelected: <BugFilled className={styles.navIconSelected}/>, label: 'Debug', hidden: !appsettings?.showDebug },
     ];
@@ -96,6 +89,8 @@ function App() {
             setSelectedNavItem('customapi');
         }
     }, [appsettings?.showDebug, selectedNavItem]);
+
+   
 
     //subscribe to events
     useToolBoxEvents();
@@ -127,6 +122,43 @@ function App() {
         //setSelectedCategoryValue(data.categoryValue as string);
         setSelectedNavItem(data.value as NavSection);
     };
+
+    // must be reevaluated if appsettings.defaultPublisherId changes
+
+    const messages = useMemo(() => {
+        if (appsettings && appsettings.defaultPublisherId === null) {
+            return (
+                <MessageBarGroup className={styles.messageBarGroup}>
+                    <MessageBar intent={'info'} key={'publisher-warning'}>
+                        <MessageBarBody>
+                            <MessageBarTitle>Default Publisher not set!</MessageBarTitle>
+                            You can set a default publisher in the <strong>Settings</strong> page to simplify Custom API creation.
+                        </MessageBarBody>
+                        <MessageBarActions
+                            containerAction={
+                                <Button
+                                appearance="transparent"
+                                aria-label="Dismiss"
+                                icon={<DismissRegular />}
+                                />
+                            }
+                            >
+                            <Button 
+                                icon={<Settings24Filled/>} 
+                                onClick={()=>setSelectedNavItem('settings')}
+                            >
+                                Settings
+                            </Button>
+                        </MessageBarActions>
+                    </MessageBar>
+                </MessageBarGroup>
+            );
+                
+        }
+        return <></>;
+    }, [appsettings?.defaultPublisherId]);
+
+
 
      // Render content based on selected navigation item
     const renderContent = () => {
@@ -223,6 +255,7 @@ function App() {
                     </div>
 
                     <div className={styles.content}>
+                        {messages}
                         {renderContent()}
                     </div>
                 {/* </div> */}
