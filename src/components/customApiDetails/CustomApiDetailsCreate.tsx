@@ -75,7 +75,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
     useEffect(() => {
         onValidationChange?.(validation);
-    }, [validation, onValidationChange]);
+    }, [validation.isValid, validation.message, onValidationChange]);
 
     // Helper to update fields, can change multiple fields at once
     const updateFields = (updater: (draft: CustomApiCreateable) => void) => {
