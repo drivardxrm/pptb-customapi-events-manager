@@ -36,6 +36,7 @@ export const useCustomApis = () => {
 
 type CreateCustomApiInput = {
   next: CustomApiCreateable;
+  solutionUniqueName?: string;
 };
 
 export const useCreateCustomApi = () => {
@@ -44,12 +45,12 @@ export const useCreateCustomApi = () => {
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
   return useMutation<CustomApiCreateResult, unknown, CreateCustomApiInput>({
-    mutationFn: async ({  next }) => {
+    mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await customApiService.createCustomApi( next);
+        const result = await customApiService.createCustomApi( next, solutionUniqueName);
 
        
-        addLog(`Custom API '${next.uniquename}' created successfully`, 'success');
+        addLog(`Custom API '${next.uniquename}' created successfully${solutionUniqueName ? ` in solution '${solutionUniqueName}'` : ''}`, 'success');
         return result;
       } catch (error) {
         console.error('Error creating Custom API', error);

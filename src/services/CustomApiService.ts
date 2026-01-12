@@ -41,13 +41,30 @@ export class CustomApiService extends EntityService {
         return typed.value;
     }
 
-    async createCustomApi(newCustomApi: CustomApiCreateable): Promise<CustomApiCreateResult> {
+    async createCustomApi(newCustomApi: CustomApiCreateable, solutionUniqueName?: string): Promise<CustomApiCreateResult> {
         
         const payload = buildCreatePayload<CustomApiCreateable>(newCustomApi, {
             lookupKeys: CustomApiLookups,
         });
 
-        let result = await window.dataverseAPI.create(this.entityName,  payload);
+        let result = await window.dataverseAPI.create(this.entityName, payload);
+        
+        // If a solution is specified, add the custom API to that solution
+        if (solutionUniqueName && result.id) {
+            await window.dataverseAPI.execute({
+                operationName: 'AddSolutionComponent',
+                operationType: 'action',
+                parameters: {
+                    ComponentId: result.id,
+                    ComponentType: 10020, // Custom API component type
+                    SolutionUniqueName: solutionUniqueName,
+                    AddRequiredComponents: false,
+                    DoNotIncludeSubcomponents: false,
+                    IncludedComponentSettingsValues: null
+                }
+            });
+        }
+        
         return { created: true, payload, customApiId: result.id };
     }
 

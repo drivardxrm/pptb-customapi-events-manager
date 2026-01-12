@@ -8,6 +8,7 @@ import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEM
 import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
+import { CreateConfirmationDialog } from './CreateConfirmationDialog';
 
 import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
@@ -46,6 +47,7 @@ export const CustomApiDetails: React.FC = () => {
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({
         isValid: true,
     });
+    const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
 
 
 
@@ -82,27 +84,42 @@ export const CustomApiDetails: React.FC = () => {
     };
 
     const handleSave = async () => {
-        
+        // For create mode, show confirmation dialog first
+        if (mode === 'create') {
+            setShowCreateConfirmation(true);
+            return;
+        }
 
+        // For edit mode, save directly
+        await performSave(null);
+    };
+
+    const handleCreateConfirm = async (solutionUniqueName: string | null) => {
+        await performSave(solutionUniqueName);
+        setShowCreateConfirmation(false);
+    };
+
+    const handleCreateCancel = () => {
+        setShowCreateConfirmation(false);
+    };
+
+    const performSave = async (solutionUniqueName: string | null) => {
         try {
-        
-            if(mode === 'create') {
+            if (mode === 'create') {
                 // Creating new Custom API
                 if (selectedCustomApi || !createData) {
                     return;
                 }
                 let result = await createCustomApi.mutateAsync({
                     next: createData,
+                    solutionUniqueName: solutionUniqueName ?? undefined,
                 });
 
-                if(result.created && result.customApiId) {
+                if (result.created && result.customApiId) {
                     setSelectedCustomApiId(result.customApiId);
                     setCreateData(DEFAULT_CREATE_TEMPLATE);
                 }
-                
-            }
-            else if(mode === 'edit') {
-                
+            } else if (mode === 'edit') {
                 if (!selectedCustomApi || !editedData) {
                     return;
                 }
@@ -110,10 +127,8 @@ export const CustomApiDetails: React.FC = () => {
                     current: selectedCustomApi,
                     next: editedData,
                 });
-                
-
             }
-            
+
             setMode('read');
         } catch (error) {
             console.error('Error saving Custom API', error);
@@ -343,6 +358,15 @@ export const CustomApiDetails: React.FC = () => {
                 }
                 
             </Card>
+
+            {/* Create Confirmation Dialog */}
+            <CreateConfirmationDialog
+                open={showCreateConfirmation}
+                createData={createData}
+                isSaving={createCustomApi.isPending}
+                onConfirm={handleCreateConfirm}
+                onCancel={handleCreateCancel}
+            />
         </>
         
     );
