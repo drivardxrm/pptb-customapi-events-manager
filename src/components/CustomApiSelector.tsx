@@ -12,7 +12,7 @@ import { useStyles } from '../styles/Styles'
 import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
-import { LockClosed16Regular, LockOpen16Regular, CheckmarkCircleColor, DismissCircleColor } from '@fluentui/react-icons'
+import { LockClosed16Regular,LockClosed16Filled, LockOpen16Regular, LockOpen16Filled, CheckmarkCircleColor, DismissCircleColor, SelectAllOffRegular, SelectAllOffFilled } from '@fluentui/react-icons'
 
 
 
@@ -25,8 +25,9 @@ export const CustomApiSelector: React.FC = () => {
     
     
     //const [filter, setFilter] = useState<string>("all")
-    const [showSolutionUnmanaged, setShowSolutionUnmanaged] = useState(true)
-    const [showSolutionManaged, setShowSolutionManaged] = useState(true)
+    const [showSolutions, setShowSolutions] = useState<'all'|'unmanaged'|'managed'>('all')
+    
+    
     const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true)
     const [showCustomApiManaged, setShowCustomApiManaged] = useState(true)
 
@@ -59,32 +60,54 @@ export const CustomApiSelector: React.FC = () => {
                             <span className={styles.semiBoldLabel}>Selected Solution</span>
                             <div style={{ display: 'flex', gap: '4px' }}>
                                 <ToggleButton
-                                    appearance='secondary'
-                                    size="small"
-                                    icon={<LockOpen16Regular />}
-                                    checked={showSolutionUnmanaged}
-                                    onClick={() => setShowSolutionUnmanaged(!showSolutionUnmanaged)}
-                                    title="Show Unmanaged"
+                                    appearance={showSolutions === 'all' ? 'primary' : 'secondary'}
+                                    size='small'
+                                    shape='circular'
+                                    icon={showSolutions === 'all' ? <SelectAllOffFilled /> : <SelectAllOffRegular />}
+                                    checked={showSolutions === 'all'}
+                                    onClick={
+                                        () => setShowSolutions('all')      
+                                    }
+                                    title="All"
+                                >
+                                    <>
+                                        All
+                                        
+                                    </>
+                                </ToggleButton>                         
+                                <ToggleButton
+                                    appearance={showSolutions === 'unmanaged' ? 'primary' : 'secondary'}
+                                    size='small'
+                                    shape='circular'
+                                    icon={showSolutions === 'unmanaged' ? <LockOpen16Filled /> : <LockOpen16Regular />}
+                
+                                    checked={showSolutions === 'unmanaged'}
+                                    onClick={
+                                        () => setShowSolutions('unmanaged')      
+                                    }
+                                    title="Unmanaged"
                                 >
                                     <>
                                         Unmanaged
-                                        {showSolutionUnmanaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
-                                        
                                     </>
                                 </ToggleButton>
                                 <ToggleButton
-                                    appearance='secondary'
-                                    size="small"
-                                    icon={<LockClosed16Regular />}
-                                    checked={showSolutionManaged}
-                                    onClick={() => setShowSolutionManaged(!showSolutionManaged)}
-                                    title="Show Managed"
+                                    appearance={showSolutions === 'managed' ? 'primary' : 'secondary'}
+                                    size='small'
+                                    shape='circular'
+                                    icon={showSolutions === 'managed' ? <LockClosed16Filled /> : <LockClosed16Regular />}
+                                    checked={showSolutions === 'managed'}
+                                    onClick={
+                                        () => setShowSolutions('managed')      
+                                    }
+                                    title="Managed"
                                 >
                                     <>
                                         Managed
-                                        {showSolutionManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
+                                        {/* {showSolutionManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>} */}
                                     </>
                                 </ToggleButton>
+                                
                             </div>
                         </div>
                     }
@@ -107,7 +130,7 @@ export const CustomApiSelector: React.FC = () => {
                         {!solutionsQuery.isFetching && solutionsQuery.solutions && (
                             <GenericTagPicker 
                                 items={solutionsQuery.solutions
-                                                                .filter(s => (s.ismanaged && showSolutionManaged) || (!s.ismanaged && showSolutionUnmanaged))
+                                                                .filter(s => (showSolutions === 'all' || (s.ismanaged && showSolutions === 'managed') || (!s.ismanaged && showSolutions === 'unmanaged')))
                                                                 .map(s => ({
                                                                         id: s.solutionid,
                                                                         displayText: `${s.friendlyname} (${s.uniquename})`,
