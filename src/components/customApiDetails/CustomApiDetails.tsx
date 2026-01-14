@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, MessageBar, MessageBarBody, MessageBarTitle, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
-import { useCustomApis, useUpdateCustomApi, useCreateCustomApi } from '../../hooks/useCustomApis';
+import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
 import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEMPLATE } from '../../models/CustomApi';
 import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
 import { CreateConfirmationDialog } from './CreateConfirmationDialog';
+import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
 
 import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
@@ -36,6 +37,7 @@ export const CustomApiDetails: React.FC = () => {
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
     const createCustomApi = useCreateCustomApi();
+    const deleteCustomApi = useDeleteCustomApi();
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -48,6 +50,7 @@ export const CustomApiDetails: React.FC = () => {
         isValid: true,
     });
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
 
 
@@ -101,6 +104,30 @@ export const CustomApiDetails: React.FC = () => {
 
     const handleCreateCancel = () => {
         setShowCreateConfirmation(false);
+    };
+
+    const handleDelete = () => {
+        if (!selectedCustomApi || selectedCustomApi.ismanaged) {
+            return;
+        }
+        setShowDeleteConfirmation(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedCustomApi) {
+            return;
+        }
+        try {
+            await deleteCustomApi.mutateAsync({ customApi: selectedCustomApi });
+            setSelectedCustomApiId(null);
+            setShowDeleteConfirmation(false);
+        } catch (error) {
+            console.error('Error deleting Custom API', error);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirmation(false);
     };
 
     const performSave = async (solutionUniqueName: string | null) => {
@@ -229,14 +256,17 @@ export const CustomApiDetails: React.FC = () => {
                         >
                             Edit
                         </Button>
-                        <Button
-                            appearance='secondary'
-                            icon={<DismissCircleColor />}
-                            onClick={() => {}} 
-                            className={styles.headerActionButton}
-                        >
-                            Delete
-                        </Button>
+                        {selectedCustomApi && !selectedCustomApi.ismanaged && (
+                             <Button
+                                appearance='secondary'
+                                icon={<DismissCircleColor />}
+                                onClick={handleDelete} 
+                                className={styles.headerActionButton}
+                            >
+                                Delete
+                            </Button>
+                        )}
+                       
                     </div>
                 );
             case 'edit':
@@ -366,6 +396,15 @@ export const CustomApiDetails: React.FC = () => {
                 isSaving={createCustomApi.isPending}
                 onConfirm={handleCreateConfirm}
                 onCancel={handleCreateCancel}
+            />
+
+            {/* Delete Confirmation Dialog */}
+            <DeleteConfirmationDialog
+                open={showDeleteConfirmation}
+                customApi={selectedCustomApi ?? null}
+                isDeleting={deleteCustomApi.isPending}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
             />
         </>
         

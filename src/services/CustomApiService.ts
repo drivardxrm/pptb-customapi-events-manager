@@ -13,6 +13,10 @@ export type CustomApiCreateResult = {
     customApiId: string;
 };
 
+export type CustomApiDeleteResult = {
+    deleted: boolean;
+};
+
 export class CustomApiService extends EntityService {
     entityName = 'customapi';
     entityCollectionName = 'customapis';
@@ -81,6 +85,11 @@ export class CustomApiService extends EntityService {
 
         await window.dataverseAPI.update(this.entityName, current.customapiid, payload);
         return { updated: true, payload };
+    }
+
+    async deleteCustomApi(customApiId: string): Promise<CustomApiDeleteResult> {
+        await window.dataverseAPI.delete(this.entityName, customApiId);
+        return { deleted: true };
     }
 }
 

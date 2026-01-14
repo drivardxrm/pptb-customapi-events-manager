@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { CustomApi, CustomApiCreateable, CustomApiUpdateable } from '../models/CustomApi';
-import { CustomApiCreateResult, customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
+import { CustomApiCreateResult, CustomApiDeleteResult, customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
 import { queryKeys } from '../utils/queryKeys';
 
 
@@ -104,5 +104,32 @@ export const useUpdateCustomApi = () => {
 };
 
 
+type DeleteCustomApiInput = {
+  customApi: CustomApi;
+};
 
+export const useDeleteCustomApi = () => {
+  const queryClient = useQueryClient();
+  const { addLog } = useAppStore();
+  const { connection, instanceId, selectedSolutionId } = useAppStore();
+
+  return useMutation<CustomApiDeleteResult, unknown, DeleteCustomApiInput>({
+    mutationFn: async ({ customApi }) => {
+      try {
+        const result = await customApiService.deleteCustomApi(customApi.customapiid);
+        addLog(`Custom API '${customApi.uniquename}' deleted successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error deleting Custom API', error);
+        addLog(`Failed to delete Custom API. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.deleted) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+      }
+    },
+  });
+};
 
