@@ -35,6 +35,14 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
         }
     }, [initialValue]);
 
+    // Clear selection if the selected option is no longer in the available items
+    useEffect(() => {
+        if (selectedOption && items.length > 0 && !items.some((item) => item.id === selectedOption)) {
+            setSelectedOption(undefined);
+            onSelect?.(null, undefined);
+        }
+    }, [items, selectedOption, onSelect]);
+
 
 
     const selectedOptions = useMemo(
