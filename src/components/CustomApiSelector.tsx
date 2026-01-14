@@ -12,7 +12,7 @@ import { useStyles } from '../styles/Styles'
 import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
-import { LockClosed16Regular,LockClosed16Filled, LockOpen16Regular, LockOpen16Filled, CheckmarkCircleColor, DismissCircleColor, SelectAllOffRegular, SelectAllOffFilled } from '@fluentui/react-icons'
+import { LockClosed16Regular,LockClosed16Filled, LockOpen16Regular, LockOpen16Filled, SelectAllOffRegular, SelectAllOffFilled } from '@fluentui/react-icons'
 
 
 
@@ -26,10 +26,8 @@ export const CustomApiSelector: React.FC = () => {
     
     //const [filter, setFilter] = useState<string>("all")
     const [showSolutions, setShowSolutions] = useState<'all'|'unmanaged'|'managed'>('all')
+    const [showCustomApis, setShowCustomApis] = useState<'all'|'unmanaged'|'managed'>('all')
     
-    
-    const [showCustomApiUnmanaged, setShowCustomApiUnmanaged] = useState(true)
-    const [showCustomApiManaged, setShowCustomApiManaged] = useState(true)
 
     if (!isLoadingConnection && connection?.isActive === false) {
         return (
@@ -159,30 +157,51 @@ export const CustomApiSelector: React.FC = () => {
                             <span className={styles.semiBoldLabel}>Selected Custom API</span>
                             <div style={{ display: 'flex', gap: '4px' }}>
                                 <ToggleButton
-                                    appearance='secondary'
-                                    size="small"
-                                    icon={<LockOpen16Regular />}
-                                    checked={showCustomApiUnmanaged}
-                                    onClick={() => setShowCustomApiUnmanaged(!showCustomApiUnmanaged)}
-                                    title="Show Unmanaged"
+                                    appearance={showCustomApis === 'all' ? 'primary' : 'secondary'}
+                                    size='small'
+                                    shape='circular'
+                                    icon={showCustomApis === 'all' ? <SelectAllOffFilled /> : <SelectAllOffRegular />}
+                                    checked={showCustomApis === 'all'}
+                                    onClick={
+                                        () => setShowCustomApis('all')      
+                                    }
+                                    title="All"
+                                >
+                                    <>
+                                        All
+                                        
+                                    </>
+                                </ToggleButton>                         
+                                <ToggleButton
+                                    appearance={showCustomApis === 'unmanaged' ? 'primary' : 'secondary'}
+                                    size='small'
+                                    shape='circular'
+                                    icon={showCustomApis === 'unmanaged' ? <LockOpen16Filled /> : <LockOpen16Regular />}
+                
+                                    checked={showCustomApis === 'unmanaged'}
+                                    onClick={
+                                        () => setShowCustomApis('unmanaged')      
+                                    }
+                                    title="Unmanaged"
                                 >
                                     <>
                                         Unmanaged
-                                        {showCustomApiUnmanaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
-                                        
                                     </>
                                 </ToggleButton>
                                 <ToggleButton
-                                    appearance='secondary'
-                                    size="small"
-                                    icon={<LockClosed16Regular />}
-                                    checked={showCustomApiManaged}
-                                    onClick={() => setShowCustomApiManaged(!showCustomApiManaged)}
-                                    title="Show Managed"
+                                    appearance={showCustomApis === 'managed' ? 'primary' : 'secondary'}
+                                    size='small'
+                                    shape='circular'
+                                    icon={showCustomApis === 'managed' ? <LockClosed16Filled /> : <LockClosed16Regular />}
+                                    checked={showCustomApis === 'managed'}
+                                    onClick={
+                                        () => setShowCustomApis('managed')      
+                                    }
+                                    title="Managed"
                                 >
                                     <>
                                         Managed
-                                        {showCustomApiManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>}
+                                        {/* {showSolutionManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>} */}
                                     </>
                                 </ToggleButton>
                             </div>
@@ -206,7 +225,7 @@ export const CustomApiSelector: React.FC = () => {
                         {!customapisQuery.isFetching && customapisQuery.customapis && (
                             <GenericTagPicker 
                                 items={customapisQuery.customapis
-                                    .filter(s => (s.ismanaged && showCustomApiManaged) || (!s.ismanaged && showCustomApiUnmanaged))
+                                    .filter(s => showCustomApis === 'all' || (s.ismanaged && showCustomApis === 'managed') || (!s.ismanaged && showCustomApis === 'unmanaged'))
                                     .map(c => ({
                                         id: c.customapiid,
                                         displayText: `${c.name} (${c.uniquename})`
