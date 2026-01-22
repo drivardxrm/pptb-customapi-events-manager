@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Activity } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, MessageBar, MessageBarBody, MessageBarTitle, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
@@ -172,38 +172,7 @@ export const CustomApiDetails: React.FC = () => {
         setCreateData((current) => updater(current));
     };
 
-    if (mode !== 'create' && (!selectedCustomApi)) {
-        return (
-            <>
-                <CustomApiSelector/>
-                
-                <Card className={styles.card}>
-                <CardHeader
-                    header={<h3>Custom API Details</h3>}
-                    action={
-                        <div className={styles.headerActionGroup}>
-                            <Button
-                                appearance='secondary'
-                                icon={<AddCircleColor/>}
-                                onClick={handleCreate}
-                                className={styles.headerActionButton}
-                            >
-                                New Custom API
-                            </Button>
-                        </div>
-                    }
-                />
-                <div className={styles.infoBox}>
-                    <p>No Custom API selected</p>
-                    <p>Please select a Custom API from the list above</p>
-                </div>
-            </Card>
-            </>
-            
-        );
-    }
 
-    
 
     const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
     const headerChip = (() => {
@@ -235,91 +204,69 @@ export const CustomApiDetails: React.FC = () => {
         </div>
     );
 
-    const headerAction = (() => {
-        switch (mode) {
-            case 'read':
-                return (
-                    <div className={styles.headerActionGroup}>
-                        <Button
-                            appearance='secondary'
-                            icon={<AddCircleColor/>}
-                            onClick={handleCreate}
-                            className={styles.headerActionButton}
-                        >
-                            New Custom API
-                        </Button>
-                        <Button
-                            appearance='secondary'
-                            icon={<Edit24Regular />}
-                            onClick={handleEdit}
-                            className={styles.headerActionButton}
-                        >
-                            Edit
-                        </Button>
-                        {selectedCustomApi && !selectedCustomApi.ismanaged && (
-                             <Button
-                                appearance='secondary'
-                                icon={<DismissCircleColor />}
-                                onClick={handleDelete} 
-                                className={styles.headerActionButton}
-                            >
-                                Delete
-                            </Button>
-                        )}
-                       
-                    </div>
-                );
-            case 'edit':
+     const headerAction = (
+        <div className={styles.headerActionGroup}>
+            {/* NEW */}
+            <Activity mode={mode === 'read' ? 'visible' : 'hidden'}>
+                <Button
+                    appearance='secondary'
+                    icon={<AddCircleColor/>}
+                    onClick={handleCreate}
+                    className={styles.headerActionButton}
+                >
+                    New Custom API
+                </Button>
+            </Activity>
+
+            {/* EDIT */}
+            <Activity mode={mode === 'read' && selectedCustomApi  ? 'visible' : 'hidden'}>
+                <Button
+                    appearance='secondary'
+                    icon={<Edit24Regular />}
+                    onClick={handleEdit}
+                    className={styles.headerActionButton}
+                >
+                    Edit
+                </Button>
+            </Activity>
+
+            {/* DELETE */}
+            <Activity mode={mode  === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged  ? 'visible' : 'hidden'}>
+                <Button
+                    appearance='secondary'
+                    icon={<DismissCircleColor />}
+                    onClick={handleDelete} 
+                    className={styles.headerActionButton}
+                >
+                    Delete
+                </Button>
+            </Activity>
             
-                return (
-                    <div className={styles.headerActionGroup}>
-                        <Button
-                            appearance='primary'
-                            icon={updateCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={updateCustomApi.isPending}
-                            onClick={handleSave}
-                            className={styles.headerActionButton}
-                        >
-                            {updateCustomApi.isPending ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                            appearance="secondary"
-                            icon={<Dismiss24Regular />}
-                            disabled={updateCustomApi.isPending}
-                            onClick={handleCancel}
-                            className={styles.headerActionButton}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
-                );
-            case 'create':
-                return (
-                    <div className={styles.headerActionGroup}>
-                        <Button
-                            appearance='primary'
-                            icon={createCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={!createValidation.isValid || createCustomApi.isPending}
-                            onClick={handleSave}
-                            className={styles.headerActionButton}
-                        >
-                            {createCustomApi.isPending ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                            appearance="secondary"
-                            icon={<Dismiss24Regular />}
-                            disabled={createCustomApi.isPending}
-                            onClick={handleCancel}
-                            className={styles.headerActionButton}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    })();
+            {/* SAVE + CANCEL */}
+            <Activity mode={mode === 'edit' || mode === 'create'? 'visible' : 'hidden'}>
+                <>
+                    <Button
+                        appearance='primary'
+                        icon={createCustomApi.isPending || updateCustomApi.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
+                        disabled={createCustomApi.isPending || updateCustomApi.isPending}
+                        onClick={handleSave}
+                        className={styles.headerActionButton}
+                    >
+                        { createCustomApi.isPending || updateCustomApi.isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button
+                        appearance="secondary"
+                        icon={<Dismiss24Regular />}
+                        disabled={createCustomApi.isPending || updateCustomApi.isPending}
+                        onClick={handleCancel}
+                        className={styles.headerActionButton}
+                    >
+                        Cancel
+                    </Button>
+                </>
+            </Activity>
+
+        </div>)
 
 
     const messages = (() => {
@@ -351,6 +298,13 @@ export const CustomApiDetails: React.FC = () => {
 
         if (mode === 'edit' && selectedCustomApi && editedData) {
             return <CustomApiDetailsEdit api={selectedCustomApi} editedData={editedData} onChange={handleEditedDataChange} />;
+        }
+
+        if (mode === 'read' && !selectedCustomApi)  {
+            return <div className={styles.infoBox}>
+                    <p>No Custom API selected</p>
+                    <p>Please select a Custom API above or create new one</p>
+                </div>;
         }
 
         return <CustomApiDetailsRead api={selectedCustomApi!} />;
