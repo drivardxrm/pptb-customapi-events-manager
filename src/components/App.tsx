@@ -74,7 +74,7 @@ function App() {
         label: string;
         hidden?: boolean;
     }> = [
-        { value: 'customapi', icon: <ConnectedRegular className={styles.navIcon} />, iconSelected: <ConnectedFilled className={styles.navIconSelected}/>, label: 'Custom API' },
+        { value: 'customapi', icon: <ConnectedRegular className={styles.navIcon} />, iconSelected: <ConnectedFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListFilled className={styles.navIconSelected}/>, label: 'Logs' },
