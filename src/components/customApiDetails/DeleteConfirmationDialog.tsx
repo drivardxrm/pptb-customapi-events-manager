@@ -52,11 +52,11 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
 
     return (
         <Dialog open={open} modalType="modal">
-            <DialogSurface style={{ maxWidth: '600px' }}>
+            <DialogSurface className={styles.dialogSurface}>
                 <DialogBody>
                     <DialogTitle>Delete Custom API</DialogTitle>
                     <DialogContent>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className={styles.dialogContentColumn}>
                             {/* Warning Message */}
                             <MessageBar intent="warning">
                                 <MessageBarBody>
@@ -66,55 +66,56 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
                             </MessageBar>
 
                             {/* Summary Section */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className={styles.dialogSection}>
                                 <Label weight="semibold" size="large">Custom API Details</Label>
                                 <Divider />
                                 
-                                <div className={styles.formGrid} style={{ gap: '8px' }}>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Unique Name:</Label>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Unique Name:</Label>
                                         <span>{customApi.uniquename || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Display Name:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Display Name:</Label>
                                         <span>{customApi.displayname || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Name:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Name:</Label>
                                         <span>{customApi.name || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Description:</Label>
-                                        <span style={{ wordBreak: 'break-word' }}>{customApi.description || '-'}</span>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Description:</Label>
+                                        <span className={styles.summaryValue}>{customApi.description || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Is Function:</Label>
-                                        <span>{customApi.isfunction ? 'Yes' : 'No'}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Is Private:</Label>
-                                        <span>{customApi.isprivate ? 'Yes' : 'No'}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Processing Step Type:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Processing Step Type:</Label>
                                         <span>{getAllowedProcessingStepTypeDisplay()}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Binding Type:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Binding Type:</Label>
                                         <span>{getBindingTypeDisplay()}</span>
                                     </div>
                                     {customApi.bindingtype === 1 && (
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <Label weight="semibold" style={{ minWidth: '150px' }}>Bound Entity:</Label>
+                                        <div className={styles.summaryRow}>
+                                            <Label weight="semibold" className={styles.summaryLabel}>Bound Entity:</Label>
                                             <span>{customApi.boundentitylogicalname || '-'}</span>
                                         </div>
                                     )}
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Workflow Enabled:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Is Function:</Label>
+                                        <span>{customApi.isfunction ? 'Yes' : 'No'}</span>
+                                    </div>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Is Private:</Label>
+                                        <span>{customApi.isprivate ? 'Yes' : 'No'}</span>
+                                    </div>
+                                    
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Workflow Enabled:</Label>
                                         <span>{customApi.workflowsdkstepenabled ? 'Yes' : 'No'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Is Managed:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Is Managed:</Label>
                                         <span>{customApi.ismanaged ? 'Yes' : 'No'}</span>
                                     </div>
                                 </div>

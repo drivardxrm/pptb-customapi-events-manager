@@ -140,4 +140,19 @@ export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
     isprivate: false
 };
 
+// export const DEFAULT_CREATE_TEMPLATE_BUSINESSEVENT: CustomApiCreateable = {
+//     uniquename: '',
+//     name: '',
+//     displayname: '',
+//     description: '',
+//     allowedcustomprocessingsteptype: 1 as Customapisallowedcustomprocessingsteptype, // AsyncOnly
+//     bindingtype: 0 as Customapisbindingtype,
+//     boundentitylogicalname: '',
+//     workflowsdkstepenabled: false,
+//     isfunction: false,
+//     executeprivilegename: '',
+//     _plugintypeid_value: '',
+//     isprivate: false
+// };
+
 

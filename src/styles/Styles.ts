@@ -263,4 +263,32 @@ export const useStyles = makeStyles({
   disabledInput: {
     backgroundColor: tokens.colorNeutralBackground6,
   },
+  dialogSurface: {
+    maxWidth: '600px',
+  },
+  dialogContentColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: tokens.spacingVerticalL,
+  },
+  dialogSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: tokens.spacingVerticalS,
+  },
+  summaryRow: {
+    display: 'flex',
+    gap: tokens.spacingHorizontalS,
+  },
+  summaryLabel: {
+    minWidth: '150px',
+  },
+  summaryValue: {
+    wordBreak: 'break-word',
+  },
+  hintText: {
+    margin: 0,
+    fontSize: tokens.fontSizeBase200,
+    color: tokens.colorNeutralForeground3,
+  },
 });

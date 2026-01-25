@@ -11,7 +11,7 @@ import {
     Label,
     Spinner,
 } from '@fluentui/react-components';
-import { Checkmark24Regular, Dismiss24Regular, FolderRegular } from '@fluentui/react-icons';
+import { Checkmark24Regular, Dismiss24Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { CustomApiCreateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
@@ -49,8 +49,8 @@ export const CreateConfirmationDialog: React.FC<CreateConfirmationDialogProps> =
         return unmanagedSolutions.map((s) => ({
             id: s.solutionid,
             displayText: `${s.friendlyname} (${s.uniquename})`,
-            image: <FolderRegular />,
-        }));
+            image: <LockOpen16Regular />,
+        })).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
     }, [unmanagedSolutions]);
 
     // Pre-select the current selectedSolutionId if it's in the unmanaged list
@@ -88,57 +88,58 @@ export const CreateConfirmationDialog: React.FC<CreateConfirmationDialogProps> =
 
     return (
         <Dialog open={open} modalType="modal">
-            <DialogSurface style={{ maxWidth: '600px' }}>
+            <DialogSurface className={styles.dialogSurface}>
                 <DialogBody>
                     <DialogTitle>Confirm Custom API Creation</DialogTitle>
                     <DialogContent>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className={styles.dialogContentColumn}>
                             {/* Summary Section */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className={styles.dialogSection}>
                                 <Label weight="semibold" size="large">Summary</Label>
                                 <Divider />
                                 
-                                <div className={styles.formGrid} style={{ gap: '8px' }}>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Unique Name:</Label>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Unique Name:</Label>
                                         <span>{createData.uniquename || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Display Name:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Display Name:</Label>
                                         <span>{createData.displayname || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Name:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Name:</Label>
                                         <span>{createData.name || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Description:</Label>
-                                        <span style={{ wordBreak: 'break-word' }}>{createData.description || '-'}</span>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Description:</Label>
+                                        <span className={styles.summaryValue}>{createData.description || '-'}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Is Function:</Label>
-                                        <span>{createData.isfunction ? 'Yes' : 'No'}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Is Private:</Label>
-                                        <span>{createData.isprivate ? 'Yes' : 'No'}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Processing Step Type:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Processing Step Type:</Label>
                                         <span>{getAllowedProcessingStepTypeDisplay()}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Binding Type:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Binding Type:</Label>
                                         <span>{getBindingTypeDisplay()}</span>
                                     </div>
                                     {createData.bindingtype === 1 && (
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <Label weight="semibold" style={{ minWidth: '150px' }}>Bound Entity:</Label>
+                                        <div className={styles.summaryRow}>
+                                            <Label weight="semibold" className={styles.summaryLabel}>Bound Entity:</Label>
                                             <span>{createData.boundentitylogicalname || '-'}</span>
                                         </div>
                                     )}
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <Label weight="semibold" style={{ minWidth: '150px' }}>Workflow Enabled:</Label>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Is Function:</Label>
+                                        <span>{createData.isfunction ? 'Yes' : 'No'}</span>
+                                    </div>
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Is Private:</Label>
+                                        <span>{createData.isprivate ? 'Yes' : 'No'}</span>
+                                    </div>
+                                    
+                                    <div className={styles.summaryRow}>
+                                        <Label weight="semibold" className={styles.summaryLabel}>Workflow Enabled:</Label>
                                         <span>{createData.workflowsdkstepenabled ? 'Yes' : 'No'}</span>
                                     </div>
                                 </div>
@@ -147,9 +148,9 @@ export const CreateConfirmationDialog: React.FC<CreateConfirmationDialogProps> =
                             <Divider />
 
                             {/* Solution Picker Section */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className={styles.dialogSection}>
                                 <Label weight="semibold" size="large">Add to Solution (Optional)</Label>
-                                <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>
+                                <p className={styles.hintText}>
                                     Select an unmanaged solution to add the Custom API to. If no solution is selected, the Custom API will be created in the default solution.
                                 </p>
                                 {isFetchingSolutions ? (
