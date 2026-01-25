@@ -48,6 +48,7 @@ import { DebugView } from "./DebugView";
 import { useAppSettings } from "../hooks/useAppSettings";
 import { mergeClasses } from '@fluentui/react-components';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import { CatalogSelector } from "./CatalogSelector";
 
 
 
@@ -180,7 +181,7 @@ function App() {
             case 'businessevent':
                 return (
                     <>
-                        'TODO'
+                         <CatalogSelector />
                     </>
                 );
             case 'logs':

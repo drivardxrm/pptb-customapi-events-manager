@@ -29,7 +29,7 @@ export const useCatalogs = () => {
     )
 
   return {
-    customapis: data || [],
+    catalogs: data || [],
     status, error, isFetching
   }
 }

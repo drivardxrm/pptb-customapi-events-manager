@@ -1,10 +1,3 @@
-
-import { CatalogService } from "../services/CatalogService";
-import { EntityService } from "../services/EntityService";
-
-
-
-
 export interface Catalog  {
   catalogid: string;
   name: string;
@@ -43,11 +36,6 @@ export interface CatalogUpdateable extends
   'displayname' | 
   'description' 
   > {}
-
-// Record<keyof T, EntityService> for lookups
-export const CatalogLookups: Partial<Record<keyof CatalogCreateable, [string, EntityService]>> = {
-  _parentcatalogid_value: ['ParentCatalogId', new CatalogService()],
-};
 
 
 

@@ -17,6 +17,7 @@ interface AppState {
     
     selectedSolutionId: string | null;
     selectedCustomApiId: string | null;
+    selectedCatalogId: string | null;
     selectedRequestParameterId: string | null;
     selectedResponsePropertyId: string | null;
     selectedPublisherId: string | null;
@@ -37,6 +38,7 @@ interface AppState {
     
     setSelectedSolutionId: (solutionId: string | null) => void;
     setSelectedCustomApiId: (customApiId: string | null) => void;
+    setSelectedCatalogId: (catalogId: string | null) => void;
     setSelectedRequestParameterId: (requestParameterId: string | null) => void;
     setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
     setSelectedPublisherId: (publisherId: string | null) => void;
@@ -61,6 +63,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
 
         selectedSolutionId: null,
         selectedCustomApiId: null,
+        selectedCatalogId: null,
         selectedRequestParameterId: null,
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
@@ -108,6 +111,9 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setSelectedSolutionId: (solutionId) => set({ selectedSolutionId: solutionId }),
         setSelectedCustomApiId: (customApiId) => set(
             { selectedCustomApiId: customApiId }    
+        ),
+        setSelectedCatalogId: (catalogId) => set(
+            { selectedCatalogId: catalogId }
         ),
         setSelectedRequestParameterId: (requestParameterId) => set(
             { selectedRequestParameterId: requestParameterId }

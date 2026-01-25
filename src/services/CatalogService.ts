@@ -1,4 +1,4 @@
-import { Catalog, CatalogCreateable, CatalogLookups, CatalogUpdateable } from "../models/Catalog";
+import { Catalog, CatalogCreateable, CatalogUpdateable } from "../models/Catalog";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { EntityService } from "./EntityService";
 
@@ -21,6 +21,13 @@ export type CatalogDeleteResult = {
 export class CatalogService extends EntityService {
     entityName = 'catalog';
     entityCollectionName = 'catalogs';
+
+    // Define lookups here to avoid circular dependency with Catalog model
+    private static get CatalogLookups(): Partial<Record<keyof CatalogCreateable, [string, EntityService]>> {
+        return {
+            _parentcatalogid_value: ['ParentCatalogId', new CatalogService()],
+        };
+    }
 
     async fetchAllCatalogs(): Promise<Catalog[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
@@ -49,7 +56,7 @@ export class CatalogService extends EntityService {
     async createCatalog(newCatalog: CatalogCreateable, solutionUniqueName?: string): Promise<CatalogCreateResult> {
             
             const payload = buildCreatePayload<CatalogCreateable>(newCatalog, {
-                lookupKeys: CatalogLookups,
+                lookupKeys: CatalogService.CatalogLookups,
             });
     
             let result = await window.dataverseAPI.create(this.entityName, payload);
@@ -77,7 +84,7 @@ export class CatalogService extends EntityService {
         async updateCatalog(current: Catalog, next: CatalogUpdateable): Promise<CatalogUpdateResult> {
             
             const payload = buildUpdatePayload<CatalogUpdateable>(current, next, {
-                lookupKeys: CatalogLookups,
+                lookupKeys: CatalogService.CatalogLookups,
             });
     
             if (Object.keys(payload).length === 0) {
