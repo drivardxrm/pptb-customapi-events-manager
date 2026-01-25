@@ -11,7 +11,7 @@ export const About: React.FC = () => {
             <Divider />
             <div style={{ padding: tokens.spacingVerticalL, display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM }}>
                 <div>
-                    <h4 style={{ margin: '0 0 8px 0', color: '#667eea' }}>Dataverse Custom API Manager</h4>
+                    <h4 style={{ margin: '0 0 8px 0', color: '#667eea' }}>Custom API Studio</h4>
                     <p style={{ margin: '0 0 16px 0' }}>
                         A comprehensive management tool for Dataverse Custom APIs built with React and Fluent UI.
                     </p>

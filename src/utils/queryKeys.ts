@@ -4,6 +4,7 @@ import { QueryKeyManager, defineKey } from "react-query-key-manager";
 export const queryKeys = QueryKeyManager.create("keys", {
   appsettings: defineKey((connectionid: string, instanceId:string) => ['appsettings', instanceId, connectionid]),
   customapis: defineKey((connectionid: string, instanceId:string, solutionid:string) => ['customapis', instanceId, connectionid, solutionid]),
+  catalogs: defineKey((connectionid: string, instanceId:string, solutionid:string) => ['catalogs', instanceId, connectionid, solutionid]),
   requestparameters : defineKey((customapiid: string, connectionid: string, instanceId:string) => ['customapirequestparameters', customapiid, instanceId, connectionid]),
   responseproperties: defineKey((customapiid: string, connectionid: string, instanceId:string) => ['customapiresponseproperties', customapiid, instanceId, connectionid]),
   plugintypes : defineKey((connectionid: string, instanceId:string) => ['plugintypes', instanceId, connectionid]),

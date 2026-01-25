@@ -196,7 +196,7 @@ export const CustomApiDetails: React.FC = () => {
         </div>
     ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <h2 style={{ margin: 0 }}>{selectedCustomApi!.displayname || selectedCustomApi!.uniquename}</h2>
+            <h2 style={{ margin: 0 }}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
                 <LockClosed16Regular />
                 <span>Fields that cannot be modified after creation</span>
@@ -319,7 +319,7 @@ export const CustomApiDetails: React.FC = () => {
                     header={
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                                <h3 style={{ margin: 0 }}>{headerTitle}</h3>
+                                <h2 style={{ margin: 0 }}>{headerTitle}</h2>
                                 <Badge appearance="tint" color={headerChip.color} shape="rounded">
                                     {headerChip.label}
                                 </Badge>

@@ -29,7 +29,9 @@ import {
     PlugConnected24Filled,
     BugRegular,
     BugFilled,
-    DismissRegular
+    DismissRegular,
+    FlashFlowRegular,
+    FlashFlowFilled   
     
 } from "@fluentui/react-icons";
 import { ConnectionStatus } from "./ConnectionStatus";
@@ -45,10 +47,11 @@ import { SettingsForm } from "./SettingsForm";
 import { DebugView } from "./DebugView";
 import { useAppSettings } from "../hooks/useAppSettings";
 import { mergeClasses } from '@fluentui/react-components';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 
 
-type NavSection = 'connection' | 'customapi' | 'logs' | 'settings' | 'about' | 'debug';
+type NavSection = 'connection' | 'customapi' | 'businessevent' | 'logs' | 'settings' | 'about' | 'debug';
 
 
 function App() {
@@ -75,6 +78,7 @@ function App() {
         hidden?: boolean;
     }> = [
         { value: 'customapi', icon: <ConnectedRegular className={styles.navIcon} />, iconSelected: <ConnectedFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
+        { value: 'businessevent', icon: <FlashFlowRegular className={styles.navIcon} />, iconSelected: <FlashFlowFilled className={styles.navIconSelected}/>, label: 'Business Events' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListFilled className={styles.navIconSelected}/>, label: 'Logs' },
@@ -173,6 +177,12 @@ function App() {
                         <CustomApiDetails />
                     </>
                 );
+            case 'businessevent':
+                return (
+                    <>
+                        'TODO'
+                    </>
+                );
             case 'logs':
                 return <EventLog/>;
             case 'settings':
@@ -233,10 +243,10 @@ function App() {
                             </NavDrawerHeader>
                             <NavDrawerBody>
                                 <AppItem
-                                    icon={<Image alt="Custom API Manager logo" src={logoImage} height={40} width={40} />}
+                                    icon={<Image alt="Custom API Studio" src={logoImage} height={40} width={40} />}
                                     as="a"
                                 >
-                                    {!navCollapsed ? "Custom API Manager" : null}
+                                    {!navCollapsed ? "Custom API Studio" : null}
                                 </AppItem>
                                 {navItems.filter(i => !i.hidden).map(item => {
                                     const isSelected = selectedNavItem === item.value;
@@ -252,6 +262,7 @@ function App() {
                                 })}
                             </NavDrawerBody>
                         </NavDrawer>
+                        <ThemeSwitcher isCollapsed={navCollapsed} />
                     </div>
 
                     <div className={styles.content}>

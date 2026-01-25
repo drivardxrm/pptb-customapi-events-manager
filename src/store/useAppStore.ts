@@ -23,6 +23,7 @@ interface AppState {
 
     theme : 'light' | 'dark';
     initTheme: () => void;
+    toggleTheme: () => void;
 
 
     // Logs state
@@ -70,6 +71,10 @@ export const useAppStore = create<AppState>((set, _get) => ({
             let toolboxTheme = await window.toolboxAPI.utils.getCurrentTheme();
             set({ theme : toolboxTheme });
         },
+
+        toggleTheme: () => set((state) => ({ 
+            theme: state.theme === 'light' ? 'dark' : 'light' 
+        })),
 
         // Connection actions
         setConnection: (connection) => set({ connection }),

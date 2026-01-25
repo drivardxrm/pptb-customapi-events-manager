@@ -37,7 +37,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                         </span>
                     }
                 >
-                    <Input value={api.uniquename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={api.uniquename || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>
 
@@ -45,13 +45,13 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
 
             <div className={styles.formSection}>
                 <Field label="Name">
-                    <Input value={api.name || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={api.name || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>
 
             <div className={styles.formSection}>
                 <Field label="Display Name">
-                    <Input value={api.displayname || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={api.displayname || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>
 
@@ -60,7 +60,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     <Textarea
                         value={api.description || ''}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                         resize="vertical"
                         rows={2}
                     />
@@ -78,7 +78,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     <Input
                         value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype!]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
             </div>
@@ -94,7 +94,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     <Input
                         value={Customapisbindingtype[api.bindingtype!]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
             </div>
@@ -108,7 +108,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                             </span>
                         }
                     >
-                        <Input value={api.boundentitylogicalname || ''} readOnly className={styles.readOnlyInput} />
+                        <Input value={api.boundentitylogicalname || ''} readOnly appearance='filled-darker' />
                     </Field>
                 </div>
             )}
@@ -122,14 +122,14 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     <Input
                         value={api['_plugintypeid_value@OData.Community.Display.V1.FormattedValue']}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
             </div>
 
             <div className={styles.formSection}>
                 <Field label="Execute Privilege Name">
-                    <Input value={api.executeprivilegename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={api.executeprivilegename || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>
 

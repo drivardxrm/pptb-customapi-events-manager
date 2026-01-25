@@ -45,8 +45,8 @@ export const CustomApiSelector: React.FC = () => {
     return (
         <Card className={styles.card}>
             <CardHeader 
-                header={<h3>Custom API Selector</h3>}
-                description={"Select a Custom API or Create a new one"}
+                header={<h2>Custom API Selector</h2>}
+                // description={"Select a Custom API or Create a new one"}
             />
             <Divider />
             
@@ -109,20 +109,22 @@ export const CustomApiSelector: React.FC = () => {
                             </div>
                         </div>
                     }
-                    hint={selectedSolutionId != null && selectedSolutionId != '' ? 'Clear to show all Custom APIs' : ''}
+                    hint={selectedSolutionId != null && selectedSolutionId != '' ? 'Clear to show all Custom APIs' : 'Leave empty to show all Custom APIs'}
                     >
                         {solutionsQuery.isFetching && (
                             <Input 
+                                appearance='filled-darker'
                                 value={"Loading solutions..."} 
                                 readOnly 
-                                className={styles.readOnlyInput}
+                                
                             />
                         )}
                         {solutionsQuery.error && (
                             <Input 
+                                appearance='filled-darker'
                                 value={`Error loading solutions: ${solutionsQuery.error.message}`} 
                                 readOnly 
-                                className={styles.readOnlyInput}
+                                
                             />
                         )}
                         {!solutionsQuery.isFetching && solutionsQuery.solutions && (
@@ -210,16 +212,16 @@ export const CustomApiSelector: React.FC = () => {
                         {customapisQuery.isFetching && (
 
                              <Input 
+                                appearance='filled-darker'
                                 value={"Loading custom apis..."} 
                                 readOnly 
-                                className={styles.readOnlyInput}
                             />
                         )}
                         {customapisQuery.error && (
                             <Input 
                                 value={`Error loading custom apis: ${customapisQuery.error.message}`} 
                                 readOnly 
-                                className={styles.readOnlyInput}
+                                appearance='filled-darker'
                             />
                         )}
                         {!customapisQuery.isFetching && customapisQuery.customapis && (

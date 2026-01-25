@@ -143,14 +143,14 @@ export const SettingsForm: React.FC = () => {
                                 <Input 
                                     value={"Loading publishers..."} 
                                     readOnly 
-                                    className={styles.readOnlyInput}
+                                    appearance='filled-darker'
                                 />
                             )}
                             {publishersQuery.error && (
                                 <Input 
                                     value={`Error loading publishers: ${publishersQuery.error.message}`} 
                                     readOnly 
-                                    className={styles.readOnlyInput}
+                                    appearance='filled-darker'
                                 />
                             )}
                             {!publishersQuery.isFetching && publishersQuery.publishers  && (

@@ -71,9 +71,6 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
         setInputFocused(false)
         return;
         }
-
-        // TODO SET SELECTED SOLUTION
-
         
           if(data.value === undefined || data.value === '-1'){
               setSelectedOption(undefined)

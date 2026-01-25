@@ -50,7 +50,12 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                         Unique Name <LockClosed16Regular />
                     </span>
                 }>
-                    <Input value={api.uniquename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input 
+                        appearance='filled-darker'
+                        value={api.uniquename || ''} 
+                        readOnly 
+                        className={styles.disabledInput}                     
+                    />
                 </Field>
             </div>
 
@@ -59,6 +64,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             <div className={styles.formSection}>
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
+                        appearance='filled-darker'
                         value={editedData.name ?? ''}
                         onChange={(event) => 
                             updateFields((next) => {
@@ -72,6 +78,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             <div className={styles.formSection}>
                 <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                     <Input
+                        appearance='filled-darker'
                         value={editedData.displayname ?? ''}
                         onChange={(event) => 
                             updateFields((next) => {
@@ -85,6 +92,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
                 <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
                     <Textarea
+                        appearance='filled-darker'
                         value={editedData.description ?? ''}
                         onChange={(event) => 
                             updateFields((next) => {
@@ -104,9 +112,10 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                     </span>}
                 >
                     <Input
+                        appearance='filled-darker'
                         value={Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype!]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        className={styles.disabledInput}
                     />
                 </Field>
             </div>
@@ -117,7 +126,12 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                         Binding Type <LockClosed16Regular />
                     </span>}
                 >
-                    <Input value={Customapisbindingtype[api.bindingtype!]} readOnly className={styles.readOnlyInput} />
+                    <Input
+                        appearance='filled-darker'
+                        value={Customapisbindingtype[api.bindingtype!]} 
+                        readOnly 
+                        className={styles.disabledInput}
+                    />
                 </Field>
             </div>
 
@@ -128,7 +142,12 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                             Bound Entity Logical Name <LockClosed16Regular />
                         </span>}
                     >
-                        <Input value={api.boundentitylogicalname || ''} readOnly className={styles.readOnlyInput} />
+                        <Input 
+                            appearance='filled-darker'
+                            value={api.boundentitylogicalname || ''} 
+                            readOnly 
+                            className={styles.disabledInput}
+                        />
                     </Field>
                 </div>
             )}
@@ -140,13 +159,13 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
                 <Field label={<span className={styles.semiBoldLabel}>Plugin Type</span>}>
                     {pluginTypesQuery.isFetching && (
-                        <Input value="Loading plugintypes..." readOnly className={styles.readOnlyInput} />
+                        <Input value="Loading plugintypes..." readOnly appearance='filled-darker' />
                     )}
                     {pluginTypesQuery.error && (
                         <Input
                             value={`Error loading privileges: ${pluginTypesQuery.error.message}`}
                             readOnly
-                            className={styles.readOnlyInput}
+                            
                         />
                     )}
                     {!pluginTypesQuery.isFetching && pluginTypesQuery.plugintypes && (
@@ -176,13 +195,13 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             <div className={styles.formSection}>
                 <Field label={<span className={styles.semiBoldLabel}>Execute Privilege Name</span>}>
                     {privilegesQuery.isFetching && (
-                        <Input value="Loading privileges..." readOnly className={styles.readOnlyInput} />
+                        <Input value="Loading privileges..." readOnly appearance='filled-darker' />
                     )}
                     {privilegesQuery.error && (
                         <Input
                             value={`Error loading privileges: ${privilegesQuery.error.message}`}
                             readOnly
-                            className={styles.readOnlyInput}
+                            
                         />
                     )}
                     {!privilegesQuery.isFetching && privilegesQuery.privileges && (
@@ -193,7 +212,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                                     displayText: privilege.name || '',
                                 } as SelectableItem))
                                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                            initialValue={editedData.executeprivilegename}
+                            initialValue={privilegesQuery.privileges?.find((priv) => priv.name === editedData.executeprivilegename)?.privilegeid}
                             isDisabled={false}
                             onSelect={(id) => {
                                 const selected = privilegesQuery.privileges?.find((priv) => priv.privilegeid === id);

@@ -43,7 +43,11 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                         </span>
                     }
                 >
-                    <Input value={parameter.uniquename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input 
+                        value={parameter.uniquename || ''} 
+                        readOnly 
+                        className={styles.disabledInput}
+                        appearance='filled-darker' />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
@@ -52,6 +56,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                         onChange={(event) => updateFields((draft) => {
                             draft.name = event.target.value ?? '';
                         })}
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -61,6 +66,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                         onChange={(event) => updateFields((draft) => {
                             draft.displayname = event.target.value ?? '';
                         })}
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -72,6 +78,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                         })}
                         resize="vertical"
                         rows={2}
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -85,7 +92,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                     <Input
                         value={Customapirequestparameterstype[parameter.type]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
                 {(Customapirequestparameterstype[parameter.type] === 'Entity' ||
@@ -97,7 +104,10 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                             </span>
                         }
                     >
-                        <Input value={parameter.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
+                        <Input 
+                            value={parameter.logicalentityname || 'expando'} 
+                            readOnly
+                            appearance='filled-darker' />
                     </Field>
                 }
                 

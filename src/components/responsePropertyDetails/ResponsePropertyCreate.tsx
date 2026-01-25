@@ -65,6 +65,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                 >
                     <Input
                         value={createData.uniquename ?? ''}
+                        appearance='filled-darker'
                         onChange={(event) => {
                             const value = event.target.value ?? '';
                             const previousUniquename = createData.uniquename ?? '';
@@ -96,6 +97,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                                 draft.name = event.target.value ?? '';
                             })
                         }
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -107,6 +109,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                                 draft.displayname = event.target.value ?? '';
                             })
                         }
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -120,6 +123,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                         }
                         resize="vertical"
                         rows={2}
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -168,13 +172,13 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                         }
                     >
                         {entityQuery.isFetching && (
-                            <Input value="Loading entities..." readOnly className={styles.readOnlyInput} />
+                            <Input value="Loading entities..." readOnly appearance='filled-darker' />
                         )}
                         {entityQuery.error && (
                             <Input
                                 value={`Error loading entities: ${entityQuery.error.message}`}
                                 readOnly
-                                className={styles.readOnlyInput}
+                                appearance='filled-darker'
                             />
                         )}
                         {!entityQuery.isFetching && entityQuery.entities && (

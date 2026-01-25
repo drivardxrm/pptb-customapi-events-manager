@@ -123,14 +123,14 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             <Input 
                                 value={"Loading publishers..."} 
                                 readOnly 
-                                className={styles.readOnlyInput}
+                                appearance='filled-darker'
                             />
                         )}
                         {publishersQuery.error && (
                             <Input 
                                 value={`Error loading publishers: ${publishersQuery.error.message}`} 
                                 readOnly 
-                                className={styles.readOnlyInput}
+                                appearance='filled-darker'
                             />
                         )}
                         {!publishersQuery.isFetching && publishersQuery.publishers  && (
@@ -166,6 +166,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             required
                         >
                             <Input 
+                                appearance='filled-darker'
                                 contentBefore={
                                     <Text size={400}>{`${selectedPublisherPrefix}_`}</Text>
                                 }
@@ -205,6 +206,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             required
                         >
                             <Input
+                                appearance='filled-darker'
                                 value={createData.name ?? ''}
                                 onChange={(event) => {
                                     updateFields((next) => {
@@ -221,6 +223,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             required
                         >
                             <Input
+                                appearance='filled-darker'
                                 value={createData.displayname ?? ''}
                                 onChange={(event) => {
                                     updateFields((next) => {
@@ -236,6 +239,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
                         <Field label={<span className={styles.semiBoldLabel}>Description</span>} required>
                             <Textarea
+                                appearance='filled-darker'
                                 value={createData.description ?? ''}
                                 onChange={(event) => {
                                     updateFields((next) => {
@@ -310,13 +314,13 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                 required
                             >
                                 {entityQuery.isFetching && (
-                                    <Input value="Loading entities..." readOnly className={styles.readOnlyInput} />
+                                    <Input value="Loading entities..." readOnly appearance='filled-darker' />
                                 )}
                                 {entityQuery.error && (
                                     <Input
                                         value={`Error loading entities: ${entityQuery.error.message}`}
                                         readOnly
-                                        className={styles.readOnlyInput}
+                                        appearance='filled-darker'
                                     />
                                 )}
                                 {!entityQuery.isFetching && entityQuery.entities && (
@@ -347,13 +351,13 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
                         <Field label={<span className={styles.semiBoldLabel}>Plugin Type</span>}>
                             {pluginTypesQuery.isFetching && (
-                                <Input value="Loading plugintypes..." readOnly className={styles.readOnlyInput} />
+                                <Input value="Loading plugintypes..." readOnly appearance='filled-darker' />
                             )}
                             {pluginTypesQuery.error && (
                                 <Input
                                     value={`Error loading privileges: ${pluginTypesQuery.error.message}`}
                                     readOnly
-                                    className={styles.readOnlyInput}
+                                    appearance='filled-darker'
                                 />
                             )}
                             {!pluginTypesQuery.isFetching && pluginTypesQuery.plugintypes && (
@@ -380,13 +384,13 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={styles.formSection}>
                         <Field label={<span className={styles.semiBoldLabel}>Execute Privilege Name</span>}>
                             {privilegesQuery.isFetching && (
-                                <Input value="Loading privileges..." readOnly className={styles.readOnlyInput} />
+                                <Input value="Loading privileges..." readOnly appearance='filled-darker' />
                             )}
                             {privilegesQuery.error && (
                                 <Input
                                     value={`Error loading privileges: ${privilegesQuery.error.message}`}
                                     readOnly
-                                    className={styles.readOnlyInput}
+                                    appearance='filled-darker'
                                 />
                             )}
                             {!privilegesQuery.isFetching && privilegesQuery.privileges && (

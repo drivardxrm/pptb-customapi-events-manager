@@ -35,22 +35,22 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                         </span>
                     }
                 >
-                    <Input value={parameter.uniquename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={parameter.uniquename || ''} readOnly appearance='filled-darker' />
                 </Field>
 
                 <Field label="Name">
-                    <Input value={parameter.name || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={parameter.name || ''} readOnly appearance='filled-darker' />
                 </Field>
 
                 <Field label="Display Name">
-                    <Input value={parameter.displayname || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={parameter.displayname || ''} readOnly appearance='filled-darker' />
                 </Field>
 
                 <Field label="Description">
                     <Textarea
                         value={parameter.description || ''}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                         resize="vertical"
                         rows={2}
                     />
@@ -66,7 +66,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                     <Input
                         value={Customapirequestparameterstype[parameter.type]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
                 {(Customapirequestparameterstype[parameter.type] === 'Entity' ||
@@ -78,7 +78,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                             </span>
                         }
                     >
-                        <Input value={parameter.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
+                        <Input value={parameter.logicalentityname || 'expando'} readOnly appearance='filled-darker' />
                     </Field>
                 }
                 

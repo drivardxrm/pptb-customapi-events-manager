@@ -182,13 +182,13 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                         }
                     >
                         {entityQuery.isFetching && (
-                            <Input value="Loading entities..." readOnly className={styles.readOnlyInput} />
+                            <Input value="Loading entities..." readOnly appearance='filled-darker' />
                         )}
                         {entityQuery.error && (
                             <Input
                                 value={`Error loading entities: ${entityQuery.error.message}`}
                                 readOnly
-                                className={styles.readOnlyInput}
+                                appearance='filled-darker'
                             />
                         )}
                         {!entityQuery.isFetching && entityQuery.entities && (

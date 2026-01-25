@@ -26,9 +26,10 @@ export const useStyles = makeStyles({
   nav: {
     minWidth: '200px',
     height: '100%',
-    //display: 'flex',
-    //flexDirection: 'column',
+    display: 'flex',
+    flexDirection: 'column',
     '& .fui-NavDrawer': {
+      flex: 1,
       '--fui-NavDrawer-width': '280px',
       width: 'var(--fui-NavDrawer-width)',
       minWidth: 'var(--fui-NavDrawer-width)',
@@ -135,9 +136,6 @@ export const useStyles = makeStyles({
       alignItems: 'center',
         gap: '4px',
     },
-  readOnlyInput: {
-      backgroundColor: tokens.colorNeutralBackground3,
-  },
   badgeContainer: {
       display: 'flex',
       gap: tokens.spacingHorizontalS,
@@ -248,5 +246,21 @@ export const useStyles = makeStyles({
   },
   required: {
     color: tokens.colorPaletteRedForeground1,
-  }
+  },
+  themeSwitcher: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalS,
+    padding: tokens.spacingHorizontalM,
+    paddingLeft: tokens.spacingHorizontalL,
+    marginTop: 'auto',
+    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
+  themeSwitcherCollapsed: {
+    justifyContent: 'center',
+    paddingLeft: tokens.spacingHorizontalM,
+  },
+  disabledInput: {
+    backgroundColor: tokens.colorNeutralBackground6,
+  },
 });

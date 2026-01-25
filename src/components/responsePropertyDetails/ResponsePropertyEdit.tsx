@@ -29,7 +29,12 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                         </span>
                     }
                 >
-                    <Input value={property.uniquename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input 
+                        value={property.uniquename || ''} 
+                        readOnly
+                        appearance='filled-darker' 
+                        className={styles.disabledInput}
+                    />
                 </Field>
 
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
@@ -40,6 +45,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                                 draft.name = event.target.value ?? '';
                             })
                         }
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -50,7 +56,9 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                             updateFields((draft) => {
                                 draft.displayname = event.target.value ?? '';
                             })
+                            
                         }
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -64,6 +72,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                         }
                         resize="vertical"
                         rows={2}
+                        appearance='filled-darker'
                     />
                 </Field>
 
@@ -77,7 +86,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                     <Input
                         value={Customapiresponsepropertiestype[property.type]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
                 {(Customapiresponsepropertiestype[property.type] === 'Entity' ||
@@ -89,7 +98,12 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                             </span>
                         }
                     >
-                        <Input value={property.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
+                        <Input 
+                            value={property.logicalentityname || 'expando'} 
+                            readOnly 
+                            className={styles.disabledInput}
+                            appearance='filled-darker' 
+                        />
                     </Field>
                 }
                 

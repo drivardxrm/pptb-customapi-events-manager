@@ -21,22 +21,22 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                         </span>
                     }
                 >
-                    <Input value={property.uniquename || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={property.uniquename || ''} readOnly appearance='filled-darker' />
                 </Field>
 
                 <Field label="Name">
-                    <Input value={property.name || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={property.name || ''} readOnly appearance='filled-darker' />
                 </Field>
 
                 <Field label="Display Name">
-                    <Input value={property.displayname || ''} readOnly className={styles.readOnlyInput} />
+                    <Input value={property.displayname || ''} readOnly appearance='filled-darker' />
                 </Field>
 
                 <Field label="Description">
                     <Textarea
                         value={property.description || ''}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                         resize="vertical"
                         rows={2}
                     />
@@ -52,7 +52,7 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                     <Input
                         value={Customapiresponsepropertiestype[property.type]}
                         readOnly
-                        className={styles.readOnlyInput}
+                        appearance='filled-darker'
                     />
                 </Field>
                 {(Customapiresponsepropertiestype[property.type] === 'Entity' ||
@@ -64,7 +64,10 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                             </span>
                         }
                     >
-                        <Input value={property.logicalentityname || 'expando'} readOnly className={styles.readOnlyInput} />
+                        <Input 
+                            value={property.logicalentityname || 'expando'} 
+                            readOnly 
+                            appearance='filled-darker' />
                     </Field>
                 }
                 
