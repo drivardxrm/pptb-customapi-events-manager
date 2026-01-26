@@ -1,37 +1,27 @@
 import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterLookups, CustomApiRequestParameterUpdateable } from "../models/CustomApiRequestParameter";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
-import { EntityService } from "./EntityService";
+import { EntityService, UpdateResult, CreateResult } from "./EntityService";
 
 
-export type CustomApiRequestParameterCreateResult = {
-    created: boolean;
-    payload: Record<string, unknown>;
-    customApiRequestParameterId: string;
-};
 
-// todo make a more generic type for this
-export type CustomApiRequestParameterUpdateResult = {
-    updated: boolean;
-    payload: Record<string, unknown>;
-};
 
 export class CustomApiRequestParameterService extends EntityService {
     entityName = 'customapirequestparameter';
     entityCollectionName = 'customapirequestparameters';
 
 
-    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateable): Promise<CustomApiRequestParameterCreateResult> {
+    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateable): Promise<CreateResult> {
             
         const payload = buildCreatePayload<CustomApiRequestParameterCreateable>(newCustomApiRequestParameter, {
             lookupKeys: CustomApiRequestParameterLookups,
         });
 
         let result = await window.dataverseAPI.create(this.entityName,  payload);
-        return { created: true, payload, customApiRequestParameterId: result.id };
+        return { created: true, payload, id: result.id };
     }
 
 
-    async updateCustomApiRequestParameter(current: CustomApiRequestParameter, next: CustomApiRequestParameterUpdateable): Promise<CustomApiRequestParameterUpdateResult> {
+    async updateCustomApiRequestParameter(current: CustomApiRequestParameter, next: CustomApiRequestParameterUpdateable): Promise<UpdateResult> {
             
         const payload = buildUpdatePayload<CustomApiRequestParameterUpdateable>(current, next);
 

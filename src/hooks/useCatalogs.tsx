@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { queryKeys } from '../utils/queryKeys';
 import { Catalog, CatalogCreateable, CatalogUpdateable } from '../models/Catalog';
-import { CatalogCreateResult, CatalogDeleteResult, catalogService, CatalogUpdateResult } from '../services/CatalogService';
+import { catalogService } from '../services/CatalogService';
+import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 
 
 export const useCatalogs = () => {
@@ -44,7 +45,7 @@ export const useCreateCatalog = () => {
   const {addLog} = useAppStore();
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
-  return useMutation<CatalogCreateResult, unknown, CreateCatalogInput>({
+  return useMutation<CreateResult, unknown, CreateCatalogInput>({
     mutationFn: async ({  next, solutionUniqueName }) => {
       try {
         const result = await catalogService.createCatalog( next, solutionUniqueName);
@@ -77,7 +78,7 @@ export const useUpdateCatalog = () => {
   const {addLog} = useAppStore();
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
-  return useMutation<CatalogUpdateResult, unknown, UpdateCatalogInput>({
+  return useMutation<UpdateResult, unknown, UpdateCatalogInput>({
     mutationFn: async ({ current, next }) => {
       try {
         const result = await catalogService.updateCatalog(current, next);
@@ -113,7 +114,7 @@ export const useDeleteCatalog = () => {
   const { addLog } = useAppStore();
   const { connection, instanceId, selectedSolutionId } = useAppStore();
 
-  return useMutation<CatalogDeleteResult, unknown, DeleteCatalogInput>({
+  return useMutation<DeleteResult, unknown, DeleteCatalogInput>({
     mutationFn: async ({ catalog }) => {
       try {
         const result = await catalogService.deleteCatalog(catalog.catalogid);

@@ -1,37 +1,24 @@
 import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomApiResponsePropertyLookups, CustomApiResponsePropertyUpdateable } from "../models/CustomApiResponseProperty";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
-import { EntityService } from "./EntityService";
-
-export type CustomApiResponsePropertyCreateResult = {
-    created: boolean;
-    payload: Record<string, unknown>;
-    customApiResponsePropertyId: string;
-};
-
-// todo make a more generic type for this
-export type CustomApiResponsePropertyUpdateResult = {
-    updated: boolean;
-    payload: Record<string, unknown>;
-};
-
+import { EntityService, CreateResult, UpdateResult } from "./EntityService";
 
 
 export class CustomApiResponsePropertyService extends EntityService {
     entityName = 'customapiresponseproperty';
     entityCollectionName = 'customapiresponseproperties';
 
-    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateable): Promise<CustomApiResponsePropertyCreateResult> {
+    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateable): Promise<CreateResult> {
                 
             const payload = buildCreatePayload<CustomApiResponsePropertyCreateable>(newCustomApiResponseProperty, {
                 lookupKeys: CustomApiResponsePropertyLookups,
             });
     
             let result = await window.dataverseAPI.create(this.entityName,  payload);
-            return { created: true, payload, customApiResponsePropertyId: result.id };
+            return { created: true, payload, id: result.id };
         }
     
     
-    async updateCustomApiResponseProperty(current: CustomApiResponseProperty, next: CustomApiResponsePropertyUpdateable): Promise<CustomApiResponsePropertyUpdateResult> {
+    async updateCustomApiResponseProperty(current: CustomApiResponseProperty, next: CustomApiResponsePropertyUpdateable): Promise<UpdateResult> {
             
         const payload = buildUpdatePayload<CustomApiResponsePropertyUpdateable>(current, next);
 

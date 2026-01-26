@@ -93,8 +93,8 @@ export const RequestParameterDetails: React.FC = () => {
                     next: createData,
                 });
 
-                if(result.created && result.customApiRequestParameterId) {
-                    setSelectedRequestParameterId(result.customApiRequestParameterId);
+                if(result.created && result.id) {
+                    setSelectedRequestParameterId(result.id);
                     setCreateData(getRequestParameterCreateTemplate(selectedCustomApiId!));
                 }
                 

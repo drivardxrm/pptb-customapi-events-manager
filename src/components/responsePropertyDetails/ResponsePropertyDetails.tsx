@@ -93,8 +93,8 @@ export const ResponsePropertyDetails: React.FC = () => {
                     next: createData,
                 });
 
-                if(result.created && result.customApiResponsePropertyId) {
-                    setSelectedResponsePropertyId(result.customApiResponsePropertyId);
+                if(result.created && result.id) {
+                    setSelectedResponsePropertyId(result.id);
                     setCreateData(getResponsePropertyCreateTemplate(selectedCustomApiId!));
                 }
                 

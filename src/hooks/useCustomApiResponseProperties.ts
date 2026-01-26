@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomApiResponsePropertyUpdateable } from '../models/CustomApiResponseProperty';
 import { queryKeys } from '../utils/queryKeys';
-import { CustomApiResponsePropertyCreateResult, customApiResponsePropertyService, CustomApiResponsePropertyUpdateResult } from '../services/CustomApiResponsePropertyService';
+import { customApiResponsePropertyService } from '../services/CustomApiResponsePropertyService';
+import { UpdateResult,CreateResult } from '../services/EntityService';
 
 
 
@@ -38,7 +39,7 @@ export const useCreateCustomApiResponseProperty = () => {
   const queryClient = useQueryClient();
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
-  return useMutation<CustomApiResponsePropertyCreateResult, unknown, CreateCustomApiResponsePropertyInput>({
+  return useMutation<CreateResult, unknown, CreateCustomApiResponsePropertyInput>({
     mutationFn: async ({  next }) => {
       try {
         const result = await customApiResponsePropertyService.createCustomApiResponseProperty( next);
@@ -69,7 +70,7 @@ export const useUpdateCustomApiResponseProperty = () => {
   const queryClient = useQueryClient();
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
-  return useMutation<CustomApiResponsePropertyUpdateResult, unknown, UpdateCustomApiResponsePropertyInput>({
+  return useMutation<UpdateResult, unknown, UpdateCustomApiResponsePropertyInput>({
     mutationFn: async ({ current, next }) => {
       try {
         const result = await customApiResponsePropertyService.updateCustomApiResponseProperty(current, next);

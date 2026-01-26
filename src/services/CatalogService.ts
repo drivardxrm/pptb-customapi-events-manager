@@ -1,22 +1,8 @@
 import { Catalog, CatalogCreateable, CatalogUpdateable } from "../models/Catalog";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
-import { EntityService } from "./EntityService";
+import { DeleteResult, UpdateResult, CreateResult, EntityService } from "./EntityService";
 
 
-export type CatalogUpdateResult = {
-    updated: boolean;
-    payload: Record<string, unknown>;
-};
-
-export type CatalogCreateResult = {
-    created: boolean;
-    payload: Record<string, unknown>;
-    catalogId: string;
-};
-
-export type CatalogDeleteResult = {
-    deleted: boolean;
-}
 
 export class CatalogService extends EntityService {
     entityName = 'catalog';
@@ -53,7 +39,7 @@ export class CatalogService extends EntityService {
         return typed.value;
     }
 
-    async createCatalog(newCatalog: CatalogCreateable, solutionUniqueName?: string): Promise<CatalogCreateResult> {
+    async createCatalog(newCatalog: CatalogCreateable, solutionUniqueName?: string): Promise<CreateResult> {
             
             const payload = buildCreatePayload<CatalogCreateable>(newCatalog, {
                 lookupKeys: CatalogService.CatalogLookups,
@@ -77,11 +63,11 @@ export class CatalogService extends EntityService {
                 });
             }
             
-            return { created: true, payload, catalogId: result.id };
+            return { created: true, payload, id: result.id };
         }
     
     
-        async updateCatalog(current: Catalog, next: CatalogUpdateable): Promise<CatalogUpdateResult> {
+        async updateCatalog(current: Catalog, next: CatalogUpdateable): Promise<UpdateResult> {
             
             const payload = buildUpdatePayload<CatalogUpdateable>(current, next, {
                 lookupKeys: CatalogService.CatalogLookups,
@@ -95,7 +81,7 @@ export class CatalogService extends EntityService {
             return { updated: true, payload };
         }
     
-        async deleteCatalog(catalogId: string): Promise<CatalogDeleteResult> {
+        async deleteCatalog(catalogId: string): Promise<DeleteResult> {
             await window.dataverseAPI.delete(this.entityName, catalogId);
             return { deleted: true };
         }

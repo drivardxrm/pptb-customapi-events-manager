@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
-import { CustomApiRequestParameterCreateResult, customApiRequestParameterService, CustomApiRequestParameterUpdateResult } from '../services/CustomApiRequestParameterService';
+import { customApiRequestParameterService } from '../services/CustomApiRequestParameterService';
 import { queryKeys } from '../utils/queryKeys';
+import { UpdateResult, CreateResult } from '../services/EntityService';
 
 
 export const useCustomApiRequestParameters = () => {
@@ -37,7 +38,7 @@ export const useCreateCustomApiRequestParameter = () => {
   const queryClient = useQueryClient();
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
-  return useMutation<CustomApiRequestParameterCreateResult, unknown, CreateCustomApiRequestParameterInput>({
+  return useMutation<CreateResult, unknown, CreateCustomApiRequestParameterInput>({
     mutationFn: async ({  next }) => {
       try {
         const result = await customApiRequestParameterService.createCustomApiRequestParameter( next);
@@ -68,7 +69,7 @@ export const useUpdateCustomApiRequestParameter = () => {
   const queryClient = useQueryClient();
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
-  return useMutation<CustomApiRequestParameterUpdateResult, unknown, UpdateCustomApiRequestParameterInput>({
+  return useMutation<UpdateResult, unknown, UpdateCustomApiRequestParameterInput>({
     mutationFn: async ({ current, next }) => {
       try {
         const result = await customApiRequestParameterService.updateCustomApiRequestParameter(current, next);

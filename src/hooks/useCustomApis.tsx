@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { CustomApi, CustomApiCreateable, CustomApiUpdateable } from '../models/CustomApi';
-import { CustomApiCreateResult, CustomApiDeleteResult, customApiService, CustomApiUpdateResult } from '../services/CustomApiService';
+import { customApiService } from '../services/CustomApiService';
 import { queryKeys } from '../utils/queryKeys';
+import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 
 
 export const useCustomApis = () => {
@@ -44,7 +45,7 @@ export const useCreateCustomApi = () => {
   const {addLog} = useAppStore();
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
-  return useMutation<CustomApiCreateResult, unknown, CreateCustomApiInput>({
+  return useMutation<CreateResult, unknown, CreateCustomApiInput>({
     mutationFn: async ({  next, solutionUniqueName }) => {
       try {
         const result = await customApiService.createCustomApi( next, solutionUniqueName);
@@ -77,7 +78,7 @@ export const useUpdateCustomApi = () => {
   const {addLog} = useAppStore();
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
 
-  return useMutation<CustomApiUpdateResult, unknown, UpdateCustomApiInput>({
+  return useMutation<UpdateResult, unknown, UpdateCustomApiInput>({
     mutationFn: async ({ current, next }) => {
       try {
         const result = await customApiService.updateCustomApi(current, next);
@@ -113,7 +114,7 @@ export const useDeleteCustomApi = () => {
   const { addLog } = useAppStore();
   const { connection, instanceId, selectedSolutionId } = useAppStore();
 
-  return useMutation<CustomApiDeleteResult, unknown, DeleteCustomApiInput>({
+  return useMutation<DeleteResult, unknown, DeleteCustomApiInput>({
     mutationFn: async ({ customApi }) => {
       try {
         const result = await customApiService.deleteCustomApi(customApi.customapiid);

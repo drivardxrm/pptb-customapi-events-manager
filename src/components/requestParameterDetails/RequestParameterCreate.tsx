@@ -75,6 +75,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     }
                 >
                     <Input
+                        appearance='filled-darker'
                         value={createData.uniquename ?? ''}
                         onChange={(event) => {
                             const value = event.target.value ?? '';
@@ -101,6 +102,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
                     <Input
+                        appearance='filled-darker'
                         value={createData.name ?? ''}
                         onChange={(event) =>
                             updateFields((draft) => {
@@ -112,6 +114,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
                     <Input
+                        appearance='filled-darker'
                         value={createData.displayname ?? ''}
                         onChange={(event) =>
                             updateFields((draft) => {
@@ -123,6 +126,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
                     <Textarea
+                        appearance='filled-darker'
                         value={createData.description ?? ''}
                         onChange={(event) =>
                             updateFields((draft) => {

@@ -142,8 +142,8 @@ export const CustomApiDetails: React.FC = () => {
                     solutionUniqueName: solutionUniqueName ?? undefined,
                 });
 
-                if (result.created && result.customApiId) {
-                    setSelectedCustomApiId(result.customApiId);
+                if (result.created && result.id) {
+                    setSelectedCustomApiId(result.id);
                     setCreateData(DEFAULT_CREATE_TEMPLATE);
                 }
             } else if (mode === 'edit') {

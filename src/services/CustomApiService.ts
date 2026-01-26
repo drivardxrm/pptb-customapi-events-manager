@@ -1,21 +1,8 @@
 import { CustomApi, CustomApiCreateable, CustomApiLookups, CustomApiUpdateable } from '../models/CustomApi';
 import { buildCreatePayload, buildUpdatePayload } from '../utils/diff';
-import { EntityService } from './EntityService';
+import { EntityService, CreateResult, UpdateResult, DeleteResult } from './EntityService';
 
-export type CustomApiUpdateResult = {
-    updated: boolean;
-    payload: Record<string, unknown>;
-};
 
-export type CustomApiCreateResult = {
-    created: boolean;
-    payload: Record<string, unknown>;
-    customApiId: string;
-};
-
-export type CustomApiDeleteResult = {
-    deleted: boolean;
-};
 
 export class CustomApiService extends EntityService {
     entityName = 'customapi';
@@ -45,7 +32,7 @@ export class CustomApiService extends EntityService {
         return typed.value;
     }
 
-    async createCustomApi(newCustomApi: CustomApiCreateable, solutionUniqueName?: string): Promise<CustomApiCreateResult> {
+    async createCustomApi(newCustomApi: CustomApiCreateable, solutionUniqueName?: string): Promise<CreateResult> {
         
         const payload = buildCreatePayload<CustomApiCreateable>(newCustomApi, {
             lookupKeys: CustomApiLookups,
@@ -69,11 +56,11 @@ export class CustomApiService extends EntityService {
             });
         }
         
-        return { created: true, payload, customApiId: result.id };
+        return { created: true, payload, id: result.id };
     }
 
 
-    async updateCustomApi(current: CustomApi, next: CustomApiUpdateable): Promise<CustomApiUpdateResult> {
+    async updateCustomApi(current: CustomApi, next: CustomApiUpdateable): Promise<UpdateResult> {
         
         const payload = buildUpdatePayload<CustomApiUpdateable>(current, next, {
             lookupKeys: CustomApiLookups,
@@ -87,7 +74,7 @@ export class CustomApiService extends EntityService {
         return { updated: true, payload };
     }
 
-    async deleteCustomApi(customApiId: string): Promise<CustomApiDeleteResult> {
+    async deleteCustomApi(customApiId: string): Promise<DeleteResult> {
         await window.dataverseAPI.delete(this.entityName, customApiId);
         return { deleted: true };
     }
