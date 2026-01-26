@@ -1,5 +1,6 @@
 import React, { Activity, useEffect, useState } from 'react';
-import {  
+import { 
+    Image, 
     Badge,
     Button,
     Card,
@@ -8,7 +9,7 @@ import {
     Spinner,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
-
+import outputImage from '../../assets/output.png';
 import { 
     AddCircleColor,
     Edit24Regular,
@@ -228,6 +229,7 @@ export const ResponsePropertyDetails: React.FC = () => {
                 header={
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                            <Image alt="Response Properties" src={outputImage} height={40} width={40} />
                             <h3 style={{ margin: 0 }}>Response Properties (Output)</h3>
                             <Badge appearance="tint" color={headerChip.color} shape="rounded">
                                 {headerChip.label}

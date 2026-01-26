@@ -174,7 +174,7 @@ export const CustomApiDetails: React.FC = () => {
 
 
 
-    const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
+    //const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
     const headerChip = (() => {
         switch (mode) {
             case 'edit':
@@ -271,7 +271,7 @@ export const CustomApiDetails: React.FC = () => {
 
     const messages = (() => {
         if (mode === 'create' && !createValidation.isValid) {
-            return <MessageBar intent={'error'}>
+            return <MessageBar intent={'warning'}>
                         <MessageBarBody>
                             <MessageBarTitle>Validation error</MessageBarTitle>
                             {createValidation.message}
@@ -319,7 +319,7 @@ export const CustomApiDetails: React.FC = () => {
                     header={
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                                <h2 style={{ margin: 0 }}>{headerTitle}</h2>
+                                <h2>Custom API Details</h2>
                                 <Badge appearance="tint" color={headerChip.color} shape="rounded">
                                     {headerChip.label}
                                 </Badge>

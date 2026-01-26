@@ -17,8 +17,10 @@ import {
     MessageBarGroup,
 } from "@fluentui/react-components";
 import { 
-    ConnectedRegular, 
-    ConnectedFilled,
+    // ConnectedRegular, 
+    // ConnectedFilled,
+    CloudArrowRightRegular,
+    CloudArrowRightFilled,
     ClipboardBulletListRegular, 
     ClipboardBulletListFilled, 
     Info24Regular,
@@ -78,7 +80,7 @@ function App() {
         label: string;
         hidden?: boolean;
     }> = [
-        { value: 'customapi', icon: <ConnectedRegular className={styles.navIcon} />, iconSelected: <ConnectedFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
+        { value: 'customapi', icon: <CloudArrowRightRegular className={styles.navIcon} />, iconSelected: <CloudArrowRightFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
         { value: 'businessevent', icon: <FlashFlowRegular className={styles.navIcon} />, iconSelected: <FlashFlowFilled className={styles.navIconSelected}/>, label: 'Business Events' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },

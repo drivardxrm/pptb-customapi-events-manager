@@ -6,8 +6,10 @@ import {
     CardHeader,
     Divider,
     Spinner,
+    Image
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
+import inputImage from '../../assets/input.png';
 
 import { 
     AddCircleColor,
@@ -227,6 +229,7 @@ export const RequestParameterDetails: React.FC = () => {
                 header={
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                            <Image alt="Request Parameters" src={inputImage} height={40} width={40} />
                             <h3 style={{ margin: 0 }}>Request Parameters (Input)</h3>
                             <Badge appearance="tint" color={headerChip.color} shape="rounded">
                                 {headerChip.label}
