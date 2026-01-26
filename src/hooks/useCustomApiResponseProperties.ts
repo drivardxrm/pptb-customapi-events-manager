@@ -3,7 +3,7 @@ import { useAppStore } from '../store/useAppStore'
 import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomApiResponsePropertyUpdateable } from '../models/CustomApiResponseProperty';
 import { queryKeys } from '../utils/queryKeys';
 import { customApiResponsePropertyService } from '../services/CustomApiResponsePropertyService';
-import { UpdateResult,CreateResult } from '../services/EntityService';
+import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
 
 
 
@@ -91,6 +91,35 @@ export const useUpdateCustomApiResponseProperty = () => {
     },
     onSuccess: (result) => {
       if (result.updated) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
+      }
+    },
+  });
+};
+
+type DeleteCustomApiResponsePropertyInput = {
+  responseProperty: CustomApiResponseProperty;
+};
+
+export const useDeleteCustomApiResponseProperty = () => {
+  const queryClient = useQueryClient();
+  const { addLog } = useAppStore();
+  const { connection, instanceId, selectedCustomApiId } = useAppStore();
+
+  return useMutation<DeleteResult, unknown, DeleteCustomApiResponsePropertyInput>({
+    mutationFn: async ({ responseProperty }) => {
+      try {
+        const result = await customApiResponsePropertyService.deleteRecord(responseProperty.customapiresponsepropertyid);
+        addLog(`Response Property '${responseProperty.uniquename}' deleted successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error deleting Response Property', error);
+        addLog(`Failed to delete Response Property. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.deleted) {
         queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
       }
     },
