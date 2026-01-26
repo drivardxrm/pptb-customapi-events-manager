@@ -19,11 +19,13 @@ import {
 } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { CustomApiResponsePropertyCreateable, CustomApiResponsePropertyUpdateable, getResponsePropertyCreateTemplate } from '../../models/CustomApiResponseProperty';
-import { useCreateCustomApiResponseProperty, useCustomApiResponseProperties, useUpdateCustomApiResponseProperty } from '../../hooks/useCustomApiResponseProperties';
+import { useCreateCustomApiResponseProperty, useCustomApiResponseProperties, useDeleteCustomApiResponseProperty, useUpdateCustomApiResponseProperty } from '../../hooks/useCustomApiResponseProperties';
 import { ResponsePropertyList } from './ResponsePropertyList';
 import { ResponsePropertyCreate } from './ResponsePropertyCreate';
 import { ResponsePropertyEdit } from './ResponsePropertyEdit';
 import { ResponsePropertyRead } from './ResponsePropertyRead';
+import { ResponsePropertyCreateDialog } from './ResponsePropertyCreateDialog';
+import { ResponsePropertyDeleteDialog } from './ResponsePropertyDeleteDialog';
 
 
 
@@ -43,7 +45,10 @@ export const ResponsePropertyDetails: React.FC = () => {
     const {responseProperties } = useCustomApiResponseProperties();
     const updateCustomApiResponseProperty = useUpdateCustomApiResponseProperty();
     const createCustomApiResponseProperty = useCreateCustomApiResponseProperty();
+    const deleteCustomApiResponseProperty = useDeleteCustomApiResponseProperty();
 
+    const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
     const selectedResponseProperty = responseProperties?.find((prop) => prop.customapiresponsepropertyid === selectedResponsePropertyId)
 
@@ -81,16 +86,35 @@ export const ResponsePropertyDetails: React.FC = () => {
     };
 
     const handleSave = async () => {
-        
-        try {
+        // For create mode, show confirmation dialog first
+        if (mode === 'create') {
+            setShowCreateConfirmation(true);
+            return;
+        }
 
-            if(mode === 'create') {
-                
+        // For edit mode, save directly
+        await performSave(null);
+    };
+
+    const handleCreateConfirm = async (solutionUniqueName: string | null) => {
+        await performSave(solutionUniqueName);
+        setShowCreateConfirmation(false);
+    };
+
+    const handleCreateCancel = () => {
+        setShowCreateConfirmation(false);
+    };
+
+    const performSave = async (solutionUniqueName: string | null) => {
+        try {
+            if (mode === 'create') {
+                // Creating new Response Property
                 if (selectedResponseProperty || !createData) {
                     return;
                 }
                 let result = await createCustomApiResponseProperty.mutateAsync({
                     next: createData,
+                    solutionUniqueName: solutionUniqueName ?? undefined,
                 });
 
                 if(result.created && result.id) {
@@ -112,8 +136,32 @@ export const ResponsePropertyDetails: React.FC = () => {
 
             setMode('read');
         } catch (error) {
-            console.error('Error saving Request Parameter', error);
+            console.error('Error saving Response Property', error);
         }
+    };
+
+    const handleDelete = () => {
+        if (!selectedResponseProperty || selectedResponseProperty.ismanaged) {
+            return;
+        }
+        setShowDeleteConfirmation(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedResponseProperty) {
+            return;
+        }
+        try {
+            await deleteCustomApiResponseProperty.mutateAsync({ responseProperty: selectedResponseProperty });
+            setSelectedResponsePropertyId(null);
+            setShowDeleteConfirmation(false);
+        } catch (error) {
+            console.error('Error deleting Response Property', error);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirmation(false);
     };
 
     const handleCreateDataChange = (updater: (current: CustomApiResponsePropertyCreateable) => CustomApiResponsePropertyCreateable) => {
@@ -181,7 +229,7 @@ export const ResponsePropertyDetails: React.FC = () => {
                     <Button
                         appearance='secondary'
                         icon={<DismissCircleColor />}
-                        onClick={() => {}} 
+                        onClick={handleDelete} 
                         className={styles.headerActionButton}
                     >
                         Delete
@@ -224,43 +272,64 @@ export const ResponsePropertyDetails: React.FC = () => {
     // }
 
     return (
-        <Card className={styles.card}>
-            <CardHeader 
-                header={
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                            <Image alt="Response Properties" src={outputImage} height={40} width={40} />
-                            <h3 style={{ margin: 0 }}>Response Properties (Output)</h3>
-                            <Badge appearance="tint" color={headerChip.color} shape="rounded">
-                                {headerChip.label}
-                            </Badge>
+        <>
+            <Card className={styles.card}>
+                <CardHeader 
+                    header={
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                                <Image alt="Response Properties" src={outputImage} height={40} width={40} />
+                                <h3 style={{ margin: 0 }}>Response Properties (Output)</h3>
+                                <Badge appearance="tint" color={headerChip.color} shape="rounded">
+                                    {headerChip.label}
+                                </Badge>
+                            </div>
                         </div>
-                    </div>
-                }
-                action={
-                    <>
-                        {headerActions}
-                    </>     
-                }
+                    }
+                    action={
+                        <>
+                            {headerActions}
+                        </>     
+                    }
 
-            />
+                />
             
           
 
 
             <div className={styles.cardBody}>
-                <div className={styles.splitContainer} >
-                    <div className={styles.splitPaneContent}>
-                        <ResponsePropertyList responseProperties={responseProperties} />
+                    <div className={styles.splitContainer} >
+                        <div className={styles.splitPaneContent}>
+                            <ResponsePropertyList responseProperties={responseProperties} />
+                        </div>
+                        <Divider inset vertical/>
+                        <div className={styles.splitPaneContent}>
+                            {content}
+                        </div>                                         
                     </div>
-                    <Divider inset vertical/>
-                    <div className={styles.splitPaneContent}>
-                        {content}
-                    </div>                                         
-                </div>
-             </div>
-            
-        </Card>
+                 </div>
+                
+            </Card>
+            {/* Create Confirmation Dialog */}
+            {createData && (
+                <ResponsePropertyCreateDialog
+                    open={showCreateConfirmation}
+                    createData={createData}
+                    isSaving={createCustomApiResponseProperty.isPending}
+                    onConfirm={handleCreateConfirm}
+                    onCancel={handleCreateCancel}
+                />
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            <ResponsePropertyDeleteDialog
+                open={showDeleteConfirmation}
+                responseProperty={selectedResponseProperty ?? null}
+                isDeleting={deleteCustomApiResponseProperty.isPending}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+            />
+        </>
     );
 
 };
