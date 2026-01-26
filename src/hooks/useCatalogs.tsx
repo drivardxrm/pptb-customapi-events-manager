@@ -117,7 +117,7 @@ export const useDeleteCatalog = () => {
   return useMutation<DeleteResult, unknown, DeleteCatalogInput>({
     mutationFn: async ({ catalog }) => {
       try {
-        const result = await catalogService.deleteCatalog(catalog.catalogid);
+        const result = await catalogService.deleteRecord(catalog.catalogid);
         addLog(`Catalog '${catalog.uniquename}' deleted successfully`, 'success');
         return result;
       } catch (error) {

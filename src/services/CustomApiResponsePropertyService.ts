@@ -6,14 +6,21 @@ import { EntityService, CreateResult, UpdateResult } from "./EntityService";
 export class CustomApiResponsePropertyService extends EntityService {
     entityName = 'customapiresponseproperty';
     entityCollectionName = 'customapiresponseproperties';
+    componenttype = 10022;
 
-    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateable): Promise<CreateResult> {
+    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateable, solutionUniqueName?: string): Promise<CreateResult> {
                 
             const payload = buildCreatePayload<CustomApiResponsePropertyCreateable>(newCustomApiResponseProperty, {
                 lookupKeys: CustomApiResponsePropertyLookups,
             });
     
             let result = await window.dataverseAPI.create(this.entityName,  payload);
+            
+            // If a solution is specified, add the custom API to that solution
+            if (solutionUniqueName && result.id) {
+                await this.addToSolution(result.id, solutionUniqueName);
+            }
+            
             return { created: true, payload, id: result.id };
         }
     

@@ -8,13 +8,13 @@ import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEM
 import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
-import { CreateConfirmationDialog } from './CreateConfirmationDialog';
-import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
+import { CustomApiCreateDialog } from './CustomApiCreateDialog';
 
 import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { ResponsePropertyDetails } from '../responsePropertyDetails/ResponsePropertyDetails';
 import { ValidationStatus } from '../../utils/validation';
+import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
 
 
 
@@ -101,33 +101,8 @@ export const CustomApiDetails: React.FC = () => {
         await performSave(solutionUniqueName);
         setShowCreateConfirmation(false);
     };
-
     const handleCreateCancel = () => {
         setShowCreateConfirmation(false);
-    };
-
-    const handleDelete = () => {
-        if (!selectedCustomApi || selectedCustomApi.ismanaged) {
-            return;
-        }
-        setShowDeleteConfirmation(true);
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (!selectedCustomApi) {
-            return;
-        }
-        try {
-            await deleteCustomApi.mutateAsync({ customApi: selectedCustomApi });
-            setSelectedCustomApiId(null);
-            setShowDeleteConfirmation(false);
-        } catch (error) {
-            console.error('Error deleting Custom API', error);
-        }
-    };
-
-    const handleDeleteCancel = () => {
-        setShowDeleteConfirmation(false);
     };
 
     const performSave = async (solutionUniqueName: string | null) => {
@@ -161,6 +136,34 @@ export const CustomApiDetails: React.FC = () => {
             console.error('Error saving Custom API', error);
         }
     };
+
+    
+
+    const handleDelete = () => {
+        if (!selectedCustomApi || selectedCustomApi.ismanaged) {
+            return;
+        }
+        setShowDeleteConfirmation(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedCustomApi) {
+            return;
+        }
+        try {
+            await deleteCustomApi.mutateAsync({ customApi: selectedCustomApi });
+            setSelectedCustomApiId(null);
+            setShowDeleteConfirmation(false);
+        } catch (error) {
+            console.error('Error deleting Custom API', error);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirmation(false);
+    };
+
+    
 
 
 
@@ -344,7 +347,7 @@ export const CustomApiDetails: React.FC = () => {
             </Card>
 
             {/* Create Confirmation Dialog */}
-            <CreateConfirmationDialog
+            <CustomApiCreateDialog
                 open={showCreateConfirmation}
                 createData={createData}
                 isSaving={createCustomApi.isPending}
@@ -353,7 +356,7 @@ export const CustomApiDetails: React.FC = () => {
             />
 
             {/* Delete Confirmation Dialog */}
-            <DeleteConfirmationDialog
+            <CustomApiDeleteDialog
                 open={showDeleteConfirmation}
                 customApi={selectedCustomApi ?? null}
                 isDeleting={deleteCustomApi.isPending}

@@ -3,7 +3,7 @@ import { useAppStore } from '../store/useAppStore'
 import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
 import { customApiRequestParameterService } from '../services/CustomApiRequestParameterService';
 import { queryKeys } from '../utils/queryKeys';
-import { UpdateResult, CreateResult } from '../services/EntityService';
+import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
 
 
 export const useCustomApiRequestParameters = () => {
@@ -32,6 +32,7 @@ export const useCustomApiRequestParameters = () => {
 
 type CreateCustomApiRequestParameterInput = {
   next: CustomApiRequestParameterCreateable;
+  solutionUniqueName?: string;
 };
 
 export const useCreateCustomApiRequestParameter = () => {
@@ -39,9 +40,9 @@ export const useCreateCustomApiRequestParameter = () => {
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
   return useMutation<CreateResult, unknown, CreateCustomApiRequestParameterInput>({
-    mutationFn: async ({  next }) => {
+    mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await customApiRequestParameterService.createCustomApiRequestParameter( next);
+        const result = await customApiRequestParameterService.createCustomApiRequestParameter(next, solutionUniqueName);
 
        
         addLog(`Custom API Request Parameter '${next.uniquename}' created successfully`, 'success');
@@ -95,4 +96,31 @@ export const useUpdateCustomApiRequestParameter = () => {
   });
 };
 
+type DeleteCustomApiRequestParameterInput = {
+  requestParameter: CustomApiRequestParameter;
+};
 
+export const useDeleteCustomApiRequestParameter = () => {
+  const queryClient = useQueryClient();
+  const { addLog } = useAppStore();
+  const { connection, instanceId, selectedSolutionId } = useAppStore();
+
+  return useMutation<DeleteResult, unknown, DeleteCustomApiRequestParameterInput>({
+    mutationFn: async ({ requestParameter }) => {
+      try {
+        const result = await customApiRequestParameterService.deleteRecord(requestParameter.customapirequestparameterid);
+        addLog(`Request Parameter '${requestParameter.uniquename}' deleted successfully`, 'success');
+        return result;
+      } catch (error) {
+        console.error('Error deleting Request Parameter', error);
+        addLog(`Failed to delete Request Parameter. ${error}`, 'error');
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      if (result.deleted) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+      }
+    },
+  });
+};

@@ -21,10 +21,12 @@ import {
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
 import { CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable, getRequestParameterCreateTemplate } from '../../models/CustomApiRequestParameter';
-import { useCreateCustomApiRequestParameter, useCustomApiRequestParameters,  useUpdateCustomApiRequestParameter } from '../../hooks/useCustomApiRequestParameters';
+import { useCreateCustomApiRequestParameter, useCustomApiRequestParameters,  useDeleteCustomApiRequestParameter,  useUpdateCustomApiRequestParameter } from '../../hooks/useCustomApiRequestParameters';
 import { RequestParameterRead } from './RequestParameterRead';
 import { RequestParameterEdit } from './RequestParameterEdit';
 import { RequestParameterCreate } from './RequestParameterCreate';
+import { RequestParameterCreateDialog } from './RequestParameterCreateDialog';
+import { RequestParameterDeleteDialog } from './RequestParameterDeleteDialog';
 
 
 
@@ -43,7 +45,10 @@ export const RequestParameterDetails: React.FC = () => {
     const {requestParameters } = useCustomApiRequestParameters();
     const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
     const createCustomApiRequestParameter = useCreateCustomApiRequestParameter();
+    const deleteCustomApiRequestParameter = useDeleteCustomApiRequestParameter();
 
+    const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
     const selectedRequestParameter = requestParameters?.find((param) => param.customapirequestparameterid === selectedRequestParameterId)
 
@@ -73,6 +78,15 @@ export const RequestParameterDetails: React.FC = () => {
         setMode('edit');
     };
 
+    const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => {
+        setCreateData((current) => (current ? updater(current) : current));
+    };
+
+
+    const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => {
+        setEditedData((current) => (current ? updater(current) : current));
+    };
+
     const handleCancel = () => {
         if (selectedRequestParameter) {
             setEditedData(selectedRequestParameter);
@@ -81,16 +95,34 @@ export const RequestParameterDetails: React.FC = () => {
     };
 
     const handleSave = async () => {
-        
-        try {
+        // For create mode, show confirmation dialog first
+        if (mode === 'create') {
+            setShowCreateConfirmation(true);
+            return;
+        }
 
-            if(mode === 'create') {
-                
+        // For edit mode, save directly
+        await performSave(null);
+    };
+
+    const handleCreateConfirm = async (solutionUniqueName: string | null) => {
+        await performSave(solutionUniqueName);
+        setShowCreateConfirmation(false);
+    };
+    const handleCreateCancel = () => {
+        setShowCreateConfirmation(false);
+    };
+
+    const performSave = async (solutionUniqueName: string | null) => {
+        try {
+            if (mode === 'create') {
+                // Creating new Request Param
                 if (selectedRequestParameter || !createData) {
                     return;
                 }
                 let result = await createCustomApiRequestParameter.mutateAsync({
                     next: createData,
+                    solutionUniqueName: solutionUniqueName ?? undefined,
                 });
 
                 if(result.created && result.id) {
@@ -116,14 +148,31 @@ export const RequestParameterDetails: React.FC = () => {
         }
     };
 
-    const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => {
-        setCreateData((current) => (current ? updater(current) : current));
+    const handleDelete = () => {
+        if (!selectedRequestParameter || selectedRequestParameter.ismanaged) {
+            return;
+        }
+        setShowDeleteConfirmation(true);
     };
 
-
-    const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => {
-        setEditedData((current) => (current ? updater(current) : current));
+    const handleDeleteConfirm = async () => {
+        if (!selectedRequestParameter) {
+            return;
+        }
+        try {
+            await deleteCustomApiRequestParameter.mutateAsync({ requestParameter: selectedRequestParameter });
+            setSelectedRequestParameterId(null);
+            setShowDeleteConfirmation(false);
+        } catch (error) {
+            console.error('Error deleting Custom API', error);
+        }
     };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirmation(false);
+    };
+
+    
 
     const content = (() => {
         if (mode === 'create') {
@@ -181,7 +230,7 @@ export const RequestParameterDetails: React.FC = () => {
                     <Button
                         appearance='secondary'
                         icon={<DismissCircleColor />}
-                        onClick={() => {}} 
+                        onClick={handleDelete} 
                         className={styles.headerActionButton}
                     >
                         Delete
@@ -224,43 +273,64 @@ export const RequestParameterDetails: React.FC = () => {
     // }
 
     return (
-        <Card className={styles.card}>
-            <CardHeader 
-                header={
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                            <Image alt="Request Parameters" src={inputImage} height={40} width={40} />
-                            <h3 style={{ margin: 0 }}>Request Parameters (Input)</h3>
-                            <Badge appearance="tint" color={headerChip.color} shape="rounded">
-                                {headerChip.label}
-                            </Badge>
+        <>
+            <Card className={styles.card}>
+                <CardHeader 
+                    header={
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                                <Image alt="Request Parameters" src={inputImage} height={40} width={40} />
+                                <h3 style={{ margin: 0 }}>Request Parameters (Input)</h3>
+                                <Badge appearance="tint" color={headerChip.color} shape="rounded">
+                                    {headerChip.label}
+                                </Badge>
+                            </div>
                         </div>
-                    </div>
-                }
-                action={
-                    <>
-                        {headerActions}
-                    </>     
-                }
+                    }
+                    action={
+                        <>
+                            {headerActions}
+                        </>     
+                    }
 
+                />
+                
+            
+
+
+                <div className={styles.cardBody}>
+                    <div className={styles.splitContainer} >
+                        <div className={styles.splitPaneContent}>
+                            <RequestParametersList requestParameters={requestParameters} />
+                        </div>
+                        <Divider inset vertical/>
+                        <div className={styles.splitPaneContent}>
+                            {content}
+                        </div>                                         
+                    </div>
+                 </div>
+                
+            </Card>
+            {/* Create Confirmation Dialog */}
+            {createData && (
+                <RequestParameterCreateDialog
+                    open={showCreateConfirmation}
+                    createData={createData}
+                    isSaving={createCustomApiRequestParameter.isPending}
+                    onConfirm={handleCreateConfirm}
+                    onCancel={handleCreateCancel}
+                />
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            <RequestParameterDeleteDialog
+                open={showDeleteConfirmation}
+                requestParameter={selectedRequestParameter ?? null}
+                isDeleting={deleteCustomApiRequestParameter.isPending}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
             />
-            
-          
-
-
-            <div className={styles.cardBody}>
-                <div className={styles.splitContainer} >
-                    <div className={styles.splitPaneContent}>
-                        <RequestParametersList requestParameters={requestParameters} />
-                    </div>
-                    <Divider inset vertical/>
-                    <div className={styles.splitPaneContent}>
-                        {content}
-                    </div>                                         
-                </div>
-             </div>
-            
-        </Card>
+        </>
     );
 
 };

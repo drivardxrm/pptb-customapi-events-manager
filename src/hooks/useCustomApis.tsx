@@ -117,7 +117,7 @@ export const useDeleteCustomApi = () => {
   return useMutation<DeleteResult, unknown, DeleteCustomApiInput>({
     mutationFn: async ({ customApi }) => {
       try {
-        const result = await customApiService.deleteCustomApi(customApi.customapiid);
+        const result = await customApiService.deleteRecord(customApi.customapiid);
         addLog(`Custom API '${customApi.uniquename}' deleted successfully`, 'success');
         return result;
       } catch (error) {

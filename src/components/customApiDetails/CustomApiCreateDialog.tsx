@@ -18,7 +18,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useStyles } from '../../styles/Styles';
 
-interface CreateConfirmationDialogProps {
+interface CustomApiCreateDialogProps {
     open: boolean;
     createData: CustomApiCreateable;
     isSaving: boolean;
@@ -26,7 +26,7 @@ interface CreateConfirmationDialogProps {
     onCancel: () => void;
 }
 
-export const CreateConfirmationDialog: React.FC<CreateConfirmationDialogProps> = ({
+export const CustomApiCreateDialog: React.FC<CustomApiCreateDialogProps> = ({
     open,
     createData,
     isSaving,

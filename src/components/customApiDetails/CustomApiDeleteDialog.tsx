@@ -18,7 +18,7 @@ import { Delete24Regular, Dismiss24Regular } from '@fluentui/react-icons';
 import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { useStyles } from '../../styles/Styles';
 
-interface DeleteConfirmationDialogProps {
+interface CustomApiDeleteDialogProps {
     open: boolean;
     customApi: CustomApi | null;
     isDeleting: boolean;
@@ -26,7 +26,7 @@ interface DeleteConfirmationDialogProps {
     onCancel: () => void;
 }
 
-export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
+export const CustomApiDeleteDialog: React.FC<CustomApiDeleteDialogProps> = ({
     open,
     customApi,
     isDeleting,

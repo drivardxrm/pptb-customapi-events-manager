@@ -1,12 +1,13 @@
 import { CustomApi, CustomApiCreateable, CustomApiLookups, CustomApiUpdateable } from '../models/CustomApi';
 import { buildCreatePayload, buildUpdatePayload } from '../utils/diff';
-import { EntityService, CreateResult, UpdateResult, DeleteResult } from './EntityService';
+import { EntityService, CreateResult, UpdateResult } from './EntityService';
 
 
 
 export class CustomApiService extends EntityService {
     entityName = 'customapi';
     entityCollectionName = 'customapis';
+    componenttype = 10020;
 
     async fetchAllCustomApi(): Promise<CustomApi[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
@@ -42,18 +43,7 @@ export class CustomApiService extends EntityService {
         
         // If a solution is specified, add the custom API to that solution
         if (solutionUniqueName && result.id) {
-            await window.dataverseAPI.execute({
-                operationName: 'AddSolutionComponent',
-                operationType: 'action',
-                parameters: {
-                    ComponentId: result.id,
-                    ComponentType: 10020, // Custom API component type
-                    SolutionUniqueName: solutionUniqueName,
-                    AddRequiredComponents: false,
-                    DoNotIncludeSubcomponents: false,
-                    IncludedComponentSettingsValues: null
-                }
-            });
+            await this.addToSolution(result.id, solutionUniqueName);
         }
         
         return { created: true, payload, id: result.id };
@@ -74,10 +64,6 @@ export class CustomApiService extends EntityService {
         return { updated: true, payload };
     }
 
-    async deleteCustomApi(customApiId: string): Promise<DeleteResult> {
-        await window.dataverseAPI.delete(this.entityName, customApiId);
-        return { deleted: true };
-    }
 }
 
 export const customApiService = new CustomApiService();

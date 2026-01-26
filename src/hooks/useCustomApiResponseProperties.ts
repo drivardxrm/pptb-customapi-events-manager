@@ -33,6 +33,7 @@ export const useCustomApiResponseProperties = () => {
 
 type CreateCustomApiResponsePropertyInput = {
   next: CustomApiResponsePropertyCreateable;
+  solutionUniqueName?: string;
 };
 
 export const useCreateCustomApiResponseProperty = () => {
@@ -40,9 +41,9 @@ export const useCreateCustomApiResponseProperty = () => {
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
 
   return useMutation<CreateResult, unknown, CreateCustomApiResponsePropertyInput>({
-    mutationFn: async ({  next }) => {
+    mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await customApiResponsePropertyService.createCustomApiResponseProperty( next);
+        const result = await customApiResponsePropertyService.createCustomApiResponseProperty(next, solutionUniqueName);
 
        
         addLog(`Custom API Response Property '${next.uniquename}' created successfully`, 'success');
