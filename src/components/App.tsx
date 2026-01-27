@@ -144,9 +144,9 @@ function App() {
                         <MessageBarActions
                             containerAction={
                                 <Button
-                                appearance="transparent"
-                                aria-label="Dismiss"
-                                icon={<DismissRegular />}
+                                    appearance="transparent"
+                                    aria-label="Dismiss"
+                                    icon={<DismissRegular />}
                                 />
                             }
                             >
@@ -267,9 +267,11 @@ function App() {
                         </NavDrawer>
                         <ThemeSwitcher isCollapsed={navCollapsed} />
                     </div>
-
+                    
                     <div className={styles.content}>
-                        {messages}
+                        <div className={styles.sticky}>
+                            {messages}
+                        </div>
                         {renderContent()}
                     </div>
                 {/* </div> */}

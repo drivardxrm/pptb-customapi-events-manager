@@ -291,4 +291,10 @@ export const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground3,
   },
+  sticky: {
+    position: 'sticky',
+    top: '0',
+    zIndex: 1000,
+    backgroundColor: tokens.colorNeutralBackground1,
+  },
 });
