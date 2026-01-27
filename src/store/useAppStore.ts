@@ -1,11 +1,23 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
+import { produce } from 'immer';
 
 
 export interface LogEntry  {
     timestamp: Date;
     message: string;
     type: 'info' | 'success' | 'warning' | 'error';
+};
+
+export interface GlobalMessage {
+    intent: 'info' | 'warning' | 'error' | 'success';
+    title: string;
+    body?: string;
+    action?: {
+        label: string;
+        navigateTo?: string;
+    };
+    dismissable?: boolean;
 };
 
 interface AppState {
@@ -30,6 +42,8 @@ interface AppState {
     // Logs state
     logs: LogEntry[];
 
+    // Global messages state
+    globalMessages: Record<string, GlobalMessage>;
 
     // Actions
     setConnection: (connection: ToolBoxAPI.DataverseConnection | null) => void;
@@ -49,7 +63,10 @@ interface AppState {
     addLog: (message: string, type?: LogEntry['type']) => void;
     clearLogs: () => void;
 
-
+    // Global message actions
+    setGlobalMessage: (id: string, message: GlobalMessage | null) => void;
+    clearGlobalMessage: (id: string) => void;
+    clearAllGlobalMessages: () => void;
 }
 
 export const useAppStore = create<AppState>((set, _get) => ({
@@ -58,6 +75,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
         isLoadingConnection: true,
         instanceId: uuidv4(),
         logs: [],
+        globalMessages: {},
 
     
 
@@ -139,6 +157,21 @@ export const useAppStore = create<AppState>((set, _get) => ({
         },
 
         clearLogs: () => set({ logs: [] }),
+
+        // Global message actions
+        setGlobalMessage: (id, message) => set(produce((state: AppState) => {
+            if (message === null) {
+                delete state.globalMessages[id];
+            } else {
+                state.globalMessages[id] = message;
+            }
+        })),
+
+        clearGlobalMessage: (id) => set(produce((state: AppState) => {
+            delete state.globalMessages[id];
+        })),
+
+        clearAllGlobalMessages: () => set({ globalMessages: {} }),
     })
 );
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Activity } from 'react';
-import { Badge, Button, Card, CardHeader, Divider, MessageBar, MessageBarBody, MessageBarTitle, Spinner } from '@fluentui/react-components';
+import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
@@ -33,7 +33,7 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const {selectedCustomApiId, setSelectedCustomApiId} = useAppStore();
+    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage} = useAppStore();
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
     const createCustomApi = useCreateCustomApi();
@@ -52,7 +52,24 @@ export const CustomApiDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
+    // Sync validation state with global messages
+    useEffect(() => {
+        if (mode === 'create' && !createValidation.isValid && createValidation.message) {
+            setGlobalMessage('create-validation', {
+                intent: 'warning',
+                title: createValidation.message,
+            });
+        } else {
+            clearGlobalMessage('create-validation');
+        }
+    }, [mode, createValidation, setGlobalMessage, clearGlobalMessage]);
 
+    // Clear validation message when component unmounts or leaving create mode
+    useEffect(() => {
+        return () => {
+            clearGlobalMessage('create-validation');
+        };
+    }, [clearGlobalMessage]);
 
     useEffect(() => {
         if (selectedCustomApi) {
@@ -271,24 +288,6 @@ export const CustomApiDetails: React.FC = () => {
 
         </div>)
 
-
-    const messages = (() => {
-        if (mode === 'create' && !createValidation.isValid) {
-            return <MessageBar intent={'warning'}>
-                        <MessageBarBody>
-                            <MessageBarTitle>{createValidation.message}</MessageBarTitle>
-                        </MessageBarBody>
-                    </MessageBar>
-        }
-
-        // if (mode === 'edit' && selectedCustomApi && editedData) {
-        //     return <CustomApiDetailsEdit api={selectedCustomApi} editedData={editedData} onChange={handleEditedDataChange} />;
-        // }
-
-        // return <CustomApiDetailsRead api={selectedCustomApi!} />;
-        return <></>;
-    })();
-
     const content = (() => {
         if (mode === 'create') {
             return <CustomApiDetailsCreate 
@@ -332,7 +331,6 @@ export const CustomApiDetails: React.FC = () => {
                     action={headerAction}
                 />
                 <Divider />
-                {messages}
                 {content}
                 {
                     selectedCustomApi &&

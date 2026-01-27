@@ -128,41 +128,6 @@ function App() {
         setSelectedNavItem(section as NavSection);
     };
 
-    // must be reevaluated if appsettings.defaultPublisherId changes
-
-    // const messages = useMemo(() => {
-    //     if (appsettings && appsettings.defaultPublisherId === null) {
-    //         return (
-    //             <MessageBarGroup className={styles.messageBarGroup}>
-    //                 <MessageBar intent={'info'} key={'publisher-warning'}>
-    //                     <MessageBarBody>
-    //                         <MessageBarTitle>Default Publisher not set!</MessageBarTitle>
-    //                         You can set a default publisher in the <strong>Settings</strong> page to simplify Custom API creation.
-    //                     </MessageBarBody>
-    //                     <MessageBarActions
-    //                         containerAction={
-    //                             <Button
-    //                                 appearance="transparent"
-    //                                 aria-label="Dismiss"
-    //                                 icon={<DismissRegular />}
-    //                             />
-    //                         }
-    //                         >
-    //                         <Button 
-    //                             icon={<Settings24Filled/>} 
-    //                             onClick={()=>setSelectedNavItem('settings')}
-    //                         >
-    //                             Settings
-    //                         </Button>
-    //                     </MessageBarActions>
-    //                 </MessageBar>
-    //             </MessageBarGroup>
-    //         );
-                
-    //     }
-    //     return <></>;
-    // }, [appsettings?.defaultPublisherId]);
-
 
 
      // Render content based on selected navigation item

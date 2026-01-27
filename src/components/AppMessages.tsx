@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
     MessageBar,
     MessageBarBody,
     MessageBarTitle,
     MessageBarActions,
     MessageBarGroup,
-    MessageBarIntent,
     Button,
 } from "@fluentui/react-components";
 import {
@@ -14,20 +13,7 @@ import {
 } from "@fluentui/react-icons";
 import { useStyles } from "../styles/Styles";
 import { useAppSettings } from "../hooks/useAppSettings";
-import { produce } from "immer";
-
-export interface AppMessage {
-    id: string;
-    intent: MessageBarIntent;
-    title: string;
-    body: React.ReactNode;
-    action?: {
-        label: string;
-        icon?: React.ReactElement;
-        onClick: () => void;
-    };
-    dismissable?: boolean;
-}
+import { useAppStore } from "../store/useAppStore";
 
 interface AppMessagesProps {
     onNavigate?: (section: string) => void;
@@ -36,77 +22,56 @@ interface AppMessagesProps {
 export const AppMessages: React.FC<AppMessagesProps> = ({ onNavigate }) => {
     const styles = useStyles();
     const { appsettings } = useAppSettings();
-    const [dismissedMessages, setDismissedMessages] = useState<Record<string, boolean>>({});
+    const { globalMessages, setGlobalMessage, clearGlobalMessage } = useAppStore();
 
-    const handleDismiss = useCallback((messageId: string) => {
-        setDismissedMessages(produce(draft => {
-            draft[messageId] = true;
-        }));
-    }, []);
-
-    // Reset dismissed messages when conditions change
+    // Manage publisher warning message via global store
     useEffect(() => {
-        if (appsettings?.defaultPublisherId !== null) {
-            setDismissedMessages(produce(draft => {
-                delete draft['publisher-warning'];
-            }));
+        if (appsettings && appsettings.defaultPublisherId === null) {
+            setGlobalMessage('publisher-warning', {
+                intent: 'info',
+                title: 'Default Publisher not set!',
+                body: 'You can set a default publisher in the Settings page to simplify Custom API creation.',
+                action: {
+                    label: 'Settings',
+                    navigateTo: 'settings',
+                },
+                dismissable: true,
+            });
+        } else {
+            clearGlobalMessage('publisher-warning');
         }
-    }, [appsettings?.defaultPublisherId]);
+    }, [appsettings?.defaultPublisherId, setGlobalMessage, clearGlobalMessage]);
 
-    // Build the list of active messages
-    const messages: AppMessage[] = [];
+    const messages = Object.entries(globalMessages);
 
-    // Publisher warning message
-    if (appsettings && appsettings.defaultPublisherId === null) {
-        messages.push({
-            id: 'publisher-warning',
-            intent: 'info',
-            title: 'Default Publisher not set!',
-            body: (
-                <>
-                    You can set a default publisher in the <strong>Settings</strong> page to simplify Custom API creation.
-                </>
-            ),
-            action: {
-                label: 'Settings',
-                icon: <Settings24Filled />,
-                onClick: () => onNavigate?.('settings'),
-            },
-            dismissable: true,
-        });
-    }
-
-    // Filter out dismissed messages
-    const visibleMessages = messages.filter(msg => !dismissedMessages[msg.id]);
-
-    if (visibleMessages.length === 0) {
+    if (messages.length === 0) {
         return null;
     }
 
     return (
         <MessageBarGroup className={styles.messageBarGroup}>
-            {visibleMessages.map(message => (
-                <MessageBar intent={message.intent} key={message.id}>
+            {messages.map(([id, message]) => (
+                <MessageBar intent={message.intent} key={id}>
                     <MessageBarBody>
                         <MessageBarTitle>{message.title}</MessageBarTitle>
                         {message.body}
                     </MessageBarBody>
                     <MessageBarActions
                         containerAction={
-                            message.dismissable ? (
+                            message.dismissable !== false ? (
                                 <Button
                                     appearance="transparent"
                                     aria-label="Dismiss"
                                     icon={<DismissRegular />}
-                                    onClick={() => handleDismiss(message.id)}
+                                    onClick={() => clearGlobalMessage(id)}
                                 />
                             ) : undefined
                         }
                     >
                         {message.action && (
                             <Button
-                                icon={message.action.icon}
-                                onClick={message.action.onClick}
+                                icon={<Settings24Filled />}
+                                onClick={() => onNavigate?.(message.action!.navigateTo ?? '')}
                             >
                                 {message.action.label}
                             </Button>
