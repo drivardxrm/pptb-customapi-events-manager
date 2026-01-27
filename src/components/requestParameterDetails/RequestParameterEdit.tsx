@@ -38,7 +38,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
             <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
@@ -50,7 +50,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                         appearance='filled-darker' />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
                     <Input
                         value={editedData.name ?? ''}
                         onChange={(event) => updateFields((draft) => {
@@ -60,7 +60,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
                     <Input
                         value={editedData.displayname ?? ''}
                         onChange={(event) => updateFields((draft) => {
@@ -70,7 +70,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
                         value={editedData.description ?? ''}
                         onChange={(event) => updateFields((draft) => {
@@ -84,7 +84,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
 
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Type <LockClosed16Regular />
                         </span>
                     }
@@ -99,7 +99,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                     Customapirequestparameterstype[parameter.type] === 'EntityReference') &&
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }

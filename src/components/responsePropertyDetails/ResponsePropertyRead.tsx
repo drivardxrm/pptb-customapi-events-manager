@@ -16,7 +16,7 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
             <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
@@ -24,15 +24,15 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                     <Input value={property.uniquename || ''} readOnly appearance='filled-darker' />
                 </Field>
 
-                <Field label="Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Name</span>}>
                     <Input value={property.name || ''} readOnly appearance='filled-darker' />
                 </Field>
 
-                <Field label="Display Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Display Name</span>}>
                     <Input value={property.displayname || ''} readOnly appearance='filled-darker' />
                 </Field>
 
-                <Field label="Description">
+                <Field label={<span className={styles.fieldLabelStandard}>Description</span>}>
                     <Textarea
                         value={property.description || ''}
                         readOnly
@@ -44,7 +44,7 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
 
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Type <LockClosed16Regular />
                         </span>
                     }
@@ -59,7 +59,7 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                     Customapiresponsepropertiestype[property.type] === 'EntityReference') &&
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }

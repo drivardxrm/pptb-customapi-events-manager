@@ -58,8 +58,8 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
 
                 <Field
                     label={
-                        <span className={styles.semiBoldLabel}>
-                            Unique Name <LockClosed16Regular />
+                        <span className={styles.fieldLabelStandard}>
+                            <span className={styles.semiBoldLabel}>Unique Name</span> <LockClosed16Regular />
                         </span>
                     }
                 >
@@ -89,7 +89,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
                     <Input
                         value={createData.name ?? ''}
                         onChange={(event) =>
@@ -101,7 +101,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
                     <Input
                         value={createData.displayname ?? ''}
                         onChange={(event) =>
@@ -113,7 +113,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
                         value={createData.description ?? ''}
                         onChange={(event) =>
@@ -129,7 +129,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
 
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Type <LockClosed16Regular />
                         </span>
                     }
@@ -161,7 +161,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     Customapiresponsepropertiestype[createData.type] === 'EntityReference') &&
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }

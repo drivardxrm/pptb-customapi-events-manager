@@ -69,8 +69,8 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field
                     label={
-                        <span className={styles.semiBoldLabel}>
-                            Unique Name <LockClosed16Regular />
+                        <span className={styles.fieldLabelStandard}>
+                            <span className={styles.semiBoldLabel}>Unique Name</span> <LockClosed16Regular />
                         </span>
                     }
                 >
@@ -100,7 +100,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
                     <Input
                         appearance='filled-darker'
                         value={createData.name ?? ''}
@@ -112,7 +112,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
                     <Input
                         appearance='filled-darker'
                         value={createData.displayname ?? ''}
@@ -124,7 +124,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
                         appearance='filled-darker'
                         value={createData.description ?? ''}
@@ -141,7 +141,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field 
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Type <LockClosed16Regular />
                         </span>
                     }
@@ -175,7 +175,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     Customapirequestparameterstype[createData.type] === 'EntityReference') &&
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }

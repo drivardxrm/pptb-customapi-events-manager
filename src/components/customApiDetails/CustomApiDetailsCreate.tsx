@@ -157,8 +157,9 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={styles.formSection}>
                         <Field 
                             label={
-                                <span className={styles.semiBoldLabel}>
-                                    Unique Name <LockClosed16Regular />
+                                <span className={styles.fieldLabelStandard}>
+                                    <span className={styles.semiBoldLabel}>Unique Name</span>
+                                    <LockClosed16Regular />
                                 </span>
                             }
                             required
@@ -200,7 +201,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field 
-                            label={<span className={styles.semiBoldLabel}>Name</span>}
+                            label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}
                             required
                         >
                             <Input
@@ -217,7 +218,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field 
-                            label={<span className={styles.semiBoldLabel}>Display Name</span>}
+                            label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}
                             required
                         >
                             <Input
@@ -235,7 +236,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     
 
                     <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
-                        <Field label={<span className={styles.semiBoldLabel}>Description</span>} required>
+                        <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>} required>
                             <Textarea
                                 appearance='filled-darker'
                                 value={createData.description ?? ''}
@@ -253,10 +254,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={styles.formSection}>
                         <Field 
                             label={
-                                <div className={styles.fieldLabelStandard}>
+                                <span className={styles.fieldLabelStandard}>
                                     <span className={styles.semiBoldLabel}>Allowed Custom Processing Step Type</span>
                                     <LockClosed16Regular />
-                                </div>
+                                </span>
                             }
                             required
                         >
@@ -279,10 +280,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field label={
-                            <div className={styles.fieldLabelStandard}>
+                            <span className={styles.fieldLabelStandard}>
                                 <span className={styles.semiBoldLabel}>Binding Type</span>
                                 <LockClosed16Regular />
-                            </div>}
+                            </span>}
                             required
                         >
                             <GenericTagPicker
@@ -308,10 +309,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     {createData.bindingtype === 1 && (
                         <div className={styles.formSection}>
                             <Field label={
-                                <div className={styles.fieldLabelStandard}>
+                                <span className={styles.fieldLabelStandard}>
                                     <span className={styles.semiBoldLabel}>Bound Entity Logical Name</span>
                                     <LockClosed16Regular />
-                                </div>}
+                                </span>}
                                 required
                             >
                                 {entityQuery.isFetching && (
@@ -393,9 +394,9 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field label={
-                            <div className={styles.fieldLabelStandard}>
+                            <span className={styles.fieldLabelStandard}>
                                 <span className={styles.semiBoldLabel}>Execute Privilege Name</span>
-                            </div>
+                            </span>
                         }>
                             {privilegesQuery.isFetching && (
                                 <Input value="Loading privileges..." readOnly appearance='filled-darker' />

@@ -30,7 +30,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
             <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
@@ -38,15 +38,15 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                     <Input value={parameter.uniquename || ''} readOnly appearance='filled-darker' />
                 </Field>
 
-                <Field label="Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Name</span>}>
                     <Input value={parameter.name || ''} readOnly appearance='filled-darker' />
                 </Field>
 
-                <Field label="Display Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Display Name</span>}>
                     <Input value={parameter.displayname || ''} readOnly appearance='filled-darker' />
                 </Field>
 
-                <Field label="Description">
+                <Field label={<span className={styles.fieldLabelStandard}>Description</span>}>
                     <Textarea
                         value={parameter.description || ''}
                         readOnly
@@ -58,7 +58,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
 
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Type <LockClosed16Regular />
                         </span>
                     }
@@ -73,7 +73,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                     Customapirequestparameterstype[parameter.type] === 'EntityReference') &&
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }

@@ -46,7 +46,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
         <div className={styles.formGrid}>
             <div className={styles.formSection}>
                 <Field label={
-                    <span className={styles.label}>
+                    <span className={styles.fieldLabelStandard}>
                         Unique Name <LockClosed16Regular />
                     </span>
                 }>
@@ -62,7 +62,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
                     <Input
                         appearance='filled-darker'
                         value={editedData.name ?? ''}
@@ -76,7 +76,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
                     <Input
                         appearance='filled-darker'
                         value={editedData.displayname ?? ''}
@@ -90,7 +90,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={mergeClasses(styles.formSection,styles.fullWidth)}>
-                <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
                         appearance='filled-darker'
                         value={editedData.description ?? ''}
@@ -107,7 +107,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
 
             <div className={styles.formSection}>
                 <Field label={
-                    <span className={styles.label}>
+                    <span className={styles.fieldLabelStandard}>
                         Allowed Custom Processing Step Type <LockClosed16Regular />
                     </span>}
                 >
@@ -123,7 +123,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
 
             <div className={styles.formSection}>
                 <Field label={
-                    <span className={styles.label}>
+                    <span className={styles.fieldLabelStandard}>
                         Binding Type <LockClosed16Regular />
                     </span>}
                 >
@@ -140,7 +140,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             {api.bindingtype === 1 && (
                 <div className={styles.formSection}>
                     <Field label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Bound Entity Logical Name <LockClosed16Regular />
                         </span>}
                     >
@@ -159,7 +159,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
            
 
             <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
-                <Field label={<span className={styles.semiBoldLabel}>Plugin Type</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Plugin Type</span></span>}>
                     {pluginTypesQuery.isFetching && (
                         <Input value="Loading plugintypes..." readOnly appearance='filled-darker' />
                     )}
@@ -195,7 +195,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
             </div>
 
             <div className={styles.formSection}>
-                <Field label={<span className={styles.semiBoldLabel}>Execute Privilege Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Execute Privilege Name</span></span>}>
                     {privilegesQuery.isFetching && (
                         <Input value="Loading privileges..." readOnly appearance='filled-darker' />
                     )}

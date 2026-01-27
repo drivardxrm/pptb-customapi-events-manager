@@ -32,7 +32,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
             <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
@@ -44,19 +44,19 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
            
 
             <div className={styles.formSection}>
-                <Field label="Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Name</span>}>
                     <Input value={api.name || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Display Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Display Name</span>}>
                     <Input value={api.displayname || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>
 
             <div className={mergeClasses(styles.formSection, styles.fullWidth)}>
-                <Field label="Description">
+                <Field label={<span className={styles.fieldLabelStandard}>Description</span>}>
                     <Textarea
                         value={api.description || ''}
                         readOnly
@@ -70,7 +70,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
              <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Allowed Custom Processing Step Type <LockClosed16Regular />
                         </span>
                     }
@@ -87,7 +87,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
             <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Binding Type <LockClosed16Regular />
                         </span>
                     }
@@ -105,7 +105,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                 <div className={styles.formSection}>
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Bound Entity Logical Name <LockClosed16Regular />
                             </span>
                         }
@@ -120,7 +120,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
             
 
             <div className={mergeClasses(styles.formSection, styles.twoColumn)}>
-                <Field label="Plugin Type">
+                <Field label={<span className={styles.fieldLabelStandard}>Plugin Type</span>}>
                     <Input
                         value={api['_plugintypeid_value@OData.Community.Display.V1.FormattedValue']}
                         readOnly
@@ -130,7 +130,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
             </div>
 
             <div className={styles.formSection}>
-                <Field label="Execute Privilege Name">
+                <Field label={<span className={styles.fieldLabelStandard}>Execute Privilege Name</span>}>
                     <Input value={api.executeprivilegename || ''} readOnly appearance='filled-darker' />
                 </Field>
             </div>

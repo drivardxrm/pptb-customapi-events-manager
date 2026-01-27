@@ -24,7 +24,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
             <div className={styles.formSection}>
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
@@ -37,7 +37,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
                     <Input
                         value={editedData.name ?? ''}
                         onChange={(event) =>
@@ -49,7 +49,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Display Name</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
                     <Input
                         value={editedData.displayname ?? ''}
                         onChange={(event) =>
@@ -62,7 +62,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                     />
                 </Field>
 
-                <Field label={<span className={styles.semiBoldLabel}>Description</span>}>
+                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
                         value={editedData.description ?? ''}
                         onChange={(event) =>
@@ -78,7 +78,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
 
                 <Field
                     label={
-                        <span className={styles.label}>
+                        <span className={styles.fieldLabelStandard}>
                             Type <LockClosed16Regular />
                         </span>
                     }
@@ -93,7 +93,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                     Customapiresponsepropertiestype[property.type] === 'EntityReference') &&
                     <Field
                         label={
-                            <span className={styles.label}>
+                            <span className={styles.fieldLabelStandard}>
                                 Logical Entity Name <LockClosed16Regular />
                             </span>
                         }
