@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { 
     Image,
     NavDrawer,
@@ -8,13 +8,7 @@ import {
     Tooltip,
     Hamburger,
     OnNavItemSelectData,
-    AppItem,
-    MessageBar,
-    MessageBarBody,
-    MessageBarTitle,
-    MessageBarActions,
-    Button,
-    MessageBarGroup,
+    AppItem
 } from "@fluentui/react-components";
 import { 
     // ConnectedRegular, 
@@ -31,7 +25,6 @@ import {
     PlugConnected24Filled,
     BugRegular,
     BugFilled,
-    DismissRegular,
     FlashFlowRegular,
     FlashFlowFilled   
     
@@ -51,6 +44,7 @@ import { useAppSettings } from "../hooks/useAppSettings";
 import { mergeClasses } from '@fluentui/react-components';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { CatalogSelector } from "./CatalogSelector";
+import { AppMessages } from "./AppMessages";
 
 
 
@@ -130,40 +124,44 @@ function App() {
         setSelectedNavItem(data.value as NavSection);
     };
 
+    const handleNavigate = (section: string) => {
+        setSelectedNavItem(section as NavSection);
+    };
+
     // must be reevaluated if appsettings.defaultPublisherId changes
 
-    const messages = useMemo(() => {
-        if (appsettings && appsettings.defaultPublisherId === null) {
-            return (
-                <MessageBarGroup className={styles.messageBarGroup}>
-                    <MessageBar intent={'info'} key={'publisher-warning'}>
-                        <MessageBarBody>
-                            <MessageBarTitle>Default Publisher not set!</MessageBarTitle>
-                            You can set a default publisher in the <strong>Settings</strong> page to simplify Custom API creation.
-                        </MessageBarBody>
-                        <MessageBarActions
-                            containerAction={
-                                <Button
-                                    appearance="transparent"
-                                    aria-label="Dismiss"
-                                    icon={<DismissRegular />}
-                                />
-                            }
-                            >
-                            <Button 
-                                icon={<Settings24Filled/>} 
-                                onClick={()=>setSelectedNavItem('settings')}
-                            >
-                                Settings
-                            </Button>
-                        </MessageBarActions>
-                    </MessageBar>
-                </MessageBarGroup>
-            );
+    // const messages = useMemo(() => {
+    //     if (appsettings && appsettings.defaultPublisherId === null) {
+    //         return (
+    //             <MessageBarGroup className={styles.messageBarGroup}>
+    //                 <MessageBar intent={'info'} key={'publisher-warning'}>
+    //                     <MessageBarBody>
+    //                         <MessageBarTitle>Default Publisher not set!</MessageBarTitle>
+    //                         You can set a default publisher in the <strong>Settings</strong> page to simplify Custom API creation.
+    //                     </MessageBarBody>
+    //                     <MessageBarActions
+    //                         containerAction={
+    //                             <Button
+    //                                 appearance="transparent"
+    //                                 aria-label="Dismiss"
+    //                                 icon={<DismissRegular />}
+    //                             />
+    //                         }
+    //                         >
+    //                         <Button 
+    //                             icon={<Settings24Filled/>} 
+    //                             onClick={()=>setSelectedNavItem('settings')}
+    //                         >
+    //                             Settings
+    //                         </Button>
+    //                     </MessageBarActions>
+    //                 </MessageBar>
+    //             </MessageBarGroup>
+    //         );
                 
-        }
-        return <></>;
-    }, [appsettings?.defaultPublisherId]);
+    //     }
+    //     return <></>;
+    // }, [appsettings?.defaultPublisherId]);
 
 
 
@@ -270,7 +268,7 @@ function App() {
                     
                     <div className={styles.content}>
                         <div className={styles.sticky}>
-                            {messages}
+                            <AppMessages onNavigate={handleNavigate} />
                         </div>
                         {renderContent()}
                     </div>
