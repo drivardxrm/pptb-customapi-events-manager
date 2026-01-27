@@ -3,7 +3,7 @@ import { Field, Input, Textarea, Switch, Tooltip, mergeClasses } from '@fluentui
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
-import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype, allowedCustomProcessingStepTypeIcons } from '../../models/CustomApi';
+import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype, allowedCustomProcessingStepTypeIcons, customapisBindingTypeIcons } from '../../models/CustomApi';
 
 interface CustomApiDetailsReadProps {
     api: CustomApi;
@@ -93,6 +93,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     }
                 >
                     <Input
+                        contentBefore={customapisBindingTypeIcons[api.bindingtype!]}
                         value={Customapisbindingtype[api.bindingtype!]}
                         readOnly
                         appearance='filled-darker'

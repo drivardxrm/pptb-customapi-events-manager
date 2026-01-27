@@ -2,7 +2,7 @@ import React, { createElement } from "react";
 import { SelectableItem } from "../components/generic/GenericTagPicker";
 import { EntityService } from "../services/EntityService";
 import { PluginTypeService } from "../services/PluginTypeService";
-import { ArrowRepeatAllRegular, ArrowForwardDownLightningRegular, DismissSquareRegular } from "@fluentui/react-icons";
+import { GlobeRegular,SquareMultipleRegular, SquareRegular, ArrowRepeatAllRegular, ArrowForwardDownLightningRegular, DismissSquareRegular } from "@fluentui/react-icons";
 
 
 
@@ -93,6 +93,12 @@ export const getAllowedCustomProcessingStepTypeOptions = (): Array<SelectableIte
     image: allowedCustomProcessingStepTypeIcons[key] ?? null,
   }));
 
+// Icon mapping for BindingType
+export const customapisBindingTypeIcons: Record<string, React.JSX.Element> = {
+  '0': createElement(GlobeRegular),        // Global
+  '1': createElement(SquareRegular), // Entity
+  '2': createElement(SquareMultipleRegular),      // EntityCollection
+};
 
 
 export const Customapisbindingtype = {
@@ -107,7 +113,7 @@ export const getBindingTypeOptions = (): Array<SelectableItem> =>
   Object.entries(Customapisbindingtype).map(([key, value]) => ({
     id: Number(key).toString(),
     displayText: value,
-    image: null,
+    image: customapisBindingTypeIcons[key] ?? null,
   }));
 
 // export const Customapiscomponentstate = {

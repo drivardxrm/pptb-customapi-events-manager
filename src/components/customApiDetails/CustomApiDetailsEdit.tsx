@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, mergeClasses, Tooltip } from '@fluentui/react-components';
 import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { CustomApi, CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype, allowedCustomProcessingStepTypeIcons } from '../../models/CustomApi';
+import { CustomApi, CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype, allowedCustomProcessingStepTypeIcons, customapisBindingTypeIcons } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { usePrivileges } from '../../hooks/usePrivileges';
 import { usePluginTypes } from '../../hooks/usePluginTypes';
@@ -129,6 +129,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 >
                     <Input
                         appearance='filled-darker'
+                        contentBefore={customapisBindingTypeIcons[api.bindingtype!]}
                         value={Customapisbindingtype[api.bindingtype!]} 
                         readOnly 
                         className={styles.disabledInput}
