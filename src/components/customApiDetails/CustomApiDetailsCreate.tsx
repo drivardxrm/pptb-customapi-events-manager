@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Field, Input, Textarea, Switch, mergeClasses, Tooltip, Text } from '@fluentui/react-components';
 import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
+import { ManagedStateToggle, ManagedStateFilter } from '../generic/ManagedStateToggle';
 import { CustomApiCreateable, getBindingTypeOptions, getAllowedCustomProcessingStepTypeOptions, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { usePrivileges } from '../../hooks/usePrivileges';
@@ -30,6 +31,8 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const { selectedPublisherId, setSelectedPublisherId } = useAppStore();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
+
+    const [showPluginTypes, setShowPluginTypes] = useState<ManagedStateFilter>('all');
 
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -250,9 +253,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={styles.formSection}>
                         <Field 
                             label={
-                                <span className={styles.semiBoldLabel}>
-                                    Allowed Custom Processing Step Type <LockClosed16Regular />
-                                </span>
+                                <div className={styles.fieldLabelStandard}>
+                                    <span className={styles.semiBoldLabel}>Allowed Custom Processing Step Type</span>
+                                    <LockClosed16Regular />
+                                </div>
                             }
                             required
                         >
@@ -275,9 +279,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field label={
-                            <span className={styles.semiBoldLabel}>
-                                Binding Type <LockClosed16Regular />
-                            </span>}
+                            <div className={styles.fieldLabelStandard}>
+                                <span className={styles.semiBoldLabel}>Binding Type</span>
+                                <LockClosed16Regular />
+                            </div>}
                             required
                         >
                             <GenericTagPicker
@@ -303,9 +308,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     {createData.bindingtype === 1 && (
                         <div className={styles.formSection}>
                             <Field label={
-                                <span className={styles.semiBoldLabel}>
-                                    Bound Entity Logical Name <LockClosed16Regular />
-                                </span>}
+                                <div className={styles.fieldLabelStandard}>
+                                    <span className={styles.semiBoldLabel}>Bound Entity Logical Name</span>
+                                    <LockClosed16Regular />
+                                </div>}
                                 required
                             >
                                 {entityQuery.isFetching && (
@@ -344,7 +350,15 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     
 
                     <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
-                        <Field label={<span className={styles.semiBoldLabel}>Plugin Type</span>}>
+                        <Field label={
+                            <div className={styles.fieldLabelWithToggle}>
+                                <span className={styles.semiBoldLabel}>Plugin Type</span>
+                                <ManagedStateToggle 
+                                    value={showPluginTypes} 
+                                    onChange={setShowPluginTypes} 
+                                />
+                            </div>
+                        }>
                             {pluginTypesQuery.isFetching && (
                                 <Input value="Loading plugintypes..." readOnly appearance='filled-darker' />
                             )}
@@ -358,6 +372,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             {!pluginTypesQuery.isFetching && pluginTypesQuery.plugintypes && (
                                 <GenericTagPicker
                                     items={pluginTypesQuery.plugintypes
+                                        .filter(type => showPluginTypes === 'all' || (type.ismanaged && showPluginTypes === 'managed') || (!type.ismanaged && showPluginTypes === 'unmanaged'))
                                         .map((type) => ({
                                             id: type.plugintypeid,
                                             displayText: type.typename || '',
@@ -377,7 +392,11 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     </div>
 
                     <div className={styles.formSection}>
-                        <Field label={<span className={styles.semiBoldLabel}>Execute Privilege Name</span>}>
+                        <Field label={
+                            <div className={styles.fieldLabelStandard}>
+                                <span className={styles.semiBoldLabel}>Execute Privilege Name</span>
+                            </div>
+                        }>
                             {privilegesQuery.isFetching && (
                                 <Input value="Loading privileges..." readOnly appearance='filled-darker' />
                             )}

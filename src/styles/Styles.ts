@@ -297,4 +297,17 @@ export const useStyles = makeStyles({
     zIndex: 1000,
     backgroundColor: tokens.colorNeutralBackground1,
   },
+  fieldLabelWithToggle: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        flexWrap: 'wrap',
+        minHeight: '32px',
+    },
+  fieldLabelStandard: {
+        display: 'inline-flex',  // Changed from 'flex' to 'inline-flex'
+        alignItems: 'center',
+        gap: '4px',
+        minHeight: '32px',
+    },
 });

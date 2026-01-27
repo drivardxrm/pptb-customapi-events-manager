@@ -54,7 +54,7 @@ export const CustomApiSelector: React.FC = () => {
                
                 <div className={styles.formSection}>
                     <Field label={
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className={styles.fieldLabelWithToggle}>
                             <span className={styles.semiBoldLabel}>Selected Solution</span>
                             <ManagedStateToggle 
                                 value={showSolutions} 
@@ -108,7 +108,7 @@ export const CustomApiSelector: React.FC = () => {
             <div className={styles.formGrid}> */}
                 <div className={styles.formSection}>
                     <Field label={
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className={styles.fieldLabelWithToggle}>
                             <span className={styles.semiBoldLabel}>Selected Custom API</span>
                             <ManagedStateToggle 
                                 value={showCustomApis} 
