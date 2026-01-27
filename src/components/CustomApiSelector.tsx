@@ -3,7 +3,7 @@ import {
     Field, 
     Card,
     CardHeader,
-    Divider,
+    // Divider,
     Input,
 } from '@fluentui/react-components'
 import { useAppStore } from '../store/useAppStore'
@@ -44,11 +44,11 @@ export const CustomApiSelector: React.FC = () => {
     
     return (
         <Card className={styles.card}>
-            <CardHeader 
+            {/* <CardHeader 
                 header={<h2>Custom API Selector</h2>}
                 // description={"Select a Custom API or Create a new one"}
             />
-            <Divider />
+            <Divider /> */}
             
             <div className={styles.formGrid}>
                

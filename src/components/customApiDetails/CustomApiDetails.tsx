@@ -194,7 +194,7 @@ export const CustomApiDetails: React.FC = () => {
 
 
 
-    //const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
+    const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
     const headerChip = (() => {
         switch (mode) {
             case 'edit':
@@ -208,7 +208,7 @@ export const CustomApiDetails: React.FC = () => {
 
     const headerDescription = mode === 'create' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <h2 style={{ margin: 0 }}>Create a new Custom API</h2>
+            {/* <h2 style={{ margin: 0 }}>Create a new Custom API</h2> */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
                 <LockClosed16Regular />
                 <span>Some fields remain immutable after creation.</span>
@@ -320,7 +320,7 @@ export const CustomApiDetails: React.FC = () => {
                     header={
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                                <h2>Custom API Details</h2>
+                                <h3>{headerTitle}</h3>
                                 <Badge appearance="tint" color={headerChip.color} shape="rounded">
                                     {headerChip.label}
                                 </Badge>

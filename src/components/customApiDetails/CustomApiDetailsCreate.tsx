@@ -32,7 +32,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
 
-    const [showPluginTypes, setShowPluginTypes] = useState<ManagedStateFilter>('all');
+    const [showPluginTypes, setShowPluginTypes] = useState<ManagedStateFilter>('unmanaged');
 
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -116,7 +116,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
         <>
         
             <div className={styles.formGrid}>
-                <div className={styles.formSection}>
+                <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
                     <Field 
                         label='Publisher'
                         required
@@ -254,10 +254,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     <div className={styles.formSection}>
                         <Field 
                             label={
-                                <span className={styles.fieldLabelStandard}>
+                                <div className={styles.fieldLabelStandard}>
                                     <span className={styles.semiBoldLabel}>Allowed Custom Processing Step Type</span>
                                     <LockClosed16Regular />
-                                </span>
+                                </div>
                             }
                             required
                         >
@@ -280,10 +280,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field label={
-                            <span className={styles.fieldLabelStandard}>
+                            <div className={styles.fieldLabelStandard}>
                                 <span className={styles.semiBoldLabel}>Binding Type</span>
                                 <LockClosed16Regular />
-                            </span>}
+                            </div>}
                             required
                         >
                             <GenericTagPicker
@@ -309,10 +309,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                     {createData.bindingtype === 1 && (
                         <div className={styles.formSection}>
                             <Field label={
-                                <span className={styles.fieldLabelStandard}>
+                                <div className={styles.fieldLabelStandard}>
                                     <span className={styles.semiBoldLabel}>Bound Entity Logical Name</span>
                                     <LockClosed16Regular />
-                                </span>}
+                                </div>}
                                 required
                             >
                                 {entityQuery.isFetching && (
@@ -394,9 +394,9 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
                     <div className={styles.formSection}>
                         <Field label={
-                            <span className={styles.fieldLabelStandard}>
+                            <div className={styles.fieldLabelStandard}>
                                 <span className={styles.semiBoldLabel}>Execute Privilege Name</span>
-                            </span>
+                            </div>
                         }>
                             {privilegesQuery.isFetching && (
                                 <Input value="Loading privileges..." readOnly appearance='filled-darker' />
