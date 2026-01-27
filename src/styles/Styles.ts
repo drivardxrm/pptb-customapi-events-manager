@@ -91,7 +91,7 @@ export const useStyles = makeStyles({
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
       gap: tokens.spacingVerticalM,
-      padding: tokens.spacingVerticalL,
+      padding: tokens.spacingVerticalS,
       flex: 1,
       minHeight: 0,
       height: '100%',
@@ -101,7 +101,7 @@ export const useStyles = makeStyles({
       display: 'grid',
       gridTemplateColumns: 'minmax(340px, 1fr) minmax(420px, 1fr)',
       gap: tokens.spacingVerticalM,
-      padding: tokens.spacingVerticalL,
+      padding: tokens.spacingVerticalS,
       alignItems: 'start',
   },
   formSection: {

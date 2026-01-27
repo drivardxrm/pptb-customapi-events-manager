@@ -276,8 +276,7 @@ export const CustomApiDetails: React.FC = () => {
         if (mode === 'create' && !createValidation.isValid) {
             return <MessageBar intent={'warning'}>
                         <MessageBarBody>
-                            <MessageBarTitle>Validation error</MessageBarTitle>
-                            {createValidation.message}
+                            <MessageBarTitle>{createValidation.message}</MessageBarTitle>
                         </MessageBarBody>
                     </MessageBar>
         }

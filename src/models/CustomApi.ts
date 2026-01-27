@@ -1,6 +1,8 @@
+import React, { createElement } from "react";
 import { SelectableItem } from "../components/generic/GenericTagPicker";
 import { EntityService } from "../services/EntityService";
 import { PluginTypeService } from "../services/PluginTypeService";
+import { ArrowRepeatAllRegular, ArrowForwardDownLightningRegular, DismissSquareRegular } from "@fluentui/react-icons";
 
 
 
@@ -76,12 +78,19 @@ export const Customapisallowedcustomprocessingsteptype = {
 export type Customapisallowedcustomprocessingsteptype = keyof typeof Customapisallowedcustomprocessingsteptype;
 
 
+// Icon mapping for AllowedCustomProcessingStepType
+export const allowedCustomProcessingStepTypeIcons: Record<string, React.JSX.Element> = {
+  '0': createElement(DismissSquareRegular),        // None
+  '1': createElement(ArrowForwardDownLightningRegular), // AsyncOnly
+  '2': createElement(ArrowRepeatAllRegular),      // SyncandAsync
+};
+
 // Helper to get options for AllowedCustomProcessingStepType
 export const getAllowedCustomProcessingStepTypeOptions = (): Array<SelectableItem> =>
   Object.entries(Customapisallowedcustomprocessingsteptype).map(([key, value]) => ({
     id: Number(key).toString(),
     displayText: value,
-    image: null,
+    image: allowedCustomProcessingStepTypeIcons[key] ?? null,
   }));
 
 

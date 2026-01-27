@@ -50,7 +50,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     // Validation logic
     const validation:ValidationStatus = useMemo(() => {
         if (!selectedPublisherId) {
-            return { isValid: false, message: 'Select a publisher.' };
+            return { isValid: false, message: 'Select a publisher for the custom api.' };
         }
         
         // Required Fields
@@ -116,7 +116,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                 <div className={styles.formSection}>
                     <Field 
                         label='Publisher'
-                        hint='Publisher for the Custom API'
+                        required
                     >
                         
                         {publishersQuery.isFetching  && (
@@ -149,11 +149,6 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                 </div>
             </div>
             
-            {selectedPublisherPrefix === '' && (
-                <div>
-                    <Text weight="semibold">Warning:</Text> Please select a publisher to set the customization prefix for the Unique Name.
-                </div>
-            )}
             {selectedPublisherPrefix !== '' && (
                 <div className={styles.formGrid}>
                     <div className={styles.formSection}>
