@@ -5,14 +5,14 @@ import {
     CardHeader,
     Divider,
     Input,
-    ToggleButton
 } from '@fluentui/react-components'
 import { useAppStore } from '../store/useAppStore'
 import { useStyles } from '../styles/Styles'
 import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
-import { LockClosed16Regular,LockClosed16Filled, LockOpen16Regular, LockOpen16Filled, SelectAllOffRegular, SelectAllOffFilled } from '@fluentui/react-icons'
+import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons'
+import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
 
 
 
@@ -25,8 +25,8 @@ export const CustomApiSelector: React.FC = () => {
     
     
     //const [filter, setFilter] = useState<string>("all")
-    const [showSolutions, setShowSolutions] = useState<'all'|'unmanaged'|'managed'>('all')
-    const [showCustomApis, setShowCustomApis] = useState<'all'|'unmanaged'|'managed'>('all')
+    const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
+    const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>('all')
     
 
     if (!isLoadingConnection && connection?.isActive === false) {
@@ -56,57 +56,10 @@ export const CustomApiSelector: React.FC = () => {
                     <Field label={
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span className={styles.semiBoldLabel}>Selected Solution</span>
-                            <div style={{ display: 'flex', gap: '4px' }}>
-                                <ToggleButton
-                                    appearance={showSolutions === 'all' ? 'primary' : 'secondary'}
-                                    size='small'
-                                    shape='circular'
-                                    icon={showSolutions === 'all' ? <SelectAllOffFilled /> : <SelectAllOffRegular />}
-                                    checked={showSolutions === 'all'}
-                                    onClick={
-                                        () => setShowSolutions('all')      
-                                    }
-                                    title="All"
-                                >
-                                    <>
-                                        All
-                                        
-                                    </>
-                                </ToggleButton>                         
-                                <ToggleButton
-                                    appearance={showSolutions === 'unmanaged' ? 'primary' : 'secondary'}
-                                    size='small'
-                                    shape='circular'
-                                    icon={showSolutions === 'unmanaged' ? <LockOpen16Filled /> : <LockOpen16Regular />}
-                
-                                    checked={showSolutions === 'unmanaged'}
-                                    onClick={
-                                        () => setShowSolutions('unmanaged')      
-                                    }
-                                    title="Unmanaged"
-                                >
-                                    <>
-                                        Unmanaged
-                                    </>
-                                </ToggleButton>
-                                <ToggleButton
-                                    appearance={showSolutions === 'managed' ? 'primary' : 'secondary'}
-                                    size='small'
-                                    shape='circular'
-                                    icon={showSolutions === 'managed' ? <LockClosed16Filled /> : <LockClosed16Regular />}
-                                    checked={showSolutions === 'managed'}
-                                    onClick={
-                                        () => setShowSolutions('managed')      
-                                    }
-                                    title="Managed"
-                                >
-                                    <>
-                                        Managed
-                                        {/* {showSolutionManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>} */}
-                                    </>
-                                </ToggleButton>
-                                
-                            </div>
+                            <ManagedStateToggle 
+                                value={showSolutions} 
+                                onChange={setShowSolutions} 
+                            />
                         </div>
                     }
                     hint={selectedSolutionId != null && selectedSolutionId != '' ? 'Clear to show all Custom APIs' : 'Leave empty to show all Custom APIs'}
@@ -157,56 +110,10 @@ export const CustomApiSelector: React.FC = () => {
                     <Field label={
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span className={styles.semiBoldLabel}>Selected Custom API</span>
-                            <div style={{ display: 'flex', gap: '4px' }}>
-                                <ToggleButton
-                                    appearance={showCustomApis === 'all' ? 'primary' : 'secondary'}
-                                    size='small'
-                                    shape='circular'
-                                    icon={showCustomApis === 'all' ? <SelectAllOffFilled /> : <SelectAllOffRegular />}
-                                    checked={showCustomApis === 'all'}
-                                    onClick={
-                                        () => setShowCustomApis('all')      
-                                    }
-                                    title="All"
-                                >
-                                    <>
-                                        All
-                                        
-                                    </>
-                                </ToggleButton>                         
-                                <ToggleButton
-                                    appearance={showCustomApis === 'unmanaged' ? 'primary' : 'secondary'}
-                                    size='small'
-                                    shape='circular'
-                                    icon={showCustomApis === 'unmanaged' ? <LockOpen16Filled /> : <LockOpen16Regular />}
-                
-                                    checked={showCustomApis === 'unmanaged'}
-                                    onClick={
-                                        () => setShowCustomApis('unmanaged')      
-                                    }
-                                    title="Unmanaged"
-                                >
-                                    <>
-                                        Unmanaged
-                                    </>
-                                </ToggleButton>
-                                <ToggleButton
-                                    appearance={showCustomApis === 'managed' ? 'primary' : 'secondary'}
-                                    size='small'
-                                    shape='circular'
-                                    icon={showCustomApis === 'managed' ? <LockClosed16Filled /> : <LockClosed16Regular />}
-                                    checked={showCustomApis === 'managed'}
-                                    onClick={
-                                        () => setShowCustomApis('managed')      
-                                    }
-                                    title="Managed"
-                                >
-                                    <>
-                                        Managed
-                                        {/* {showSolutionManaged ? <CheckmarkCircleColor /> : <DismissCircleColor/>} */}
-                                    </>
-                                </ToggleButton>
-                            </div>
+                            <ManagedStateToggle 
+                                value={showCustomApis} 
+                                onChange={setShowCustomApis} 
+                            />
                         </div>
                     }>
                         {customapisQuery.isFetching && (
