@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { produce } from 'immer';
+import { JSXElement } from '@fluentui/react-components';
 
 
 export interface LogEntry  {
@@ -15,7 +16,9 @@ export interface GlobalMessage {
     body?: string;
     action?: {
         label: string;
-        navigateTo?: string;
+        icon?: JSXElement ;     // jsx element   // Icon name (e.g., 'settings', 'add')
+        navigateTo?: string;  // For navigation
+        actionId?: string;    // For custom action dispatch
     };
     dismissable?: boolean;
 };

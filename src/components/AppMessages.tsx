@@ -34,6 +34,7 @@ export const AppMessages: React.FC<AppMessagesProps> = ({ onNavigate }) => {
                 action: {
                     label: 'Settings',
                     navigateTo: 'settings',
+                    icon: <Settings24Filled />
                 },
                 dismissable: true,
             });
@@ -70,7 +71,7 @@ export const AppMessages: React.FC<AppMessagesProps> = ({ onNavigate }) => {
                     >
                         {message.action && (
                             <Button
-                                icon={<Settings24Filled />}
+                                icon={message.action!.icon}
                                 onClick={() => onNavigate?.(message.action!.navigateTo ?? '')}
                             >
                                 {message.action.label}
