@@ -33,7 +33,7 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage} = useAppStore();
+    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage, selectedNavItem } = useAppStore();
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
     const createCustomApi = useCreateCustomApi();
@@ -58,6 +58,7 @@ export const CustomApiDetails: React.FC = () => {
             setGlobalMessage('create-validation', {
                 intent: 'warning',
                 title: createValidation.message,
+                dismissable: false,
             });
         } else {
             clearGlobalMessage('create-validation');
@@ -70,6 +71,26 @@ export const CustomApiDetails: React.FC = () => {
             clearGlobalMessage('create-validation');
         };
     }, [clearGlobalMessage]);
+
+    // Show info message when no Custom API is selected
+    useEffect(() => {
+        if (selectedNavItem === 'customapi' && mode === 'read' && !selectedCustomApi) {
+            setGlobalMessage('no-customapi-selected', {
+                intent: 'info',
+                title: 'No Custom API selected. Please select a Custom API above or create a new one.',
+                dismissable: false,
+            });
+        } else {
+            clearGlobalMessage('no-customapi-selected');
+        }
+    }, [selectedNavItem, mode, selectedCustomApi, setGlobalMessage, clearGlobalMessage]);
+
+// Clear message when component unmounts
+useEffect(() => {
+    return () => {
+        clearGlobalMessage('no-customapi-selected');
+    };
+}, [clearGlobalMessage]);
 
     useEffect(() => {
         if (selectedCustomApi) {
