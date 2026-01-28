@@ -79,11 +79,20 @@ export const CustomApiDetails: React.FC = () => {
                 intent: 'info',
                 title: 'No Custom API selected. Please select a Custom API above or create a new one.',
                 dismissable: false,
+                action: {
+                    label: 'New Custom API',
+                    icon: <AddCircleColor />,
+                    onClick: () => {
+                        setSelectedCustomApiId(null);
+                        setCreateData(DEFAULT_CREATE_TEMPLATE);
+                        setMode('create');
+                    },
+                },
             });
         } else {
             clearGlobalMessage('no-customapi-selected');
         }
-    }, [selectedNavItem, mode, selectedCustomApi, setGlobalMessage, clearGlobalMessage]);
+    }, [selectedNavItem, mode, selectedCustomApi, setGlobalMessage, clearGlobalMessage, setSelectedCustomApiId]);
 
 // Clear message when component unmounts
 useEffect(() => {

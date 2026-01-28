@@ -122,10 +122,6 @@ function App() {
         setSelectedNavItem(data.value as NavSection);
     };
 
-    const handleNavigate = (section: string) => {
-        setSelectedNavItem(section as NavSection);
-    };
-
 
 
      // Render content based on selected navigation item
@@ -231,7 +227,7 @@ function App() {
                     
                     <div className={styles.content}>
                         <div className={styles.sticky}>
-                            <AppMessages onNavigate={handleNavigate} />
+                            <AppMessages />
                         </div>
                         {renderContent()}
                     </div>

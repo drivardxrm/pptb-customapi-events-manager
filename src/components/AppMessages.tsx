@@ -15,14 +15,10 @@ import { useStyles } from "../styles/Styles";
 import { useAppSettings } from "../hooks/useAppSettings";
 import { useAppStore } from "../store/useAppStore";
 
-interface AppMessagesProps {
-    onNavigate?: (section: string) => void;
-}
-
-export const AppMessages: React.FC<AppMessagesProps> = ({ onNavigate }) => {
+export const AppMessages: React.FC = () => {
     const styles = useStyles();
     const { appsettings } = useAppSettings();
-    const { globalMessages, setGlobalMessage, clearGlobalMessage } = useAppStore();
+    const { globalMessages, setGlobalMessage, clearGlobalMessage, setSelectedNavItem } = useAppStore();
 
     // Manage publisher warning message via global store
     useEffect(() => {
@@ -33,15 +29,15 @@ export const AppMessages: React.FC<AppMessagesProps> = ({ onNavigate }) => {
                 body: 'You can set a default publisher in the Settings page to simplify Custom API creation.',
                 action: {
                     label: 'Settings',
-                    navigateTo: 'settings',
-                    icon: <Settings24Filled />
+                    icon: <Settings24Filled />,
+                    onClick: () => setSelectedNavItem('settings'),
                 },
                 dismissable: true,
             });
         } else {
             clearGlobalMessage('publisher-warning');
         }
-    }, [appsettings?.defaultPublisherId, setGlobalMessage, clearGlobalMessage]);
+    }, [appsettings?.defaultPublisherId, setGlobalMessage, clearGlobalMessage, setSelectedNavItem]);
 
     const messages = Object.entries(globalMessages);
 
@@ -71,8 +67,8 @@ export const AppMessages: React.FC<AppMessagesProps> = ({ onNavigate }) => {
                     >
                         {message.action && (
                             <Button
-                                icon={message.action!.icon}
-                                onClick={() => onNavigate?.(message.action!.navigateTo ?? '')}
+                                icon={message.action.icon}
+                                onClick={message.action.onClick}
                             >
                                 {message.action.label}
                             </Button>
