@@ -177,6 +177,7 @@ export const SettingsForm: React.FC = () => {
                             hint="Template for new request parameter names"
                         >
                             <Input 
+                                appearance='filled-darker'
                                 value={localSettings.requestParameterDefaultName ?? undefined} 
                                 onChange={(e) => setLocalSettings({
                                     ...localSettings,
@@ -193,6 +194,7 @@ export const SettingsForm: React.FC = () => {
                             hint="Template for new response property names"
                         >
                             <Input 
+                                appearance='filled-darker'
                                 value={localSettings.responsePropertyDefaultName ?? undefined} 
                                 onChange={(e) => setLocalSettings({
                                     ...localSettings,
@@ -223,18 +225,7 @@ export const SettingsForm: React.FC = () => {
 
                 </div>
 
-                <div style={{ 
-                    marginTop: tokens.spacingVerticalL,
-                    padding: tokens.spacingVerticalM,
-                    backgroundColor: tokens.colorNeutralBackground3,
-                    borderRadius: tokens.borderRadiusMedium,
-                    fontSize: '12px',
-                    color: tokens.colorNeutralForeground3
-                }}>
-                    <p style={{ margin: 0 }}>
-                        <strong>Note:</strong> Settings are persisted using the host application's settings storage.
-                    </p>
-                </div>
+                
             </Card>
         );
 
