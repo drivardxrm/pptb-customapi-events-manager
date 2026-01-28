@@ -21,15 +21,12 @@ import {
     Info24Filled,
     Settings24Regular,
     Settings24Filled,
-    PlugConnected24Regular,
-    PlugConnected24Filled,
     BugRegular,
     BugFilled,
     FlashFlowRegular,
     FlashFlowFilled   
     
 } from "@fluentui/react-icons";
-import { ConnectionStatus } from "./ConnectionStatus";
 import { EventLog } from "./EventLog";
 import { useAppStore } from "../store/useAppStore";
 import { useConnectionSync } from "../hooks/useConnectionSync";
@@ -48,7 +45,7 @@ import { AppMessages } from "./AppMessages";
 
 
 
-type NavSection = 'connection' | 'customapi' | 'businessevent' | 'logs' | 'settings' | 'about' | 'debug';
+type NavSection = 'customapi' | 'businessevent' | 'logs' | 'settings' | 'about' | 'debug';
 
 
 function App() {
@@ -75,7 +72,7 @@ function App() {
         { value: 'customapi', icon: <CloudArrowRightRegular className={styles.navIcon} />, iconSelected: <CloudArrowRightFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
         { value: 'businessevent', icon: <FlashFlowRegular className={styles.navIcon} />, iconSelected: <FlashFlowFilled className={styles.navIconSelected}/>, label: 'Business Events' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
-        { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
+        // { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListFilled className={styles.navIconSelected}/>, label: 'Logs' },
         { value: 'about', icon: <Info24Regular className={styles.navIcon}/>, iconSelected: <Info24Filled className={styles.navIconSelected}/>, label: 'About' },
         { value: 'debug', icon: <BugRegular className={styles.navIcon}/>, iconSelected: <BugFilled className={styles.navIconSelected}/>, label: 'Debug', hidden: !appsettings?.showDebug },
@@ -141,8 +138,8 @@ function App() {
      // Render content based on selected navigation item
     const renderContent = () => {
         switch (selectedNavItem) {
-            case 'connection':
-                return <ConnectionStatus />;
+            // case 'connection':
+            //     return <ConnectionStatus />;
             case 'customapi':
                 return (
                     <>
