@@ -77,7 +77,7 @@ export const CustomApiDetails: React.FC = () => {
         if (selectedNavItem === 'customapi' && mode === 'read' && !selectedCustomApi) {
             setGlobalMessage('no-customapi-selected', {
                 intent: 'info',
-                title: 'No Custom API selected. Please select a Custom API above or create a new one.',
+                title: 'No Custom API selected. Select a Custom API below or create a new one.',
                 dismissable: false,
                 action: {
                     label: 'New Custom API',
