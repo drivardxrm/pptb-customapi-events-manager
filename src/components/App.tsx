@@ -56,15 +56,13 @@ function App() {
     const styles = useStyles();
     
     // Zustand store
-    const {connection, isLoadingConnection, instanceId, addLog} = useAppStore();
+    const {connection, isLoadingConnection, instanceId, addLog, selectedNavItem, setSelectedNavItem} = useAppStore();
     const { appsettings } = useAppSettings();
     // const isLoading = useAppStore((state) => state.isLoadingConnection);
     // const instanceId = useAppStore((state) => state.instanceId);
     // const addLog = useAppStore((state) => state.addLog);
 
     const [navCollapsed, setNavCollapsed] = useState(false);
-
-    const [selectedNavItem, setSelectedNavItem] = useState<NavSection>('customapi');
     
 
     const navItems: Array<{

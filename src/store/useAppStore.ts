@@ -33,6 +33,7 @@ interface AppState {
     selectedRequestParameterId: string | null;
     selectedResponsePropertyId: string | null;
     selectedPublisherId: string | null;
+    selectedNavItem: string;
 
     theme : 'light' | 'dark';
     initTheme: () => void;
@@ -56,6 +57,7 @@ interface AppState {
     setSelectedRequestParameterId: (requestParameterId: string | null) => void;
     setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
     setSelectedPublisherId: (publisherId: string | null) => void;
+    setSelectedNavItem: (navItem: string) => void;
 
 
 
@@ -85,6 +87,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedRequestParameterId: null,
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
+        selectedNavItem: 'customapi',
 
         theme:  'light',
 
@@ -141,6 +144,9 @@ export const useAppStore = create<AppState>((set, _get) => ({
         ),
         setSelectedPublisherId: (publisherId) => set(
             { selectedPublisherId: publisherId }
+        ),
+        setSelectedNavItem: (navItem) => set(
+            { selectedNavItem: navItem }
         ),
         
         // Log actions
