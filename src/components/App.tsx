@@ -43,7 +43,7 @@ import { DebugView } from "./DebugView";
 import { useAppSettings } from "../hooks/useAppSettings";
 import { mergeClasses } from '@fluentui/react-components';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { CatalogSelector } from "./CatalogSelector";
+// import { CatalogSelector } from "./CatalogSelector";
 import { AppMessages } from "./AppMessages";
 
 
@@ -56,7 +56,7 @@ function App() {
     const styles = useStyles();
     
     // Zustand store
-    const {connection, isLoadingConnection, instanceId, addLog, selectedNavItem, setSelectedNavItem} = useAppStore();
+    const {connection, isLoadingConnection, instanceId, addLog, selectedNavItem, setSelectedNavItem, setGlobalMessage, clearGlobalMessage} = useAppStore();
     const { appsettings } = useAppSettings();
     // const isLoading = useAppStore((state) => state.isLoadingConnection);
     // const instanceId = useAppStore((state) => state.instanceId);
@@ -88,6 +88,20 @@ function App() {
             setSelectedNavItem('customapi');
         }
     }, [appsettings?.showDebug, selectedNavItem]);
+
+    // Show coming soon message for business events
+    useEffect(() => {
+        if (selectedNavItem === 'businessevent') {
+            setGlobalMessage('businessevent-coming-soon', {
+                intent: 'info',
+                title: 'Business Events - Coming Soon!',
+                body: 'This feature is currently under development.',
+                dismissable: false,
+            });
+        } else {
+            clearGlobalMessage('businessevent-coming-soon');
+        }
+    }, [selectedNavItem, setGlobalMessage, clearGlobalMessage]);
 
    
 
@@ -140,7 +154,9 @@ function App() {
             case 'businessevent':
                 return (
                     <>
-                         <CatalogSelector />
+                        
+
+                         {/* <CatalogSelector /> */}
                     </>
                 );
             case 'logs':
