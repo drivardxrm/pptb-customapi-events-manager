@@ -9,9 +9,6 @@ import {
 } from "@fluentui/react-components";
 import {
     DismissRegular,
-    DrinkMargaritaRegular,
-    ErrorCircleColor,
-    GlobeErrorFilled,
     Settings24Filled,
 } from "@fluentui/react-icons";
 import { useStyles } from "../styles/Styles";
