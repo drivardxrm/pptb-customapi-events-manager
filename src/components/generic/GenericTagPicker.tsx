@@ -1,5 +1,5 @@
 import { Button, mergeClasses, Tag, TagPicker, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerList, TagPickerOption, TagPickerProps, useTagPickerFilter } from '@fluentui/react-components';
-import React, { JSX, useMemo, useState, useEffect } from 'react';
+import React, { JSX, useMemo, useState, useEffect, cloneElement } from 'react';
 import { useStyles } from '../../styles/Styles';
 import { ChevronDown20Regular, DismissRegular } from '@fluentui/react-icons';
 
@@ -99,7 +99,9 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
                 optionidToRender === selectedOption ? styles.tagSelected : '')
             }
             media={
-                items.find((item) => item.id === optionidToRender)?.image
+                items.find((item) => item.id === optionidToRender)?.image 
+                    ? cloneElement(items.find((item) => item.id === optionidToRender)!.image!, { className: styles.icon24 })
+                    : null
             }
             text={items.find((item) => item.id === optionidToRender)?.displayText ?? ''}
             value={optionidToRender}
@@ -168,6 +170,8 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
                             appearance={'outline'}
                             media={
                                 items.find((item) => item.id === selectedOption)?.image
+                                    ? cloneElement(items.find((item) => item.id === selectedOption)!.image!, { className: styles.icon24 })
+                                    : null
                             }
                            
                             value={selectedOption}

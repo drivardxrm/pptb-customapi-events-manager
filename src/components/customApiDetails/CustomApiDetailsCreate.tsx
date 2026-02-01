@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Field, Input, Textarea, Switch, mergeClasses, Tooltip, Text } from '@fluentui/react-components';
-import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
+import { LockClosed16Regular, LockOpenRegular, LockClosedRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { ManagedStateToggle, ManagedStateFilter } from '../generic/ManagedStateToggle';
 import { CustomApiCreateable, getBindingTypeOptions, getAllowedCustomProcessingStepTypeOptions, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
@@ -377,7 +377,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                                         .map((type) => ({
                                             id: type.plugintypeid,
                                             displayText: type.typename || '',
-                                            image: type.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />,
+                                            image: type.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />,
                                         } as SelectableItem))
                                         .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
                                     initialValue={createData._plugintypeid_value}

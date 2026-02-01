@@ -11,7 +11,7 @@ import { useStyles } from '../styles/Styles'
 import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
-import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons'
+import { LockClosedRegular, LockOpenRegular } from '@fluentui/react-icons'
 import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
 
 
@@ -87,7 +87,7 @@ export const CustomApiSelector: React.FC = () => {
                                                                 .map(s => ({
                                                                         id: s.solutionid,
                                                                         displayText: `${s.friendlyname} (${s.uniquename})`,
-                                                                        image: s.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />
+                                                                        image: s.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
                                                                     } as SelectableItem)      
                                                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
                                 //isDisabled={filter !== 'solution'} 

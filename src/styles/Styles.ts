@@ -310,4 +310,6 @@ export const useStyles = makeStyles({
         gap: '4px',
         minHeight: '32px',
     },
+  icon24: { fontSize: "24px" },
+  icon32: { fontSize: "32px" },
 });
