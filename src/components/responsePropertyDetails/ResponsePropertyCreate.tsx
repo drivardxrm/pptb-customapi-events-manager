@@ -1,4 +1,4 @@
-import React, {  useCallback } from 'react';
+import React, {  useCallback, useEffect, useMemo } from 'react';
 import { Field, Input, Link, Textarea } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
@@ -9,19 +9,43 @@ import { CustomApiResponsePropertyCreateable, getCustomApiResponsePropertiesType
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
+import { ValidationStatus } from '../../utils/validation';
+import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 
 
 interface ResponsePropertyCreateProps {
     createData: CustomApiResponsePropertyCreateable;
     onChange: (updater: (current: CustomApiResponsePropertyCreateable) => CustomApiResponsePropertyCreateable) => void;
+    onValidationChange?: (validationStatus: ValidationStatus) => void;
 }
 
-export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ createData, onChange }) => {
+export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ createData, onChange, onValidationChange }) => {
     const styles = useStyles();   
     const customApiQuery = useCustomApis();
+    const responsePropertyQuery = useCustomApiResponseProperties();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
+
+    // Validation logic
+    const validation: ValidationStatus = useMemo(() => {
+        // Required Fields
+        if (!createData.uniquename || createData.uniquename.trim() === '' ||
+            createData.type === null
+        ) {
+            return { isValid: false, message: 'Please fill all required fields.' };
+        }
+
+        if (responsePropertyQuery.responseProperties && responsePropertyQuery.responseProperties.some(prop => prop.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+            return { isValid: false, message: `Response Property named '${createData.uniquename}' already exist.` };
+        }
+
+        return { isValid: true };
+    }, [createData, responsePropertyQuery.responseProperties]);
+
+    useEffect(() => {
+        onValidationChange?.(validation);
+    }, [validation.isValid, validation.message, onValidationChange]);
 
 
     // Helper to update fields, can change multiple fields at once
@@ -62,6 +86,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                             <span className={styles.semiBoldLabel}>Unique Name</span> <LockClosed16Regular />
                         </span>
                     }
+                    required
                 >
                     <Input
                         value={createData.uniquename ?? ''}
@@ -89,7 +114,9 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}
+                >
                     <Input
                         value={createData.name ?? ''}
                         onChange={(event) =>
@@ -101,7 +128,9 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}
+                >
                     <Input
                         value={createData.displayname ?? ''}
                         onChange={(event) =>
@@ -133,6 +162,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                             Type <LockClosed16Regular />
                         </span>
                     }
+                    required
                 >
                     <GenericTagPicker
                         items={getCustomApiResponsePropertiesTypeOptions()
@@ -167,7 +197,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                         }
                         hint={
                             <>
-                                Leave blank for <Link href='https://powermaverick.dev/2021/11/17/dataverse-custom-api-that-supports-complex-json-schema/'>expando</Link> entity
+                                Leave blank for expando entity
                             </>
                         }
                     >

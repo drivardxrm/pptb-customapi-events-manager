@@ -11,6 +11,7 @@ import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
 import { ValidationStatus } from '../../utils/validation';
+import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 
 interface RequestParameterCreateProps {
     createData: CustomApiRequestParameterCreateable;
@@ -32,6 +33,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const [ column1Width ] = useDynamicColumnWidths(columnRefGroups);
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
     const customApiQuery = useCustomApis();
+    const requestParameterQuery = useCustomApiRequestParameters();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
@@ -40,15 +42,17 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const validation: ValidationStatus = useMemo(() => {
         // Required Fields
         if (!createData.uniquename || createData.uniquename.trim() === '' ||
-            !createData.name || createData.name.trim() === '' ||
-            !createData.displayname || createData.displayname.trim() === '' ||
             createData.type === null
         ) {
             return { isValid: false, message: 'Please fill all required fields.' };
         }
 
+        if (requestParameterQuery.requestParameters && requestParameterQuery.requestParameters.some(param => param.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+            return { isValid: false, message: `Request Parameter named '${createData.uniquename}' already exist.` };
+        }
+
         return { isValid: true };
-    }, [createData]);
+    }, [createData, requestParameterQuery.requestParameters]);
 
     useEffect(() => {
         onValidationChange?.(validation);
@@ -124,7 +128,6 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field 
                     label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}
-                    required
                 >
                     <Input
                         appearance='filled-darker'
@@ -140,7 +143,6 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
                 <Field 
                     label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}
-                    required
                 >
                     <Input
                         appearance='filled-darker'
@@ -215,7 +217,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                         }
                         hint={
                             <>
-                                Leave blank for <Link href='https://powermaverick.dev/2021/11/17/dataverse-custom-api-that-supports-complex-json-schema/'>expando</Link> entity
+                                Leave blank for expando entity
                             </>
                         }
                     >

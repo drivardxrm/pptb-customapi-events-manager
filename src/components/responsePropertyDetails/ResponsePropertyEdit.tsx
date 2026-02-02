@@ -28,6 +28,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
+                    required
                 >
                     <Input 
                         value={property.uniquename || ''} 

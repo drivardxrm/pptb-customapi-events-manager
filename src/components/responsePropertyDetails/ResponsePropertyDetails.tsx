@@ -1,4 +1,4 @@
-import React, { Activity, useEffect, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useState } from 'react';
 import { 
     Image, 
     Badge,
@@ -26,6 +26,7 @@ import { ResponsePropertyEdit } from './ResponsePropertyEdit';
 import { ResponsePropertyRead } from './ResponsePropertyRead';
 import { ResponsePropertyCreateDialog } from './ResponsePropertyCreateDialog';
 import { ResponsePropertyDeleteDialog } from './ResponsePropertyDeleteDialog';
+import { ValidationStatus } from '../../utils/validation';
 
 
 
@@ -38,7 +39,7 @@ export type ResponsePropertiesMode = 'read' | 'edit' | 'create';
 
 export const ResponsePropertyDetails: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId } = useAppStore();
+    const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage } = useAppStore();
     const [mode, setMode] = useState<ResponsePropertiesMode>('read');
     const [editedData, setEditedData] = useState<CustomApiResponsePropertyUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiResponsePropertyCreateable | null>(null);
@@ -49,6 +50,27 @@ export const ResponsePropertyDetails: React.FC = () => {
 
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+
+    // Sync validation state with global messages
+    useEffect(() => {
+        if (mode === 'create' && !createValidation.isValid && createValidation.message) {
+            setGlobalMessage('response-property-create-validation', {
+                intent: 'warning',
+                title: createValidation.message,
+                dismissable: false,
+            });
+        } else {
+            clearGlobalMessage('response-property-create-validation');
+        }
+    }, [mode, createValidation, setGlobalMessage, clearGlobalMessage]);
+
+    // Clear validation message when component unmounts or leaving create mode
+    useEffect(() => {
+        return () => {
+            clearGlobalMessage('response-property-create-validation');
+        };
+    }, [clearGlobalMessage]);
 
     const selectedResponseProperty = responseProperties?.find((prop) => prop.customapiresponsepropertyid === selectedResponsePropertyId)
 
@@ -168,6 +190,10 @@ export const ResponsePropertyDetails: React.FC = () => {
         setCreateData((current) => (current ? updater(current) : current));
     };
 
+    const handleValidationChange = useCallback((validationStatus: ValidationStatus) => {
+        setCreateValidation(validationStatus);
+    }, []);
+
 
     const handleEditedDataChange = (updater: (current: CustomApiResponsePropertyUpdateable) => CustomApiResponsePropertyUpdateable) => {
         setEditedData((current) => (current ? updater(current) : current));
@@ -175,7 +201,7 @@ export const ResponsePropertyDetails: React.FC = () => {
 
     const content = (() => {
         if (mode === 'create') {
-            return <ResponsePropertyCreate createData={createData!} onChange={handleCreateDataChange} />;
+            return <ResponsePropertyCreate createData={createData!} onChange={handleCreateDataChange} onValidationChange={handleValidationChange} />;
         }
 
         if (mode === 'edit' && selectedResponseProperty && editedData) {
@@ -241,7 +267,7 @@ export const ResponsePropertyDetails: React.FC = () => {
                         <Button
                             appearance='primary'
                             icon={createCustomApiResponseProperty.isPending || updateCustomApiResponseProperty.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={createCustomApiResponseProperty.isPending || updateCustomApiResponseProperty.isPending}
+                            disabled={createCustomApiResponseProperty.isPending || updateCustomApiResponseProperty.isPending || (mode === 'create' && !createValidation.isValid)}
                             onClick={handleSave}
                             className={styles.headerActionButton}
                         >

@@ -42,6 +42,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                             Unique Name <LockClosed16Regular />
                         </span>
                     }
+                    required
                 >
                     <Input 
                         value={parameter.uniquename || ''} 
@@ -50,7 +51,9 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                         appearance='filled-darker' />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>} 
+                >
                     <Input
                         value={editedData.name ?? ''}
                         onChange={(event) => updateFields((draft) => {
@@ -60,7 +63,10 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}
+                    
+                >
                     <Input
                         value={editedData.displayname ?? ''}
                         onChange={(event) => updateFields((draft) => {
@@ -70,7 +76,9 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}
+                >
                     <Textarea
                         value={editedData.description ?? ''}
                         onChange={(event) => updateFields((draft) => {
