@@ -1,4 +1,4 @@
-import React, {  useCallback, useMemo, useRef } from 'react';
+import React, {  useCallback, useEffect, useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, Tooltip, Link } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
@@ -10,13 +10,15 @@ import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
+import { ValidationStatus } from '../../utils/validation';
 
 interface RequestParameterCreateProps {
     createData: CustomApiRequestParameterCreateable;
     onChange: (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => void;
+    onValidationChange?: (validationStatus: ValidationStatus) => void;
 }
 
-export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ createData, onChange }) => {
+export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ createData, onChange, onValidationChange }) => {
     const styles = useStyles();
     const isOptionalLabelRef = useRef<HTMLSpanElement | null>(null);
     const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -33,6 +35,24 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
+
+    // Validation logic
+    const validation: ValidationStatus = useMemo(() => {
+        // Required Fields
+        if (!createData.uniquename || createData.uniquename.trim() === '' ||
+            !createData.name || createData.name.trim() === '' ||
+            !createData.displayname || createData.displayname.trim() === '' ||
+            createData.type === null
+        ) {
+            return { isValid: false, message: 'Please fill all required fields.' };
+        }
+
+        return { isValid: true };
+    }, [createData]);
+
+    useEffect(() => {
+        onValidationChange?.(validation);
+    }, [validation.isValid, validation.message, onValidationChange]);
 
 
      // Helper to update fields, can change multiple fields at once
@@ -73,6 +93,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                             <span className={styles.semiBoldLabel}>Unique Name</span> <LockClosed16Regular />
                         </span>
                     }
+                    required
                 >
                     <Input
                         appearance='filled-darker'
@@ -101,7 +122,10 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Name</span></span>}
+                    required
+                >
                     <Input
                         appearance='filled-darker'
                         required
@@ -114,7 +138,10 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Display Name</span></span>}
+                    required
+                >
                     <Input
                         appearance='filled-darker'
                         required
@@ -127,7 +154,9 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     />
                 </Field>
 
-                <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
+                <Field 
+                    label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}
+                >
                     <Textarea
                         appearance='filled-darker'
                         required
@@ -149,6 +178,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                             Type <LockClosed16Regular />
                         </span>
                     }
+                    required
                 >
                     <GenericTagPicker
                         items={

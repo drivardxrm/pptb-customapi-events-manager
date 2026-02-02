@@ -1,4 +1,4 @@
-import React, { Activity, useEffect, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useState } from 'react';
 import {  
     Badge,
     Button,
@@ -27,6 +27,7 @@ import { RequestParameterEdit } from './RequestParameterEdit';
 import { RequestParameterCreate } from './RequestParameterCreate';
 import { RequestParameterCreateDialog } from './RequestParameterCreateDialog';
 import { RequestParameterDeleteDialog } from './RequestParameterDeleteDialog';
+import { ValidationStatus } from '../../utils/validation';
 
 
 
@@ -38,7 +39,7 @@ export type RequestParametersMode = 'read' | 'edit' | 'create';
 
 export const RequestParameterDetails: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId } = useAppStore();
+    const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage } = useAppStore();
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiRequestParameterCreateable | null>(null);
@@ -49,6 +50,27 @@ export const RequestParameterDetails: React.FC = () => {
 
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+
+    // Sync validation state with global messages
+    useEffect(() => {
+        if (mode === 'create' && !createValidation.isValid && createValidation.message) {
+            setGlobalMessage('request-parameter-create-validation', {
+                intent: 'warning',
+                title: createValidation.message,
+                dismissable: false,
+            });
+        } else {
+            clearGlobalMessage('request-parameter-create-validation');
+        }
+    }, [mode, createValidation, setGlobalMessage, clearGlobalMessage]);
+
+    // Clear validation message when component unmounts or leaving create mode
+    useEffect(() => {
+        return () => {
+            clearGlobalMessage('request-parameter-create-validation');
+        };
+    }, [clearGlobalMessage]);
 
     const selectedRequestParameter = requestParameters?.find((param) => param.customapirequestparameterid === selectedRequestParameterId)
 
@@ -81,6 +103,10 @@ export const RequestParameterDetails: React.FC = () => {
     const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => {
         setCreateData((current) => (current ? updater(current) : current));
     };
+
+    const handleValidationChange = useCallback((validationStatus: ValidationStatus) => {
+        setCreateValidation(validationStatus);
+    }, []);
 
 
     const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => {
@@ -176,7 +202,7 @@ export const RequestParameterDetails: React.FC = () => {
 
     const content = (() => {
         if (mode === 'create') {
-            return <RequestParameterCreate createData={createData!} onChange={handleCreateDataChange} />;
+            return <RequestParameterCreate createData={createData!} onChange={handleCreateDataChange} onValidationChange={handleValidationChange} />;
         }
 
         if (mode === 'edit' && selectedRequestParameter && editedData) {
@@ -242,7 +268,7 @@ export const RequestParameterDetails: React.FC = () => {
                         <Button
                             appearance='primary'
                             icon={createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending ? <Spinner size='tiny' /> : <Save24Regular />}
-                            disabled={createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending}
+                            disabled={createCustomApiRequestParameter.isPending || updateCustomApiRequestParameter.isPending || (mode === 'create' && !createValidation.isValid)}
                             onClick={handleSave}
                             className={styles.headerActionButton}
                         >
