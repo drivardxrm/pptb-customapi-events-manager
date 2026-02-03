@@ -24,12 +24,16 @@ export interface GlobalMessage {
     dismissable?: boolean;
 };
 
+export type EditingComponent = 'none' | 'customapi' | 'requestparameter' | 'responseproperty';
+
 interface AppState {
     // Connection state
     connection: ToolBoxAPI.DataverseConnection | null;
     isLoadingConnection: boolean;
     instanceId: string;
 
+    // Editing lock state
+    editingComponent: EditingComponent;
     
     selectedSolutionId: string | null;
     selectedCustomApiId: string | null;
@@ -63,7 +67,8 @@ interface AppState {
     setSelectedPublisherId: (publisherId: string | null) => void;
     setSelectedNavItem: (navItem: string) => void;
 
-
+    // Editing lock actions
+    setEditingComponent: (component: EditingComponent) => void;
 
     // Log actions
     addLog: (message: string, type?: LogEntry['type']) => void;
@@ -92,6 +97,8 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
         selectedNavItem: 'customapi',
+
+        editingComponent: 'none',
 
         theme:  'light',
 
@@ -170,6 +177,8 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setSelectedNavItem: (navItem) => set(
             { selectedNavItem: navItem }
         ),
+
+        setEditingComponent: (component) => set({ editingComponent: component }),
         
         // Log actions
         addLog: (message, type = 'info') => {

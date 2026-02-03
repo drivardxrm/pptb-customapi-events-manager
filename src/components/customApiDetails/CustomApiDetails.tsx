@@ -33,7 +33,8 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage, selectedNavItem } = useAppStore();
+    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage, selectedNavItem, editingComponent, setEditingComponent } = useAppStore();
+    const isLocked = editingComponent !== 'none' && editingComponent !== 'customapi';
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
     const createCustomApi = useCreateCustomApi();
@@ -116,12 +117,14 @@ useEffect(() => {
         }
         setEditedData(toEditable(selectedCustomApi));
         setMode('edit');
+        setEditingComponent('customapi');
     };
 
     const handleCreate = () => {
         setSelectedCustomApiId(null);
         setCreateData(DEFAULT_CREATE_TEMPLATE);
         setMode('create');
+        setEditingComponent('customapi');
     };
 
     const handleCancel = () => {
@@ -131,6 +134,7 @@ useEffect(() => {
             setCreateData(DEFAULT_CREATE_TEMPLATE);
         }
         setMode('read');
+        setEditingComponent('none');
     };
 
     const handleSave = async () => {
@@ -179,6 +183,7 @@ useEffect(() => {
             }
 
             setMode('read');
+            setEditingComponent('none');
         } catch (error) {
             console.error('Error saving Custom API', error);
         }
@@ -346,22 +351,24 @@ useEffect(() => {
             <CustomApiSelector/>
             
             <Card className={styles.card}>
-                <CardHeader 
-                    header={
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                                <h3>{headerTitle}</h3>
-                                <Badge appearance="tint" color={headerChip.color} shape="rounded">
-                                    {headerChip.label}
-                                </Badge>
+                <div className={isLocked ? styles.lockedSection : undefined}>
+                    <CardHeader 
+                        header={
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                                    <h3>{headerTitle}</h3>
+                                    <Badge appearance="tint" color={headerChip.color} shape="rounded">
+                                        {headerChip.label}
+                                    </Badge>
+                                </div>
                             </div>
-                        </div>
-                    }
-                    description={headerDescription}
-                    action={headerAction}
-                />
-                <Divider />
-                {content}
+                        }
+                        description={headerDescription}
+                        action={headerAction}
+                    />
+                    <Divider />
+                    {content}
+                </div>
                 {
                     selectedCustomApi &&
                     <>

@@ -7,6 +7,7 @@ import {
     CardHeader,
     Divider,
     Spinner,
+    mergeClasses,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 import outputImage from '../../assets/output.png';
@@ -39,7 +40,8 @@ export type ResponsePropertiesMode = 'read' | 'edit' | 'create';
 
 export const ResponsePropertyDetails: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage } = useAppStore();
+    const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage, editingComponent, setEditingComponent } = useAppStore();
+    const isLocked = editingComponent !== 'none' && editingComponent !== 'responseproperty';
     const [mode, setMode] = useState<ResponsePropertiesMode>('read');
     const [editedData, setEditedData] = useState<CustomApiResponsePropertyUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiResponsePropertyCreateable | null>(null);
@@ -89,6 +91,7 @@ export const ResponsePropertyDetails: React.FC = () => {
         setSelectedResponsePropertyId(null);
         setCreateData(getResponsePropertyCreateTemplate(selectedCustomApiId!));
         setMode('create');
+        setEditingComponent('responseproperty');
     };
 
 
@@ -98,6 +101,7 @@ export const ResponsePropertyDetails: React.FC = () => {
         }
         setEditedData(selectedResponseProperty);
         setMode('edit');
+        setEditingComponent('responseproperty');
     };
 
     const handleCancel = () => {
@@ -105,6 +109,7 @@ export const ResponsePropertyDetails: React.FC = () => {
             setEditedData(selectedResponseProperty);
         }
         setMode('read');
+        setEditingComponent('none');
     };
 
     const handleSave = async () => {
@@ -157,6 +162,7 @@ export const ResponsePropertyDetails: React.FC = () => {
             }
 
             setMode('read');
+            setEditingComponent('none');
         } catch (error) {
             console.error('Error saving Response Property', error);
         }
@@ -299,7 +305,7 @@ export const ResponsePropertyDetails: React.FC = () => {
 
     return (
         <>
-            <Card className={styles.card}>
+            <Card className={mergeClasses(styles.card, isLocked && styles.lockedSection)}>
                 <CardHeader 
                     header={
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -325,4 +325,10 @@ export const useStyles = makeStyles({
     },
   icon24: { fontSize: "24px" },
   icon32: { fontSize: "32px" },
+  lockedSection: {
+    pointerEvents: 'none',
+    opacity: 0.5,
+    filter: 'blur(1px)',
+    userSelect: 'none',
+  },
 });

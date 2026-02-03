@@ -6,7 +6,8 @@ import {
     CardHeader,
     Divider,
     Spinner,
-    Image
+    Image,
+    mergeClasses,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 import inputImage from '../../assets/input.png';
@@ -39,7 +40,8 @@ export type RequestParametersMode = 'read' | 'edit' | 'create';
 
 export const RequestParameterDetails: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage } = useAppStore();
+    const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage, setEditingComponent, editingComponent } = useAppStore();
+    const isLocked = editingComponent !== 'none' && editingComponent !== 'requestparameter';
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiRequestParameterCreateable | null>(null);
@@ -89,6 +91,7 @@ export const RequestParameterDetails: React.FC = () => {
         setSelectedRequestParameterId(null);
         setCreateData(getRequestParameterCreateTemplate(selectedCustomApiId!));
         setMode('create');
+        setEditingComponent('requestparameter');
     };
 
 
@@ -98,6 +101,7 @@ export const RequestParameterDetails: React.FC = () => {
         }
         setEditedData(selectedRequestParameter);
         setMode('edit');
+        setEditingComponent('requestparameter');
     };
 
     const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => {
@@ -118,6 +122,7 @@ export const RequestParameterDetails: React.FC = () => {
             setEditedData(selectedRequestParameter);
         }
         setMode('read');
+        setEditingComponent('none');
     };
 
     const handleSave = async () => {
@@ -169,6 +174,7 @@ export const RequestParameterDetails: React.FC = () => {
             }
 
             setMode('read');
+            setEditingComponent('none');
         } catch (error) {
             console.error('Error saving Request Parameter', error);
         }
@@ -300,7 +306,7 @@ export const RequestParameterDetails: React.FC = () => {
 
     return (
         <>
-            <Card className={styles.card}>
+            <Card className={mergeClasses(styles.card, isLocked && styles.lockedSection)}>
                 <CardHeader 
                     header={
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
