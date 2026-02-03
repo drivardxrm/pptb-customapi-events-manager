@@ -65,6 +65,12 @@ export const useStyles = makeStyles({
     fontSize: "24px",
     color: tokens.colorBrandForeground1,
   },
+  messageBarContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalS,
+    width: '100%',
+  },
   messageBarGroup: {
     padding: tokens.spacingHorizontalSNudge,
     display: "flex",
@@ -72,6 +78,12 @@ export const useStyles = makeStyles({
     marginTop: "5px",
     gap: "5px",
     overflow: "auto",
+    flex: 1,
+  },
+  connectionTag: {
+    marginLeft: 'auto',
+    marginRight: tokens.spacingHorizontalM,
+    flexShrink: 0,
   },
   card: {
       width: '100%',

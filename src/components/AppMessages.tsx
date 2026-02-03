@@ -6,9 +6,12 @@ import {
     MessageBarActions,
     MessageBarGroup,
     Button,
+    Tag,
 } from "@fluentui/react-components";
 import {
     DismissRegular,
+    PlugConnectedCheckmarkRegular,
+    PlugDisconnectedRegular,
     Settings24Filled,
 } from "@fluentui/react-icons";
 import { useStyles } from "../styles/Styles";
@@ -18,7 +21,7 @@ import { useAppStore } from "../store/useAppStore";
 export const AppMessages: React.FC = () => {
     const styles = useStyles();
     const { appsettings } = useAppSettings();
-    const { globalMessages, setGlobalMessage, clearGlobalMessage, setSelectedNavItem } = useAppStore();
+    const { globalMessages, setGlobalMessage, clearGlobalMessage, setSelectedNavItem, connection } = useAppStore();
 
     // Manage publisher warning message via global store
     useEffect(() => {
@@ -41,41 +44,48 @@ export const AppMessages: React.FC = () => {
 
     const messages = Object.entries(globalMessages);
 
-    if (messages.length === 0) {
-        return null;
-    }
-
     return (
-        <MessageBarGroup className={styles.messageBarGroup}>
-            {messages.map(([id, message]) => (
-                <MessageBar intent={message.intent} key={id}>
-                    <MessageBarBody>
-                        <MessageBarTitle>{message.title}</MessageBarTitle>
-                        {message.body}
-                    </MessageBarBody>
-                    <MessageBarActions
-                        containerAction={
-                            message.dismissable !== false ? (
+        <div className={styles.messageBarContainer}>
+            {messages.length > 0 && (
+                <MessageBarGroup className={styles.messageBarGroup}>
+                {messages.map(([id, message]) => (
+                    <MessageBar intent={message.intent} key={id}>
+                        <MessageBarBody>
+                            <MessageBarTitle>{message.title}</MessageBarTitle>
+                            {message.body}
+                        </MessageBarBody>
+                        <MessageBarActions
+                            containerAction={
+                                message.dismissable !== false ? (
+                                    <Button
+                                        appearance="transparent"
+                                        aria-label="Dismiss"
+                                        icon={<DismissRegular />}
+                                        onClick={() => clearGlobalMessage(id)}
+                                    />
+                                ) : undefined
+                            }
+                        >
+                            {message.action && (
                                 <Button
-                                    appearance="transparent"
-                                    aria-label="Dismiss"
-                                    icon={<DismissRegular />}
-                                    onClick={() => clearGlobalMessage(id)}
-                                />
-                            ) : undefined
-                        }
-                    >
-                        {message.action && (
-                            <Button
-                                icon={message.action.icon}
-                                onClick={message.action.onClick}
-                            >
-                                {message.action.label}
-                            </Button>
-                        )}
-                    </MessageBarActions>
-                </MessageBar>
-            ))}
-        </MessageBarGroup>
+                                    icon={message.action.icon}
+                                    onClick={message.action.onClick}
+                                >
+                                    {message.action.label}
+                                </Button>
+                            )}
+                        </MessageBarActions>
+                    </MessageBar>
+                ))}
+                </MessageBarGroup>
+            )}
+            <Tag
+                className={styles.connectionTag}
+                appearance="outline"
+                icon={connection ? <PlugConnectedCheckmarkRegular /> : <PlugDisconnectedRegular />}  
+            >
+                {connection ? connection.name : 'Not connected'}
+            </Tag>
+        </div>
     );
 };
