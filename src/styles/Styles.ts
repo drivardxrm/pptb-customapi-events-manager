@@ -83,6 +83,7 @@ export const useStyles = makeStyles({
   connectionTag: {
     marginLeft: 'auto',
     marginRight: tokens.spacingHorizontalM,
+    marginTop: tokens.spacingHorizontalSNudge,
     flexShrink: 0,
   },
   card: {
