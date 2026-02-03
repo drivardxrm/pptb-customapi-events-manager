@@ -105,7 +105,25 @@ export const useAppStore = create<AppState>((set, _get) => ({
         })),
 
         // Connection actions
-        setConnection: (connection) => set({ connection }),
+        setConnection: (connection) => {
+            const currentConnectionId = _get().connection?.id;
+            const newConnectionId = connection?.id;
+            
+            // Only reset selections if connection ID actually changed
+            if (currentConnectionId !== newConnectionId) {
+                set({ 
+                    connection,
+                    selectedSolutionId: null,
+                    selectedCustomApiId: null,
+                    selectedCatalogId: null,
+                    selectedRequestParameterId: null,
+                    selectedResponsePropertyId: null,
+                    selectedPublisherId: null,
+                });
+            } else {
+                set({ connection });
+            }
+        },
         
         setIsLoadingConnection: (isLoading) => set({ isLoadingConnection: isLoading }),
 

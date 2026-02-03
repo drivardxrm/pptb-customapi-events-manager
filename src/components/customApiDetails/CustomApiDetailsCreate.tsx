@@ -96,10 +96,10 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
 
     // sets the publisher from settings
     useEffect(() => {
-        if (!selectedPublisherId && !settingsQuery.isFetching && settingsQuery.appsettings?.defaultPublisherId ) {
-            setSelectedPublisherId(settingsQuery.appsettings?.defaultPublisherId);
+        if (!settingsQuery.isFetching && settingsQuery.appsettings?.defaultPublisherId) {
+            setSelectedPublisherId(settingsQuery.appsettings.defaultPublisherId);
         }
-    }, [selectedPublisherId, settingsQuery, setSelectedPublisherId]);
+    }, [settingsQuery.isFetching, settingsQuery.appsettings?.defaultPublisherId, setSelectedPublisherId]);
 
     // useMemo to get the prefix of the selected publisher
     const selectedPublisherPrefix = useMemo(() => {
