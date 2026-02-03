@@ -7,6 +7,7 @@ import {
     MessageBarGroup,
     Button,
     Tag,
+    Tooltip,
 } from "@fluentui/react-components";
 import {
     DismissRegular,
@@ -79,13 +80,27 @@ export const AppMessages: React.FC = () => {
                 ))}
                 </MessageBarGroup>
             )}
-            <Tag
-                className={styles.connectionTag}
-                appearance="outline"
-                icon={connection ? <PlugConnectedCheckmarkRegular /> : <PlugDisconnectedRegular />}  
+            <Tooltip
+                content={
+                    connection ? (
+                        <div>
+                            <div>{connection.name}</div>
+                            <div>{connection.url}</div>
+                            <div>{connection.environment}</div>
+                        </div>
+                    ) : 'No active connection'
+                }
+                relationship="description"
+                positioning="below"
             >
-                {connection ? connection.name : 'Not connected'}
-            </Tag>
+                <Tag
+                    className={styles.connectionTag}
+                    appearance="outline"
+                    icon={connection ? <PlugConnectedCheckmarkRegular /> : <PlugDisconnectedRegular />}  
+                >
+                    {connection ? connection.name : 'Not connected'}
+                </Tag>
+            </Tooltip>
         </div>
     );
 };
