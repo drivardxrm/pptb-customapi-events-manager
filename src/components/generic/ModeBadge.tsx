@@ -1,10 +1,10 @@
 import React from 'react';
 import { Badge } from '@fluentui/react-components';
-import { EyeLinesRegular, EditLineHorizontal3Regular, AddSquareRegular } from '@fluentui/react-icons';
+import { EyeRegular, EditLineHorizontal3Regular, AddSquareRegular } from '@fluentui/react-icons';
 
 export type Mode = 'read' | 'edit' | 'create';
 
-interface ModeChipBadgeProps {
+interface ModeBadgeProps {
     mode: Mode;
     size?: 'small' | 'medium' | 'large' | 'extra-large';
 }
@@ -16,11 +16,11 @@ const getModeConfig = (mode: Mode) => {
         case 'create':
             return { label: 'Create mode', color: 'success' as const, icon: <AddSquareRegular /> };
         default:
-            return { label: 'Read mode', color: 'informative' as const, icon: <EyeLinesRegular /> };
+            return { label: 'Read mode', color: 'informative' as const, icon: <EyeRegular /> };
     }
 };
 
-export const ModeChipBadge: React.FC<ModeChipBadgeProps> = ({ mode, size = 'large' }) => {
+export const ModeBadge: React.FC<ModeBadgeProps> = ({ mode, size = 'large' }) => {
     const config = getModeConfig(mode);
     
     return (

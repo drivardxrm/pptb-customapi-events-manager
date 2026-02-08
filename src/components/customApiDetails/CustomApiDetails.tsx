@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Activity } from 'react';
-import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, LockOpen16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
+import { Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
@@ -15,7 +15,8 @@ import { CustomApiSelector } from '../CustomApiSelector';
 import { ResponsePropertyDetails } from '../responsePropertyDetails/ResponsePropertyDetails';
 import { ValidationStatus } from '../../utils/validation';
 import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
-import { ModeChipBadge } from '../generic/ModeChipBadge';
+import { ModeBadge } from '../generic/ModeBadge';
+import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 
 
 
@@ -348,17 +349,9 @@ export const CustomApiDetails: React.FC = () => {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                                     <h3>{headerTitle}</h3>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <ModeChipBadge mode={mode} />
+                                        <ModeBadge mode={mode} />
                                         {selectedCustomApi && (
-                                            <Badge 
-                                                appearance="outline" 
-                                                color={selectedCustomApi.ismanaged ? 'informative' : 'subtle'}
-                                                shape="rounded"
-                                                icon={selectedCustomApi.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />}
-                                                size='large'
-                                            >
-                                                {selectedCustomApi.ismanaged ? 'Managed' : 'Unmanaged'}
-                                            </Badge>
+                                            <ComponentStateBadge isManaged={selectedCustomApi.ismanaged} />
                                         )}
                                     </div>
                                 </div>
