@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Activity } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, LockOpen16Regular, AddCircleColor, DismissCircleColor, EyeLinesRegular, EditLineHorizontal3Regular, AddSquareRegular } from '@fluentui/react-icons';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, LockOpen16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
@@ -15,6 +15,7 @@ import { CustomApiSelector } from '../CustomApiSelector';
 import { ResponsePropertyDetails } from '../responsePropertyDetails/ResponsePropertyDetails';
 import { ValidationStatus } from '../../utils/validation';
 import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
+import { ModeChipBadge } from '../generic/ModeChipBadge';
 
 
 
@@ -230,16 +231,6 @@ export const CustomApiDetails: React.FC = () => {
 
 
     const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
-    const headerChip = (() => {
-        switch (mode) {
-            case 'edit':
-                return { label: 'Edit mode', color: 'warning' as const, icon: <EditLineHorizontal3Regular /> };
-            case 'create':
-                return { label: 'Create mode', color: 'success' as const, icon: <AddSquareRegular /> };
-            default:
-                return { label: 'Read mode', color: 'informative' as const, icon: <EyeLinesRegular /> };
-        }
-    })();
 
     const headerDescription = mode === 'create' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -357,9 +348,7 @@ export const CustomApiDetails: React.FC = () => {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                                     <h3>{headerTitle}</h3>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <Badge appearance="tint" color={headerChip.color} shape="rounded" icon={headerChip.icon} size='large'>
-                                            {headerChip.label}
-                                        </Badge>
+                                        <ModeChipBadge mode={mode} />
                                         {selectedCustomApi && (
                                             <Badge 
                                                 appearance="outline" 

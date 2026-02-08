@@ -1,6 +1,5 @@
 import React, { Activity, useCallback, useEffect, useState } from 'react';
 import {  
-    Badge,
     Button,
     Card,
     CardHeader,
@@ -29,6 +28,7 @@ import { RequestParameterCreate } from './RequestParameterCreate';
 import { RequestParameterCreateDialog } from './RequestParameterCreateDialog';
 import { RequestParameterDeleteDialog } from './RequestParameterDeleteDialog';
 import { ValidationStatus } from '../../utils/validation';
+import { ModeChipBadge } from '../generic/ModeChipBadge';
 import { useCustomApis } from '../../hooks/useCustomApis';
 
 
@@ -226,17 +226,6 @@ export const RequestParameterDetails: React.FC = () => {
         return <></>;
     })();
 
-    const headerChip = (() => {
-        switch (mode) {
-            case 'edit':
-                return { label: 'Edit mode', color: 'warning' as const };
-            case 'create':
-                return { label: 'Create mode', color: 'success' as const };
-            default:
-                return { label: 'Read mode', color: 'informative' as const };
-        }
-    })();
-
     const headerActions = (() => {
         
        
@@ -318,9 +307,7 @@ export const RequestParameterDetails: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                                 <Image alt="Request Parameters" src={inputImage} height={40} width={40} />
                                 <h3 style={{ margin: 0 }}>Request Parameters (Input)</h3>
-                                <Badge appearance="tint" color={headerChip.color} shape="rounded">
-                                    {headerChip.label}
-                                </Badge>
+                                <ModeChipBadge mode={mode} />
                             </div>
                         </div>
                     }
