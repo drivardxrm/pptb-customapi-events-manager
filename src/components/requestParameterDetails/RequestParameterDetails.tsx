@@ -229,11 +229,11 @@ export const RequestParameterDetails: React.FC = () => {
     const headerChip = (() => {
         switch (mode) {
             case 'edit':
-                return { label: 'Editing', color: 'warning' as const };
+                return { label: 'Edit mode', color: 'warning' as const };
             case 'create':
                 return { label: 'Create mode', color: 'success' as const };
             default:
-                return { label: 'Read-only', color: 'informative' as const };
+                return { label: 'Read mode', color: 'informative' as const };
         }
     })();
 

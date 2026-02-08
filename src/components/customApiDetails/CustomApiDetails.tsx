@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Activity } from 'react';
 import { Badge, Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, LockOpen16Regular, AddCircleColor, DismissCircleColor, EyeLinesRegular, EditLineHorizontal3Regular, AddSquareRegular } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
@@ -233,11 +233,11 @@ export const CustomApiDetails: React.FC = () => {
     const headerChip = (() => {
         switch (mode) {
             case 'edit':
-                return { label: 'Editing', color: 'warning' as const };
+                return { label: 'Edit mode', color: 'warning' as const, icon: <EditLineHorizontal3Regular /> };
             case 'create':
-                return { label: 'Create mode', color: 'success' as const };
+                return { label: 'Create mode', color: 'success' as const, icon: <AddSquareRegular /> };
             default:
-                return { label: 'Read-only', color: 'informative' as const };
+                return { label: 'Read mode', color: 'informative' as const, icon: <EyeLinesRegular /> };
         }
     })();
 
@@ -356,9 +356,22 @@ export const CustomApiDetails: React.FC = () => {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                                     <h3>{headerTitle}</h3>
-                                    <Badge appearance="tint" color={headerChip.color} shape="rounded">
-                                        {headerChip.label}
-                                    </Badge>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Badge appearance="tint" color={headerChip.color} shape="rounded" icon={headerChip.icon} size='large'>
+                                            {headerChip.label}
+                                        </Badge>
+                                        {selectedCustomApi && (
+                                            <Badge 
+                                                appearance="outline" 
+                                                color={selectedCustomApi.ismanaged ? 'informative' : 'subtle'}
+                                                shape="rounded"
+                                                icon={selectedCustomApi.ismanaged ? <LockClosed16Regular /> : <LockOpen16Regular />}
+                                                size='large'
+                                            >
+                                                {selectedCustomApi.ismanaged ? 'Managed' : 'Unmanaged'}
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         }
