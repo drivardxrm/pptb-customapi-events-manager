@@ -95,12 +95,12 @@ export const CustomApiDetails: React.FC = () => {
         }
     }, [selectedNavItem, mode, selectedCustomApi, setGlobalMessage, clearGlobalMessage, setSelectedCustomApiId]);
 
-// Clear message when component unmounts
-useEffect(() => {
-    return () => {
-        clearGlobalMessage('no-customapi-selected');
-    };
-}, [clearGlobalMessage]);
+    // Clear message when component unmounts
+    useEffect(() => {
+        return () => {
+            clearGlobalMessage('no-customapi-selected');
+        };
+    }, [clearGlobalMessage]);
 
     useEffect(() => {
         if (selectedCustomApi) {
@@ -243,7 +243,6 @@ useEffect(() => {
 
     const headerDescription = mode === 'create' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {/* <h2 style={{ margin: 0 }}>Create a new Custom API</h2> */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
                 <LockClosed16Regular />
                 <span>Some fields remain immutable after creation.</span>
@@ -274,7 +273,7 @@ useEffect(() => {
             </Activity>
 
             {/* EDIT */}
-            <Activity mode={mode === 'read' && selectedCustomApi  ? 'visible' : 'hidden'}>
+            <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged  ? 'visible' : 'hidden'}>
                 <Button
                     appearance='secondary'
                     icon={<Edit24Regular />}

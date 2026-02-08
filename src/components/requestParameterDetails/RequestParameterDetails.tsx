@@ -29,6 +29,7 @@ import { RequestParameterCreate } from './RequestParameterCreate';
 import { RequestParameterCreateDialog } from './RequestParameterCreateDialog';
 import { RequestParameterDeleteDialog } from './RequestParameterDeleteDialog';
 import { ValidationStatus } from '../../utils/validation';
+import { useCustomApis } from '../../hooks/useCustomApis';
 
 
 
@@ -45,6 +46,7 @@ export const RequestParameterDetails: React.FC = () => {
     const [mode, setMode] = useState<RequestParametersMode>('read');
     const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiRequestParameterCreateable | null>(null);
+    const { customapis } = useCustomApis();
     const {requestParameters } = useCustomApiRequestParameters();
     const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
     const createCustomApiRequestParameter = useCreateCustomApiRequestParameter();
@@ -53,6 +55,9 @@ export const RequestParameterDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+
+
+    const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -196,7 +201,7 @@ export const RequestParameterDetails: React.FC = () => {
             setSelectedRequestParameterId(null);
             setShowDeleteConfirmation(false);
         } catch (error) {
-            console.error('Error deleting Custom API', error);
+            console.error('Error deleting Request Parameter', error);
         }
     };
 
@@ -237,7 +242,7 @@ export const RequestParameterDetails: React.FC = () => {
        
         return (
             <div className={styles.headerActionGroup}>
-                <Activity mode={mode === 'read' ? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged ? 'visible' : 'hidden'}>
                     <Button
                         aria-label='New Request Parameter'
                         appearance='secondary'
@@ -248,7 +253,7 @@ export const RequestParameterDetails: React.FC = () => {
                         New Request Parameter
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'read' && selectedRequestParameter? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedRequestParameter && !selectedRequestParameter.ismanaged ? 'visible' : 'hidden'}>
                      <Button
                         appearance='secondary'
                         icon={<Edit24Regular />}
@@ -258,7 +263,7 @@ export const RequestParameterDetails: React.FC = () => {
                         Edit
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'read' && selectedRequestParameter? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedRequestParameter && !selectedRequestParameter.ismanaged ? 'visible' : 'hidden'}>
                     <Button
                         appearance='secondary'
                         icon={<DismissCircleColor />}

@@ -28,6 +28,7 @@ import { ResponsePropertyRead } from './ResponsePropertyRead';
 import { ResponsePropertyCreateDialog } from './ResponsePropertyCreateDialog';
 import { ResponsePropertyDeleteDialog } from './ResponsePropertyDeleteDialog';
 import { ValidationStatus } from '../../utils/validation';
+import { useCustomApis } from '../../hooks/useCustomApis';
 
 
 
@@ -45,6 +46,7 @@ export const ResponsePropertyDetails: React.FC = () => {
     const [mode, setMode] = useState<ResponsePropertiesMode>('read');
     const [editedData, setEditedData] = useState<CustomApiResponsePropertyUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiResponsePropertyCreateable | null>(null);
+    const { customapis } = useCustomApis();
     const {responseProperties } = useCustomApiResponseProperties();
     const updateCustomApiResponseProperty = useUpdateCustomApiResponseProperty();
     const createCustomApiResponseProperty = useCreateCustomApiResponseProperty();
@@ -53,6 +55,9 @@ export const ResponsePropertyDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+
+
+    const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -236,7 +241,7 @@ export const ResponsePropertyDetails: React.FC = () => {
        
         return (
             <div className={styles.headerActionGroup}>
-                <Activity mode={mode === 'read' ? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged ? 'visible' : 'hidden'}>
                     <Button
                         aria-label='New Response Property'
                         appearance='secondary'
@@ -244,10 +249,10 @@ export const ResponsePropertyDetails: React.FC = () => {
                         onClick={handleCreate}
                         className={styles.headerActionButton}
                     >
-                        New Request Parameter
+                        New Response Property
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'read' && selectedResponseProperty? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedResponseProperty && !selectedResponseProperty.ismanaged ? 'visible' : 'hidden'}>
                      <Button
                         appearance='secondary'
                         icon={<Edit24Regular />}
@@ -257,7 +262,7 @@ export const ResponsePropertyDetails: React.FC = () => {
                         Edit
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'read' && selectedResponseProperty? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedResponseProperty && !selectedResponseProperty.ismanaged ? 'visible' : 'hidden'}>
                     <Button
                         appearance='secondary'
                         icon={<DismissCircleColor />}
