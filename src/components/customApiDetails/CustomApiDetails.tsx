@@ -234,16 +234,16 @@ export const CustomApiDetails: React.FC = () => {
     const headerTitle = mode === 'create' ? 'Create Custom API' : 'Custom API Details';
 
     const headerDescription = mode === 'create' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
+        <div className={styles.flexColumn}>
+            <div className={styles.hintTextItalic}>
                 <LockClosed16Regular />
                 <span>Some fields remain immutable after creation.</span>
             </div>
         </div>
     ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <h2 style={{ margin: 0 }}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
+        <div className={styles.flexColumn}>
+            <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+            <div className={styles.hintTextItalic}>
                 <LockClosed16Regular />
                 <span>Fields that cannot be modified after creation</span>
             </div>
@@ -345,10 +345,10 @@ export const CustomApiDetails: React.FC = () => {
                 <div className={isLocked ? styles.lockedSection : undefined}>
                     <CardHeader 
                         header={
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                            <div className={styles.cardHeaderContainer}>
+                                <div className={styles.cardHeaderRow}>
                                     <h3>{headerTitle}</h3>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div className={styles.headerBadgeGroup}>
                                         <ModeBadge mode={mode} />
                                         {selectedCustomApi && (
                                             <ComponentStateBadge isManaged={selectedCustomApi.ismanaged} />

@@ -304,10 +304,10 @@ export const RequestParameterDetails: React.FC = () => {
             <Card className={mergeClasses(styles.card, isLocked && styles.lockedSection)}>
                 <CardHeader 
                     header={
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                        <div className={styles.cardHeaderContainer}>
+                            <div className={styles.cardHeaderRow}>
                                 <Image alt="Request Parameters" src={inputImage} height={40} width={40} />
-                                <h3 style={{ margin: 0 }}>Request Parameters (Input)</h3>
+                                <h3 className={styles.headingNoMargin}>Request Parameters (Input)</h3>
                                 <ModeBadge mode={mode} />
                                 {selectedRequestParameter && (
                                     <ComponentStateBadge isManaged={selectedRequestParameter.ismanaged} />

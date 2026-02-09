@@ -188,7 +188,6 @@ function App() {
                 {/* <div className={styles.appWrapper}> */}
                     <div className={mergeClasses(styles.nav, navCollapsed && styles.navCollapsed)}>
                         <NavDrawer
-                          style={{ '--fui-NavDrawer-width': navCollapsed ? '72px' : '280px' } as React.CSSProperties}
                           tabbable
                           selectedValue={selectedNavItem}
                           onNavItemSelect={handleNavItemSelect}

@@ -16,6 +16,7 @@ import {
 import { useAppStore } from '../../store/useAppStore';
 import { CustomApi } from '../../models/CustomApi';
 import { Customapiresponsepropertiestype, CustomApiResponseProperty } from '../../models/CustomApiResponseProperty';
+import { useStyles } from '../../styles/Styles';
 
 
 
@@ -28,7 +29,7 @@ interface ResponsePropertyListProps {
 
 
 export const ResponsePropertyList: React.FC<ResponsePropertyListProps> = ({responseProperties}) => {
-    
+    const styles = useStyles();
     const { setSelectedResponsePropertyId, selectedResponsePropertyId } = useAppStore();
         
     const [selectedRows, setSelectedRows] = useState<Set<TableRowId>>(
@@ -118,7 +119,7 @@ export const ResponsePropertyList: React.FC<ResponsePropertyListProps> = ({respo
 
     
     return (
-        <div style={{ width: "450px", overflow: "auto" }}>              
+        <div className={styles.listContainer}>              
             <DataGrid
                 items={responseProperties.sort((a, b) => a.uniquename.localeCompare(b.uniquename))}
                 columns={columns}

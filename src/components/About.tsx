@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, Divider, Link, tokens } from '@fluentui/react-components';
+import { Card, CardHeader, Divider, Link } from '@fluentui/react-components';
 import { useStyles } from '../styles/Styles';
 
 export const About: React.FC = () => {
@@ -9,22 +9,22 @@ export const About: React.FC = () => {
         <Card className={styles.card}>
             <CardHeader header={<h3>About</h3>} />
             <Divider />
-            <div style={{ padding: tokens.spacingVerticalL, display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM }}>
+            <div className={styles.aboutContainer}>
                 <div>
-                    <h4 style={{ margin: '0 0 8px 0', color: '#667eea' }}>Custom API Studio</h4>
-                    <p style={{ margin: '0 0 16px 0' }}>
+                    <h4 className={styles.aboutHeading}>Custom API Studio</h4>
+                    <p className={styles.aboutTextSpaced}>
                         A comprehensive management tool for Dataverse Custom APIs built with React and Fluent UI.
                     </p>
                 </div>
                 
                 <div>
-                    <h4 style={{ margin: '0 0 8px 0', color: '#667eea' }}>Author</h4>
-                    <p style={{ margin: 0 }}>David Rivard</p>
+                    <h4 className={styles.aboutHeading}>Author</h4>
+                    <p className={styles.aboutText}>David Rivard</p>
                 </div>
                 
                 <div>
-                    <h4 style={{ margin: '0 0 8px 0', color: '#667eea' }}>Links</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <h4 className={styles.aboutHeading}>Links</h4>
+                    <div className={styles.aboutLinksContainer}>
                         <Link 
                             href="https://github.com/drivardxrm/PPTB-Dataverse-Custom-API-Manager" 
                             target="_blank"
@@ -41,19 +41,12 @@ export const About: React.FC = () => {
                 </div>
                 
                 <div>
-                    <h4 style={{ margin: '0 0 8px 0', color: '#667eea' }}>Version</h4>
-                    <p style={{ margin: 0 }}>1.0.0</p>
+                    <h4 className={styles.aboutHeading}>Version</h4>
+                    <p className={styles.aboutText}>1.0.0</p>
                 </div>
                 
-                <div style={{ 
-                    marginTop: tokens.spacingVerticalL,
-                    padding: tokens.spacingVerticalM,
-                    backgroundColor: tokens.colorNeutralBackground3,
-                    borderRadius: tokens.borderRadiusMedium,
-                    fontSize: '12px',
-                    color: tokens.colorNeutralForeground3
-                }}>
-                    <p style={{ margin: 0 }}>
+                <div className={styles.aboutFooter}>
+                    <p className={styles.aboutText}>
                         Built with React, TypeScript, Fluent UI, TanStack Query, and Zustand.
                     </p>
                 </div>

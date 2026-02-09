@@ -138,8 +138,8 @@ export const CustomApiList: React.FC = () => {
                 selectionMode="single"
                 selectedItems={selectedRows}
                 onSelectionChange={onSelectionChange}
-                getRowId={(item) => item.customapiid} // Set the key
-                style={{ minWidth: "550px" }}
+                getRowId={(item) => item.customapiid}
+                className={styles.dataGridMinWidth}
             >
                 <DataGridHeader>
                     <DataGridRow>

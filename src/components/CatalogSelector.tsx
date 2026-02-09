@@ -54,9 +54,9 @@ export const CatalogSelector: React.FC = () => {
                
                 <div className={styles.formSection}>
                     <Field label={
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className={styles.flexRowCentered}>
                             <span className={styles.semiBoldLabel}>Selected Solution</span>
-                            <div style={{ display: 'flex', gap: '4px' }}>
+                            <div className={styles.toggleGroup}>
                                 <ToggleButton
                                     appearance={showSolutions === 'all' ? 'primary' : 'secondary'}
                                     size='small'
@@ -155,9 +155,9 @@ export const CatalogSelector: React.FC = () => {
             <div className={styles.formGrid}> */}
                 <div className={styles.formSection}>
                     <Field label={
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className={styles.flexRowCentered}>
                             <span className={styles.semiBoldLabel}>Selected Catalog</span>
-                            <div style={{ display: 'flex', gap: '4px' }}>
+                            <div className={styles.toggleGroup}>
                                 <ToggleButton
                                     appearance={showCatalogs === 'all' ? 'primary' : 'secondary'}
                                     size='small'

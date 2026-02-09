@@ -8,7 +8,6 @@ import {
     Button,
     Spinner,
     Switch,
-    tokens
 } from '@fluentui/react-components';
 import { Save24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
 import { useStyles } from '../styles/Styles';
@@ -74,12 +73,7 @@ export const SettingsForm: React.FC = () => {
             <Card className={styles.card}>
                 <CardHeader header={<h3>⚙️ Settings</h3>} />
                 <Divider />
-                <div style={{ 
-                    padding: tokens.spacingVerticalM, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: tokens.spacingHorizontalM 
-                }}>
+                <div className={styles.loadingContainer}>
                     <Spinner size="small" />
                     <span>Loading settings...</span>
                 </div>
@@ -91,14 +85,9 @@ export const SettingsForm: React.FC = () => {
             <Card className={styles.card}>
                 <CardHeader header={<h3>⚙️ Settings</h3>} />
                 <Divider />
-                <div style={{
-                    padding: tokens.spacingVerticalM,
-                    backgroundColor: '#f8d7da',
-                    borderLeft: `4px solid #dc3545`,
-                    borderRadius: tokens.borderRadiusMedium
-                }}>
-                    <p style={{ margin: 0, fontWeight: 600 }}>❌ Error loading settings</p>
-                    <p style={{ margin: '8px 0 0 0' }}>{settingsQuery.error?.message}</p>
+                <div className={styles.errorContainer}>
+                    <p className={styles.errorTitle}>❌ Error loading settings</p>
+                    <p className={styles.errorMessage}>{settingsQuery.error?.message}</p>
                 </div>
             </Card>
         );
@@ -110,7 +99,7 @@ export const SettingsForm: React.FC = () => {
                     header={<h3>⚙️ Settings</h3>}
                     description="Configure default values and preferences"
                     action={
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div className={styles.flexRow}>
                             <Button 
                                 appearance="primary" 
                                 icon={isSaving ? <Spinner size="tiny" /> : <Save24Regular />}

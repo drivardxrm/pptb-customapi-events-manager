@@ -16,6 +16,7 @@ import {
 import { useAppStore } from '../../store/useAppStore';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { CustomApi } from '../../models/CustomApi';
+import { useStyles } from '../../styles/Styles';
 
 
 
@@ -28,7 +29,7 @@ interface RequestParametersListProps {
 
 
 export const RequestParametersList: React.FC<RequestParametersListProps> = ({requestParameters}) => {
-
+    const styles = useStyles();
     const { setSelectedRequestParameterId, selectedRequestParameterId } = useAppStore();
     
     const [selectedRows, setSelectedRows] = useState<Set<TableRowId>>(
@@ -137,7 +138,7 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
 
     
     return (
-        <div style={{ width: "450px", overflow: "auto" }}>              
+        <div className={styles.listContainer}>              
             <DataGrid
                 items={requestParameters.sort((a, b) => a.uniquename.localeCompare(b.uniquename))}
                 columns={columns}

@@ -303,10 +303,10 @@ export const ResponsePropertyDetails: React.FC = () => {
             <Card className={mergeClasses(styles.card, isLocked && styles.lockedSection)}>
                 <CardHeader 
                     header={
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                        <div className={styles.cardHeaderContainer}>
+                            <div className={styles.cardHeaderRow}>
                                 <Image alt="Response Properties" src={outputImage} height={40} width={40} />
-                                <h3 style={{ margin: 0 }}>Response Properties (Output)</h3>
+                                <h3 className={styles.headingNoMargin}>Response Properties (Output)</h3>
                                 <ModeBadge mode={mode} />
                                 {selectedResponseProperty && (
                                     <ComponentStateBadge isManaged={selectedResponseProperty.ismanaged} />

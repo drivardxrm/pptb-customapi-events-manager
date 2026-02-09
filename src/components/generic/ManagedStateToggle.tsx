@@ -8,6 +8,7 @@ import {
     SelectAllOffRegular,
     SelectAllOffFilled
 } from '@fluentui/react-icons';
+import { useStyles } from '../../styles/Styles';
 
 export type ManagedStateFilter = 'all' | 'unmanaged' | 'managed';
 
@@ -24,6 +25,8 @@ export const ManagedStateToggle: React.FC<ManagedStateToggleProps> = ({
     size = 'small',
     disabled = false,
 }) => {
+    const styles = useStyles();
+    
     const options: Array<{
         key: ManagedStateFilter;
         label: string;
@@ -51,7 +54,7 @@ export const ManagedStateToggle: React.FC<ManagedStateToggleProps> = ({
     ];
 
     return (
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div className={styles.toggleGroup}>
             {options.map(option => {
                 const isSelected = value === option.key;
                 return (

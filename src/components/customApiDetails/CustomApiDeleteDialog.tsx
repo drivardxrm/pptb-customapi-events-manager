@@ -136,7 +136,7 @@ export const CustomApiDeleteDialog: React.FC<CustomApiDeleteDialogProps> = ({
                             icon={isDeleting ? <Spinner size="tiny" /> : <Delete24Regular />}
                             onClick={onConfirm}
                             disabled={isDeleting}
-                            style={{ backgroundColor: isDeleting ? undefined : '#d13438' }}
+                            className={!isDeleting ? styles.deleteButton : undefined}
                         >
                             {isDeleting ? 'Deleting...' : 'Delete'}
                         </Button>
