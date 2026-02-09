@@ -115,6 +115,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setConnection: (connection) => {
             const currentConnectionId = _get().connection?.id;
             const newConnectionId = connection?.id;
+            const addLog = _get().addLog;
             
             // Only reset selections if connection ID actually changed
             if (currentConnectionId !== newConnectionId) {
@@ -127,6 +128,13 @@ export const useAppStore = create<AppState>((set, _get) => ({
                     selectedResponsePropertyId: null,
                     selectedPublisherId: null,
                 });
+                
+                // Log connection change
+                if (connection) {
+                    addLog(`Connected to ${connection.name} (${connection.url})`, 'info');
+                } else {
+                    addLog('No active connection detected', 'warning');
+                }
             } else {
                 set({ connection });
             }

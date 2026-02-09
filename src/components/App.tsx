@@ -13,8 +13,8 @@ import {
 import { 
     // ConnectedRegular, 
     // ConnectedFilled,
-    CloudArrowRightRegular,
-    CloudArrowRightFilled,
+    DeveloperBoardLightningRegular,
+    DeveloperBoardLightningFilled,
     ClipboardBulletListRegular, 
     ClipboardBulletListFilled, 
     Info24Regular,
@@ -49,15 +49,11 @@ type NavSection = 'customapi' | 'businessevent' | 'logs' | 'settings' | 'about' 
 
 
 function App() {
-    //const styles = useAppStyles();
-    const styles = useStyles();
     
-    // Zustand store
-    const {connection, isLoadingConnection, instanceId, addLog, selectedNavItem, setSelectedNavItem, setGlobalMessage, clearGlobalMessage} = useAppStore();
+    const styles = useStyles();
+    const {instanceId, addLog, selectedNavItem, setSelectedNavItem, setGlobalMessage, clearGlobalMessage} = useAppStore();
     const { appsettings } = useAppSettings();
-    // const isLoading = useAppStore((state) => state.isLoadingConnection);
-    // const instanceId = useAppStore((state) => state.instanceId);
-    // const addLog = useAppStore((state) => state.addLog);
+
 
     const [navCollapsed, setNavCollapsed] = useState(false);
     
@@ -69,7 +65,7 @@ function App() {
         label: string;
         hidden?: boolean;
     }> = [
-        { value: 'customapi', icon: <CloudArrowRightRegular className={styles.navIcon} />, iconSelected: <CloudArrowRightFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
+        { value: 'customapi', icon: <DeveloperBoardLightningRegular className={styles.navIcon} />, iconSelected: <DeveloperBoardLightningFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
         { value: 'businessevent', icon: <FlashFlowRegular className={styles.navIcon} />, iconSelected: <FlashFlowFilled className={styles.navIconSelected}/>, label: 'Business Events' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         // { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
@@ -113,16 +109,7 @@ function App() {
         addLog(`Dataverse Custom API Manager initialized (Instance: ${instanceId})`, 'success');
     }, [addLog, instanceId]);
 
-    // Log initial connection status
-    useEffect(() => {
-        if (!isLoadingConnection) {
-            if (connection) {
-                addLog(`Initial connection: ${connection.name} (${connection.url})`, 'info');
-            } else {
-                addLog('No active connection detected', 'warning');
-            }
-        }
-    }, [connection, isLoadingConnection, addLog]);
+
 
 
     const handleNavItemSelect = (
