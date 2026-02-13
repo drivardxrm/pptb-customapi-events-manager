@@ -232,7 +232,7 @@ export const RequestParameterDetails: React.FC = () => {
        
         return (
             <div className={styles.headerActionGroup}>
-                <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged ? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged && !selectedCustomApi._fxexpressionid_value ? 'visible' : 'hidden'}>
                     <Button
                         aria-label='New Request Parameter'
                         appearance='secondary'

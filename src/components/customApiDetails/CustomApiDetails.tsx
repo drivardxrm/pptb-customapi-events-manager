@@ -17,6 +17,7 @@ import { ValidationStatus } from '../../utils/validation';
 import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
 import { ModeBadge } from '../generic/ModeBadge';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
+import { PowerFxBadge } from '../generic/PowerFxBadge';
 
 
 
@@ -101,6 +102,27 @@ export const CustomApiDetails: React.FC = () => {
     useEffect(() => {
         return () => {
             clearGlobalMessage('no-customapi-selected');
+        };
+    }, [clearGlobalMessage]);
+
+    // Show warning message when selected Custom API is a Power Fx function
+    useEffect(() => {
+        if (selectedCustomApi?._fxexpressionid_value) {
+            setGlobalMessage('powerfx-warning', {
+                intent: 'warning',
+                title: 'Warning! The selected Custom API is a Power Fx Function.',
+                body: 'Limited operations are permitted. Use the Maker portal to add more Input/Output parameters or to modify the Power Fx Expression.',
+                dismissable: false,
+            });
+        } else {
+            clearGlobalMessage('powerfx-warning');
+        }
+    }, [selectedCustomApi, setGlobalMessage, clearGlobalMessage]);
+
+    // Clear Power Fx warning when component unmounts
+    useEffect(() => {
+        return () => {
+            clearGlobalMessage('powerfx-warning');
         };
     }, [clearGlobalMessage]);
 
@@ -277,7 +299,7 @@ export const CustomApiDetails: React.FC = () => {
             </Activity>
 
             {/* DELETE */}
-            <Activity mode={mode  === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged  ? 'visible' : 'hidden'}>
+            <Activity mode={mode  === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged && !selectedCustomApi._fxexpressionid_value  ? 'visible' : 'hidden'}>
                 <Button
                     appearance='secondary'
                     icon={<DismissCircleColor />}
@@ -352,6 +374,9 @@ export const CustomApiDetails: React.FC = () => {
                                         <ModeBadge mode={mode} />
                                         {selectedCustomApi && (
                                             <ComponentStateBadge isManaged={selectedCustomApi.ismanaged} />
+                                        )}
+                                        {selectedCustomApi?._fxexpressionid_value && (
+                                            <PowerFxBadge />
                                         )}
                                     </div>
                                 </div>
