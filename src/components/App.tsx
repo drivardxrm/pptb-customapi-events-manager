@@ -24,8 +24,9 @@ import {
     BugRegular,
     BugFilled,
     FlashFlowRegular,
-    FlashFlowFilled   
-    
+    FlashFlowFilled,
+    ArrowFlowDiagonalUpRightRegular,
+    ArrowFlowDiagonalUpRightFilled
 } from "@fluentui/react-icons";
 import { EventLog } from "./EventLog";
 import { useAppStore } from "../store/useAppStore";
@@ -45,7 +46,7 @@ import { AppMessages } from "./AppMessages";
 
 
 
-type NavSection = 'customapi' | 'businessevent' | 'logs' | 'settings' | 'about' | 'debug';
+type NavSection = 'customapi' | 'customapitester' | 'businessevent' | 'logs' | 'settings' | 'about' | 'debug';
 
 
 function App() {
@@ -66,6 +67,7 @@ function App() {
         hidden?: boolean;
     }> = [
         { value: 'customapi', icon: <DeveloperBoardLightningRegular className={styles.navIcon} />, iconSelected: <DeveloperBoardLightningFilled className={styles.navIconSelected}/>, label: 'Custom APIs' },
+        { value: 'customapitester', icon: <ArrowFlowDiagonalUpRightRegular className={styles.navIcon} />, iconSelected: <ArrowFlowDiagonalUpRightFilled className={styles.navIconSelected}/>, label: 'Custom API Tester' },
         { value: 'businessevent', icon: <FlashFlowRegular className={styles.navIcon} />, iconSelected: <FlashFlowFilled className={styles.navIconSelected}/>, label: 'Business Events' },
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         // { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
@@ -133,6 +135,12 @@ function App() {
                         {/* <CustomApiList/> */}
                         {/* <CustomApiSelector /> */}
                         <CustomApiDetails />
+                    </>
+                );
+            case 'customapitester':
+                return (
+                    <>
+                        {/* Custom Api Tester - Coming Soon */}
                     </>
                 );
             case 'businessevent':
