@@ -13,14 +13,18 @@ import {
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
-    DocumentBulletList24Regular
+    DocumentBulletList24Regular,
+    SquareRegular
 } from '@fluentui/react-icons';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis } from '../../hooks/useCustomApis';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
+import { useEntityRecords } from '../../hooks/useEntityRecords';
 import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
+import { Customapisbindingtype } from '../../models/CustomApi';
+import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 
 // Type for storing parameter values
 type ParameterValues = Record<string, unknown>;
@@ -186,12 +190,22 @@ export const CustomApiTester: React.FC = () => {
 
     const selectedCustomApi = customapis.find(api => api.customapiid === selectedCustomApiId);
 
+    // Check if API is bound to an entity
+    const isBoundToEntity = selectedCustomApi?.bindingtype === 1 as Customapisbindingtype;
+    const boundEntityLogicalName = isBoundToEntity ? selectedCustomApi?.boundentitylogicalname : null;
+
+    // Fetch records from the bound entity using metadata
+    const { records: boundEntityRecords, isFetching: isFetchingBoundRecords } = useEntityRecords(boundEntityLogicalName);
+
     // Store parameter values
     const [parameterValues, setParameterValues] = useState<ParameterValues>({});
+    // Store bound entity record ID
+    const [boundRecordId, setBoundRecordId] = useState<string | null>(null);
 
-    // Reset parameter values when custom API changes
+    // Reset parameter values and bound record when custom API changes
     useEffect(() => {
         setParameterValues({});
+        setBoundRecordId(null);
     }, [selectedCustomApiId]);
 
     // Sort parameters: required first, then by name
@@ -215,7 +229,7 @@ export const CustomApiTester: React.FC = () => {
 
     const handleTest = () => {
         // TODO: Implement test action
-        console.log('Test clicked', { customApi: selectedCustomApi, parameterValues });
+        console.log('Test clicked', { customApi: selectedCustomApi, boundRecordId, parameterValues });
     };
 
     return (
@@ -248,13 +262,46 @@ export const CustomApiTester: React.FC = () => {
                     />
                     <Divider />
                     
-                    {isFetching ? (
-                        <div className={styles.infoBox}>Loading parameters...</div>
-                    ) : sortedParameters.length === 0 ? (
+                    {isFetching || isFetchingBoundRecords ? (
+                        <div className={styles.infoBox}>Loading...</div>
+                    ) : !isBoundToEntity && sortedParameters.length === 0 ? (
                         <div className={styles.infoBox}>This Custom API has no request parameters.</div>
                     ) : (
                         <div className={styles.formGrid}>
                             <div className={styles.formSection}>
+                                {/* Bound Entity Record Selector */}
+                                {isBoundToEntity && boundEntityLogicalName && (
+                                    <Field
+                                        label={
+                                            <span className={styles.fieldLabelStandard}>
+                                                <span className={styles.semiBoldLabel}>
+                                                    Target Record
+                                                </span>
+                                                <Badge 
+                                                    appearance="outline" 
+                                                    size="small"
+                                                    color="severe"
+                                                    icon={<SquareRegular />}
+                                                >
+                                                    {boundEntityLogicalName}
+                                                </Badge>
+                                            </span>
+                                        }
+                                        hint={`Select a ${boundEntityLogicalName} record to execute this bound Custom API against`}
+                                        required
+                                    >
+                                        <GenericTagPicker
+                                            items={boundEntityRecords.map(record => ({
+                                                id: record.id,
+                                                displayText: record.name,
+                                            } as SelectableItem)).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                            initialValue={boundRecordId ?? ''}
+                                            onSelect={(id) => setBoundRecordId(id)}
+                                        />
+                                    </Field>
+                                )}
+                                
+                                {/* Request Parameters */}
                                 {sortedParameters.map(param => (
                                     <Field
                                         key={param.customapirequestparameterid}
