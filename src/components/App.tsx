@@ -34,6 +34,7 @@ import { useConnectionSync } from "../hooks/useConnectionSync";
 import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
+import { CustomApiTester } from "./CustomApiTester";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
@@ -138,11 +139,7 @@ function App() {
                     </>
                 );
             case 'customapitester':
-                return (
-                    <>
-                        {/* Custom Api Tester - Coming Soon */}
-                    </>
-                );
+                return <CustomApiTester />;
             case 'businessevent':
                 return (
                     <>

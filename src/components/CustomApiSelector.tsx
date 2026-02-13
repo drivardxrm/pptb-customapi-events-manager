@@ -90,7 +90,7 @@ export const CustomApiSelector: React.FC = () => {
                                                                         image: s.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
                                                                     } as SelectableItem)      
                                                                 ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
-                                //isDisabled={filter !== 'solution'} 
+                                initialValue={solutionsQuery.solutions.find(s => s.solutionid === selectedSolutionId)?.solutionid || ''}
                                 onSelect={(id) => {
                                     setSelectedSolutionId(id);
                                     if(id){
