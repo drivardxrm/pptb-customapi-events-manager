@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomApiSelector } from './CustomApiSelector';
+import { CustomApiSelector } from '../CustomApiSelector';
 
 export const CustomApiTester: React.FC = () => {
     return (

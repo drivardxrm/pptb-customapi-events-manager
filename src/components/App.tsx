@@ -34,7 +34,7 @@ import { useConnectionSync } from "../hooks/useConnectionSync";
 import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
-import { CustomApiTester } from "./CustomApiTester";
+import { CustomApiTester } from "./customApiTester/CustomApiTester";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
