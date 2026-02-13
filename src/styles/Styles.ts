@@ -419,6 +419,18 @@ export const useStyles = makeStyles({
         textAlign: 'center',
         color: tokens.colorNeutralForeground3,
     },
+    successBox: {
+        padding: tokens.spacingVerticalM,
+        backgroundColor: tokens.colorPaletteGreenBackground1,
+        borderLeft: `4px solid ${tokens.colorPaletteGreenBorder1}`,
+        borderRadius: tokens.borderRadiusMedium,
+    },
+    errorBox: {
+        padding: tokens.spacingVerticalM,
+        backgroundColor: tokens.colorPaletteRedBackground1,
+        borderLeft: `4px solid ${tokens.colorPaletteRedBorder1}`,
+        borderRadius: tokens.borderRadiusMedium,
+    },
     loadingContainer: {
         padding: tokens.spacingVerticalM,
         display: 'flex',

@@ -9,7 +9,8 @@ import {
     Switch, 
     Button,
     Tooltip,
-    Badge
+    Badge,
+    Spinner
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
@@ -184,7 +185,7 @@ const renderParameterInput = (
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId } = useAppStore();
+    const { selectedCustomApiId, addLog } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
 
@@ -201,11 +202,15 @@ export const CustomApiTester: React.FC = () => {
     const [parameterValues, setParameterValues] = useState<ParameterValues>({});
     // Store bound entity record ID
     const [boundRecordId, setBoundRecordId] = useState<string | null>(null);
+    // Execution state
+    const [isExecuting, setIsExecuting] = useState(false);
+    const [executionResult, setExecutionResult] = useState<{ success: boolean; data?: unknown; error?: string } | null>(null);
 
     // Reset parameter values and bound record when custom API changes
     useEffect(() => {
         setParameterValues({});
         setBoundRecordId(null);
+        setExecutionResult(null);
     }, [selectedCustomApiId]);
 
     // Sort parameters: required first, then by name
@@ -227,9 +232,128 @@ export const CustomApiTester: React.FC = () => {
         }));
     };
 
-    const handleTest = () => {
-        // TODO: Implement test action
-        console.log('Test clicked', { customApi: selectedCustomApi, boundRecordId, parameterValues });
+    // Build the parameters object for execution
+    const buildExecutionParameters = (): Record<string, unknown> => {
+        const params: Record<string, unknown> = {};
+
+        for (const param of requestParameters) {
+            const value = parameterValues[param.customapirequestparameterid];
+            if (value === undefined || value === null || value === '') continue;
+
+            const paramType = Customapirequestparameterstype[param.type];
+            const paramName = param.uniquename;
+
+            switch (paramType) {
+                case 'Boolean':
+                case 'Integer':
+                case 'Float':
+                case 'Decimal':
+                case 'Money':
+                case 'Picklist':
+                case 'Guid':
+                case 'String':
+                    params[paramName] = value;
+                    break;
+
+                case 'DateTime':
+                    // Convert datetime-local string to ISO format
+                    if (typeof value === 'string' && value) {
+                        params[paramName] = new Date(value).toISOString();
+                    }
+                    break;
+
+                case 'StringArray':
+                    // Parse JSON array string
+                    if (typeof value === 'string') {
+                        try {
+                            params[paramName] = JSON.parse(value);
+                        } catch {
+                            params[paramName] = value;
+                        }
+                    }
+                    break;
+
+                case 'Entity':
+                case 'EntityCollection':
+                    // Parse JSON object/array string
+                    if (typeof value === 'string') {
+                        try {
+                            params[paramName] = JSON.parse(value);
+                        } catch {
+                            params[paramName] = value;
+                        }
+                    }
+                    break;
+
+                case 'EntityReference':
+                    // Format as EntityReference
+                    const entityRef = value as { logicalname?: string; id?: string };
+                    if (entityRef.logicalname && entityRef.id) {
+                        params[paramName] = {
+                            entityLogicalName: entityRef.logicalname,
+                            id: entityRef.id
+                        };
+                    }
+                    break;
+
+                default:
+                    params[paramName] = value;
+            }
+        }
+
+        return params;
+    };
+
+    const handleTest = async () => {
+        if (!selectedCustomApi) return;
+
+        // Validate bound entity record is selected for bound APIs
+        if (isBoundToEntity && !boundRecordId) {
+            setExecutionResult({ success: false, error: 'Please select a target record for this bound Custom API' });
+            return;
+        }
+
+        setIsExecuting(true);
+        setExecutionResult(null);
+
+        try {
+            const parameters = buildExecutionParameters();
+            const operationType = selectedCustomApi.isfunction ? 'function' : 'action';
+
+            const request: {
+                operationName: string;
+                operationType: 'action' | 'function';
+                entityName?: string;
+                entityId?: string;
+                parameters?: Record<string, unknown>;
+            } = {
+                operationName: selectedCustomApi.uniquename,
+                operationType,
+            };
+
+            // Add bound entity info if applicable
+            if (isBoundToEntity && boundEntityLogicalName && boundRecordId) {
+                request.entityName = boundEntityLogicalName;
+                request.entityId = boundRecordId;
+            }
+
+            // Add parameters if any
+            if (Object.keys(parameters).length > 0) {
+                request.parameters = parameters;
+            }
+
+            addLog(`Executing Custom API '${selectedCustomApi.uniquename}'...`, 'info');
+            const result = await window.dataverseAPI.execute(request);
+
+            setExecutionResult({ success: true, data: result });
+            addLog(`Custom API '${selectedCustomApi.uniquename}' executed successfully`, 'success');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            setExecutionResult({ success: false, error: errorMessage });
+            addLog(`Custom API '${selectedCustomApi.uniquename}' execution failed: ${errorMessage}`, 'error');
+        } finally {
+            setIsExecuting(false);
+        }
     };
 
     return (
@@ -253,10 +377,11 @@ export const CustomApiTester: React.FC = () => {
                         action={
                             <Button
                                 appearance="primary"
-                                icon={<Play24Regular />}
+                                icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
                                 onClick={handleTest}
+                                disabled={isExecuting}
                             >
-                                Test
+                                {isExecuting ? 'Executing...' : 'Test'}
                             </Button>
                         }
                     />
@@ -332,6 +457,26 @@ export const CustomApiTester: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+                    )}
+                    
+                    {/* Execution Result */}
+                    {executionResult && (
+                        <>
+                            <Divider />
+                            <div className={executionResult.success ? styles.successBox : styles.errorBox}>
+                                <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
+                                {executionResult.error && <p>{executionResult.error}</p>}
+                                {executionResult.data !== undefined && (
+                                    <Textarea
+                                        appearance="filled-darker"
+                                        value={JSON.stringify(executionResult.data, null, 2)}
+                                        readOnly
+                                        resize="vertical"
+                                        rows={10}
+                                    />
+                                )}
+                            </div>
+                        </>
                     )}
                 </Card>
             )}
