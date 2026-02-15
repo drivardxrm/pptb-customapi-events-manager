@@ -406,7 +406,9 @@ export const useStyles = makeStyles({
     testerPanelContent: {
         flex: 1,
         overflowY: 'auto',
+        overflowX: 'hidden',
         padding: tokens.spacingHorizontalM,
+        wordBreak: 'break-all' as const,
     },
     testerFormSection: {
         display: 'flex',

@@ -28,6 +28,9 @@ import { Customapisbindingtype } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
+import JsonView from '@uiw/react-json-view';
+import { darkTheme } from '@uiw/react-json-view/dark';
+import { lightTheme } from '@uiw/react-json-view/light';
 
 // Type for storing parameter values
 type ParameterValues = Record<string, unknown>;
@@ -187,7 +190,7 @@ const renderParameterInput = (
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId, addLog } = useAppStore();
+    const { selectedCustomApiId, addLog, theme } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
 
@@ -496,19 +499,26 @@ export const CustomApiTester: React.FC = () => {
                                 {!executionResult ? (
                                     <div className={styles.infoBox}>Execute the Custom API to see the response</div>
                                 ) : (
-                                    <div className={executionResult.success ? styles.successBox : styles.errorBox}>
-                                        <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
-                                        {executionResult.error && <p>{executionResult.error}</p>}
+                                    <>
+                                        <div className={executionResult.success ? styles.successBox : styles.errorBox}>
+                                            <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
+                                            {executionResult.error && <p>{executionResult.error}</p>}
+                                        </div>
                                         {executionResult.data !== undefined && (
-                                            <Textarea
-                                                appearance="filled-darker"
-                                                value={JSON.stringify(executionResult.data, null, 2)}
-                                                readOnly
-                                                resize="vertical"
-                                                rows={15}
+                                            <JsonView
+                                                value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
+                                                displayDataTypes={false}
+                                                collapsed={2}
+                                                style={{
+                                                    ...(theme === 'light' ? lightTheme : darkTheme),
+                                                    wordBreak: 'break-all',
+                                                    overflow: 'auto',
+                                                    padding: '2px',
+                                                }}
+                                                shortenTextAfterLength={0}
                                             />
                                         )}
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </Card>
