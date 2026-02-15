@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
     Card, 
     CardHeader,
     Field, 
     Input, 
     Textarea, 
-    Badge
+    Badge,
+    ToggleButton
 } from '@fluentui/react-components';
 import { ArrowDownloadRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
@@ -26,6 +27,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
 }) => {
     const styles = useStyles();
     const { theme } = useAppStore();
+    const [showOdata, setShowOdata] = useState(false);
 
     // Sort response properties by name
     const sortedResponseProperties = useMemo(() => {
@@ -50,6 +52,18 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                 header={
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowDownloadRegular /> Response</span>
                 }
+                action={
+                    executionResult?.success && executionResult.data !== undefined ? (
+                        <ToggleButton
+                            size="small"
+                            appearance="subtle"
+                            checked={showOdata}
+                            onClick={() => setShowOdata(prev => !prev)}
+                        >
+                            OData
+                        </ToggleButton>
+                    ) : undefined
+                }
             />
             <div className={styles.testerPanelContent}>
                 {!executionResult ? (
@@ -58,7 +72,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                     <div className={styles.infoBox}>Execution failed. See the message above for details.</div>
                 ) : (
                     <>
-                        {executionResult.data !== undefined && (
+                        {showOdata && executionResult.data !== undefined && (
                             <JsonView
                                 value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
                                 displayDataTypes={false}

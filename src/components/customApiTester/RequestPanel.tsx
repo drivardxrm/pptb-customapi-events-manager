@@ -188,6 +188,7 @@ interface RequestPanelProps {
     parameterValues: ParameterValues;
     handleParameterChange: (paramId: string, value: unknown) => void;
     isExecuting: boolean;
+    isTestDisabled: boolean;
     onTest: () => void;
 }
 
@@ -203,6 +204,7 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
     parameterValues,
     handleParameterChange,
     isExecuting,
+    isTestDisabled,
     onTest,
 }) => {
     const styles = useStyles();
@@ -218,7 +220,7 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                         appearance="primary"
                         icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
                         onClick={onTest}
-                        disabled={isExecuting}
+                        disabled={isExecuting || isTestDisabled}
                     >
                         {isExecuting ? 'Executing...' : 'Test'}
                     </Button>

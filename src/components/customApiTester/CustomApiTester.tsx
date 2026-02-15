@@ -47,6 +47,7 @@ export const CustomApiTester: React.FC = () => {
         setBoundRecordId(null);
         setExecutionResult(null);
         clearGlobalMessage('test-execution');
+        clearGlobalMessage('test-validation');
     }, [selectedCustomApiId]);
 
     // Sort parameters: required first, then by name
@@ -60,6 +61,32 @@ export const CustomApiTester: React.FC = () => {
             return (a.displayname || a.name || '').localeCompare(b.displayname || b.name || '');
         });
     }, [requestParameters]);
+
+    // Check if all required fields are provided
+    const isRequiredMissing = useMemo(() => {
+        // Check bound entity record
+        if (isBoundToEntity && !boundRecordId) return true;
+        // Check required parameters
+        return requestParameters.some(param => {
+            if (param.isoptional) return false;
+            const value = parameterValues[param.customapirequestparameterid];
+            return value === undefined || value === null || value === '';
+        });
+    }, [isBoundToEntity, boundRecordId, requestParameters, parameterValues]);
+
+    // Show/clear AppMessage for missing required fields
+    useEffect(() => {
+        if (selectedCustomApi && isRequiredMissing) {
+            setGlobalMessage('test-validation', {
+                intent: 'warning',
+                title: 'Required Fields',
+                body: 'Please provide all required parameters before testing.',
+                dismissable: true,
+            });
+        } else {
+            clearGlobalMessage('test-validation');
+        }
+    }, [isRequiredMissing, selectedCustomApi, setGlobalMessage, clearGlobalMessage]);
 
     const handleParameterChange = (paramId: string, value: unknown) => {
         setParameterValues(prev => ({
@@ -142,18 +169,6 @@ export const CustomApiTester: React.FC = () => {
 
     const handleTest = async () => {
         if (!selectedCustomApi) return;
-
-        // Validate bound entity record is selected for bound APIs
-        if (isBoundToEntity && !boundRecordId) {
-            setExecutionResult({ success: false, error: 'Please select a target record for this bound Custom API' });
-            setGlobalMessage('test-execution', {
-                intent: 'error',
-                title: 'Validation Error',
-                body: 'Please select a target record for this bound Custom API',
-                dismissable: true,
-            });
-            return;
-        }
 
         setIsExecuting(true);
         setExecutionResult(null);
@@ -260,6 +275,7 @@ export const CustomApiTester: React.FC = () => {
                             parameterValues={parameterValues}
                             handleParameterChange={handleParameterChange}
                             isExecuting={isExecuting}
+                            isTestDisabled={isRequiredMissing}
                             onTest={handleTest}
                         />
                         <ResponsePanel
