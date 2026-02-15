@@ -196,8 +196,8 @@ export const useStyles = makeStyles({
     formGrid: {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: tokens.spacingVerticalM,
-        padding: tokens.spacingVerticalS,
+        gap: tokens.spacingVerticalS,
+        padding: tokens.spacingVerticalXS,
         flex: 1,
         minHeight: 0,
         height: '100%',
@@ -206,8 +206,8 @@ export const useStyles = makeStyles({
     formGridBig: {
         display: 'grid',
         gridTemplateColumns: 'minmax(340px, 1fr) minmax(420px, 1fr)',
-        gap: tokens.spacingVerticalM,
-        padding: tokens.spacingVerticalS,
+        gap: tokens.spacingVerticalS,
+        padding: tokens.spacingVerticalXS,
         alignItems: 'start',
     },
     formSection: {
@@ -383,6 +383,38 @@ export const useStyles = makeStyles({
     },
 
     // ===========================================
+    // TESTER PANELS
+    // ===========================================
+    testerContainer: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: tokens.spacingHorizontalS,
+        minHeight: '300px',
+    },
+    testerPanel: {
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        padding: '0 !important',
+    },
+    testerPanelHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
+    },
+    testerPanelContent: {
+        flex: 1,
+        overflowY: 'auto',
+        padding: tokens.spacingHorizontalM,
+    },
+    testerFormSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: tokens.spacingVerticalS,
+    },
+
+    // ===========================================
     // DIALOGS
     // ===========================================
     dialogSurface: {
@@ -413,26 +445,26 @@ export const useStyles = makeStyles({
     // STATUS BOXES
     // ===========================================
     infoBox: {
-        padding: tokens.spacingVerticalM,
+        padding: tokens.spacingVerticalS,
         backgroundColor: tokens.colorNeutralBackground3,
         borderRadius: tokens.borderRadiusMedium,
         textAlign: 'center',
         color: tokens.colorNeutralForeground3,
     },
     successBox: {
-        padding: tokens.spacingVerticalM,
+        padding: tokens.spacingVerticalS,
         backgroundColor: tokens.colorPaletteGreenBackground1,
         borderLeft: `4px solid ${tokens.colorPaletteGreenBorder1}`,
         borderRadius: tokens.borderRadiusMedium,
     },
     errorBox: {
-        padding: tokens.spacingVerticalM,
+        padding: tokens.spacingVerticalS,
         backgroundColor: tokens.colorPaletteRedBackground1,
         borderLeft: `4px solid ${tokens.colorPaletteRedBorder1}`,
         borderRadius: tokens.borderRadiusMedium,
     },
     loadingContainer: {
-        padding: tokens.spacingVerticalM,
+        padding: tokens.spacingVerticalS,
         display: 'flex',
         alignItems: 'center',
         gap: tokens.spacingHorizontalM,

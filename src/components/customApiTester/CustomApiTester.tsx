@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Card, 
     CardHeader,
-    Divider,
     Field, 
     Input, 
     Textarea, 
@@ -14,8 +13,9 @@ import {
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
-    DocumentBulletList24Regular,
-    SquareRegular
+    SquareRegular,
+    ArrowUploadRegular,
+    ArrowDownloadRegular
 } from '@fluentui/react-icons';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { useAppStore } from '../../store/useAppStore';
@@ -26,6 +26,8 @@ import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { Customapisbindingtype } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
+import { ComponentStateBadge } from '../generic/ComponentStateBadge';
+import { PowerFxBadge } from '../generic/PowerFxBadge';
 
 // Type for storing parameter values
 type ParameterValues = Record<string, unknown>;
@@ -361,124 +363,157 @@ export const CustomApiTester: React.FC = () => {
             <CustomApiSelector />
             
             {selectedCustomApi && (
-                <Card className={styles.card}>
-                    <CardHeader 
-                        header={
-                            <div className={styles.cardHeaderContainer}>
-                                <div className={styles.cardHeaderRow}>
-                                    <h3>Test Custom API</h3>
-                                    <Badge appearance="tint" color="informative" shape="rounded" icon={<DocumentBulletList24Regular />} size="large">
-                                        {selectedCustomApi.uniquename}
-                                    </Badge>
+                <>
+                    {/* Main Card Header */}
+                    <Card className={styles.card}>
+                        <CardHeader 
+                            header={
+                                <div className={styles.cardHeaderContainer}>
+                                    <div className={styles.cardHeaderRow}>
+                                        <h3>Test Custom API</h3>
+                                        <div className={styles.headerBadgeGroup}>
+                                            {selectedCustomApi && (
+                                                <ComponentStateBadge isManaged={selectedCustomApi.ismanaged} />
+                                            )}
+                                            {selectedCustomApi?._fxexpressionid_value && (
+                                                <PowerFxBadge />
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                        description={selectedCustomApi.description || 'Execute this Custom API with the parameters below'}
-                        action={
-                            <Button
-                                appearance="primary"
-                                icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
-                                onClick={handleTest}
-                                disabled={isExecuting}
-                            >
-                                {isExecuting ? 'Executing...' : 'Test'}
-                            </Button>
-                        }
-                    />
-                    <Divider />
-                    
-                    {isFetching || isFetchingBoundRecords ? (
-                        <div className={styles.infoBox}>Loading...</div>
-                    ) : !isBoundToEntity && sortedParameters.length === 0 ? (
-                        <div className={styles.infoBox}>This Custom API has no request parameters.</div>
-                    ) : (
-                        <div className={styles.formGrid}>
-                            <div className={styles.formSection}>
-                                {/* Bound Entity Record Selector */}
-                                {isBoundToEntity && boundEntityLogicalName && (
-                                    <Field
-                                        label={
-                                            <span className={styles.fieldLabelStandard}>
-                                                <span className={styles.semiBoldLabel}>
-                                                    Target Record
-                                                </span>
-                                                <Badge 
-                                                    appearance="outline" 
-                                                    size="small"
-                                                    color="severe"
-                                                    icon={<SquareRegular />}
-                                                >
-                                                    {boundEntityLogicalName}
-                                                </Badge>
-                                            </span>
-                                        }
-                                        hint={`Select a ${boundEntityLogicalName} record to execute this bound Custom API against`}
-                                        required
+                            }
+                            description={
+                                <div className={styles.flexColumn}>
+                                    <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+                                    {selectedCustomApi?.description && (
+                                        <p >{selectedCustomApi.description}</p>
+                                    )}
+                                </div>
+                            }
+                        />
+                    </Card>
+
+                    {/* Side by Side Request/Response */}
+                    <div className={styles.testerContainer}>
+                        {/* REQUEST PANEL */}
+                        <Card className={styles.testerPanel}>
+                            <CardHeader
+                                header={
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowUploadRegular /> Request</span>
+                                }
+                                action={
+                                    <Button
+                                        appearance="primary"
+                                        icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
+                                        onClick={handleTest}
+                                        disabled={isExecuting}
                                     >
-                                        <GenericTagPicker
-                                            items={boundEntityRecords.map(record => ({
-                                                id: record.id,
-                                                displayText: record.name,
-                                            } as SelectableItem)).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                            initialValue={boundRecordId ?? ''}
-                                            onSelect={(id) => setBoundRecordId(id)}
-                                        />
-                                    </Field>
-                                )}
-                                
-                                {/* Request Parameters */}
-                                {sortedParameters.map(param => (
-                                    <Field
-                                        key={param.customapirequestparameterid}
-                                        label={
-                                            <span className={styles.fieldLabelStandard}>
-                                                <span className={styles.semiBoldLabel}>
-                                                    {param.displayname || param.name}
-                                                </span>
-                                                <Badge 
-                                                    appearance="outline" 
-                                                    size="small"
-                                                    color="informative"
-                                                >
-                                                    {Customapirequestparameterstype[param.type]}
-                                                </Badge>
-                                            </span>
-                                        }
-                                        hint={param.description}
-                                        required={!param.isoptional}
-                                    >
-                                        {renderParameterInput(
-                                            param,
-                                            parameterValues[param.customapirequestparameterid],
-                                            handleParameterChange,
-                                            styles
+                                        {isExecuting ? 'Executing...' : 'Test'}
+                                    </Button>
+                                }
+                            />
+                            <div className={styles.testerPanelContent}>
+                                {isFetching || isFetchingBoundRecords ? (
+                                    <div className={styles.infoBox}>Loading...</div>
+                                ) : !isBoundToEntity && sortedParameters.length === 0 ? (
+                                    <div className={styles.infoBox}>This Custom API has no request parameters.</div>
+                                ) : (
+                                    <div className={styles.testerFormSection}>
+                                        {/* Bound Entity Record Selector */}
+                                        {isBoundToEntity && boundEntityLogicalName && (
+                                        <Field
+                                                label={
+                                                    <span className={styles.fieldLabelStandard}>
+                                                        <span className={styles.semiBoldLabel}>
+                                                            Target Record
+                                                        </span>
+                                                        <Badge 
+                                                            appearance="outline" 
+                                                            size="small"
+                                                            color="severe"
+                                                            icon={<SquareRegular />}
+                                                        >
+                                                            {boundEntityLogicalName}
+                                                        </Badge>
+                                                    </span>
+                                                }
+                                                hint={`Select a ${boundEntityLogicalName} record to execute this bound Custom API against`}
+                                                required
+                                            >
+                                                <GenericTagPicker
+                                                    items={boundEntityRecords.map(record => ({
+                                                        id: record.id,
+                                                        displayText: record.name,
+                                                    } as SelectableItem)).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                                    initialValue={boundRecordId ?? ''}
+                                                    onSelect={(id) => setBoundRecordId(id)}
+                                                />
+                                            </Field>
                                         )}
-                                    </Field>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Execution Result */}
-                    {executionResult && (
-                        <>
-                            <Divider />
-                            <div className={executionResult.success ? styles.successBox : styles.errorBox}>
-                                <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
-                                {executionResult.error && <p>{executionResult.error}</p>}
-                                {executionResult.data !== undefined && (
-                                    <Textarea
-                                        appearance="filled-darker"
-                                        value={JSON.stringify(executionResult.data, null, 2)}
-                                        readOnly
-                                        resize="vertical"
-                                        rows={10}
-                                    />
+                                        
+                                        {/* Request Parameters */}
+                                        {sortedParameters.map(param => (
+                                            <Field
+                                                key={param.customapirequestparameterid}
+                                                label={
+                                                    <span className={styles.fieldLabelStandard}>
+                                                        <span className={styles.semiBoldLabel}>
+                                                            {param.displayname || param.name}
+                                                        </span>
+                                                        <Badge 
+                                                            appearance="outline" 
+                                                            size="small"
+                                                            color="informative"
+                                                        >
+                                                            {Customapirequestparameterstype[param.type]}
+                                                        </Badge>
+                                                    </span>
+                                                }
+                                                hint={param.description}
+                                                required={!param.isoptional}
+                                            >
+                                                {renderParameterInput(
+                                                    param,
+                                                    parameterValues[param.customapirequestparameterid],
+                                                    handleParameterChange,
+                                                    styles
+                                                )}
+                                            </Field>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
-                        </>
-                    )}
-                </Card>
+                        </Card>
+
+                        {/* RESPONSE PANEL */}
+                        <Card className={styles.testerPanel}>
+                            <CardHeader
+                                header={
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowDownloadRegular /> Response</span>
+                                }
+                            />
+                            <div className={styles.testerPanelContent}>
+                                {!executionResult ? (
+                                    <div className={styles.infoBox}>Execute the Custom API to see the response</div>
+                                ) : (
+                                    <div className={executionResult.success ? styles.successBox : styles.errorBox}>
+                                        <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
+                                        {executionResult.error && <p>{executionResult.error}</p>}
+                                        {executionResult.data !== undefined && (
+                                            <Textarea
+                                                appearance="filled-darker"
+                                                value={JSON.stringify(executionResult.data, null, 2)}
+                                                readOnly
+                                                resize="vertical"
+                                                rows={15}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    </div>
+                </>
             )}
             
             {!selectedCustomApi && (
