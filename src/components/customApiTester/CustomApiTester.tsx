@@ -21,9 +21,11 @@ import { CustomApiSelector } from '../CustomApiSelector';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis } from '../../hooks/useCustomApis';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
+import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 import { useEntityRecords } from '../../hooks/useEntityRecords';
 import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
+import { Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
 import { Customapisbindingtype } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
@@ -193,6 +195,7 @@ export const CustomApiTester: React.FC = () => {
     const { selectedCustomApiId, addLog, theme } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
+    const { responseProperties } = useCustomApiResponseProperties();
 
     const selectedCustomApi = customapis.find(api => api.customapiid === selectedCustomApiId);
 
@@ -229,6 +232,23 @@ export const CustomApiTester: React.FC = () => {
             return (a.displayname || a.name || '').localeCompare(b.displayname || b.name || '');
         });
     }, [requestParameters]);
+
+    // Sort response properties by name
+    const sortedResponseProperties = useMemo(() => {
+        return [...responseProperties].sort((a, b) => 
+            (a.displayname || a.name || '').localeCompare(b.displayname || b.name || '')
+        );
+    }, [responseProperties]);
+
+    // Extract response property value from execution result
+    const getResponsePropertyValue = (uniquename: string): string => {
+        if (!executionResult?.data || typeof executionResult.data !== 'object') return '';
+        const data = executionResult.data as Record<string, unknown>;
+        const value = data[uniquename];
+        if (value === undefined || value === null) return '';
+        if (typeof value === 'object') return JSON.stringify(value, null, 2);
+        return String(value);
+    };
 
     const handleParameterChange = (paramId: string, value: unknown) => {
         setParameterValues(prev => ({
@@ -517,6 +537,53 @@ export const CustomApiTester: React.FC = () => {
                                                 }}
                                                 shortenTextAfterLength={0}
                                             />
+                                        )}
+                                        {/* Response Properties */}
+                                        {executionResult.success && sortedResponseProperties.length > 0 && (
+                                            <div className={styles.testerFormSection} style={{ marginTop: '12px' }}>
+                                                {sortedResponseProperties.map(prop => {
+                                                    const propType = Customapiresponsepropertiestype[prop.type];
+                                                    const value = getResponsePropertyValue(prop.uniquename);
+                                                    const isComplexType = propType === 'Entity' || propType === 'EntityCollection' || propType === 'StringArray' || propType === 'EntityReference';
+
+                                                    return (
+                                                        <Field
+                                                            key={prop.customapiresponsepropertyid}
+                                                            label={
+                                                                <span className={styles.fieldLabelStandard}>
+                                                                    <span className={styles.semiBoldLabel}>
+                                                                        {prop.displayname || prop.name}
+                                                                    </span>
+                                                                    <Badge 
+                                                                        appearance="outline" 
+                                                                        size="small"
+                                                                        color="informative"
+                                                                    >
+                                                                        {propType}
+                                                                    </Badge>
+                                                                </span>
+                                                            }
+                                                            hint={prop.description}
+                                                        >
+                                                            {isComplexType ? (
+                                                                <Textarea
+                                                                    appearance="filled-darker"
+                                                                    value={value}
+                                                                    readOnly
+                                                                    resize="vertical"
+                                                                    rows={3}
+                                                                />
+                                                            ) : (
+                                                                <Input
+                                                                    appearance="filled-darker"
+                                                                    value={value}
+                                                                    readOnly
+                                                                />
+                                                            )}
+                                                        </Field>
+                                                    );
+                                                })}
+                                            </div>
                                         )}
                                     </>
                                 )}
