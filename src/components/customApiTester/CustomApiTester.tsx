@@ -28,6 +28,7 @@ import { Customapisbindingtype } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
+import { DatePicker } from '@fluentui/react-datepicker-compat';
 import JsonView from '@uiw/react-json-view';
 import { darkTheme } from '@uiw/react-json-view/dark';
 import { lightTheme } from '@uiw/react-json-view/light';
@@ -89,12 +90,11 @@ const renderParameterInput = (
 
         case 'DateTime':
             return (
-                <Input
+                <DatePicker
                     appearance='filled-darker'
-                    type="datetime-local"
-                    value={value as string ?? ''}
-                    onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
-                    required={!param.isoptional}
+                    value={value as Date | null ?? null}
+                    onSelectDate={(date) => onChange(param.customapirequestparameterid, date ?? undefined)}
+                    placeholder="Select a date..."
                 />
             );
 
@@ -261,9 +261,9 @@ export const CustomApiTester: React.FC = () => {
                     break;
 
                 case 'DateTime':
-                    // Convert datetime-local string to ISO format
-                    if (typeof value === 'string' && value) {
-                        params[paramName] = new Date(value).toISOString();
+                    // Convert Date object to ISO format
+                    if (value instanceof Date) {
+                        params[paramName] = value.toISOString();
                     }
                     break;
 
