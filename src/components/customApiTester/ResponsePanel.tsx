@@ -54,12 +54,10 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
             <div className={styles.testerPanelContent}>
                 {!executionResult ? (
                     <div className={styles.infoBox}>Execute the Custom API to see the response</div>
+                ) : !executionResult.success ? (
+                    <div className={styles.infoBox}>Execution failed. See the message above for details.</div>
                 ) : (
                     <>
-                        <div className={executionResult.success ? styles.successBox : styles.errorBox}>
-                            <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
-                            {executionResult.error && <p>{executionResult.error}</p>}
-                        </div>
                         {executionResult.data !== undefined && (
                             <JsonView
                                 value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}

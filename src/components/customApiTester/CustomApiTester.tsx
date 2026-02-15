@@ -19,7 +19,7 @@ import { ResponsePanel } from './ResponsePanel';
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId, addLog } = useAppStore();
+    const { selectedCustomApiId, addLog, setGlobalMessage, clearGlobalMessage } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
     const { responseProperties } = useCustomApiResponseProperties();
@@ -46,6 +46,7 @@ export const CustomApiTester: React.FC = () => {
         setParameterValues({});
         setBoundRecordId(null);
         setExecutionResult(null);
+        clearGlobalMessage('test-execution');
     }, [selectedCustomApiId]);
 
     // Sort parameters: required first, then by name
@@ -145,11 +146,18 @@ export const CustomApiTester: React.FC = () => {
         // Validate bound entity record is selected for bound APIs
         if (isBoundToEntity && !boundRecordId) {
             setExecutionResult({ success: false, error: 'Please select a target record for this bound Custom API' });
+            setGlobalMessage('test-execution', {
+                intent: 'error',
+                title: 'Validation Error',
+                body: 'Please select a target record for this bound Custom API',
+                dismissable: true,
+            });
             return;
         }
 
         setIsExecuting(true);
         setExecutionResult(null);
+        clearGlobalMessage('test-execution');
 
         try {
             const parameters = buildExecutionParameters();
@@ -182,10 +190,22 @@ export const CustomApiTester: React.FC = () => {
 
             setExecutionResult({ success: true, data: result });
             addLog(`Custom API '${selectedCustomApi.uniquename}' executed successfully`, 'success');
+            setGlobalMessage('test-execution', {
+                intent: 'success',
+                title: 'Execution Successful',
+                body: `Custom API '${selectedCustomApi.uniquename}' executed successfully`,
+                dismissable: true,
+            });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             setExecutionResult({ success: false, error: errorMessage });
             addLog(`Custom API '${selectedCustomApi.uniquename}' execution failed: ${errorMessage}`, 'error');
+            setGlobalMessage('test-execution', {
+                intent: 'error',
+                title: 'Execution Failed',
+                body: `Custom API '${selectedCustomApi.uniquename}': ${errorMessage}`,
+                dismissable: true,
+            });
         } finally {
             setIsExecuting(false);
         }
