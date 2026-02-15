@@ -1,22 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Card, 
-    CardHeader,
-    Field, 
-    Input, 
-    Textarea, 
-    Switch, 
-    Button,
-    Tooltip,
-    Badge,
-    Spinner
+    CardHeader
 } from '@fluentui/react-components';
-import { 
-    Play24Regular,
-    SquareRegular,
-    ArrowUploadRegular,
-    ArrowDownloadRegular
-} from '@fluentui/react-icons';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis } from '../../hooks/useCustomApis';
@@ -24,175 +10,16 @@ import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestPa
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 import { useEntityRecords } from '../../hooks/useEntityRecords';
 import { useStyles } from '../../styles/Styles';
-import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
-import { Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
+import { Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { Customapisbindingtype } from '../../models/CustomApi';
-import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
-import { DatePicker } from '@fluentui/react-datepicker-compat';
-import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
-import { lightTheme } from '@uiw/react-json-view/light';
-
-// Type for storing parameter values
-type ParameterValues = Record<string, unknown>;
-
-// Render appropriate input based on parameter type
-const renderParameterInput = (
-    param: CustomApiRequestParameter,
-    value: unknown,
-    onChange: (paramId: string, value: unknown) => void,
-    styles: ReturnType<typeof useStyles>
-): React.ReactNode => {
-    const paramType = Customapirequestparameterstype[param.type];
-
-    switch (paramType) {
-        case 'Boolean':
-            return (
-                <Tooltip content={value ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <Switch
-                        checked={value as boolean ?? false}
-                        onChange={(_, data) => onChange(param.customapirequestparameterid, data.checked)}
-                    />
-                </Tooltip>
-            );
-
-        case 'Integer':
-        case 'Picklist':
-            return (
-                <Input
-                    appearance='filled-darker'
-                    type="number"
-                    value={value?.toString() ?? ''}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        onChange(param.customapirequestparameterid, val === '' ? undefined : parseInt(val, 10));
-                    }}
-                    required={!param.isoptional}
-                />
-            );
-
-        case 'Float':
-        case 'Decimal':
-        case 'Money':
-            return (
-                <Input
-                    appearance='filled-darker'
-                    type="number"
-                    step="any"
-                    value={value?.toString() ?? ''}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        onChange(param.customapirequestparameterid, val === '' ? undefined : parseFloat(val));
-                    }}
-                    required={!param.isoptional}
-                />
-            );
-
-        case 'DateTime':
-            return (
-                <DatePicker
-                    appearance='filled-darker'
-                    value={value as Date | null ?? null}
-                    onSelectDate={(date) => onChange(param.customapirequestparameterid, date ?? undefined)}
-                    placeholder="Select a date..."
-                />
-            );
-
-        case 'Guid':
-            return (
-                <Input
-                    appearance='filled-darker'
-                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                    value={value as string ?? ''}
-                    onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
-                    required={!param.isoptional}
-                />
-            );
-
-        case 'String':
-            return (
-                <Input
-                    appearance='filled-darker'
-                    value={value as string ?? ''}
-                    onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
-                    required={!param.isoptional}
-                />
-            );
-
-        case 'StringArray':
-            return (
-                <Textarea
-                    appearance='filled-darker'
-                    placeholder='["value1", "value2"]'
-                    value={value as string ?? ''}
-                    onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
-                    resize="vertical"
-                    rows={3}
-                />
-            );
-
-        case 'Entity':
-        case 'EntityCollection':
-            return (
-                <Textarea
-                    appearance='filled-darker'
-                    placeholder={paramType === 'Entity' ? '{ "@odata.type": "...", ... }' : '[{ "@odata.type": "...", ... }]'}
-                    value={value as string ?? ''}
-                    onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
-                    resize="vertical"
-                    rows={4}
-                />
-            );
-
-        case 'EntityReference':
-            return (
-                <div className={styles.flexRow}>
-                    <Input
-                        appearance='filled-darker'
-                        placeholder={param.logicalentityname || 'logicalname'}
-                        value={(value as { logicalname?: string })?.logicalname ?? ''}
-                        onChange={(e) => {
-                            const current = (value as { logicalname?: string; id?: string }) ?? {};
-                            onChange(param.customapirequestparameterid, {
-                                ...current,
-                                logicalname: e.target.value || undefined
-                            });
-                        }}
-                        required={!param.isoptional}
-                    />
-                    <Input
-                        appearance='filled-darker'
-                        placeholder="Record ID (GUID)"
-                        value={(value as { id?: string })?.id ?? ''}
-                        onChange={(e) => {
-                            const current = (value as { logicalname?: string; id?: string }) ?? {};
-                            onChange(param.customapirequestparameterid, {
-                                ...current,
-                                id: e.target.value || undefined
-                            });
-                        }}
-                        required={!param.isoptional}
-                    />
-                </div>
-            );
-
-        default:
-            return (
-                <Input
-                    appearance='filled-darker'
-                    value={value as string ?? ''}
-                    onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
-                    required={!param.isoptional}
-                />
-            );
-    }
-};
+import { RequestPanel, ParameterValues } from './RequestPanel';
+import { ResponsePanel } from './ResponsePanel';
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId, addLog, theme } = useAppStore();
+    const { selectedCustomApiId, addLog } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
     const { responseProperties } = useCustomApiResponseProperties();
@@ -232,23 +59,6 @@ export const CustomApiTester: React.FC = () => {
             return (a.displayname || a.name || '').localeCompare(b.displayname || b.name || '');
         });
     }, [requestParameters]);
-
-    // Sort response properties by name
-    const sortedResponseProperties = useMemo(() => {
-        return [...responseProperties].sort((a, b) => 
-            (a.displayname || a.name || '').localeCompare(b.displayname || b.name || '')
-        );
-    }, [responseProperties]);
-
-    // Extract response property value from execution result
-    const getResponsePropertyValue = (uniquename: string): string => {
-        if (!executionResult?.data || typeof executionResult.data !== 'object') return '';
-        const data = executionResult.data as Record<string, unknown>;
-        const value = data[uniquename];
-        if (value === undefined || value === null) return '';
-        if (typeof value === 'object') return JSON.stringify(value, null, 2);
-        return String(value);
-    };
 
     const handleParameterChange = (paramId: string, value: unknown) => {
         setParameterValues(prev => ({
@@ -418,177 +228,24 @@ export const CustomApiTester: React.FC = () => {
 
                     {/* Side by Side Request/Response */}
                     <div className={styles.testerContainer}>
-                        {/* REQUEST PANEL */}
-                        <Card className={styles.testerPanel}>
-                            <CardHeader
-                                header={
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowUploadRegular /> Request</span>
-                                }
-                                action={
-                                    <Button
-                                        appearance="primary"
-                                        icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
-                                        onClick={handleTest}
-                                        disabled={isExecuting}
-                                    >
-                                        {isExecuting ? 'Executing...' : 'Test'}
-                                    </Button>
-                                }
-                            />
-                            <div className={styles.testerPanelContent}>
-                                {isFetching || isFetchingBoundRecords ? (
-                                    <div className={styles.infoBox}>Loading...</div>
-                                ) : !isBoundToEntity && sortedParameters.length === 0 ? (
-                                    <div className={styles.infoBox}>This Custom API has no request parameters.</div>
-                                ) : (
-                                    <div className={styles.testerFormSection}>
-                                        {/* Bound Entity Record Selector */}
-                                        {isBoundToEntity && boundEntityLogicalName && (
-                                        <Field
-                                                label={
-                                                    <span className={styles.fieldLabelStandard}>
-                                                        <span className={styles.semiBoldLabel}>
-                                                            Target Record
-                                                        </span>
-                                                        <Badge 
-                                                            appearance="outline" 
-                                                            size="small"
-                                                            color="severe"
-                                                            icon={<SquareRegular />}
-                                                        >
-                                                            {boundEntityLogicalName}
-                                                        </Badge>
-                                                    </span>
-                                                }
-                                                hint={`Select a ${boundEntityLogicalName} record to execute this bound Custom API against`}
-                                                required
-                                            >
-                                                <GenericTagPicker
-                                                    items={boundEntityRecords.map(record => ({
-                                                        id: record.id,
-                                                        displayText: record.name,
-                                                    } as SelectableItem)).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                                    initialValue={boundRecordId ?? ''}
-                                                    onSelect={(id) => setBoundRecordId(id)}
-                                                />
-                                            </Field>
-                                        )}
-                                        
-                                        {/* Request Parameters */}
-                                        {sortedParameters.map(param => (
-                                            <Field
-                                                key={param.customapirequestparameterid}
-                                                label={
-                                                    <span className={styles.fieldLabelStandard}>
-                                                        <span className={styles.semiBoldLabel}>
-                                                            {param.displayname || param.name}
-                                                        </span>
-                                                        <Badge 
-                                                            appearance="outline" 
-                                                            size="small"
-                                                            color="informative"
-                                                        >
-                                                            {Customapirequestparameterstype[param.type]}
-                                                        </Badge>
-                                                    </span>
-                                                }
-                                                hint={param.description}
-                                                required={!param.isoptional}
-                                            >
-                                                {renderParameterInput(
-                                                    param,
-                                                    parameterValues[param.customapirequestparameterid],
-                                                    handleParameterChange,
-                                                    styles
-                                                )}
-                                            </Field>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
-
-                        {/* RESPONSE PANEL */}
-                        <Card className={styles.testerPanel}>
-                            <CardHeader
-                                header={
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowDownloadRegular /> Response</span>
-                                }
-                            />
-                            <div className={styles.testerPanelContent}>
-                                {!executionResult ? (
-                                    <div className={styles.infoBox}>Execute the Custom API to see the response</div>
-                                ) : (
-                                    <>
-                                        <div className={executionResult.success ? styles.successBox : styles.errorBox}>
-                                            <h4>{executionResult.success ? 'Execution Successful' : 'Execution Failed'}</h4>
-                                            {executionResult.error && <p>{executionResult.error}</p>}
-                                        </div>
-                                        {executionResult.data !== undefined && (
-                                            <JsonView
-                                                value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
-                                                displayDataTypes={false}
-                                                collapsed={2}
-                                                style={{
-                                                    ...(theme === 'light' ? lightTheme : darkTheme),
-                                                    wordBreak: 'break-all',
-                                                    overflow: 'auto',
-                                                    padding: '2px',
-                                                }}
-                                                shortenTextAfterLength={0}
-                                            />
-                                        )}
-                                        {/* Response Properties */}
-                                        {executionResult.success && sortedResponseProperties.length > 0 && (
-                                            <div className={styles.testerFormSection} style={{ marginTop: '12px' }}>
-                                                {sortedResponseProperties.map(prop => {
-                                                    const propType = Customapiresponsepropertiestype[prop.type];
-                                                    const value = getResponsePropertyValue(prop.uniquename);
-                                                    const isComplexType = propType === 'Entity' || propType === 'EntityCollection' || propType === 'StringArray' || propType === 'EntityReference';
-
-                                                    return (
-                                                        <Field
-                                                            key={prop.customapiresponsepropertyid}
-                                                            label={
-                                                                <span className={styles.fieldLabelStandard}>
-                                                                    <span className={styles.semiBoldLabel}>
-                                                                        {prop.displayname || prop.name}
-                                                                    </span>
-                                                                    <Badge 
-                                                                        appearance="outline" 
-                                                                        size="small"
-                                                                        color="informative"
-                                                                    >
-                                                                        {propType}
-                                                                    </Badge>
-                                                                </span>
-                                                            }
-                                                            hint={prop.description}
-                                                        >
-                                                            {isComplexType ? (
-                                                                <Textarea
-                                                                    appearance="filled-darker"
-                                                                    value={value}
-                                                                    readOnly
-                                                                    resize="vertical"
-                                                                    rows={3}
-                                                                />
-                                                            ) : (
-                                                                <Input
-                                                                    appearance="filled-darker"
-                                                                    value={value}
-                                                                    readOnly
-                                                                />
-                                                            )}
-                                                        </Field>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                        </Card>
+                        <RequestPanel
+                            isFetching={isFetching}
+                            isFetchingBoundRecords={isFetchingBoundRecords}
+                            isBoundToEntity={isBoundToEntity}
+                            boundEntityLogicalName={boundEntityLogicalName}
+                            boundEntityRecords={boundEntityRecords}
+                            boundRecordId={boundRecordId}
+                            setBoundRecordId={setBoundRecordId}
+                            sortedParameters={sortedParameters}
+                            parameterValues={parameterValues}
+                            handleParameterChange={handleParameterChange}
+                            isExecuting={isExecuting}
+                            onTest={handleTest}
+                        />
+                        <ResponsePanel
+                            executionResult={executionResult}
+                            responseProperties={responseProperties}
+                        />
                     </div>
                 </>
             )}
