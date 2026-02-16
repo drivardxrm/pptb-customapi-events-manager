@@ -55,7 +55,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                 action={
                     executionResult?.success && executionResult.data !== undefined ? (
                         <ToggleButton
-                            size="medium"
+                            size="small"
                             appearance={showOdata ? 'primary' : 'secondary'}
                     
                             shape="circular"

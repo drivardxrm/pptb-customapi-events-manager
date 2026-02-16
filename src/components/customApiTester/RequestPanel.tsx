@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
     Card, 
     CardHeader,
@@ -9,17 +9,24 @@ import {
     Button,
     Tooltip,
     Badge,
-    Spinner
+    Spinner,
+    ToggleButton
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
     SquareRegular,
-    ArrowUploadRegular
+    ArrowUploadRegular,
+    CodeFilled,
+    CodeRegular
 } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
+import { useAppStore } from '../../store/useAppStore';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
+import JsonView from '@uiw/react-json-view';
+import { darkTheme } from '@uiw/react-json-view/dark';
+import { lightTheme } from '@uiw/react-json-view/light';
 
 // Type for storing parameter values
 export type ParameterValues = Record<string, unknown>;
@@ -190,6 +197,7 @@ interface RequestPanelProps {
     isExecuting: boolean;
     isExecuteDisabled: boolean;
     onExecute: () => void;
+    requestPreview: Record<string, unknown> | null;
 }
 
 export const RequestPanel: React.FC<RequestPanelProps> = ({
@@ -206,8 +214,11 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
     isExecuting,
     isExecuteDisabled,
     onExecute,
+    requestPreview,
 }) => {
     const styles = useStyles();
+    const { theme } = useAppStore();
+    const [showOdata, setShowOdata] = useState(false);
 
     return (
         <Card className={styles.testerPanel}>
@@ -216,14 +227,26 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowUploadRegular /> Request</span>
                 }
                 action={
-                    <Button
-                        appearance="primary"
-                        icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
-                        onClick={onExecute}
-                        disabled={isExecuting || isExecuteDisabled}
-                    >
-                        {isExecuting ? 'Executing...' : 'Execute'}
-                    </Button>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ToggleButton
+                            size="small"
+                            appearance={showOdata ? 'primary' : 'secondary'}
+                            shape="circular"
+                            icon={showOdata ? <CodeFilled /> : <CodeRegular />}
+                            checked={showOdata}
+                            onClick={() => setShowOdata(prev => !prev)}
+                        >
+                            OData
+                        </ToggleButton>
+                        <Button
+                            appearance="primary"
+                            icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
+                            onClick={onExecute}
+                            disabled={isExecuting || isExecuteDisabled}
+                        >
+                            {isExecuting ? 'Executing...' : 'Execute'}
+                        </Button>
+                    </span>
                 }
             />
             <div className={styles.testerPanelContent}>
@@ -294,6 +317,20 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                                 )}
                             </Field>
                         ))}
+                    </div>
+                )}
+                {showOdata && requestPreview && typeof requestPreview.parameters === 'object' && requestPreview.parameters !== null && (
+                    <div className={styles.testerFormSection}>
+                        <Field label="OData Request">
+                            <div style={{ overflow: 'auto', wordBreak: 'break-all' }}>
+                                <JsonView
+                                    value={requestPreview.parameters as object}
+                                    style={{ ...(theme === 'dark' ? darkTheme : lightTheme), overflow: 'auto', wordBreak: 'break-all' }}
+                                    displayDataTypes={false}
+                                    enableClipboard={true}
+                                />
+                            </div>
+                        </Field>
                     </div>
                 )}
             </div>

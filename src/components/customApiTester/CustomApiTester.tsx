@@ -97,6 +97,78 @@ export const CustomApiTester: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [parameterValues, boundRecordId]);
 
+    // Build a reactive preview of the request object as it would be sent
+    const requestPreview = useMemo(() => {
+        if (!selectedCustomApi) return null;
+
+        const params: Record<string, unknown> = {};
+        for (const param of requestParameters) {
+            const value = parameterValues[param.customapirequestparameterid];
+            if (value === undefined || value === null || value === '') continue;
+
+            const paramType = Customapirequestparameterstype[param.type];
+            const paramName = param.uniquename;
+
+            switch (paramType) {
+                case 'Boolean':
+                case 'Integer':
+                case 'Float':
+                case 'Decimal':
+                case 'Money':
+                case 'Picklist':
+                case 'Guid':
+                case 'String':
+                    params[paramName] = value;
+                    break;
+                case 'DateTime':
+                    if (value instanceof Date) {
+                        params[paramName] = value.toISOString();
+                    }
+                    break;
+                case 'StringArray':
+                    if (typeof value === 'string') {
+                        try { params[paramName] = JSON.parse(value); } catch { params[paramName] = value; }
+                    }
+                    break;
+                case 'Entity':
+                case 'EntityCollection':
+                    if (typeof value === 'string') {
+                        try { params[paramName] = JSON.parse(value); } catch { params[paramName] = value; }
+                    }
+                    break;
+                case 'EntityReference': {
+                    const entityRef = value as { logicalname?: string; id?: string };
+                    if (entityRef.logicalname && entityRef.id) {
+                        params[paramName] = { entityLogicalName: entityRef.logicalname, id: entityRef.id };
+                    }
+                    break;
+                }
+                default:
+                    params[paramName] = value;
+            }
+        }
+
+
+        // TODO - URL of the call can be constructed here as well for better preview, currently only parameters are shown in the preview panel
+
+        const operationType = selectedCustomApi.isfunction ? 'function' : 'action';
+        const request: Record<string, unknown> = {
+            operationName: selectedCustomApi.uniquename,
+            operationType,
+        };
+
+        if (isBoundToEntity && boundEntityLogicalName && boundRecordId) {
+            request.entityName = boundEntityLogicalName;
+            request.entityId = boundRecordId;
+        }
+
+        if (Object.keys(params).length > 0) {
+            request.parameters = params;
+        }
+
+        return request;
+    }, [selectedCustomApi, isBoundToEntity, boundEntityLogicalName, boundRecordId, parameterValues, requestParameters]);
+
     const handleParameterChange = (paramId: string, value: unknown) => {
         setParameterValues(prev => ({
             ...prev,
@@ -286,6 +358,7 @@ export const CustomApiTester: React.FC = () => {
                             isExecuting={isExecuting}
                             isExecuteDisabled={isRequiredMissing}
                             onExecute={handleExecute}
+                            requestPreview={requestPreview}
                         />
                         <ResponsePanel
                             executionResult={executionResult}
