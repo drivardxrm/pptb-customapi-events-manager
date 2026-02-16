@@ -8,7 +8,7 @@ import {
     Badge,
     ToggleButton
 } from '@fluentui/react-components';
-import { ArrowDownloadRegular } from '@fluentui/react-icons';
+import { ArrowDownloadRegular, CodeFilled, CodeRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useAppStore } from '../../store/useAppStore';
 import { CustomApiResponseProperty, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
@@ -55,8 +55,12 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                 action={
                     executionResult?.success && executionResult.data !== undefined ? (
                         <ToggleButton
-                            size="small"
-                            appearance="subtle"
+                            size="medium"
+                            appearance={showOdata ? 'primary' : 'secondary'}
+                    
+                            shape="circular"
+                            icon={showOdata ? <CodeFilled /> : <CodeRegular />}
+                        
                             checked={showOdata}
                             onClick={() => setShowOdata(prev => !prev)}
                         >
@@ -73,22 +77,30 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                 ) : (
                     <>
                         {showOdata && executionResult.data !== undefined && (
-                            <JsonView
-                                value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
-                                displayDataTypes={false}
-                                collapsed={2}
-                                style={{
-                                    ...(theme === 'light' ? lightTheme : darkTheme),
-                                    wordBreak: 'break-all',
-                                    overflow: 'auto',
-                                    padding: '2px',
-                                }}
-                                shortenTextAfterLength={0}
-                            />
+                            <div className={styles.testerFormSection}>
+                                <Field
+                                    label={
+                                        <span className={styles.semiBoldLabel}>OData Response</span>
+                                    }
+                                >
+                                    <JsonView
+                                        value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
+                                        displayDataTypes={false}
+                                        collapsed={2}
+                                        style={{
+                                            ...(theme === 'light' ? lightTheme : darkTheme),
+                                            wordBreak: 'break-all',
+                                            overflow: 'auto',
+                                            padding: '2px',
+                                        }}
+                                        shortenTextAfterLength={0}
+                                    />
+                                </Field>
+                            </div>
                         )}
                         {/* Response Properties */}
-                        {executionResult.success && sortedResponseProperties.length > 0 && (
-                            <div className={styles.testerFormSection} style={{ marginTop: '12px' }}>
+                        {!showOdata && executionResult.success && sortedResponseProperties.length > 0 && (
+                            <div className={styles.testerFormSection}>
                                 {sortedResponseProperties.map(prop => {
                                     const propType = Customapiresponsepropertiestype[prop.type];
                                     const value = getResponsePropertyValue(prop.uniquename);

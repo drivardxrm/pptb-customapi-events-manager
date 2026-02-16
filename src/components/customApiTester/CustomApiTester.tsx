@@ -88,6 +88,15 @@ export const CustomApiTester: React.FC = () => {
         }
     }, [isRequiredMissing, selectedCustomApi, setGlobalMessage, clearGlobalMessage]);
 
+    // Clear results when the request form becomes dirty after execution
+    useEffect(() => {
+        if (executionResult) {
+            setExecutionResult(null);
+            clearGlobalMessage('test-execution');
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [parameterValues, boundRecordId]);
+
     const handleParameterChange = (paramId: string, value: unknown) => {
         setParameterValues(prev => ({
             ...prev,
@@ -167,7 +176,7 @@ export const CustomApiTester: React.FC = () => {
         return params;
     };
 
-    const handleTest = async () => {
+    const handleExecute = async () => {
         if (!selectedCustomApi) return;
 
         setIsExecuting(true);
@@ -275,8 +284,8 @@ export const CustomApiTester: React.FC = () => {
                             parameterValues={parameterValues}
                             handleParameterChange={handleParameterChange}
                             isExecuting={isExecuting}
-                            isTestDisabled={isRequiredMissing}
-                            onTest={handleTest}
+                            isExecuteDisabled={isRequiredMissing}
+                            onExecute={handleExecute}
                         />
                         <ResponsePanel
                             executionResult={executionResult}
