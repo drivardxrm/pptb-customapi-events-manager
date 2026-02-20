@@ -59,10 +59,10 @@ export const useCreateCustomApi = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.created) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
-      }
+      
     },
   });
 };
@@ -96,10 +96,10 @@ export const useUpdateCustomApi = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.updated) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
-      }
+      
     },
   });
 };
@@ -126,10 +126,10 @@ export const useDeleteCustomApi = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.deleted) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
-      }
+      
     },
   });
 };

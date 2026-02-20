@@ -54,10 +54,10 @@ export const useCreateCustomApiResponseProperty = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.created) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
-      }
+      
     },
   });
 };
@@ -89,10 +89,10 @@ export const useUpdateCustomApiResponseProperty = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.updated) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
-      }
+      
     },
   });
 };
@@ -118,10 +118,10 @@ export const useDeleteCustomApiResponseProperty = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.deleted) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.responseproperties(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
-      }
+      
     },
   });
 };

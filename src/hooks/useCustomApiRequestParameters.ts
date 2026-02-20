@@ -53,10 +53,10 @@ export const useCreateCustomApiRequestParameter = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.created) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
-      }
+      
     },
   });
 };
@@ -88,10 +88,10 @@ export const useUpdateCustomApiRequestParameter = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.updated) {
+    onSuccess: () => {
+      
         queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(selectedCustomApiId ?? "", connection?.id ?? '', instanceId) });
-      }
+      
     },
   });
 };
@@ -103,7 +103,7 @@ type DeleteCustomApiRequestParameterInput = {
 export const useDeleteCustomApiRequestParameter = () => {
   const queryClient = useQueryClient();
   const { addLog } = useAppStore();
-  const { connection, instanceId, selectedSolutionId } = useAppStore();
+  const { connection, instanceId, selectedCustomApiId } = useAppStore();
 
   return useMutation<DeleteResult, unknown, DeleteCustomApiRequestParameterInput>({
     mutationFn: async ({ requestParameter }) => {
@@ -117,10 +117,10 @@ export const useDeleteCustomApiRequestParameter = () => {
         throw error;
       }
     },
-    onSuccess: (result) => {
-      if (result.deleted) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
-      }
+    onSuccess: () => {
+      
+        queryClient.invalidateQueries({ queryKey: queryKeys.requestparameters(selectedCustomApiId ?? '', connection?.id ?? '', instanceId) });
+      
     },
   });
 };

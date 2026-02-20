@@ -12,11 +12,11 @@ interface ModeBadgeProps {
 const getModeConfig = (mode: Mode) => {
     switch (mode) {
         case 'edit':
-            return { label: 'Edit mode', color: 'warning' as const, icon: <EditLineHorizontal3Regular /> };
+            return { label: 'Edit', color: 'warning' as const, icon: <EditLineHorizontal3Regular /> };
         case 'create':
-            return { label: 'Create mode', color: 'success' as const, icon: <AddSquareRegular /> };
+            return { label: 'Create', color: 'success' as const, icon: <AddSquareRegular /> };
         default:
-            return { label: 'Read mode', color: 'informative' as const, icon: <EyeRegular /> };
+            return { label: 'Read', color: 'informative' as const, icon: <EyeRegular /> };
     }
 };
 
