@@ -18,6 +18,7 @@ import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
 import { ModeBadge } from '../generic/ModeBadge';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
+import { PowerFxDetails } from '../powerfxDetails/PowerFxDetails';
 
 
 
@@ -394,6 +395,10 @@ export const CustomApiDetails: React.FC = () => {
                         <RequestParameterDetails/>
             
                         <ResponsePropertyDetails/>
+
+                        {selectedCustomApi._fxexpressionid_value && (
+                            <PowerFxDetails />
+                        )}
                     </>
                 }
                 

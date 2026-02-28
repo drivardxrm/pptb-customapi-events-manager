@@ -252,7 +252,7 @@ export const ResponsePropertyDetails: React.FC = () => {
                         Edit
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'read' && selectedResponseProperty && !selectedResponseProperty.ismanaged ? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedCustomApi && selectedResponseProperty && !selectedResponseProperty.ismanaged && !selectedCustomApi._fxexpressionid_value ? 'visible' : 'hidden'}>
                     <Button
                         appearance='secondary'
                         icon={<DismissCircleColor />}

@@ -253,7 +253,7 @@ export const RequestParameterDetails: React.FC = () => {
                         Edit
                     </Button>
                 </Activity>
-                <Activity mode={mode === 'read' && selectedRequestParameter && !selectedRequestParameter.ismanaged ? 'visible' : 'hidden'}>
+                <Activity mode={mode === 'read' && selectedCustomApi && selectedRequestParameter && !selectedRequestParameter.ismanaged && !selectedCustomApi._fxexpressionid_value ? 'visible' : 'hidden'}>
                     <Button
                         appearance='secondary'
                         icon={<DismissCircleColor />}
