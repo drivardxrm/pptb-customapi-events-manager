@@ -397,7 +397,7 @@ export const CustomApiDetails: React.FC = () => {
                         <ResponsePropertyDetails/>
 
                         {selectedCustomApi._fxexpressionid_value && (
-                            <PowerFxDetails />
+                            <PowerFxDetails fxexpressionid={selectedCustomApi._fxexpressionid_value} />
                         )}
                     </>
                 }
