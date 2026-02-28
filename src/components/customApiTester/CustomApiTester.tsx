@@ -16,10 +16,11 @@ import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
 import { RequestPanel, ParameterValues } from './RequestPanel';
 import { ResponsePanel } from './ResponsePanel';
+import { notify } from '../../utils/notify';
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId, addLog, setGlobalMessage, clearGlobalMessage } = useAppStore();
+    const { selectedCustomApiId, addLog } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
     const { responseProperties } = useCustomApiResponseProperties();
@@ -46,8 +47,6 @@ export const CustomApiTester: React.FC = () => {
         setParameterValues({});
         setBoundRecordId(null);
         setExecutionResult(null);
-        clearGlobalMessage('test-execution');
-        clearGlobalMessage('test-validation');
     }, [selectedCustomApiId]);
 
     // Sort parameters: required first, then by name
@@ -74,25 +73,22 @@ export const CustomApiTester: React.FC = () => {
         });
     }, [isBoundToEntity, boundRecordId, requestParameters, parameterValues]);
 
-    // Show/clear AppMessage for missing required fields
+    // Show notification for missing required fields when user selects an API
     useEffect(() => {
         if (selectedCustomApi && isRequiredMissing) {
-            setGlobalMessage('test-validation', {
-                intent: 'warning',
+            notify({
                 title: 'Required Fields',
                 body: 'Please provide all required parameters before testing.',
-                dismissable: true,
+                type: 'warning',
+                duration: 3000,
             });
-        } else {
-            clearGlobalMessage('test-validation');
         }
-    }, [isRequiredMissing, selectedCustomApi, setGlobalMessage, clearGlobalMessage]);
+    }, [selectedCustomApi?.customapiid]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Clear results when the request form becomes dirty after execution
     useEffect(() => {
         if (executionResult) {
             setExecutionResult(null);
-            clearGlobalMessage('test-execution');
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [parameterValues, boundRecordId]);
@@ -253,7 +249,6 @@ export const CustomApiTester: React.FC = () => {
 
         setIsExecuting(true);
         setExecutionResult(null);
-        clearGlobalMessage('test-execution');
 
         try {
             const parameters = buildExecutionParameters();
@@ -286,21 +281,21 @@ export const CustomApiTester: React.FC = () => {
 
             setExecutionResult({ success: true, data: result });
             addLog(`Custom API '${selectedCustomApi.uniquename}' executed successfully`, 'success');
-            setGlobalMessage('test-execution', {
-                intent: 'success',
+            notify({
                 title: 'Execution Successful',
                 body: `Custom API '${selectedCustomApi.uniquename}' executed successfully`,
-                dismissable: true,
+                type: 'success',
+                duration: 3000,
             });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             setExecutionResult({ success: false, error: errorMessage });
             addLog(`Custom API '${selectedCustomApi.uniquename}' execution failed: ${errorMessage}`, 'error');
-            setGlobalMessage('test-execution', {
-                intent: 'error',
+            notify({
                 title: 'Execution Failed',
                 body: `Custom API '${selectedCustomApi.uniquename}': ${errorMessage}`,
-                dismissable: true,
+                type: 'error',
+                duration: 5000,
             });
         } finally {
             setIsExecuting(false);
