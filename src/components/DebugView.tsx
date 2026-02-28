@@ -35,16 +35,6 @@ export const DebugView = () => {
             shortenTextAfterLength={0}
           />
       </Card>
-      {/* <Card className={styles.card}>
-        <CardHeader header="Toolbox API" />
-        <JsonView
-            value={window.toolboxAPI}
-            displayDataTypes={false}
-            collapsed={2}
-            style={darkTheme}
-            shortenTextAfterLength={0}
-          />
-      </Card> */}
     </>
     
   );
