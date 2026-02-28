@@ -15,6 +15,8 @@ export const queryKeys = QueryKeyManager.create("keys", {
   entities : defineKey((connectionid: string, instanceId:string) => ['entities', instanceId, connectionid]),
   metadata: defineKey((entityLogicalName: string, connectionid: string, instanceId: string) => ['metadata', entityLogicalName, instanceId, connectionid]),
   entityRecords: defineKey((entityLogicalName: string, connectionid: string, instanceId: string) => ['entityRecords', entityLogicalName, instanceId, connectionid]),
+  fxexpressions: defineKey((connectionid: string, instanceId: string) => ['fxexpressions', instanceId, connectionid]),
+  fxexpression: defineKey((fxexpressionid: string, connectionid: string, instanceId: string) => ['fxexpression', fxexpressionid, instanceId, connectionid]),
 });
 
 // Debugging — list all registered keys
