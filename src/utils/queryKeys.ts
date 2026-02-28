@@ -1,0 +1,23 @@
+
+import { QueryKeyManager, defineKey } from "react-query-key-manager";
+
+export const queryKeys = QueryKeyManager.create("keys", {
+  appsettings: defineKey((connectionid: string, instanceId:string) => ['appsettings', instanceId, connectionid]),
+  customapis: defineKey((connectionid: string, instanceId:string, solutionid:string) => ['customapis', instanceId, connectionid, solutionid]),
+  catalogs: defineKey((connectionid: string, instanceId:string, solutionid:string) => ['catalogs', instanceId, connectionid, solutionid]),
+  requestparameters : defineKey((customapiid: string, connectionid: string, instanceId:string) => ['customapirequestparameters', customapiid, instanceId, connectionid]),
+  responseproperties: defineKey((customapiid: string, connectionid: string, instanceId:string) => ['customapiresponseproperties', customapiid, instanceId, connectionid]),
+  plugintypes : defineKey((connectionid: string, instanceId:string) => ['plugintypes', instanceId, connectionid]),
+  privileges : defineKey((connectionid: string, instanceId:string) => ['privileges', instanceId, connectionid]),
+  publishers : defineKey((connectionid: string, instanceId:string) => ['publishers', instanceId, connectionid]), 
+  solutions : defineKey((connectionid: string, instanceId:string) => ['solutions', instanceId, connectionid]), 
+  solutioncomponents : defineKey((connectionid: string, instanceId:string) => ['solutioncomponents', instanceId, connectionid]), 
+  entities : defineKey((connectionid: string, instanceId:string) => ['entities', instanceId, connectionid]),
+  metadata: defineKey((entityLogicalName: string, connectionid: string, instanceId: string) => ['metadata', entityLogicalName, instanceId, connectionid]),
+  entityRecords: defineKey((entityLogicalName: string, connectionid: string, instanceId: string) => ['entityRecords', entityLogicalName, instanceId, connectionid]),
+  fxexpressions: defineKey((connectionid: string, instanceId: string) => ['fxexpressions', instanceId, connectionid]),
+  fxexpression: defineKey((fxexpressionid: string, connectionid: string, instanceId: string) => ['fxexpression', fxexpressionid, instanceId, connectionid]),
+});
+
+// Debugging — list all registered keys
+export const allQueryKeys = QueryKeyManager.getQueryKeys();

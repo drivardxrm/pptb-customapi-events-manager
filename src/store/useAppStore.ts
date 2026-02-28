@@ -1,12 +1,30 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import { DEFAULT_SETTINGS, Settings, getAllSettings, setSetting } from '../services/settings';
+import { produce } from 'immer';
+import type { ReactElement } from 'react';
 
-export type LogEntry = {
+
+export interface LogEntry  {
     timestamp: Date;
     message: string;
     type: 'info' | 'success' | 'warning' | 'error';
 };
+
+export interface GlobalMessageAction {
+    label: string;
+    icon?: ReactElement;
+    onClick: () => void;
+};
+
+export interface GlobalMessage {
+    intent: 'info' | 'warning' | 'error' | 'success';
+    title: string;
+    body?: string;
+    action?: GlobalMessageAction;
+    dismissable?: boolean;
+};
+
+export type EditingComponent = 'none' | 'customapi' | 'requestparameter' | 'responseproperty';
 
 interface AppState {
     // Connection state
@@ -14,17 +32,27 @@ interface AppState {
     isLoadingConnection: boolean;
     instanceId: string;
 
+    // Editing lock state
+    editingComponent: EditingComponent;
     
     selectedSolutionId: string | null;
     selectedCustomApiId: string | null;
+    selectedCatalogId: string | null;
+    selectedRequestParameterId: string | null;
+    selectedResponsePropertyId: string | null;
+    selectedPublisherId: string | null;
+    selectedNavItem: string;
+
+    theme : 'light' | 'dark';
+    initTheme: () => void;
+    toggleTheme: () => void;
+
 
     // Logs state
     logs: LogEntry[];
 
-    // Settings state
-    settings: Settings;
-
-    isLoadingSettings: boolean;
+    // Global messages state
+    globalMessages: Record<string, GlobalMessage>;
 
     // Actions
     setConnection: (connection: ToolBoxAPI.DataverseConnection | null) => void;
@@ -33,51 +61,105 @@ interface AppState {
     
     setSelectedSolutionId: (solutionId: string | null) => void;
     setSelectedCustomApiId: (customApiId: string | null) => void;
+    setSelectedCatalogId: (catalogId: string | null) => void;
+    setSelectedRequestParameterId: (requestParameterId: string | null) => void;
+    setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
+    setSelectedPublisherId: (publisherId: string | null) => void;
+    setSelectedNavItem: (navItem: string) => void;
+
+    // Editing lock actions
+    setEditingComponent: (component: EditingComponent) => void;
 
     // Log actions
     addLog: (message: string, type?: LogEntry['type']) => void;
     clearLogs: () => void;
 
-    // Settings actions
-    loadSettings: () => Promise<void>;
-    updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => Promise<void>;
+    // Global message actions
+    setGlobalMessage: (id: string, message: GlobalMessage | null) => void;
+    clearGlobalMessage: (id: string) => void;
+    clearAllGlobalMessages: () => void;
 }
 
-    export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>((set, _get) => ({
         // Initial state
         connection: null,
         isLoadingConnection: true,
         instanceId: uuidv4(),
         logs: [],
+        globalMessages: {},
 
-        settings: DEFAULT_SETTINGS,
-        isLoadingSettings: true,
+    
 
         selectedSolutionId: null,
         selectedCustomApiId: null,
+        selectedCatalogId: null,
+        selectedRequestParameterId: null,
+        selectedResponsePropertyId: null,
+        selectedPublisherId: null,
+        selectedNavItem: 'customapi',
+
+        editingComponent: 'none',
+
+        theme:  'light',
+
+        initTheme: async() => {
+            let toolboxTheme = await window.toolboxAPI.utils.getCurrentTheme();
+            set({ theme : toolboxTheme });
+        },
+
+        toggleTheme: () => set((state) => ({ 
+            theme: state.theme === 'light' ? 'dark' : 'light' 
+        })),
 
         // Connection actions
-        setConnection: (connection) => set({ connection }),
+        setConnection: (connection) => {
+            const currentConnectionId = _get().connection?.id;
+            const newConnectionId = connection?.id;
+            const addLog = _get().addLog;
+            
+            // Only reset selections if connection ID actually changed
+            if (currentConnectionId !== newConnectionId) {
+                set({ 
+                    connection,
+                    selectedSolutionId: null,
+                    selectedCustomApiId: null,
+                    selectedCatalogId: null,
+                    selectedRequestParameterId: null,
+                    selectedResponsePropertyId: null,
+                    selectedPublisherId: null,
+                });
+                
+                // Log connection change
+                if (connection) {
+                    addLog(`Connected to ${connection.name} (${connection.url})`, 'info');
+                } else {
+                    addLog('No active connection detected', 'warning');
+                }
+            } else {
+                set({ connection });
+            }
+        },
         
         setIsLoadingConnection: (isLoading) => set({ isLoadingConnection: isLoading }),
 
         refreshConnection: async () => {
             try {
                 set({ isLoadingConnection: true });
-                console.log('Fetching active connection...');
+                //console.log('Fetching active connection...');
                 const conn = await window.toolboxAPI.connections.getActiveConnection();
-                console.log('Active connection result:', conn);
+            
+                //console.log('Active connection result:', conn);
                 
                 // Handle case where API returns null/undefined or empty object
                 if (!conn || !conn.id) {
-                    console.log('No valid active connection, setting to null');
+                    //console.log('No valid active connection, setting to null');
                     set({ connection: null });
                 } else {
-                    console.log('Setting active connection:', conn.name);
+                    //console.log('Setting active connection:', conn.name);
                     set({ connection: conn });
                 }
             } catch (error) {
-                console.error('Error refreshing connection:', error);
+                //console.error('Error refreshing connection:', error);
                 set({ connection: null });
             } finally {
                 set({ isLoadingConnection: false });
@@ -85,7 +167,27 @@ interface AppState {
         },
 
         setSelectedSolutionId: (solutionId) => set({ selectedSolutionId: solutionId }),
-        setSelectedCustomApiId: (customApiId) => set({ selectedCustomApiId: customApiId }),
+        setSelectedCustomApiId: (customApiId) => set(
+            { selectedCustomApiId: customApiId }    
+        ),
+        setSelectedCatalogId: (catalogId) => set(
+            { selectedCatalogId: catalogId }
+        ),
+        setSelectedRequestParameterId: (requestParameterId) => set(
+            { selectedRequestParameterId: requestParameterId }
+        ),
+        setSelectedResponsePropertyId: (responsePropertyId) => set(
+            { selectedResponsePropertyId: responsePropertyId }
+        ),
+        setSelectedPublisherId: (publisherId) => set(
+            { selectedPublisherId: publisherId }
+        ),
+        setSelectedNavItem: (navItem) => set(
+            { selectedNavItem: navItem }
+        ),
+
+        setEditingComponent: (component) => set({ editingComponent: component }),
+        
         // Log actions
         addLog: (message, type = 'info') => {
             const newLog: LogEntry = {
@@ -94,60 +196,27 @@ interface AppState {
                 type,
             };
             set((state) => ({
-                logs: [newLog, ...state.logs.slice(0, 49)], // Keep last 50 entries
+                logs: [newLog, ...state.logs].slice(0, 1000), // Keep last 1000 entries
             }));
             console.log(`[${type.toUpperCase()}] ${message}`);
         },
 
         clearLogs: () => set({ logs: [] }),
 
-        // Settings actions
-        loadSettings: async () => {
-            try {
-                set({ isLoadingSettings: true });
-                const loaded = await getAllSettings();
-                set({ settings: loaded });
-                set((state) => ({
-                    logs: [
-                        { timestamp: new Date(), message: 'Settings loaded', type: 'success' },
-                        ...state.logs.slice(0, 49),
-                    ],
-                }));
-            } catch (error) {
-                console.error('Error loading settings:', error);
-                set((state) => ({
-                    logs: [
-                        { timestamp: new Date(), message: 'Failed to load settings', type: 'warning' },
-                        ...state.logs.slice(0, 49),
-                    ],
-                }));
-            } finally {
-                set({ isLoadingSettings: false });
-            }
-        },
-
-        updateSetting: async (key, value) => {
-            const prev = get().settings[key];
-            // optimistic update
-            set({ settings: { ...get().settings, [key]: value } as Settings });
-            const ok = await setSetting(key, value as any);
-            if (!ok) {
-                // rollback and log error
-                set({ settings: { ...get().settings, [key]: prev } as Settings });
-                set((state) => ({
-                    logs: [
-                        { timestamp: new Date(), message: `Failed to persist setting: ${String(key)}`, type: 'error' },
-                        ...state.logs.slice(0, 49),
-                    ],
-                }));
+        // Global message actions
+        setGlobalMessage: (id, message) => set(produce((state: AppState) => {
+            if (message === null) {
+                delete state.globalMessages[id];
             } else {
-                set((state) => ({
-                    logs: [
-                        { timestamp: new Date(), message: `Setting updated: ${String(key)}`, type: 'success' },
-                        ...state.logs.slice(0, 49),
-                    ],
-                }));
+                state.globalMessages[id] = message;
             }
-        },
+        })),
+
+        clearGlobalMessage: (id) => set(produce((state: AppState) => {
+            delete state.globalMessages[id];
+        })),
+
+        clearAllGlobalMessages: () => set({ globalMessages: {} }),
     })
 );
+

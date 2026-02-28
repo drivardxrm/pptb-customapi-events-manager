@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { useAppStore } from '../store/useAppStore'
 import { Solution } from '../models/Solution';
+import { queryKeys } from '../utils/queryKeys';
 
 
 export const useSolutions = () => {
@@ -15,10 +16,10 @@ export const useSolutions = () => {
   const { data, status, error, isFetching } =
     useQuery<{ value: Solution[] }, Error>(
       {
-        queryKey: ['solutions', instanceId, connection?.id], // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.solutions(connection?.id ?? '', instanceId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
           // TODO Ensure connection is valid
-          const result = await window.dataverseAPI.getSolutions(["solutionid", "uniquename", "friendlyname", "version", "ismanaged"]);
+          const result = window.dataverseAPI.getSolutions(["solutionid", "uniquename", "friendlyname", "version", "ismanaged"]);
           console.log('Fetched solutions:', result);
           return result as unknown as { value: Solution[] };
         },

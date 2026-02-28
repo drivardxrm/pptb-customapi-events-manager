@@ -1,13 +1,10 @@
-import React from 'react';
-import { Card, CardHeader, Divider, Button, tokens } from '@fluentui/react-components';
+import { Card, CardHeader, Divider, Button } from '@fluentui/react-components';
 import { Delete24Regular } from '@fluentui/react-icons';
 import type { LogEntry } from '../hooks/useToolboxAPI';
 import { useStyles } from '../styles/Styles';
+import { useAppStore } from '../store/useAppStore';
 
-interface EventLogProps {
-    logs: LogEntry[];
-    onClear: () => void;
-}
+
 
 const getLogColors = (type: LogEntry['type']) => {
     switch (type) {
@@ -22,8 +19,10 @@ const getLogColors = (type: LogEntry['type']) => {
     }
 };
 
-export const EventLog: React.FC<EventLogProps> = ({ logs, onClear }) => {
+export const EventLog = () => {
     const styles = useStyles();
+    const { logs, clearLogs}  = useAppStore();
+   
     
     return (
         <Card className={styles.card}>
@@ -33,41 +32,29 @@ export const EventLog: React.FC<EventLogProps> = ({ logs, onClear }) => {
                     <Button 
                         appearance="secondary" 
                         icon={<Delete24Regular />}
-                        onClick={onClear}
+                        onClick={clearLogs}
                     >
                         Clear Log
                     </Button>
                 }
             />
             <Divider />
-            <div style={{
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-                padding: tokens.spacingVerticalM,
-                borderRadius: tokens.borderRadiusMedium,
-                fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace",
-                fontSize: '13px',
-                maxHeight: '300px',
-                overflowY: 'auto',
-                minHeight: '50px'
-            }}>
+            <div className={styles.eventLogContainer}>
                 {logs.length === 0 ? (
-                    <div style={{ color: '#666', fontStyle: 'italic' }}>No logs yet...</div>
+                    <div className={styles.eventLogEmpty}>No logs yet...</div>
                 ) : (
                     logs.map((log, index) => {
                         const colors = getLogColors(log.type);
                         return (
                             <div 
                                 key={index} 
+                                className={styles.eventLogEntry}
                                 style={{
-                                    padding: '8px',
-                                    margin: '4px 0',
-                                    borderRadius: tokens.borderRadiusSmall,
                                     borderLeft: `3px solid ${colors.borderColor}`,
                                     backgroundColor: colors.backgroundColor
                                 }}
                             >
-                                <span style={{ color: '#858585', fontSize: '11px', marginRight: '10px' }}>
+                                <span className={styles.eventLogTimestamp}>
                                     [{log.timestamp.toLocaleTimeString()}]
                                 </span>
                                 <span>{log.message}</span>

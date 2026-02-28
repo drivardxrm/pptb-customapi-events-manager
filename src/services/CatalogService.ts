@@ -1,0 +1,76 @@
+import { Catalog, CatalogCreateable, CatalogUpdateable } from "../models/Catalog";
+import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
+import { UpdateResult, CreateResult, EntityService } from "./EntityService";
+
+
+
+export class CatalogService extends EntityService {
+    entityName = 'catalog';
+    entityCollectionName = 'catalogs';
+    componenttype = 10017;
+
+    // Define lookups here to avoid circular dependency with Catalog model
+    private static get CatalogLookups(): Partial<Record<keyof CatalogCreateable, [string, EntityService]>> {
+        return {
+            _parentcatalogid_value: ['ParentCatalogId', new CatalogService()],
+        };
+    }
+
+    async fetchAllCatalogs(): Promise<Catalog[]> {
+        const result = await window.dataverseAPI.queryData(this.entityCollectionName);
+        //console.log('CustomApiService.fetchAll result:', result);
+        const typed = result as unknown as { value: Catalog[] };
+        return typed.value;
+    }
+    
+    async fetchSolutionCatalogs(solutionid:string): Promise<Catalog[]> {
+        const result = await window.dataverseAPI.fetchXmlQuery(`
+            <fetch>
+                <entity name='${this.entityName}'>
+                    <link-entity name='solutioncomponent' from='objectid' to='${this.entityName}id' link-type='inner' alias='sc'>
+                    <filter>
+                        <condition attribute='solutionid' operator='eq' value='${solutionid}' />
+                    </filter>
+                    </link-entity>
+                </entity>
+            </fetch>
+        `);
+        //console.log('CustomApiService.fetchAll result:', result);
+        const typed = result as unknown as { value: Catalog[] };
+        return typed.value;
+    }
+
+    async createCatalog(newCatalog: CatalogCreateable, solutionUniqueName?: string): Promise<CreateResult> {
+            
+        const payload = buildCreatePayload<CatalogCreateable>(newCatalog, {
+            lookupKeys: CatalogService.CatalogLookups,
+        });
+
+        let result = await window.dataverseAPI.create(this.entityName, payload);
+        
+        // If a solution is specified, add the custom API to that solution
+        if (solutionUniqueName && result.id) {
+            await this.addToSolution(result.id, solutionUniqueName);
+        }
+        
+        return { created: true, payload, id: result.id };
+    }
+
+
+    async updateCatalog(current: Catalog, next: CatalogUpdateable): Promise<UpdateResult> {
+        
+        const payload = buildUpdatePayload<CatalogUpdateable>(current, next, {
+            lookupKeys: CatalogService.CatalogLookups,
+        });
+
+        if (Object.keys(payload).length === 0) {
+            return { updated: false, payload };
+        }
+
+        await window.dataverseAPI.update(this.entityName, current.catalogid, payload);
+        return { updated: true, payload };
+    }
+    
+}
+
+export const catalogService = new CatalogService();

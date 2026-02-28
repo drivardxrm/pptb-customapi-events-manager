@@ -1,5 +1,5 @@
 import { Button, mergeClasses, Tag, TagPicker, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerList, TagPickerOption, TagPickerProps, useTagPickerFilter } from '@fluentui/react-components';
-import React, { JSX, useMemo, useState, useEffect } from 'react';
+import React, { JSX, useMemo, useState, useEffect, cloneElement } from 'react';
 import { useStyles } from '../../styles/Styles';
 import { ChevronDown20Regular, DismissRegular } from '@fluentui/react-icons';
 
@@ -14,7 +14,7 @@ export interface SelectableItem {
 
 interface GenericTagPickerProps<T extends SelectableItem> {
     items: T[]
-    initialValue?: string;
+    initialValue?: string ;
     isDisabled?: boolean;
     onSelect?: (id: string | null, item?: T) => void;
 }
@@ -34,6 +34,14 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
             setSelectedOption(initialValue);
         }
     }, [initialValue]);
+
+    // Clear selection if the selected option is no longer in the available items
+    useEffect(() => {
+        if (selectedOption && items.length > 0 && !items.some((item) => item.id === selectedOption)) {
+            setSelectedOption(undefined);
+            onSelect?.(null, undefined);
+        }
+    }, [items, selectedOption, onSelect]);
 
 
 
@@ -63,9 +71,6 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
         setInputFocused(false)
         return;
         }
-
-        // TODO SET SELECTED SOLUTION
-
         
           if(data.value === undefined || data.value === '-1'){
               setSelectedOption(undefined)
@@ -94,7 +99,9 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
                 optionidToRender === selectedOption ? styles.tagSelected : '')
             }
             media={
-                items.find((item) => item.id === optionidToRender)?.image
+                items.find((item) => item.id === optionidToRender)?.image 
+                    ? cloneElement(items.find((item) => item.id === optionidToRender)!.image!, { className: styles.icon24 })
+                    : null
             }
             text={items.find((item) => item.id === optionidToRender)?.displayText ?? ''}
             value={optionidToRender}
@@ -163,6 +170,8 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
                             appearance={'outline'}
                             media={
                                 items.find((item) => item.id === selectedOption)?.image
+                                    ? cloneElement(items.find((item) => item.id === selectedOption)!.image!, { className: styles.icon24 })
+                                    : null
                             }
                            
                             value={selectedOption}
