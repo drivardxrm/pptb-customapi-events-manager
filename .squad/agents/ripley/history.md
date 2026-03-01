@@ -43,3 +43,39 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Business Events feature marked as "Coming Soon"
 - Some commented-out code in App.tsx and models (cleanup opportunity)
 - Single Styles.ts file may grow large - consider component-level styles
+
+### 2026-03-01: Backlog Creation from Codebase Analysis
+
+**Comprehensive Analysis Completed:**
+- Analyzed 50+ files across components, models, services, hooks
+- Identified 3 TODO comments in active code
+- Found "Coming Soon" Business Events feature stub
+- Discovered no test files (*.test.*, *.spec.*) exist
+- Reviewed validation patterns, error handling, and data flow
+
+**Backlog Categories Created:**
+- 50 backlog items across 11 categories
+- Prioritized by impact: High (13), Medium (18), Low (19)
+- Key findings: Testing infrastructure completely missing, Business Events incomplete, several UX gaps
+
+**High Priority Items Identified:**
+1. **B002**: Add Unit Test Framework - No testing infrastructure exists
+2. **B003**: Integration tests for TanStack Query hooks
+3. **B001**: Complete Business Events feature (currently stubbed)
+4. **B007**: Error boundaries for major components
+5. **B024**: Validation test suite
+6. **B005**: Connection state validation (existing TODO)
+
+**Architectural Observations:**
+- Strong entity service pattern consistency (CustomApi, RequestParameter, ResponseProperty, Catalog all follow same model)
+- TanStack Query hooks well-structured with solution-scoped caching
+- Zustand store properly manages global state with Immer for immutability
+- Diff utilities (buildCreatePayload/buildUpdatePayload) handle OData binding correctly
+- Missing: Test coverage, Business Events UI, some error boundaries
+
+**Key File Paths for Team:**
+- Backlog: `.squad/backlog.md`
+- Models pattern: `src/models/CustomApi.ts` (Full/Createable/Updateable/Lookups)
+- Service pattern: `src/services/CustomApiService.ts` (extends EntityService)
+- Hook pattern: `src/hooks/useCustomApis.tsx` (query + mutations)
+- Diff utils: `src/utils/diff.ts` (payload builders)
