@@ -2,6 +2,116 @@
 
 ---
 
+## Decision: E2E Testing Architecture
+
+**Date:** 2026-03-01  
+**By:** Ripley (Lead)  
+**Status:** Proposal  
+**Issue:** #20 — B026: Add E2E Tests for Critical Paths
+
+### Context
+
+E2E testing for Custom API Studio presents a unique challenge: the app runs inside a PPTB iframe and depends on global APIs (`window.toolboxAPI` and `window.dataverseAPI`) provided by the host. These APIs don't exist in a testing environment.
+
+### Recommendation
+
+**Use Playwright + window-level mock injection via Vite test mode.**
+
+This approach:
+1. **Minimal refactoring** - No architectural changes to the app
+2. **Complete control** - Mock both host APIs fully with test methods
+3. **Realistic execution** - App runs exactly as in production, just with mocked globals
+4. **Type-safe** - Mocks match `@pptb/types` definitions
+
+### Architecture
+
+#### Mock Implementation Strategy
+
+Create mock implementations of `dataverseAPI` and `toolboxAPI` with test control methods:
+- `__setQueryResult()` - Override data responses
+- `__setCreateResult()` - Control create operations
+- `__setExecuteResult()` - Handle API execution
+- `__getCalls()` - Inspect operation history
+- `__reset()` - Clear state between tests
+
+#### Test Organization
+
+```
+tests/
+├── e2e/
+│   ├── mocks/              # API mock implementations
+│   ├── fixtures/           # Test data factories
+│   ├── pages/              # Page objects
+│   ├── specs/              # Test specifications
+│   └── playwright.config.ts
+└── integration/
+```
+
+#### Vite Integration
+
+- New test entry point: `src/test-main.tsx`
+- Inject mocks before app initialization
+- Vite mode configuration: `npm run dev:test`
+
+### Critical Test Specifications
+
+1. **Custom API CRUD** - Create, read, update, delete operations
+2. **Request Parameters** - Add/modify/remove request parameters
+3. **Response Properties** - Add/modify/remove response properties
+4. **API Tester** - Execute APIs and display results (including error handling)
+5. **Navigation & State** - Solution filtering, nav item accessibility, theme switching
+
+### Implementation Phases
+
+**Phase 1: Foundation (Lambert)**
+- Install Playwright
+- Create directory structure and mocks
+- Write first smoke test
+
+**Phase 2: Core Journeys (Lambert)**
+- CRUD tests for Custom API, Request Parameters, Response Properties
+
+**Phase 3: Advanced Scenarios (Lambert)**
+- API Tester execution, solution filtering, error handling
+
+**Phase 4: CI Integration**
+- GitHub Actions workflow
+- Test parallelization and reporting
+
+### Alternative Approaches Evaluated
+
+| Approach | Pros | Cons | Rating |
+|----------|------|------|--------|
+| MSW (Mock Service Worker) | Industry standard | Only for HTTP; our APIs are JS calls | ❌ Not suitable |
+| Dependency Injection | Clean, testable | Requires app refactoring | ⚠️ High friction |
+| Test doubles module swap | No runtime overhead | Build complexity | ⚠️ Complex setup |
+| **Window-level injection** | **Minimal friction, full control, realistic** | **Requires mock methods** | **✅ Recommended** |
+
+### Implementation Rationale
+
+The window-level injection approach leverages Playwright's `page.evaluate()` to directly inject mock implementations before the app initializes. This provides:
+- Complete API coverage without app changes
+- Realistic test execution (app code unchanged)
+- Type safety with `@pptb/types`
+- Per-test fixture control via mock test methods
+
+### Deliverables
+
+Complete proposal with:
+- Mock interface definitions and implementations
+- Base test fixtures for Playwright
+- 5 comprehensive test specifications
+- package.json script updates
+- 4-phase implementation roadmap
+
+### Next Steps
+
+1. Team review and approval
+2. Begin Phase 1 implementation (Lambert as lead)
+3. Establish test data strategy for fixtures
+
+---
+
 ## Decision: Backlog Creation Strategy
 
 **Date:** 2026-03-01  

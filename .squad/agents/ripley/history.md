@@ -94,3 +94,35 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 **Documentation Strategy:**
 - README serves as quick reference only
 - Full documentation to live on GitHub Pages (future)
+
+### 2026-03-01: E2E Testing Architecture (Issue #20)
+
+**Task:** Create architecture plan for E2E testing of critical user journeys.
+
+**Key Decisions Made:**
+1. **Framework:** Playwright over Cypress — superior iframe handling, native parallelization, excellent TypeScript support
+2. **Mocking Strategy:** Window-level mock injection for `window.toolboxAPI` and `window.dataverseAPI`
+   - Create `MockDataverseAPI` and `MockToolboxAPI` interfaces extending actual APIs
+   - Add `__setQueryResult()`, `__setConnection()`, `__getCalls()` test control methods
+   - Inject via `page.evaluate()` in Playwright tests
+3. **Entry Point:** Separate `test-main.tsx` that injects mocks before app initialization
+4. **Vite Integration:** Add `--mode test` for test-specific builds
+
+**Critical Insight:**
+The app's globals (`window.dataverseAPI`, `window.toolboxAPI`) are direct JS APIs, not HTTP endpoints. This rules out MSW (Mock Service Worker) which only intercepts fetch/XHR. Window-level injection is the correct pattern.
+
+**Test Structure:**
+- `tests/e2e/mocks/` — Mock implementations matching @pptb/types
+- `tests/e2e/fixtures/` — Test data factories
+- `tests/e2e/pages/` — Page object models
+- `tests/e2e/specs/` — Test specifications
+
+**Critical Paths Identified:**
+1. Create Custom API flow
+2. Add/edit request parameters
+3. Add/edit response properties
+4. Execute API via tester
+5. Delete API with confirmation
+6. Solution filtering behavior
+
+**Output:** `.squad/decisions/inbox/ripley-e2e-architecture.md` — comprehensive proposal ready for Lambert implementation
