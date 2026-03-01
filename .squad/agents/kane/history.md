@@ -16,3 +16,9 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Hook pattern: Query + mutation hooks in single file per entity
 - Diff utility coverage: OData binding handled automatically for lookup fields
 - Strong TypeScript coverage with strict typing throughout
+
+### 2026-03-02: Query Key Optimization (#47)
+- Query keys standardized to `[scope, instanceId, connectionId, ...specificParams]` structure
+- Key categories: app-level (appsettings), solution-scoped (customapis, catalogs), child entities (requestparameters, responseproperties), reference data (plugintypes, privileges, etc.)
+- Moving entity-specific params to end enables future partial invalidation by prefix
+- `react-query-key-manager` used for typed key definitions
