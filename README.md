@@ -1,96 +1,41 @@
-# Dataverse Custom API Manager
+# Custom API Studio
 
-Comprehensive management tool for Dataverse Custom APIs
+All-in-one workspace for creating, managing, and extending Dataverse Custom APIs and Business Events (Catalogs).
 
-## Features
+This is a [Power Platform ToolBox](https://github.com/nicknow/PPTB) tool — a React SPA that runs inside the PPTB host application.
 
-- ✅ React 18 with TypeScript
-- ✅ Vite for fast development and building
-- ✅ Access to ToolBox API via `window.toolboxAPI`
-- ✅ Connection URL and access token handling
-- ✅ Event subscription and handling
-- ✅ Hot Module Replacement (HMR) for development
+<!-- ![Screenshot](docs/screenshot.png) -->
 
-## Structure
+## Quick Start
 
-```
-pptb-customapi-manager/
-├── src/
-│   ├── App.tsx         # Main component
-│   ├── main.tsx        # Entry point
-│   └── styles.css      # Styling
-├── dist/               # Build output
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-```
-
-## Installation
-
-Install dependencies:
+**Prerequisites:** Node.js 18+
 
 ```bash
 npm install
-```
-
-## Development
-
-Start development server with HMR:
-
-```bash
-npm run dev
-```
-
-Build the tool:
-
-```bash
 npm run build
 ```
 
-Preview production build:
+Install the built tool in Power Platform ToolBox to use it.
+
+### Development
 
 ```bash
-npm run preview
+npm run dev      # Dev server with HMR
+npm run preview  # Preview production build
 ```
 
-## Usage in ToolBox
+## Tech Stack
 
-1. Build the tool using `npm run build`
-2. Install the tool in ToolBox
-3. Load and use the tool from the ToolBox interface
+- React 19 + TypeScript
+- Vite (IIFE build for iframe compatibility)
+- Zustand (global state)
+- TanStack Query (server state)
+- Fluent UI v9
 
-## API Usage
+## Documentation
 
-The tool demonstrates various ToolBox API features:
-
-### Getting Connection Context
-
-```typescript
-const context = await window.toolboxAPI.getToolContext();
-console.log(context.connectionUrl);
-console.log(context.accessToken);
-```
-
-### Showing Notifications
-
-```typescript
-await window.toolboxAPI.showNotification({
-  title: 'Success',
-  body: 'Operation completed',
-  type: 'success'
-});
-```
-
-### Subscribing to Events
-
-```typescript
-window.toolboxAPI.onToolboxEvent((event, payload) => {
-  console.log('Event:', payload.event);
-  console.log('Data:', payload.data);
-});
-```
+📖 Full documentation: *Coming soon*
 
 ## License
 
-MIT
+MIT © David Rivard
