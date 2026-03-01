@@ -79,3 +79,18 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Service pattern: `src/services/CustomApiService.ts` (extends EntityService)
 - Hook pattern: `src/hooks/useCustomApis.tsx` (query + mutations)
 - Diff utils: `src/utils/diff.ts` (payload builders)
+
+### 2026-03-01: README Rewrite
+
+**User Preference:** David prefers minimal README — he plans to create a GitHub Pages site for full documentation.
+
+**Changes Made:**
+- Rewrote README.md to be concise and focused
+- Updated project title to "Custom API Studio" (matching package.json displayName)
+- Included: brief description, quick start, dev commands, tech stack, license
+- Added placeholder for future documentation site link
+- Commented screenshot placeholder ready for when image is available
+
+**Documentation Strategy:**
+- README serves as quick reference only
+- Full documentation to live on GitHub Pages (future)
