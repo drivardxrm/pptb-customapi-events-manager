@@ -1,0 +1,10 @@
+{
+  "assignments": [
+    {
+      "assignment_id": "pptb-custom-api-manager-2026-02-28",
+      "universe": "alien",
+      "created_at": "2026-02-28T23:19:00Z",
+      "agents": ["Ripley", "Dallas", "Kane", "Lambert"]
+    }
+  ]
+}
