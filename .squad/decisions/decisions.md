@@ -2,6 +2,73 @@
 
 ---
 
+## Decision: E2E Mock Lazy Initialization Pattern
+
+**Date:** 2026-03-02  
+**By:** Lambert (Tester)  
+**Status:** Implemented  
+**Issue:** #20 — E2E Phase 2
+
+### Context
+
+When implementing E2E tests for Custom API CRUD operations, encountered a critical timing issue: ES modules load asynchronously, causing mock objects to initialize BEFORE `page.addInitScript()` could set up test data on `window.__E2E_TEST_DATA__`.
+
+### Problem
+
+The original approach of reading `window.__E2E_TEST_DATA__` at mock module load time failed because:
+1. Playwright's `addInitScript` runs before page scripts, but ES modules load asynchronously
+2. By the time React hooks made their first API calls, mocks had already initialized with empty data
+3. TanStack Query cached the empty results, so setting data later didn't help
+
+### Decision
+
+Implemented **lazy initialization** pattern for both `dataverseAPI` and `toolboxAPI` mocks:
+
+```typescript
+let initialized = false;
+
+const ensureInitialized = () => {
+  if (initialized) return;
+  initialized = true;
+  
+  if (window.__E2E_TEST_DATA__) {
+    // Configure mock with test data
+  }
+};
+
+// Called at the start of every mock method
+create: async (...args) => {
+  ensureInitialized();
+  // ... method implementation
+}
+```
+
+This ensures test data is read on the FIRST API call (after `addInitScript` has run), not at module import time.
+
+### Alternatives Considered
+
+1. **Polling approach**: Poll for `window.__E2E_TEST_DATA__` with `setTimeout` - flaky timing
+2. **Reload approach**: Load page, set data via `page.evaluate`, reload - causes double-loading, slow
+3. **Pre-configured mocks**: Hard-code test data in mocks - inflexible for different test scenarios
+
+### Impact
+
+- Tests can now reliably configure mock data before page loads
+- Each test can set up different data scenarios independently
+- Pattern is consistent across both mock APIs
+
+### Files Modified
+
+- `tests/e2e/mocks/dataverseAPI.mock.ts` - Added lazy init, `queryData()`, `getSolutions()`
+- `tests/e2e/mocks/toolboxAPI.mock.ts` - Added lazy init for connection
+- `tests/e2e/specs/custom-api.spec.ts` - Uses `setupTestData()` helper
+
+### For Team Review
+
+This pattern should be documented for future test authors. The key insight is that `window.__E2E_TEST_DATA__` is the contract between test setup and mock initialization.
+
+---
+
 ## Decision: E2E Testing Architecture
 
 **Date:** 2026-03-01  
