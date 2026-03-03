@@ -97,19 +97,7 @@ export interface ToolboxAPIMock {
   __reset: () => void;
 }
 
-// Check for pre-configured test data (set by E2E tests via addInitScript)
-interface E2ETestData {
-  solutions?: Record<string, unknown>[];
-  customApis?: { value: Record<string, unknown>[] };
-  createResult?: { id: string };
-  connection?: DataverseConnection;
-}
-
-declare global {
-  interface Window {
-    __E2E_TEST_DATA__?: E2ETestData;
-  }
-}
+// E2ETestData is declared in dataverseAPI.mock.ts
 
 function createToolboxAPIMock(): ToolboxAPIMock {
   let connection: DataverseConnection | null = null;
@@ -133,7 +121,13 @@ function createToolboxAPIMock(): ToolboxAPIMock {
     
     if (typeof window !== 'undefined' && window.__E2E_TEST_DATA__?.connection) {
       const conn = window.__E2E_TEST_DATA__.connection;
-      connection = conn;
+      connection = {
+        id: conn.id,
+        name: conn.name,
+        url: conn.url,
+        environment: (conn.environment || 'Test') as 'Dev' | 'Test' | 'UAT' | 'Production',
+        createdAt: conn.createdAt || new Date().toISOString(),
+      };
       toolContext.connectionUrl = conn.url;
       toolContext.connectionId = conn.id;
     }

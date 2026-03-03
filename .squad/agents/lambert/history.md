@@ -47,3 +47,42 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
   - `tests/e2e/specs/custom-api.spec.ts` - CRUD operation tests
 - Extended `tests/e2e/pages/app.page.ts` with Custom API picker interactions
 - Extended `tests/e2e/mocks/dataverseAPI.mock.ts` with `queryData`, `getSolutions`, lazy init
+
+### 2026-03-02: E2E Testing Phase 3 - Request Parameters & Response Properties
+- Added 12 tests for Request Parameters and Response Properties CRUD operations
+- **Nested card selector challenge**: Cards are nested (Custom API Details contains Request Parameters and Response Properties cards)
+  - Standard `hasText` filter matches BOTH parent and child cards → strict mode violation
+  - Solution: Use CSS direct child selector with `:has(> ...)` to match only cards that directly contain the specific header
+  - Pattern: `.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input)"))`
+- **Mock data extension**:
+  - Added `window.__E2E_REQUEST_PARAMETERS__` and `window.__E2E_RESPONSE_PROPERTIES__` globals
+  - Extended `ensureInitialized()` to read these during lazy initialization
+  - Entity names: `customapirequestparameter`, `customapiresponseproperty`
+- **Files created**:
+  - `tests/e2e/fixtures/request-parameter.fixture.ts` - Mock request parameters (String, EntityReference, Optional, Managed types)
+  - `tests/e2e/fixtures/response-property.fixture.ts` - Mock response properties (String, EntityCollection, Integer, Managed types)
+  - `tests/e2e/specs/request-parameter.spec.ts` - 6 tests for parameter CRUD
+  - `tests/e2e/specs/response-property.spec.ts` - 6 tests for property CRUD
+- **Test coverage summary**:
+  - List loads when Custom API selected
+  - Empty state display
+  - New button visibility for unmanaged APIs
+  - New button hidden for managed APIs
+  - Create form opens on button click
+  - Delete calls delete API
+- Total E2E tests: 30 passing, 3 skipped (pre-existing)
+
+### 2026-03-02: E2E Testing Phase 4 - GitHub Actions CI Workflow
+- Created `.github/workflows/e2e-tests.yml` for automated E2E testing
+- **Workflow triggers**: Push to `main`, PRs to `main`
+- **CI configuration details**:
+  - Uses `ubuntu-latest` runner with Node.js 20.x
+  - npm caching enabled via `setup-node` action
+  - Only installs Chromium browser (`--with-deps chromium`) to minimize CI time
+  - 15-minute timeout to prevent hung jobs
+  - Artifacts (playwright-report, test-results) uploaded only on failure with 7-day retention
+- **Leverages existing Playwright config**:
+  - `webServer` already configured to run `npm run dev:test` 
+  - `reuseExistingServer: !process.env.CI` ensures fresh server on CI
+  - `retries: 2` on CI for flakiness tolerance
+  - Single worker on CI for stability

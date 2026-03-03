@@ -5,16 +5,26 @@
  */
 
 // Check for pre-configured test data (set by E2E tests via addInitScript)
+interface E2ETestDataConnection {
+  id: string;
+  name: string;
+  url: string;
+  environment?: string;
+  createdAt?: string;
+}
+
 interface E2ETestData {
   solutions?: Record<string, unknown>[];
   customApis?: { value: Record<string, unknown>[] };
   createResult?: { id: string };
-  connection?: Record<string, unknown>;
+  connection?: E2ETestDataConnection;
 }
 
 declare global {
   interface Window {
     __E2E_TEST_DATA__?: E2ETestData;
+    __E2E_REQUEST_PARAMETERS__?: { value: Record<string, unknown>[] };
+    __E2E_RESPONSE_PROPERTIES__?: { value: Record<string, unknown>[] };
   }
 }
 
@@ -107,6 +117,18 @@ function createDataverseAPIMock(): DataverseAPIMock {
       if (data.createResult) {
         createResult = data.createResult;
       }
+    }
+    
+    // Check for request parameters data
+    if (typeof window !== 'undefined' && window.__E2E_REQUEST_PARAMETERS__) {
+      fetchXmlResultsByEntity.set('customapirequestparameter', window.__E2E_REQUEST_PARAMETERS__);
+      queryDataResultsByEntity.set('customapirequestparameters', window.__E2E_REQUEST_PARAMETERS__);
+    }
+    
+    // Check for response properties data
+    if (typeof window !== 'undefined' && window.__E2E_RESPONSE_PROPERTIES__) {
+      fetchXmlResultsByEntity.set('customapiresponseproperty', window.__E2E_RESPONSE_PROPERTIES__);
+      queryDataResultsByEntity.set('customapiresponseproperties', window.__E2E_RESPONSE_PROPERTIES__);
     }
   };
 
