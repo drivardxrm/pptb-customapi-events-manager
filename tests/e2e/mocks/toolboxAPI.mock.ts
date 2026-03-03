@@ -97,6 +97,20 @@ export interface ToolboxAPIMock {
   __reset: () => void;
 }
 
+// Check for pre-configured test data (set by E2E tests via addInitScript)
+interface E2ETestData {
+  solutions?: Record<string, unknown>[];
+  customApis?: { value: Record<string, unknown>[] };
+  createResult?: { id: string };
+  connection?: DataverseConnection;
+}
+
+declare global {
+  interface Window {
+    __E2E_TEST_DATA__?: E2ETestData;
+  }
+}
+
 function createToolboxAPIMock(): ToolboxAPIMock {
   let connection: DataverseConnection | null = null;
   let secondaryConnection: DataverseConnection | null = null;
@@ -110,11 +124,31 @@ function createToolboxAPIMock(): ToolboxAPIMock {
     connectionUrl: null,
     connectionId: null,
   };
+  let initialized = false;
+
+  // Lazy initialization - reads from window.__E2E_TEST_DATA__ on first method call
+  const ensureInitialized = () => {
+    if (initialized) return;
+    initialized = true;
+    
+    if (typeof window !== 'undefined' && window.__E2E_TEST_DATA__?.connection) {
+      const conn = window.__E2E_TEST_DATA__.connection;
+      connection = conn;
+      toolContext.connectionUrl = conn.url;
+      toolContext.connectionId = conn.id;
+    }
+  };
 
   const mock: ToolboxAPIMock = {
     connections: {
-      getActiveConnection: async () => connection,
-      getSecondaryConnection: async () => secondaryConnection,
+      getActiveConnection: async () => {
+        ensureInitialized();
+        return connection;
+      },
+      getSecondaryConnection: async () => {
+        ensureInitialized();
+        return secondaryConnection;
+      },
     },
 
     utils: {
@@ -170,7 +204,10 @@ function createToolboxAPIMock(): ToolboxAPIMock {
       },
     },
 
-    getToolContext: async () => toolContext,
+    getToolContext: async () => {
+      ensureInitialized();
+      return toolContext;
+    },
 
     // Test control methods
     __setConnection: (conn: DataverseConnection | null) => {
