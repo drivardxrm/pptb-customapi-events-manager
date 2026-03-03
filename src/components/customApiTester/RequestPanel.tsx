@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
     Card, 
     CardHeader,
@@ -10,14 +10,16 @@ import {
     Tooltip,
     Badge,
     Spinner,
-    ToggleButton
+    ToggleButton,
+    Text
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
     SquareRegular,
     ArrowUploadRegular,
     CodeFilled,
-    CodeRegular
+    CodeRegular,
+    CopyRegular
 } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useAppStore } from '../../store/useAppStore';
@@ -27,6 +29,8 @@ import { DatePicker } from '@fluentui/react-datepicker-compat';
 import JsonView from '@uiw/react-json-view';
 import { darkTheme } from '@uiw/react-json-view/dark';
 import { lightTheme } from '@uiw/react-json-view/light';
+import { buildCustomApiODataUrl } from '../../utils/odataUrl';
+import { CustomApi } from '../../models/CustomApi';
 
 // Type for storing parameter values
 export type ParameterValues = Record<string, unknown>;
@@ -198,6 +202,7 @@ interface RequestPanelProps {
     isExecuteDisabled: boolean;
     onExecute: () => void;
     requestPreview: Record<string, unknown> | null;
+    customApi?: CustomApi;
 }
 
 export const RequestPanel: React.FC<RequestPanelProps> = ({
@@ -215,10 +220,32 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
     isExecuteDisabled,
     onExecute,
     requestPreview,
+    customApi,
 }) => {
     const styles = useStyles();
-    const { theme } = useAppStore();
+    const { theme, connection } = useAppStore();
     const [showOdata, setShowOdata] = useState(false);
+
+    // Build the OData URL
+    const odataUrl = useMemo(() => {
+        if (!showOdata || !customApi || !connection?.url) {
+            return null;
+        }
+
+        return buildCustomApiODataUrl({
+            customApi,
+            instanceUrl: connection.url,
+            requestParameters: sortedParameters,
+            parameterValues,
+            boundRecordId,
+        });
+    }, [showOdata, customApi, connection?.url, sortedParameters, parameterValues, boundRecordId]);
+
+    const handleCopyUrl = () => {
+        if (odataUrl) {
+            navigator.clipboard.writeText(odataUrl);
+        }
+    };
 
     return (
         <Card className={styles.testerPanel}>
@@ -319,18 +346,56 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                         ))}
                     </div>
                 )}
-                {showOdata && requestPreview && typeof requestPreview.parameters === 'object' && requestPreview.parameters !== null && (
+                {showOdata && (
                     <div className={styles.testerFormSection}>
-                        <Field label="OData Request">
-                            <div style={{ overflow: 'auto', wordBreak: 'break-all' }}>
-                                <JsonView
-                                    value={requestPreview.parameters as object}
-                                    style={{ ...(theme === 'dark' ? darkTheme : lightTheme), overflow: 'auto', wordBreak: 'break-all' }}
-                                    displayDataTypes={false}
-                                    enableClipboard={true}
-                                />
-                            </div>
-                        </Field>
+                        {/* OData URL */}
+                        {odataUrl && (
+                            <Field label="Custom API URL">
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '8px', 
+                                    padding: '8px 12px', 
+                                    backgroundColor: theme === 'dark' ? '#1e1e1e' : '#f5f5f5', 
+                                    borderRadius: '4px',
+                                    border: `1px solid ${theme === 'dark' ? '#3e3e3e' : '#e0e0e0'}`
+                                }}>
+                                    <Text 
+                                        style={{ 
+                                            flex: 1, 
+                                            fontFamily: 'monospace', 
+                                            fontSize: '12px',
+                                            wordBreak: 'break-all',
+                                            overflowWrap: 'break-word'
+                                        }}
+                                    >
+                                        {odataUrl}
+                                    </Text>
+                                    <Tooltip content="Copy URL" relationship="label">
+                                        <Button
+                                            appearance="subtle"
+                                            size="small"
+                                            icon={<CopyRegular />}
+                                            onClick={handleCopyUrl}
+                                        />
+                                    </Tooltip>
+                                </div>
+                            </Field>
+                        )}
+                        
+                        {/* OData Request Parameters */}
+                        {requestPreview && typeof requestPreview.parameters === 'object' && requestPreview.parameters !== null && (
+                            <Field label="Request Parameters">
+                                <div style={{ overflow: 'auto', wordBreak: 'break-all' }}>
+                                    <JsonView
+                                        value={requestPreview.parameters as object}
+                                        style={{ ...(theme === 'dark' ? darkTheme : lightTheme), overflow: 'auto', wordBreak: 'break-all' }}
+                                        displayDataTypes={false}
+                                        enableClipboard={true}
+                                    />
+                                </div>
+                            </Field>
+                        )}
                     </div>
                 )}
             </div>

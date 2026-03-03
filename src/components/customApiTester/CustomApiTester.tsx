@@ -354,6 +354,7 @@ export const CustomApiTester: React.FC = () => {
                             isExecuteDisabled={isRequiredMissing}
                             onExecute={handleExecute}
                             requestPreview={requestPreview}
+                            customApi={selectedCustomApi}
                         />
                         <ResponsePanel
                             executionResult={executionResult}
