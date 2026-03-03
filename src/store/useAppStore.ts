@@ -183,7 +183,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
             { selectedPublisherId: publisherId }
         ),
         setSelectedNavItem: (navItem) => set(
-            { selectedNavItem: navItem }
+            { selectedNavItem: navItem, editingComponent: 'none' }
         ),
 
         setEditingComponent: (component) => set({ editingComponent: component }),
