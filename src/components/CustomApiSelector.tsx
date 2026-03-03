@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import { 
     Field, 
     Card,
-    CardHeader,
-    // Divider,
     Input,
     mergeClasses,
 } from '@fluentui/react-components'
@@ -20,7 +18,7 @@ import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateTo
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
+    const {  addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     const isLocked = editingComponent !== 'none';
@@ -31,17 +29,17 @@ export const CustomApiSelector: React.FC = () => {
     const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>('all')
     
 
-    if (!isLoadingConnection && connection?.isActive === false) {
-        return (
-            <Card className={styles.card}>
-                <CardHeader header={<h3>Custom API Selector</h3>} />
-                <div className={styles.infoBox}>
-                    <p>No connection</p>
-                    <p>Please select a Connection</p>
-                </div>
-            </Card>
-        );
-    }
+    // if (!isLoadingConnection && connection?.isActive === false) {
+    //     return (
+    //         <Card className={styles.card}>
+    //             <CardHeader header={<h3>Custom API Selector</h3>} />
+    //             <div className={styles.infoBox}>
+    //                 <p>No connection</p>
+    //                 <p>Please select a Connection</p>
+    //             </div>
+    //         </Card>
+    //     );
+    // }
 
     
     return (
