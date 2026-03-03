@@ -5,6 +5,7 @@ import {
     CardHeader,
     // Divider,
     Input,
+    mergeClasses,
 } from '@fluentui/react-components'
 import { useAppStore } from '../store/useAppStore'
 import { useStyles } from '../styles/Styles'
@@ -19,9 +20,10 @@ import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateTo
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId } = useAppStore()
+    const { connection, isLoadingConnection, addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
+    const isLocked = editingComponent !== 'none';
     
     
     //const [filter, setFilter] = useState<string>("all")
@@ -43,7 +45,7 @@ export const CustomApiSelector: React.FC = () => {
 
     
     return (
-        <Card className={styles.card}>
+        <Card className={mergeClasses(styles.card, isLocked && styles.lockedSection)}>
             {/* <CardHeader 
                 header={<h2>Custom API Selector</h2>}
                 // description={"Select a Custom API or Create a new one"}
