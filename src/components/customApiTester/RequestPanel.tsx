@@ -10,8 +10,7 @@ import {
     Tooltip,
     Badge,
     Spinner,
-    ToggleButton,
-    Text
+    ToggleButton
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
@@ -19,7 +18,6 @@ import {
     ArrowUploadRegular,
     CodeFilled,
     CodeRegular,
-    CopyRegular
 } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useAppStore } from '../../store/useAppStore';
@@ -29,7 +27,7 @@ import { DatePicker } from '@fluentui/react-datepicker-compat';
 import JsonView from '@uiw/react-json-view';
 import { darkTheme } from '@uiw/react-json-view/dark';
 import { lightTheme } from '@uiw/react-json-view/light';
-import { buildCustomApiODataUrl } from '../../utils/odataUrl';
+import { buildCustomApiODataUrl, buildFunctionParamString } from '../../utils/odataUrl';
 import { CustomApi } from '../../models/CustomApi';
 
 // Type for storing parameter values
@@ -192,6 +190,7 @@ interface RequestPanelProps {
     isFetchingBoundRecords: boolean;
     isBoundToEntity: boolean;
     boundEntityLogicalName: string | null;
+    boundEntityCollectionName: string | null;
     boundEntityRecords: { id: string; name: string }[];
     boundRecordId: string | null;
     setBoundRecordId: (id: string | null) => void;
@@ -210,6 +209,7 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
     isFetchingBoundRecords,
     isBoundToEntity,
     boundEntityLogicalName,
+    boundEntityCollectionName,
     boundEntityRecords,
     boundRecordId,
     setBoundRecordId,
@@ -232,20 +232,29 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
             return null;
         }
 
-        return buildCustomApiODataUrl({
+        const baseUrl = buildCustomApiODataUrl({
             customApi,
             instanceUrl: connection.url,
-            requestParameters: sortedParameters,
-            parameterValues,
+            boundEntityCollectionName,
             boundRecordId,
         });
+
+        if (!baseUrl) {
+            return null;
+        }
+
+        // Append function parameters only for functions
+        if (customApi.isfunction) {
+            const paramString = buildFunctionParamString({
+                requestParameters: sortedParameters,
+                parameterValues,
+            });
+            return `${baseUrl}${paramString}`;
+        }
+
+        return baseUrl;
     }, [showOdata, customApi, connection?.url, sortedParameters, parameterValues, boundRecordId]);
 
-    const handleCopyUrl = () => {
-        if (odataUrl) {
-            navigator.clipboard.writeText(odataUrl);
-        }
-    };
 
     return (
         <Card className={styles.testerPanel}>
@@ -350,41 +359,30 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                     <div className={styles.testerFormSection}>
                         {/* OData URL */}
                         {odataUrl && (
-                            <Field label="Custom API URL">
-                                <div style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: '8px', 
-                                    padding: '8px 12px', 
-                                    backgroundColor: theme === 'dark' ? '#1e1e1e' : '#f5f5f5', 
-                                    borderRadius: '4px',
-                                    border: `1px solid ${theme === 'dark' ? '#3e3e3e' : '#e0e0e0'}`
-                                }}>
-                                    <Text 
-                                        style={{ 
-                                            flex: 1, 
-                                            fontFamily: 'monospace', 
-                                            fontSize: '12px',
-                                            wordBreak: 'break-all',
-                                            overflowWrap: 'break-word'
-                                        }}
+                            <Field label={
+                                <span className={styles.fieldLabelStandard}>
+                                    <span>Custom API URL</span>
+                                    <Badge
+                                        appearance="filled"
+                                        size="small"
+                                        color={customApi?.isfunction ? 'informative' : 'severe'}
                                     >
-                                        {odataUrl}
-                                    </Text>
-                                    <Tooltip content="Copy URL" relationship="label">
-                                        <Button
-                                            appearance="subtle"
-                                            size="small"
-                                            icon={<CopyRegular />}
-                                            onClick={handleCopyUrl}
-                                        />
-                                    </Tooltip>
-                                </div>
+                                        {customApi?.isfunction ? 'GET' : 'POST'}
+                                    </Badge>
+                                </span>
+                            }>
+                                <Textarea
+                                    value={odataUrl}
+                                    readOnly
+                                    appearance='filled-darker'
+                                    rows={2}
+                                    resize='vertical'
+                                />
                             </Field>
                         )}
                         
-                        {/* OData Request Parameters */}
-                        {requestPreview && typeof requestPreview.parameters === 'object' && requestPreview.parameters !== null && (
+                        {/* OData Request Parameters , only if cudtopmapi is not function*/}
+                        {customApi?.isfunction === false && requestPreview && typeof requestPreview.parameters === 'object' && requestPreview.parameters !== null && (
                             <Field label="Request Parameters">
                                 <div style={{ overflow: 'auto', wordBreak: 'break-all' }}>
                                     <JsonView
