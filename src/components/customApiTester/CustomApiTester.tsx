@@ -9,6 +9,7 @@ import { useCustomApis } from '../../hooks/useCustomApis';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 import { useEntityRecords } from '../../hooks/useEntityRecords';
+import { useMetadata } from '../../hooks/useMetadata';
 import { useStyles } from '../../styles/Styles';
 import { Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { Customapisbindingtype } from '../../models/CustomApi';
@@ -20,7 +21,7 @@ import { notify } from '../../utils/notify';
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId, addLog } = useAppStore();
+    const { selectedCustomApiId, addLog, setGlobalMessage, clearGlobalMessage } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
     const { responseProperties } = useCustomApiResponseProperties();
@@ -31,7 +32,9 @@ export const CustomApiTester: React.FC = () => {
     const isBoundToEntity = selectedCustomApi?.bindingtype === 1 as Customapisbindingtype;
     const boundEntityLogicalName = isBoundToEntity ? selectedCustomApi?.boundentitylogicalname : null;
 
-    // Fetch records from the bound entity using metadata
+    // Fetch metadata and records from the bound entity
+    const metadata = useMetadata(boundEntityLogicalName ?? '');
+    const boundEntityCollectionName: string | null = metadata.collectionname ? String(metadata.collectionname) : null;
     const { records: boundEntityRecords, isFetching: isFetchingBoundRecords } = useEntityRecords(boundEntityLogicalName);
 
     // Store parameter values
@@ -73,17 +76,19 @@ export const CustomApiTester: React.FC = () => {
         });
     }, [isBoundToEntity, boundRecordId, requestParameters, parameterValues]);
 
-    // Show notification for missing required fields when user selects an API
+    // Show global message for missing required fields when user selects an API
     useEffect(() => {
         if (selectedCustomApi && isRequiredMissing) {
-            notify({
+            setGlobalMessage('tester-required-fields', {
+                intent: 'warning',
                 title: 'Required Fields',
                 body: 'Please provide all required parameters before testing.',
-                type: 'warning',
-                duration: 3000,
+                dismissable: true,
             });
+        } else {
+            clearGlobalMessage('tester-required-fields');
         }
-    }, [selectedCustomApi?.customapiid]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [selectedCustomApi?.customapiid, isRequiredMissing, setGlobalMessage, clearGlobalMessage]);
 
     // Clear results when the request form becomes dirty after execution
     useEffect(() => {
@@ -344,6 +349,7 @@ export const CustomApiTester: React.FC = () => {
                             isFetchingBoundRecords={isFetchingBoundRecords}
                             isBoundToEntity={isBoundToEntity}
                             boundEntityLogicalName={boundEntityLogicalName}
+                            boundEntityCollectionName={boundEntityCollectionName}
                             boundEntityRecords={boundEntityRecords}
                             boundRecordId={boundRecordId}
                             setBoundRecordId={setBoundRecordId}
@@ -354,6 +360,7 @@ export const CustomApiTester: React.FC = () => {
                             isExecuteDisabled={isRequiredMissing}
                             onExecute={handleExecute}
                             requestPreview={requestPreview}
+                            customApi={selectedCustomApi}
                         />
                         <ResponsePanel
                             executionResult={executionResult}
