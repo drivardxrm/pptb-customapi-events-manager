@@ -59,6 +59,7 @@ export const PowerFxDetails: React.FC<PowerFxDetailsProps> = ({ fxexpressionid }
                             <Textarea
                                 value={fxexpression?.expression ?? ''}
                                 readOnly
+                                spellCheck={false}
                                 appearance='filled-darker'
                                 resize="vertical"
                                 rows={4}

@@ -4,6 +4,7 @@ import { CustomApi, CustomApiCreateable, CustomApiUpdateable } from '../models/C
 import { customApiService } from '../services/CustomApiService';
 import { queryKeys } from '../utils/queryKeys';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
+import { notify } from '../utils/notify';
 
 
 export const useCustomApis = () => {
@@ -50,12 +51,14 @@ export const useCreateCustomApi = () => {
       try {
         const result = await customApiService.createCustomApi( next, solutionUniqueName);
 
-       
+        
         addLog(`Custom API '${next.uniquename}' created successfully${solutionUniqueName ? ` in solution '${solutionUniqueName}'` : ''}`, 'success');
+        notify({ title: 'Custom API Created', body: `'${next.uniquename}' created successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
         console.error('Error creating Custom API', error);
         addLog(`Failed to create Custom API. ${error}`, 'error');
+        notify({ title: 'Creation Failed', body: `Failed to create Custom API. ${error}`, type: 'error', duration: 5000 });
         throw error;
       }
     },
@@ -85,14 +88,17 @@ export const useUpdateCustomApi = () => {
 
         if (!result.updated) {
           addLog('No changes to save', 'warning');
+          notify({ title: 'No Changes', body: 'No changes to save', type: 'warning', duration: 3000 });
           return result;
         }
 
         addLog(`Custom API '${current.uniquename}' updated successfully`, 'success');
+        notify({ title: 'Custom API Updated', body: `'${current.uniquename}' updated successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
         console.error('Error saving Custom API', error);
         addLog(`Failed to save Custom API changes. ${error}`, 'error');
+        notify({ title: 'Update Failed', body: `Failed to save Custom API changes. ${error}`, type: 'error', duration: 5000 });
         throw error;
       }
     },
@@ -119,10 +125,12 @@ export const useDeleteCustomApi = () => {
       try {
         const result = await customApiService.deleteRecord(customApi.customapiid);
         addLog(`Custom API '${customApi.uniquename}' deleted successfully`, 'success');
+        notify({ title: 'Custom API Deleted', body: `'${customApi.uniquename}' deleted successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
         console.error('Error deleting Custom API', error);
         addLog(`Failed to delete Custom API. ${error}`, 'error');
+        notify({ title: 'Deletion Failed', body: `Failed to delete Custom API. ${error}`, type: 'error', duration: 5000 });
         throw error;
       }
     },

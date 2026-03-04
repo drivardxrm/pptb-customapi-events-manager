@@ -93,6 +93,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
                         appearance='filled-darker'
+                        spellCheck={false}
                         value={editedData.description ?? ''}
                         onChange={(event) => 
                             updateFields((next) => {
@@ -137,7 +138,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
                 </Field>
             </div>
 
-            {api.bindingtype === 1 && (
+            {(api.bindingtype === 1  || api.bindingtype === 2) && (
                 <div className={styles.formSection}>
                     <Field label={
                         <span className={styles.fieldLabelStandard}>

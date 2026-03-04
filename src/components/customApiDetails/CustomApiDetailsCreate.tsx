@@ -63,7 +63,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
             !createData.description || createData.description.trim() === '' ||
             createData.allowedcustomprocessingsteptype === null ||
             createData.bindingtype === null ||
-            (createData.bindingtype === 1 && (!createData.boundentitylogicalname || createData.boundentitylogicalname.trim() === ''))
+            ((createData.bindingtype === 1 || createData.bindingtype === 2) && (!createData.boundentitylogicalname || createData.boundentitylogicalname.trim() === ''))
         ) {
             return { isValid: false, message: 'Please fill all required fields.' };
         }
@@ -239,6 +239,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                         <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>} required>
                             <Textarea
                                 appearance='filled-darker'
+                                spellCheck={false}
                                 value={createData.description ?? ''}
                                 onChange={(event) => {
                                     updateFields((next) => {
@@ -306,7 +307,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                         </Field>
                     </div>
 
-                    {createData.bindingtype === 1 && (
+                    {(createData.bindingtype === 1 || createData.bindingtype === 2) && (
                         <div className={styles.formSection}>
                             <Field label={
                                 <div className={styles.fieldLabelStandard}>

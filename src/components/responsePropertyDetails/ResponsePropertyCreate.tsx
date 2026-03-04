@@ -144,6 +144,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
 
                 <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
+                        spellCheck={false}
                         value={createData.description ?? ''}
                         onChange={(event) =>
                             updateFields((draft) => {

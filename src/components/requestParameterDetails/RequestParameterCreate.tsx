@@ -161,6 +161,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                 >
                     <Textarea
                         appearance='filled-darker'
+                        spellCheck={false}
                         required
                         value={createData.description ?? ''}
                         onChange={(event) =>

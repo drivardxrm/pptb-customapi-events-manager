@@ -36,6 +36,7 @@ export const ResponsePropertyRead: React.FC<ResponsePropertyReadProps> = ({ prop
                     <Textarea
                         value={property.description || ''}
                         readOnly
+                        spellCheck={false}
                         appearance='filled-darker'
                         resize="vertical"
                         rows={2}

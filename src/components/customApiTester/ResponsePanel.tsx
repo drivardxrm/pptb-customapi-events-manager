@@ -128,6 +128,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                                             {isComplexType ? (
                                                 <Textarea
                                                     appearance="filled-darker"
+                                                    spellCheck={false}
                                                     value={value}
                                                     readOnly
                                                     resize="vertical"

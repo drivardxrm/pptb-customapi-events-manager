@@ -65,6 +65,7 @@ export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ prop
 
                 <Field label={<span className={styles.fieldLabelStandard}><span className={styles.semiBoldLabel}>Description</span></span>}>
                     <Textarea
+                        spellCheck={false}
                         value={editedData.description ?? ''}
                         onChange={(event) =>
                             updateFields((draft) => {

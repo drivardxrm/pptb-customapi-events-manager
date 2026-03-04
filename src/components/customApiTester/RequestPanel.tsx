@@ -120,6 +120,7 @@ const renderParameterInput = (
             return (
                 <Textarea
                     appearance='filled-darker'
+                    spellCheck={false}
                     placeholder='["value1", "value2"]'
                     value={value as string ?? ''}
                     onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
@@ -133,6 +134,7 @@ const renderParameterInput = (
             return (
                 <Textarea
                     appearance='filled-darker'
+                    spellCheck={false}
                     placeholder={paramType === 'Entity' ? '{ "@odata.type": "...", ... }' : '[{ "@odata.type": "...", ... }]'}
                     value={value as string ?? ''}
                     onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
@@ -374,6 +376,7 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                                 <Textarea
                                     value={odataUrl}
                                     readOnly
+                                    spellCheck={false}
                                     appearance='filled-darker'
                                     rows={2}
                                     resize='vertical'

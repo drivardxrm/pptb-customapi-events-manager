@@ -50,6 +50,7 @@ export const RequestParameterRead: React.FC<RequestParameterDetailsReadProps> = 
                     <Textarea
                         value={parameter.description || ''}
                         readOnly
+                        spellCheck={false}
                         appearance='filled-darker'
                         resize="vertical"
                         rows={2}

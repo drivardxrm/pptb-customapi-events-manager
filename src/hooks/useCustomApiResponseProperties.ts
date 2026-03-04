@@ -4,6 +4,7 @@ import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomA
 import { queryKeys } from '../utils/queryKeys';
 import { customApiResponsePropertyService } from '../services/CustomApiResponsePropertyService';
 import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
+import { notify } from '../utils/notify';
 
 
 
@@ -47,10 +48,12 @@ export const useCreateCustomApiResponseProperty = () => {
 
        
         addLog(`Custom API Response Property '${next.uniquename}' created successfully`, 'success');
+        notify({ title: 'Response Property Created', body: `'${next.uniquename}' created successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
         console.error('Error creating Custom API Response Property', error);
         addLog(`Failed to create Custom API Response Property. ${error}`, 'error');
+        notify({ title: 'Creation Failed', body: `Failed to create Response Property. ${error}`, type: 'error', duration: 5000 });
         throw error;
       }
     },
@@ -78,14 +81,17 @@ export const useUpdateCustomApiResponseProperty = () => {
 
         if (!result.updated) {
           addLog('No changes to save', 'warning');
+          notify({ title: 'No Changes', body: 'No changes to save', type: 'warning', duration: 3000 });
           return result;
         }
 
         addLog(`Custom API Response Property'${current.uniquename}' updated successfully`, 'success');
+        notify({ title: 'Response Property Updated', body: `'${current.uniquename}' updated successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
         console.error('Error saving Custom API Response Property', error);
         addLog(`Failed to save Custom API Response Property changes. ${error}`, 'error');
+        notify({ title: 'Update Failed', body: `Failed to save Response Property changes. ${error}`, type: 'error', duration: 5000 });
         throw error;
       }
     },
@@ -111,10 +117,12 @@ export const useDeleteCustomApiResponseProperty = () => {
       try {
         const result = await customApiResponsePropertyService.deleteRecord(responseProperty.customapiresponsepropertyid);
         addLog(`Response Property '${responseProperty.uniquename}' deleted successfully`, 'success');
+        notify({ title: 'Response Property Deleted', body: `'${responseProperty.uniquename}' deleted successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
         console.error('Error deleting Response Property', error);
         addLog(`Failed to delete Response Property. ${error}`, 'error');
+        notify({ title: 'Deletion Failed', body: `Failed to delete Response Property. ${error}`, type: 'error', duration: 5000 });
         throw error;
       }
     },

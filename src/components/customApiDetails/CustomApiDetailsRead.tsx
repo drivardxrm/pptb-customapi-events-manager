@@ -60,6 +60,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                     <Textarea
                         value={api.description || ''}
                         readOnly
+                        spellCheck={false}
                         appearance='filled-darker'
                         resize="vertical"
                         rows={2}
@@ -101,7 +102,7 @@ export const CustomApiDetailsRead: React.FC<CustomApiDetailsReadProps> = ({ api 
                 </Field>
             </div>
 
-            {api.bindingtype === 1 && (
+            {(api.bindingtype === 1  || api.bindingtype === 2) && (
                 <div className={styles.formSection}>
                     <Field
                         label={
