@@ -21,7 +21,7 @@ import { notify } from '../../utils/notify';
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
-    const { selectedCustomApiId, addLog, setGlobalMessage, clearGlobalMessage } = useAppStore();
+    const { selectedCustomApiId, addLog, setGlobalMessage, clearGlobalMessage, selectedNavItem } = useAppStore();
     const { customapis } = useCustomApis();
     const { requestParameters, isFetching } = useCustomApiRequestParameters();
     const { responseProperties } = useCustomApiResponseProperties();
@@ -89,6 +89,11 @@ export const CustomApiTester: React.FC = () => {
             clearGlobalMessage('tester-required-fields');
         }
     }, [selectedCustomApi?.customapiid, isRequiredMissing, setGlobalMessage, clearGlobalMessage]);
+
+    // Clear global message when navigating away from tester
+    useEffect(() => {
+        return () => clearGlobalMessage('tester-required-fields');
+    }, [selectedNavItem, clearGlobalMessage]);
 
     // Clear results when the request form becomes dirty after execution
     useEffect(() => {
