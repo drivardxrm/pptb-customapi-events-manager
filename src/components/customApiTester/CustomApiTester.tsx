@@ -30,7 +30,8 @@ export const CustomApiTester: React.FC = () => {
 
     // Check if API is bound to an entity
     const isBoundToEntity = selectedCustomApi?.bindingtype === 1 as Customapisbindingtype;
-    const boundEntityLogicalName = isBoundToEntity ? selectedCustomApi?.boundentitylogicalname : null;
+    const isBoundToEntityCollection = selectedCustomApi?.bindingtype === 2 as Customapisbindingtype;
+    const boundEntityLogicalName = isBoundToEntity || isBoundToEntityCollection ? selectedCustomApi?.boundentitylogicalname : null;
 
     // Fetch metadata and records from the bound entity
     const metadata = useMetadata(boundEntityLogicalName ?? '');
@@ -165,15 +166,20 @@ export const CustomApiTester: React.FC = () => {
 
         if (isBoundToEntity && boundEntityLogicalName && boundRecordId) {
             request.entityName = boundEntityLogicalName;
-            request.entityId = boundRecordId;
+            request.entityId = boundRecordId; // Will be null if Bound to EntityCollection, which is fine as it indicates the API should be executed in the context of the collection
         }
+
+        if (isBoundToEntityCollection && boundEntityLogicalName) {
+            request.entityName = boundEntityLogicalName;
+        }
+       
 
         if (Object.keys(params).length > 0) {
             request.parameters = params;
         }
 
         return request;
-    }, [selectedCustomApi, isBoundToEntity, boundEntityLogicalName, boundRecordId, parameterValues, requestParameters]);
+    }, [selectedCustomApi, isBoundToEntity, isBoundToEntityCollection, boundEntityLogicalName, boundRecordId, parameterValues, requestParameters]);
 
     const handleParameterChange = (paramId: string, value: unknown) => {
         setParameterValues(prev => ({
@@ -278,7 +284,11 @@ export const CustomApiTester: React.FC = () => {
             // Add bound entity info if applicable
             if (isBoundToEntity && boundEntityLogicalName && boundRecordId) {
                 request.entityName = boundEntityLogicalName;
-                request.entityId = boundRecordId;
+                request.entityId = boundRecordId;  
+            }
+
+            if (isBoundToEntityCollection && boundEntityLogicalName) {
+                request.entityName = boundEntityLogicalName;
             }
 
             // Add parameters if any
