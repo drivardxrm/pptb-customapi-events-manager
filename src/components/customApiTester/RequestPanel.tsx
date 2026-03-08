@@ -5,9 +5,9 @@ import {
     Field, 
     Input, 
     Textarea, 
-    Switch, 
+    Dropdown, 
+    Option,
     Button,
-    Tooltip,
     Badge,
     Spinner,
 } from '@fluentui/react-components';
@@ -36,12 +36,24 @@ const renderParameterInput = (
     switch (paramType) {
         case 'Boolean':
             return (
-                <Tooltip content={value ? 'True' : 'False'} relationship='description' positioning='above-end'>
-                    <Switch
-                        checked={value as boolean ?? false}
-                        onChange={(_, data) => onChange(param.customapirequestparameterid, data.checked)}
-                    />
-                </Tooltip>
+                <Dropdown
+                    appearance='filled-darker'
+                    placeholder="Select value"
+                    selectedOptions={value === true ? ['true'] : value === false ? ['false'] : []}
+                    value={value === true ? 'True' : value === false ? 'False' : ''}
+                    onOptionSelect={(_, data) => {
+                        if (data.optionValue === 'true') {
+                            onChange(param.customapirequestparameterid, true);
+                        } else if (data.optionValue === 'false') {
+                            onChange(param.customapirequestparameterid, false);
+                        } else {
+                            onChange(param.customapirequestparameterid, null);
+                        }
+                    }}
+                >
+                    <Option value="true">True</Option>
+                    <Option value="false">False</Option>
+                </Dropdown>
             );
 
         case 'Integer':
