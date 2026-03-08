@@ -125,13 +125,10 @@ export const CustomApiTester: React.FC = () => {
                 case 'Picklist':
                 case 'Guid':
                 case 'String':
+                case 'DateTime':
                     params[paramName] = value;
                     break;
-                case 'DateTime':
-                    if (value instanceof Date) {
-                        params[paramName] = value.toISOString();
-                    }
-                    break;
+                
                 case 'StringArray':
                     if (typeof value === 'string') {
                         try { params[paramName] = JSON.parse(value); } catch { params[paramName] = value; }
@@ -208,16 +205,11 @@ export const CustomApiTester: React.FC = () => {
                 case 'Picklist':
                 case 'Guid':
                 case 'String':
+                case 'DateTime':
                     params[paramName] = value;
                     break;
 
-                case 'DateTime':
-                    // Convert Date object to ISO format
-                    if (value instanceof Date) {
-                        params[paramName] = value.toISOString();
-                    }
-                    break;
-
+               
                 case 'StringArray':
                     // Parse JSON array string
                     if (typeof value === 'string') {

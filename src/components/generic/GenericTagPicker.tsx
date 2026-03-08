@@ -1,5 +1,5 @@
 import { Button, mergeClasses, Tag, TagPicker, TagPickerControl, TagPickerGroup, TagPickerInput, TagPickerList, TagPickerOption, TagPickerProps, useTagPickerFilter } from '@fluentui/react-components';
-import React, { JSX, useMemo, useState, useEffect, cloneElement } from 'react';
+import React, { JSX, useMemo, useState, useEffect, useRef, cloneElement } from 'react';
 import { useStyles } from '../../styles/Styles';
 import { ChevronDown20Regular, DismissRegular } from '@fluentui/react-icons';
 
@@ -28,6 +28,13 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
     const [selectedOption, setSelectedOption] = useState<string | undefined>(initialValue);
     const styles = useStyles()
 
+    // Use ref for onSelect to avoid infinite re-render loops (React Error #185)
+    // when parent passes unmemoized callback
+    const onSelectRef = useRef(onSelect);
+    useEffect(() => {
+        onSelectRef.current = onSelect;
+    });
+
     // Sync selectedOption when initialValue changes
     useEffect(() => {
         if (initialValue !== undefined) {
@@ -39,9 +46,9 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
     useEffect(() => {
         if (selectedOption && items.length > 0 && !items.some((item) => item.id === selectedOption)) {
             setSelectedOption(undefined);
-            onSelect?.(null, undefined);
+            onSelectRef.current?.(null, undefined);
         }
-    }, [items, selectedOption, onSelect]);
+    }, [items, selectedOption]);
 
 
 
