@@ -28,3 +28,12 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - URL updates reactively as parameters and bound record change
 - Used memoization (useMemo) for efficient URL building
 
+### 2026-03-03: Issue #56 - OData Card Consolidation
+- Created dedicated `ODataCard.tsx` component in `src/components/customApiTester/`
+- Consolidated OData info: Request URL, Request Body (for Actions), Response JSON
+- Removed OData toggles from RequestPanel and ResponsePanel
+- Moved single OData toggle to Test Custom API card header (action slot)
+- OData Card visibility controlled by toggle state in CustomApiTester
+- Card placed below Request/Response panels when visible
+- Pattern: Use card-level actions for feature toggles, keep individual panels focused
+
