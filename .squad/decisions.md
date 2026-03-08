@@ -59,3 +59,17 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 - Reactive updates using `useMemo` when parameters or binding changes
 - Theme-aware styling: monospace font, word-break CSS, dark/light backgrounds
 **Why:** Users need to see actual OData endpoints for external testing; URL format varies significantly by binding and operation type. Pattern established for future technical URL/endpoint displays.
+
+---
+
+### 2026-03-08: OData Card Component Pattern
+**By:** Dallas (Frontend Dev)  
+**What:** Created dedicated ODataCard component consolidating OData-related info in Custom API Tester (Issue #56).
+**Implementation:**
+- New `src/components/customApiTester/ODataCard.tsx` component
+- Displays Request URL (with HTTP method badge), Request Body (for Actions), and Response JSON
+- Single OData toggle moved to Test Custom API card header (CardHeader action slot)
+- Toggle controls visibility of ODataCard below Request/Response panels
+- Removed individual OData toggles from RequestPanel and ResponsePanel
+- Uses existing `buildCustomApiODataUrl` and `buildFunctionParamString` utilities from `src/utils/odataUrl.ts`
+**Why:** Consolidates OData technical details into a single card for cleaner UX. Users who don't need OData info see a simpler interface, while developers can toggle the card for detailed URL/JSON inspection.

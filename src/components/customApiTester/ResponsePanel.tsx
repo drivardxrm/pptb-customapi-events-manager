@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { 
     Card, 
     CardHeader,
@@ -6,15 +6,10 @@ import {
     Input, 
     Textarea, 
     Badge,
-    ToggleButton
 } from '@fluentui/react-components';
-import { ArrowDownloadRegular, CodeFilled, CodeRegular } from '@fluentui/react-icons';
+import { ArrowDownloadRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { useAppStore } from '../../store/useAppStore';
 import { CustomApiResponseProperty, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
-import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
-import { lightTheme } from '@uiw/react-json-view/light';
 
 interface ResponsePanelProps {
     executionResult: { success: boolean; data?: unknown; error?: string } | null;
@@ -26,8 +21,6 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
     responseProperties,
 }) => {
     const styles = useStyles();
-    const { theme } = useAppStore();
-    const [showOdata, setShowOdata] = useState(false);
 
     // Sort response properties by name
     const sortedResponseProperties = useMemo(() => {
@@ -50,23 +43,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
         <Card className={styles.testerPanel}>
             <CardHeader
                 header={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowDownloadRegular /> Response</span>
-                }
-                action={
-                    executionResult?.success && executionResult.data !== undefined ? (
-                        <ToggleButton
-                            size="small"
-                            appearance={showOdata ? 'primary' : 'secondary'}
-                    
-                            shape="circular"
-                            icon={showOdata ? <CodeFilled /> : <CodeRegular />}
-                        
-                            checked={showOdata}
-                            onClick={() => setShowOdata(prev => !prev)}
-                        >
-                            OData
-                        </ToggleButton>
-                    ) : undefined
+                    <span className={styles.flexRowCentered}><ArrowDownloadRegular /> Response</span>
                 }
             />
             <div className={styles.testerPanelContent}>
@@ -76,30 +53,8 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                     <div className={styles.infoBox}>Execution failed. See the message above for details.</div>
                 ) : (
                     <>
-                        {showOdata && executionResult.data !== undefined && (
-                            <div className={styles.testerFormSection}>
-                                <Field
-                                    label={
-                                        <span className={styles.semiBoldLabel}>OData Response</span>
-                                    }
-                                >
-                                    <JsonView
-                                        value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
-                                        displayDataTypes={false}
-                                        collapsed={2}
-                                        style={{
-                                            ...(theme === 'light' ? lightTheme : darkTheme),
-                                            wordBreak: 'break-all',
-                                            overflow: 'auto',
-                                            padding: '2px',
-                                        }}
-                                        shortenTextAfterLength={0}
-                                    />
-                                </Field>
-                            </div>
-                        )}
                         {/* Response Properties */}
-                        {!showOdata && executionResult.success && sortedResponseProperties.length > 0 && (
+                        {executionResult.success && sortedResponseProperties.length > 0 && (
                             <div className={styles.testerFormSection}>
                                 {sortedResponseProperties.map(prop => {
                                     const propType = Customapiresponsepropertiestype[prop.type];
@@ -145,6 +100,10 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                                     );
                                 })}
                             </div>
+                        )}
+                        {/* No response properties message */}
+                        {executionResult.success && sortedResponseProperties.length === 0 && (
+                            <div className={styles.infoBox}>This Custom API has no defined response properties.</div>
                         )}
                     </>
                 )}

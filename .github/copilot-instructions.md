@@ -93,6 +93,7 @@ Custom hooks in `src/hooks/`:
 **Fluent UI React v9** (`@fluentui/react-components`):
 - Theme provider wraps app with `webLightTheme`/`webDarkTheme`
 - Use `makeStyles` for component styling (see `src/styles/`)
+- **Always use `className` with Griffel `makeStyles` — never inline styles**
 - Icons from `@fluentui/react-icons`
 
 ### Lookup Field Naming
