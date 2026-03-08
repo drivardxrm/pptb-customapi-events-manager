@@ -585,4 +585,12 @@ export const useStyles = makeStyles({
     icon12: { fontSize: '12px' },
     icon24: { fontSize: '24px' },
     icon32: { fontSize: '32px' },
+
+    // ===========================================
+    // JSON VIEWER
+    // ===========================================
+    jsonViewerWrapper: {
+        overflow: 'auto',
+        wordBreak: 'break-all',
+    },
 });

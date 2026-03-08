@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Card, 
-    CardHeader
+    CardHeader,
+    ToggleButton
 } from '@fluentui/react-components';
+import { CodeFilled, CodeRegular } from '@fluentui/react-icons';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis } from '../../hooks/useCustomApis';
@@ -17,6 +19,7 @@ import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
 import { RequestPanel, ParameterValues } from './RequestPanel';
 import { ResponsePanel } from './ResponsePanel';
+import { ODataCard } from './ODataCard';
 import { notify } from '../../utils/notify';
 
 export const CustomApiTester: React.FC = () => {
@@ -45,6 +48,8 @@ export const CustomApiTester: React.FC = () => {
     // Execution state
     const [isExecuting, setIsExecuting] = useState(false);
     const [executionResult, setExecutionResult] = useState<{ success: boolean; data?: unknown; error?: string } | null>(null);
+    // OData visibility state
+    const [showOdata, setShowOdata] = useState(false);
 
     // Reset parameter values and bound record when custom API changes
     useEffect(() => {
@@ -346,6 +351,18 @@ export const CustomApiTester: React.FC = () => {
                                     )}
                                 </div>
                             }
+                            action={
+                                <ToggleButton
+                                    size="small"
+                                    appearance={showOdata ? 'primary' : 'secondary'}
+                                    shape="circular"
+                                    icon={showOdata ? <CodeFilled /> : <CodeRegular />}
+                                    checked={showOdata}
+                                    onClick={() => setShowOdata(prev => !prev)}
+                                >
+                                    OData
+                                </ToggleButton>
+                            }
                         />
                     </Card>
 
@@ -356,7 +373,6 @@ export const CustomApiTester: React.FC = () => {
                             isFetchingBoundRecords={isFetchingBoundRecords}
                             isBoundToEntity={isBoundToEntity}
                             boundEntityLogicalName={boundEntityLogicalName}
-                            boundEntityCollectionName={boundEntityCollectionName}
                             boundEntityRecords={boundEntityRecords}
                             boundRecordId={boundRecordId}
                             setBoundRecordId={setBoundRecordId}
@@ -366,14 +382,25 @@ export const CustomApiTester: React.FC = () => {
                             isExecuting={isExecuting}
                             isExecuteDisabled={isRequiredMissing}
                             onExecute={handleExecute}
-                            requestPreview={requestPreview}
-                            customApi={selectedCustomApi}
                         />
                         <ResponsePanel
                             executionResult={executionResult}
                             responseProperties={responseProperties}
                         />
                     </div>
+
+                    {/* OData Card - shown when OData toggle is enabled */}
+                    {showOdata && (
+                        <ODataCard
+                            customApi={selectedCustomApi}
+                            requestParameters={sortedParameters}
+                            parameterValues={parameterValues}
+                            boundEntityCollectionName={boundEntityCollectionName}
+                            boundRecordId={boundRecordId}
+                            requestPreview={requestPreview}
+                            executionResult={executionResult}
+                        />
+                    )}
                 </>
             )}
             

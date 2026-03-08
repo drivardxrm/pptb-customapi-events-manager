@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { 
     Card, 
     CardHeader,
@@ -10,25 +10,16 @@ import {
     Tooltip,
     Badge,
     Spinner,
-    ToggleButton
 } from '@fluentui/react-components';
 import { 
     Play24Regular,
     SquareRegular,
     ArrowUploadRegular,
-    CodeFilled,
-    CodeRegular,
 } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { useAppStore } from '../../store/useAppStore';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
-import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
-import { lightTheme } from '@uiw/react-json-view/light';
-import { buildCustomApiODataUrl, buildFunctionParamString } from '../../utils/odataUrl';
-import { CustomApi } from '../../models/CustomApi';
 
 // Type for storing parameter values
 export type ParameterValues = Record<string, unknown>;
@@ -192,7 +183,6 @@ interface RequestPanelProps {
     isFetchingBoundRecords: boolean;
     isBoundToEntity: boolean;
     boundEntityLogicalName: string | null;
-    boundEntityCollectionName: string | null;
     boundEntityRecords: { id: string; name: string }[];
     boundRecordId: string | null;
     setBoundRecordId: (id: string | null) => void;
@@ -202,8 +192,6 @@ interface RequestPanelProps {
     isExecuting: boolean;
     isExecuteDisabled: boolean;
     onExecute: () => void;
-    requestPreview: Record<string, unknown> | null;
-    customApi?: CustomApi;
 }
 
 export const RequestPanel: React.FC<RequestPanelProps> = ({
@@ -211,7 +199,6 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
     isFetchingBoundRecords,
     isBoundToEntity,
     boundEntityLogicalName,
-    boundEntityCollectionName,
     boundEntityRecords,
     boundRecordId,
     setBoundRecordId,
@@ -221,70 +208,25 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
     isExecuting,
     isExecuteDisabled,
     onExecute,
-    requestPreview,
-    customApi,
 }) => {
     const styles = useStyles();
-    const { theme, connection } = useAppStore();
-    const [showOdata, setShowOdata] = useState(false);
-
-    // Build the OData URL
-    const odataUrl = useMemo(() => {
-        if (!showOdata || !customApi || !connection?.url) {
-            return null;
-        }
-
-        const baseUrl = buildCustomApiODataUrl({
-            customApi,
-            instanceUrl: connection.url,
-            boundEntityCollectionName,
-            boundRecordId,
-        });
-
-        if (!baseUrl) {
-            return null;
-        }
-
-        // Append function parameters only for functions
-        if (customApi.isfunction) {
-            const paramString = buildFunctionParamString({
-                requestParameters: sortedParameters,
-                parameterValues,
-            });
-            return `${baseUrl}${paramString}`;
-        }
-
-        return baseUrl;
-    }, [showOdata, customApi, connection?.url, sortedParameters, parameterValues, boundRecordId]);
 
 
     return (
         <Card className={styles.testerPanel}>
             <CardHeader
                 header={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowUploadRegular /> Request</span>
+                    <span className={styles.flexRowCentered}><ArrowUploadRegular /> Request</span>
                 }
                 action={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <ToggleButton
-                            size="small"
-                            appearance={showOdata ? 'primary' : 'secondary'}
-                            shape="circular"
-                            icon={showOdata ? <CodeFilled /> : <CodeRegular />}
-                            checked={showOdata}
-                            onClick={() => setShowOdata(prev => !prev)}
-                        >
-                            OData
-                        </ToggleButton>
-                        <Button
-                            appearance="primary"
-                            icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
-                            onClick={onExecute}
-                            disabled={isExecuting || isExecuteDisabled}
-                        >
-                            {isExecuting ? 'Executing...' : 'Execute'}
-                        </Button>
-                    </span>
+                    <Button
+                        appearance="primary"
+                        icon={isExecuting ? <Spinner size="tiny" /> : <Play24Regular />}
+                        onClick={onExecute}
+                        disabled={isExecuting || isExecuteDisabled}
+                    >
+                        {isExecuting ? 'Executing...' : 'Execute'}
+                    </Button>
                 }
             />
             <div className={styles.testerPanelContent}>
@@ -355,48 +297,6 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                                 )}
                             </Field>
                         ))}
-                    </div>
-                )}
-                {showOdata && (
-                    <div className={styles.testerFormSection}>
-                        {/* OData URL */}
-                        {odataUrl && (
-                            <Field label={
-                                <span className={styles.fieldLabelStandard}>
-                                    <span>Custom API URL</span>
-                                    <Badge
-                                        appearance="filled"
-                                        size="small"
-                                        color={customApi?.isfunction ? 'informative' : 'severe'}
-                                    >
-                                        {customApi?.isfunction ? 'GET' : 'POST'}
-                                    </Badge>
-                                </span>
-                            }>
-                                <Textarea
-                                    value={odataUrl}
-                                    readOnly
-                                    spellCheck={false}
-                                    appearance='filled-darker'
-                                    rows={2}
-                                    resize='vertical'
-                                />
-                            </Field>
-                        )}
-                        
-                        {/* OData Request Parameters , only if cudtopmapi is not function*/}
-                        {customApi?.isfunction === false && requestPreview && typeof requestPreview.parameters === 'object' && requestPreview.parameters !== null && (
-                            <Field label="Request Parameters">
-                                <div style={{ overflow: 'auto', wordBreak: 'break-all' }}>
-                                    <JsonView
-                                        value={requestPreview.parameters as object}
-                                        style={{ ...(theme === 'dark' ? darkTheme : lightTheme), overflow: 'auto', wordBreak: 'break-all' }}
-                                        displayDataTypes={false}
-                                        enableClipboard={true}
-                                    />
-                                </div>
-                            </Field>
-                        )}
                     </div>
                 )}
             </div>
