@@ -20,6 +20,7 @@ import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
+import { EntityReferencePicker } from './EntityReferencePicker';
 
 // Type for storing parameter values
 export type ParameterValues = Record<string, unknown>;
@@ -28,8 +29,7 @@ export type ParameterValues = Record<string, unknown>;
 const renderParameterInput = (
     param: CustomApiRequestParameter,
     value: unknown,
-    onChange: (paramId: string, value: unknown) => void,
-    styles: ReturnType<typeof useStyles>
+    onChange: (paramId: string, value: unknown) => void
 ): React.ReactNode => {
     const paramType = Customapirequestparameterstype[param.type];
 
@@ -147,36 +147,8 @@ const renderParameterInput = (
             );
 
         case 'EntityReference':
-            return (
-                <div className={styles.flexRow}>
-                    <Input
-                        appearance='filled-darker'
-                        placeholder={param.logicalentityname || 'logicalname'}
-                        value={(value as { logicalname?: string })?.logicalname ?? ''}
-                        onChange={(e) => {
-                            const current = (value as { logicalname?: string; id?: string }) ?? {};
-                            onChange(param.customapirequestparameterid, {
-                                ...current,
-                                logicalname: e.target.value || undefined
-                            });
-                        }}
-                        required={!param.isoptional}
-                    />
-                    <Input
-                        appearance='filled-darker'
-                        placeholder="Record ID (GUID)"
-                        value={(value as { id?: string })?.id ?? ''}
-                        onChange={(e) => {
-                            const current = (value as { logicalname?: string; id?: string }) ?? {};
-                            onChange(param.customapirequestparameterid, {
-                                ...current,
-                                id: e.target.value || undefined
-                            });
-                        }}
-                        required={!param.isoptional}
-                    />
-                </div>
-            );
+            // Handled separately in the component JSX using EntityReferencePicker
+            return null;
 
         default:
             return (
@@ -281,34 +253,56 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                         )}
                         
                         {/* Request Parameters */}
-                        {sortedParameters.map(param => (
-                            <Field
-                                key={param.customapirequestparameterid}
-                                label={
-                                    <span className={styles.fieldLabelStandard}>
-                                        <span className={styles.semiBoldLabel}>
-                                            {param.displayname || param.name}
+                        {sortedParameters.map(param => {
+                            const paramType = Customapirequestparameterstype[param.type];
+                            const isEntityReference = paramType === 'EntityReference';
+                            
+                            return (
+                                <Field
+                                    key={param.customapirequestparameterid}
+                                    label={
+                                        <span className={styles.fieldLabelStandard}>
+                                            <span className={styles.semiBoldLabel}>
+                                                {param.displayname || param.name}
+                                            </span>
+                                            <Badge 
+                                                appearance="outline" 
+                                                size="small"
+                                                color="informative"
+                                            >
+                                                {paramType}
+                                            </Badge>
+                                            {isEntityReference && param.logicalentityname && (
+                                                <Badge 
+                                                    appearance="outline" 
+                                                    size="small"
+                                                    color="severe"
+                                                    icon={<SquareRegular />}
+                                                >
+                                                    {param.logicalentityname}
+                                                </Badge>
+                                            )}
                                         </span>
-                                        <Badge 
-                                            appearance="outline" 
-                                            size="small"
-                                            color="informative"
-                                        >
-                                            {Customapirequestparameterstype[param.type]}
-                                        </Badge>
-                                    </span>
-                                }
-                                hint={param.description}
-                                required={!param.isoptional}
-                            >
-                                {renderParameterInput(
-                                    param,
-                                    parameterValues[param.customapirequestparameterid],
-                                    handleParameterChange,
-                                    styles
-                                )}
-                            </Field>
-                        ))}
+                                    }
+                                    hint={param.description}
+                                    required={!param.isoptional}
+                                >
+                                    {isEntityReference ? (
+                                        <EntityReferencePicker
+                                            entityLogicalName={param.logicalentityname}
+                                            value={parameterValues[param.customapirequestparameterid] as { recordId: string; primaryIdAttribute: string } | null}
+                                            onChange={(val) => handleParameterChange(param.customapirequestparameterid, val)}
+                                        />
+                                    ) : (
+                                        renderParameterInput(
+                                            param,
+                                            parameterValues[param.customapirequestparameterid],
+                                            handleParameterChange
+                                        )
+                                    )}
+                                </Field>
+                            );
+                        })}
                     </div>
                 )}
             </div>

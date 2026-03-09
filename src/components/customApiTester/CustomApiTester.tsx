@@ -146,9 +146,9 @@ export const CustomApiTester: React.FC = () => {
                     }
                     break;
                 case 'EntityReference': {
-                    const entityRef = value as { logicalname?: string; id?: string };
-                    if (entityRef.logicalname && entityRef.id) {
-                        params[paramName] = { entityLogicalName: entityRef.logicalname, id: entityRef.id };
+                    const entityRef = value as { recordId?: string; primaryIdAttribute?: string };
+                    if (entityRef.recordId && entityRef.primaryIdAttribute) {
+                        params[paramName] = { [entityRef.primaryIdAttribute]: entityRef.recordId };
                     }
                     break;
                 }
@@ -239,12 +239,11 @@ export const CustomApiTester: React.FC = () => {
                     break;
 
                 case 'EntityReference':
-                    // Format as EntityReference
-                    const entityRef = value as { logicalname?: string; id?: string };
-                    if (entityRef.logicalname && entityRef.id) {
+                    // Format as EntityReference: { [primaryIdAttribute]: guid }
+                    const entityRef = value as { recordId?: string; primaryIdAttribute?: string };
+                    if (entityRef.recordId && entityRef.primaryIdAttribute) {
                         params[paramName] = {
-                            entityLogicalName: entityRef.logicalname,
-                            id: entityRef.id
+                            [entityRef.primaryIdAttribute]: entityRef.recordId
                         };
                     }
                     break;
