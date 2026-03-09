@@ -21,6 +21,7 @@ import { RequestPanel, ParameterValues } from './RequestPanel';
 import { ResponsePanel } from './ResponsePanel';
 import { ODataCard } from './ODataCard';
 import { notify } from '../../utils/notify';
+import { EntityReferenceValue } from '../../models/Entity';
 
 export const CustomApiTester: React.FC = () => {
     const styles = useStyles();
@@ -146,9 +147,12 @@ export const CustomApiTester: React.FC = () => {
                     }
                     break;
                 case 'EntityReference': {
-                    const entityRef = value as { recordId?: string; primaryIdAttribute?: string };
+                    const entityRef = value as EntityReferenceValue;
                     if (entityRef.recordId && entityRef.primaryIdAttribute) {
-                        params[paramName] = { [entityRef.primaryIdAttribute]: entityRef.recordId };
+                        params[paramName] = { 
+                                                '@odata.type': `Microsoft.Dynamics.CRM.${entityRef.entityLogicalName || 'expando'}`, 
+                                                [entityRef.primaryIdAttribute]: entityRef.recordId 
+                                            };
                     }
                     break;
                 }
@@ -240,9 +244,10 @@ export const CustomApiTester: React.FC = () => {
 
                 case 'EntityReference':
                     // Format as EntityReference: { [primaryIdAttribute]: guid }
-                    const entityRef = value as { recordId?: string; primaryIdAttribute?: string };
+                    const entityRef = value as EntityReferenceValue;
                     if (entityRef.recordId && entityRef.primaryIdAttribute) {
                         params[paramName] = {
+                            '@odata.type': `Microsoft.Dynamics.CRM.${entityRef.entityLogicalName || 'expando'}`, // Default to expando if entity name is not provided
                             [entityRef.primaryIdAttribute]: entityRef.recordId
                         };
                     }

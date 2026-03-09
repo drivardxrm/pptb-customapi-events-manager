@@ -3,11 +3,9 @@ import { Spinner } from '@fluentui/react-components';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntityRecords } from '../../hooks/useEntityRecords';
 import { useStyles } from '../../styles/Styles';
+import { EntityReferenceValue } from '../../models/Entity';
 
-interface EntityReferenceValue {
-    recordId: string;
-    primaryIdAttribute: string;
-}
+
 
 interface EntityReferencePickerProps {
     entityLogicalName: string | null | undefined;
@@ -34,6 +32,7 @@ export const EntityReferencePicker: React.FC<EntityReferencePickerProps> = ({
     const handleSelect = (id: string | null) => {
         if (id && primaryid) {
             onChange({
+                entityLogicalName: entityLogicalName || 'expando', // Default to expando if logical name is not provided
                 recordId: id,
                 primaryIdAttribute: primaryid,
             });

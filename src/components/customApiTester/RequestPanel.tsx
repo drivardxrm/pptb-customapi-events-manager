@@ -21,6 +21,7 @@ import { CustomApiRequestParameter, Customapirequestparameterstype } from '../..
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
 import { EntityReferencePicker } from './EntityReferencePicker';
+import { EntityReferenceValue } from '../../models/Entity';
 
 // Type for storing parameter values
 export type ParameterValues = Record<string, unknown>;
@@ -147,8 +148,13 @@ const renderParameterInput = (
             );
 
         case 'EntityReference':
-            // Handled separately in the component JSX using EntityReferencePicker
-            return null;
+            return (
+                <EntityReferencePicker
+                    entityLogicalName={param.logicalentityname}
+                    value={value as EntityReferenceValue | null}
+                    onChange={(val) => onChange(param.customapirequestparameterid, val)}
+                />
+            );
 
         default:
             return (
@@ -287,18 +293,10 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                                     hint={param.description}
                                     required={!param.isoptional}
                                 >
-                                    {isEntityReference ? (
-                                        <EntityReferencePicker
-                                            entityLogicalName={param.logicalentityname}
-                                            value={parameterValues[param.customapirequestparameterid] as { recordId: string; primaryIdAttribute: string } | null}
-                                            onChange={(val) => handleParameterChange(param.customapirequestparameterid, val)}
-                                        />
-                                    ) : (
-                                        renderParameterInput(
-                                            param,
-                                            parameterValues[param.customapirequestparameterid],
-                                            handleParameterChange
-                                        )
+                                    {renderParameterInput(
+                                        param,
+                                        parameterValues[param.customapirequestparameterid],
+                                        handleParameterChange
                                     )}
                                 </Field>
                             );
