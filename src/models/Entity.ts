@@ -8,4 +8,5 @@ export interface EntityReferenceValue {
     entityLogicalName: string;
     recordId: string;
     primaryIdAttribute: string;
+    isExpando?: boolean;
 }

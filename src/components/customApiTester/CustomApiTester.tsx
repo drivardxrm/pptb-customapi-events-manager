@@ -148,11 +148,20 @@ export const CustomApiTester: React.FC = () => {
                     break;
                 case 'EntityReference': {
                     const entityRef = value as EntityReferenceValue;
-                    if (entityRef.recordId && entityRef.primaryIdAttribute) {
-                        params[paramName] = { 
-                                                '@odata.type': `Microsoft.Dynamics.CRM.${entityRef.entityLogicalName || 'expando'}`, 
-                                                [entityRef.primaryIdAttribute]: entityRef.recordId 
-                                            };
+                    if (entityRef.recordId) {
+                        if (entityRef.isExpando || !entityRef.entityLogicalName || entityRef.entityLogicalName === 'expando') {
+                            // Expando format: { "@odata.type": "Microsoft.Dynamics.CRM.expando", expandoid: "{GUID}" }
+                            params[paramName] = { 
+                                '@odata.type': 'Microsoft.Dynamics.CRM.expando', 
+                                expandoid: entityRef.recordId 
+                            };
+                        } else if (entityRef.primaryIdAttribute) {
+                            // Standard entity reference format
+                            params[paramName] = { 
+                                '@odata.type': `Microsoft.Dynamics.CRM.${entityRef.entityLogicalName}`, 
+                                [entityRef.primaryIdAttribute]: entityRef.recordId 
+                            };
+                        }
                     }
                     break;
                 }
@@ -242,16 +251,26 @@ export const CustomApiTester: React.FC = () => {
                     }
                     break;
 
-                case 'EntityReference':
-                    // Format as EntityReference: { [primaryIdAttribute]: guid }
+                case 'EntityReference': {
+                    // Format as EntityReference
                     const entityRef = value as EntityReferenceValue;
-                    if (entityRef.recordId && entityRef.primaryIdAttribute) {
-                        params[paramName] = {
-                            '@odata.type': `Microsoft.Dynamics.CRM.${entityRef.entityLogicalName || 'expando'}`, // Default to expando if entity name is not provided
-                            [entityRef.primaryIdAttribute]: entityRef.recordId
-                        };
+                    if (entityRef.recordId) {
+                        if (entityRef.isExpando || !entityRef.entityLogicalName || entityRef.entityLogicalName === 'expando') {
+                            // Expando format: { "@odata.type": "Microsoft.Dynamics.CRM.expando", expandoid: "{GUID}" }
+                            params[paramName] = {
+                                '@odata.type': 'Microsoft.Dynamics.CRM.expando',
+                                expandoid: entityRef.recordId
+                            };
+                        } else if (entityRef.primaryIdAttribute) {
+                            // Standard entity reference format
+                            params[paramName] = {
+                                '@odata.type': `Microsoft.Dynamics.CRM.${entityRef.entityLogicalName}`,
+                                [entityRef.primaryIdAttribute]: entityRef.recordId
+                            };
+                        }
                     }
                     break;
+                }
 
                 default:
                     params[paramName] = value;

@@ -1,11 +1,18 @@
-import React, { useMemo } from 'react';
-import { Spinner } from '@fluentui/react-components';
+import React, { useMemo, useCallback } from 'react';
+import { Spinner, Input, Button } from '@fluentui/react-components';
+import { ArrowSyncRegular } from '@fluentui/react-icons';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntityRecords } from '../../hooks/useEntityRecords';
 import { useStyles } from '../../styles/Styles';
 import { EntityReferenceValue } from '../../models/Entity';
 
-
+const generateGuid = (): string => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
 
 interface EntityReferencePickerProps {
     entityLogicalName: string | null | undefined;
@@ -32,7 +39,7 @@ export const EntityReferencePicker: React.FC<EntityReferencePickerProps> = ({
     const handleSelect = (id: string | null) => {
         if (id && primaryid) {
             onChange({
-                entityLogicalName: entityLogicalName || 'expando', // Default to expando if logical name is not provided
+                entityLogicalName: entityLogicalName || 'expando',
                 recordId: id,
                 primaryIdAttribute: primaryid,
             });
@@ -40,6 +47,24 @@ export const EntityReferencePicker: React.FC<EntityReferencePickerProps> = ({
             onChange(null);
         }
     };
+
+    const handleExpandoGuidChange = useCallback((guid: string) => {
+        if (guid) {
+            onChange({
+                entityLogicalName: 'expando',
+                recordId: guid,
+                primaryIdAttribute: 'expandoid',
+                isExpando: true,
+            });
+        } else {
+            onChange(null);
+        }
+    }, [onChange]);
+
+    const handleGenerateGuid = useCallback(() => {
+        const newGuid = generateGuid();
+        handleExpandoGuidChange(newGuid);
+    }, [handleExpandoGuidChange]);
 
     if (isFetching) {
         return (
@@ -50,8 +75,27 @@ export const EntityReferencePicker: React.FC<EntityReferencePickerProps> = ({
         );
     }
 
+    // Show GUID input for expando when no entity type is specified
     if (!entityLogicalName) {
-        return <span>No entity type specified</span>;
+        return (
+            <div className={styles.flexRowCentered}>
+                <Input
+                    appearance="filled-darker"
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    value={value?.recordId ?? ''}
+                    onChange={(e) => handleExpandoGuidChange(e.target.value)}
+                    style={{ flex: 1 }}
+                />
+                <Button
+                    appearance="subtle"
+                    icon={<ArrowSyncRegular />}
+                    onClick={handleGenerateGuid}
+                    title="Generate GUID"
+                >
+                    Generate
+                </Button>
+            </div>
+        );
     }
 
     return (

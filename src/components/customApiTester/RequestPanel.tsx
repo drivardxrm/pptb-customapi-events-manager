@@ -278,14 +278,14 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                                             >
                                                 {paramType}
                                             </Badge>
-                                            {isEntityReference && param.logicalentityname && (
+                                            {isEntityReference && (
                                                 <Badge 
                                                     appearance="outline" 
                                                     size="small"
                                                     color="severe"
                                                     icon={<SquareRegular />}
                                                 >
-                                                    {param.logicalentityname}
+                                                    {param.logicalentityname || 'expando'}
                                                 </Badge>
                                             )}
                                         </span>
