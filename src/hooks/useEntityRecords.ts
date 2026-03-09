@@ -31,7 +31,7 @@ export const useEntityRecords = (entityLogicalName: string | null | undefined) =
                 ? `$select=${primaryid},${primaryname}`
                 : `$select=${primaryid}`;
 
-            const result = window.dataverseAPI.queryData(`${collectionname}?${selectFields}&$top=100`);
+            const result = window.dataverseAPI.queryData(`${collectionname}?${selectFields}`);
             return result as unknown as { value: Record<string, unknown>[] };
         },
         enabled: !!connection && !isLoadingConnection && !!entityLogicalName && !!collectionname && !!primaryid,

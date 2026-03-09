@@ -186,6 +186,16 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     <GenericTagPicker
                         items={
                             getCustomApiRequestParametersTypeOptions()
+                                // add a filter , if customapi is a function, remove Entity, EntityReference, EntityCollection options
+                                .filter(option => {
+                                    const selectedCustomApi = customApiQuery.customapis?.find(api => api.customapiid === selectedCustomApiId);
+                                    if (selectedCustomApi?.isfunction) {
+                                        return option.displayText !== "Entity" && 
+                                        option.displayText !== "EntityReference" &&
+                                        option.displayText !== "EntityCollection";
+                                    }
+                                    return true;
+                                })
                                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
