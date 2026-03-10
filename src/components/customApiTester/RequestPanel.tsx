@@ -21,6 +21,7 @@ import { CustomApiRequestParameter, Customapirequestparameterstype } from '../..
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
 import { EntityReferencePicker } from './EntityReferencePicker';
+import { EntityPicker } from './EntityPicker';
 import { EntityReferenceValue } from '../../models/Entity';
 
 // Type for storing parameter values
@@ -134,12 +135,20 @@ const renderParameterInput = (
             );
 
         case 'Entity':
+            return (
+                <EntityPicker
+                    entityLogicalName={param.logicalentityname}
+                    value={value as Record<string, unknown> | null}
+                    onChange={(val) => onChange(param.customapirequestparameterid, val)}
+                />
+            );
+
         case 'EntityCollection':
             return (
                 <Textarea
                     appearance='filled-darker'
                     spellCheck={false}
-                    placeholder={paramType === 'Entity' ? '{ "@odata.type": "...", ... }' : '[{ "@odata.type": "...", ... }]'}
+                    placeholder='[{ "@odata.type": "...", ... }]'
                     value={value as string ?? ''}
                     onChange={(e) => onChange(param.customapirequestparameterid, e.target.value || undefined)}
                     resize="vertical"
@@ -262,6 +271,7 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                         {sortedParameters.map(param => {
                             const paramType = Customapirequestparameterstype[param.type];
                             const isEntityReference = paramType === 'EntityReference';
+                            const isEntity = paramType === 'Entity';
                             
                             return (
                                 <Field
@@ -286,6 +296,16 @@ export const RequestPanel: React.FC<RequestPanelProps> = ({
                                                     icon={<SquareRegular />}
                                                 >
                                                     {param.logicalentityname || 'expando'}
+                                                </Badge>
+                                            )}
+                                            {isEntity && param.logicalentityname && (
+                                                <Badge 
+                                                    appearance="outline" 
+                                                    size="small"
+                                                    color="severe"
+                                                    icon={<SquareRegular />}
+                                                >
+                                                    {param.logicalentityname}
                                                 </Badge>
                                             )}
                                         </span>

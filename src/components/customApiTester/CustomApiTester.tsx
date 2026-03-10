@@ -141,6 +141,13 @@ export const CustomApiTester: React.FC = () => {
                     }
                     break;
                 case 'Entity':
+                    // Entity is now stored as an object from EntityPicker
+                    if (typeof value === 'object' && value !== null) {
+                        params[paramName] = value;
+                    } else if (typeof value === 'string') {
+                        try { params[paramName] = JSON.parse(value); } catch { params[paramName] = value; }
+                    }
+                    break;
                 case 'EntityCollection':
                     if (typeof value === 'string') {
                         try { params[paramName] = JSON.parse(value); } catch { params[paramName] = value; }
@@ -240,6 +247,18 @@ export const CustomApiTester: React.FC = () => {
                     break;
 
                 case 'Entity':
+                    // Entity is now stored as an object from EntityPicker
+                    if (typeof value === 'object' && value !== null) {
+                        params[paramName] = value;
+                    } else if (typeof value === 'string') {
+                        try {
+                            params[paramName] = JSON.parse(value);
+                        } catch {
+                            params[paramName] = value;
+                        }
+                    }
+                    break;
+
                 case 'EntityCollection':
                     // Parse JSON object/array string
                     if (typeof value === 'string') {
