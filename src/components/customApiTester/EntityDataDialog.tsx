@@ -21,6 +21,7 @@ import { useStyles } from '../../styles/Styles';
 import { useEntityAttributes, AttributeMetadata } from '../../hooks/useEntityAttributes';
 import { useMetadata } from '../../hooks/useMetadata';
 import { EntityReferencePicker } from './EntityReferencePicker';
+import { PicklistField } from './PicklistField';
 import { EntityReferenceValue } from '../../models/Entity';
 
 interface EntityDataDialogProps {
@@ -217,24 +218,13 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
             case 'Picklist':
             case 'State':
             case 'Status':
-                const options = attr.OptionSet?.Options ?? [];
-                const selectedValue = value?.toString();
                 return (
-                    <Dropdown
-                        appearance="filled-darker"
-                        placeholder="Select value"
-                        selectedOptions={selectedValue ? [selectedValue] : []}
-                        value={options.find(o => o.Value.toString() === selectedValue)?.Label?.UserLocalizedLabel?.Label ?? ''}
-                        onOptionSelect={(_, data) => {
-                            onChange(data.optionValue ? parseInt(data.optionValue, 10) : undefined);
-                        }}
-                    >
-                        {options.map(opt => (
-                            <Option key={opt.Value} value={opt.Value.toString()}>
-                                {opt.Label?.UserLocalizedLabel?.Label ?? opt.Value.toString()}
-                            </Option>
-                        ))}
-                    </Dropdown>
+                    <PicklistField
+                        entityLogicalName={entityLogicalName}
+                        attributeLogicalName={attr.LogicalName}
+                        value={value as number | undefined}
+                        onChange={(val) => onChange(val)}
+                    />
                 );
 
             case 'Lookup':
@@ -279,7 +269,7 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                     />
                 );
         }
-    }, [fieldValues, handleFieldChange, collectionname]);
+    }, [fieldValues, handleFieldChange, collectionname, entityLogicalName]);
 
     const dialogSurfaceStyle = useMemo(() => ({
         maxWidth: '700px',

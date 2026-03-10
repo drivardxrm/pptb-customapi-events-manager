@@ -30,6 +30,7 @@ export const queryKeys = QueryKeyManager.create("keys", {
   metadata: defineKey((entityLogicalName: string, connectionId: string, instanceId: string) => ['metadata', instanceId, connectionId, entityLogicalName]),
   entityRecords: defineKey((entityLogicalName: string, connectionId: string, instanceId: string) => ['entityRecords', instanceId, connectionId, entityLogicalName]),
   entityAttributes: defineKey((entityLogicalName: string, connectionId: string, instanceId: string) => ['entityAttributes', instanceId, connectionId, entityLogicalName]),
+  optionSetValues: defineKey((entityLogicalName: string, attributeLogicalName: string, connectionId: string, instanceId: string) => ['optionSetValues', instanceId, connectionId, entityLogicalName, attributeLogicalName]),
   fxexpression: defineKey((fxexpressionId: string, connectionId: string, instanceId: string) => ['fxexpression', instanceId, connectionId, fxexpressionId]),
 });
 

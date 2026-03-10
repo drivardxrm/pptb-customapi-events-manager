@@ -48,21 +48,21 @@ export const useEntityAttributes = (entityLogicalName: string | null | undefined
             const result = await window.dataverseAPI.getEntityRelatedMetadata(
                 entityLogicalName!,
                 'Attributes',
-                [
-                    'LogicalName',
-                    'DisplayName',
-                    'AttributeType',
-                    'AttributeTypeName',
-                    'IsValidForCreate',
-                    'IsValidForUpdate',
-                    'RequiredLevel',
-                    'Description',
-                    'Targets',
-                    'OptionSet',
-                    'Precision',
-                    'PrecisionSource',
-                    'MaxLength'
-                ]
+                // [
+                //     'LogicalName',
+                //     'DisplayName',
+                //     'AttributeType',
+                //     'AttributeTypeName',
+                //     'IsValidForCreate',
+                //     'IsValidForUpdate',
+                //     'RequiredLevel',
+                //     'Description',
+                //     'Targets',
+                //     'OptionSet',
+                //     'Precision',
+                //     'PrecisionSource',
+                //     'MaxLength'
+                // ]
             );
             // Cast through unknown to satisfy TypeScript
             return result as unknown as EntityAttributesResult;
