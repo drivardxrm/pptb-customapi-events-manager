@@ -21,8 +21,9 @@ import { useStyles } from '../../styles/Styles';
 import { useEntityAttributes, AttributeMetadata } from '../../hooks/useEntityAttributes';
 import { useMetadata } from '../../hooks/useMetadata';
 import { EntityReferencePicker } from './EntityReferencePicker';
-import { PicklistField } from './PicklistField';
 import { EntityReferenceValue } from '../../models/Entity';
+import { OptionsetType } from '../../models/OptionSet';
+import { OptionSetField } from '../generic/OptionSetField';
 
 interface EntityDataDialogProps {
     open: boolean;
@@ -219,9 +220,10 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
             case 'State':
             case 'Status':
                 return (
-                    <PicklistField
+                    <OptionSetField
                         entityLogicalName={entityLogicalName}
                         attributeLogicalName={attr.LogicalName}
+                        optionSetType={attr.AttributeType as OptionsetType}
                         value={value as number | undefined}
                         onChange={(val) => onChange(val)}
                     />

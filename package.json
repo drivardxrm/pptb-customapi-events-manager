@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
-    "@pptb/types": "1.0.20",
+    "@pptb/types": "1.2.0",
     "@types/node": "^25.3.3",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",

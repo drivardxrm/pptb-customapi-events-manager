@@ -1,37 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../store/useAppStore';
 import { queryKeys } from '../utils/queryKeys';
+import { OptionSetQueryResult, OptionsetType } from '../models/OptionSet';
 
-export interface OptionSetOption {
-    Value: number;
-    Label: {
-        LocalizedLabels: Array<{ Label: string; LanguageCode: number }>;
-        UserLocalizedLabel?: { Label: string };
-    };
-    Description?: {
-        LocalizedLabels: Array<{ Label: string; LanguageCode: number }>;
-        UserLocalizedLabel?: { Label: string };
-    };
-    Color?: string;
-}
 
-export interface OptionSetResult {
-    Options: OptionSetOption[];
-    Name?: string;
-    DisplayName?: {
-        LocalizedLabels: Array<{ Label: string; LanguageCode: number }>;
-        UserLocalizedLabel?: { Label: string };
-    };
-}
 
 export const useOptionSetValues = (
-    entityLogicalName: string | null | undefined,
-    attributeLogicalName: string | null | undefined
+    entityLogicalName: string,
+    attributeLogicalName: string,
+    optionsetType: OptionsetType
 ) => {
     const connection = useAppStore((state) => state.connection);
     const instanceId = useAppStore((state) => state.instanceId);
 
-    const { data, status, error, isFetching } = useQuery<OptionSetResult, Error>({
+    const { data, status, error, isFetching } = useQuery<OptionSetQueryResult, Error>({
         queryKey: queryKeys.optionSetValues(
             entityLogicalName ?? '',
             attributeLogicalName ?? '',
@@ -39,20 +21,19 @@ export const useOptionSetValues = (
             instanceId
         ),
         queryFn: async () => {
-            const result = await window.dataverseAPI.getEntityRelatedMetadata(
-                entityLogicalName!,
-                `Attributes(${attributeLogicalName})/OptionSet`,
-                []
+            const result = await window.dataverseAPI.queryData(
+                `EntityDefinitions(LogicalName='${entityLogicalName}')/Attributes(LogicalName='${attributeLogicalName}')/Microsoft.Dynamics.CRM.${optionsetType}AttributeMetadata?$select=LogicalName,DisplayName&$expand=OptionSet`
             );
-            return result as unknown as OptionSetResult;
+            return result as unknown as OptionSetQueryResult;
         },
         enabled: !!connection && !!entityLogicalName && !!attributeLogicalName,
         staleTime: Infinity
     });
 
     return {
-        options: data?.Options ?? [],
-        optionSetName: data?.Name,
+        options: data?.OptionSet?.Options ?? [],
+        optionSetName: data?.LogicalName ?? '',
+        optionsetDisplayName: data?.DisplayName?.UserLocalizedLabel?.Label ?? '',
         status,
         error,
         isFetching
