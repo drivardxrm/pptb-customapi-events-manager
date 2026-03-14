@@ -10,8 +10,6 @@ import {
     Field,
     Input,
     Textarea,
-    Dropdown,
-    Option,
     Spinner,
     Badge,
 } from '@fluentui/react-components';
@@ -20,7 +18,7 @@ import { DatePicker } from '@fluentui/react-datepicker-compat';
 import { useStyles } from '../../styles/Styles';
 import { useEntityAttributes, AttributeMetadata } from '../../hooks/useEntityAttributes';
 import { useMetadata } from '../../hooks/useMetadata';
-import { EntityReferencePicker } from './EntityReferencePicker';
+import { EntityReferencePicker } from '../generic/EntityReferencePicker';
 import { EntityReferenceValue } from '../../models/Entity';
 import { OptionsetType } from '../../models/OptionSet';
 import { OptionSetField } from '../generic/OptionSetField';
@@ -184,27 +182,27 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                     />
                 );
 
-            case 'Boolean':
-                return (
-                    <Dropdown
-                        appearance="filled-darker"
-                        placeholder="Select value"
-                        selectedOptions={value === true ? ['true'] : value === false ? ['false'] : []}
-                        value={value === true ? 'True' : value === false ? 'False' : ''}
-                        onOptionSelect={(_, data) => {
-                            if (data.optionValue === 'true') {
-                                onChange(true);
-                            } else if (data.optionValue === 'false') {
-                                onChange(false);
-                            } else {
-                                onChange(undefined);
-                            }
-                        }}
-                    >
-                        <Option value="true">True</Option>
-                        <Option value="false">False</Option>
-                    </Dropdown>
-                );
+            // case 'Boolean':
+            //     return (
+            //         <Dropdown
+            //             appearance="filled-darker"
+            //             placeholder="Select value"
+            //             selectedOptions={value === true ? ['true'] : value === false ? ['false'] : []}
+            //             value={value === true ? 'True' : value === false ? 'False' : ''}
+            //             onOptionSelect={(_, data) => {
+            //                 if (data.optionValue === 'true') {
+            //                     onChange(true);
+            //                 } else if (data.optionValue === 'false') {
+            //                     onChange(false);
+            //                 } else {
+            //                     onChange(undefined);
+            //                 }
+            //             }}
+            //         >
+            //             <Option value="true">True</Option>
+            //             <Option value="false">False</Option>
+            //         </Dropdown>
+            //     );
 
             case 'DateTime':
                 return (
@@ -215,7 +213,8 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                         placeholder="Select a date..."
                     />
                 );
-
+            
+            case 'Boolean':
             case 'Picklist':
             case 'State':
             case 'Status':
@@ -232,8 +231,9 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
             case 'Lookup':
             case 'Customer':
             case 'Owner':
-                // Use the first target entity for the picker
-                const targetEntity = attr.Targets?.[0] ?? null;
+            
+                
+                const targetEntity = attr.Targets?.[0]; // todo handle multiple targets
                 return (
                     <EntityReferencePicker
                         entityLogicalName={targetEntity}
@@ -252,15 +252,15 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                     />
                 );
 
-            case 'UniqueIdentifier':
-                return (
-                    <Input
-                        appearance="filled-darker"
-                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                        value={(value as string) ?? ''}
-                        onChange={(e) => onChange(e.target.value || undefined)}
-                    />
-                );
+            // case 'UniqueIdentifier':
+            //     return (
+            //         <Input
+            //             appearance="filled-darker"
+            //             placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            //             value={(value as string) ?? ''}
+            //             onChange={(e) => onChange(e.target.value || undefined)}
+            //         />
+            //     );
 
             default:
                 return (

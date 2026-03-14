@@ -20,7 +20,7 @@ import { useStyles } from '../../styles/Styles';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
-import { EntityReferencePicker } from './EntityReferencePicker';
+import { EntityReferencePicker } from '../generic/EntityReferencePicker';
 import { EntityPicker } from './EntityPicker';
 import { EntityReferenceValue } from '../../models/Entity';
 

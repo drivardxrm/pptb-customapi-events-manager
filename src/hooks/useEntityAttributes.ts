@@ -18,6 +18,7 @@ export interface AttributeMetadata {
         UserLocalizedLabel?: { Label: string };
     };
     // For lookup attributes
+    EntityLogicalName?: string;
     Targets?: string[];
     // For picklist attributes
     OptionSet?: {
