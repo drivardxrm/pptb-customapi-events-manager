@@ -12,6 +12,7 @@ import {
     Textarea,
     Spinner,
     Badge,
+    Switch,
 } from '@fluentui/react-components';
 import { Checkmark24Regular, Dismiss24Regular, SquareRegular, Key16Regular, TextDescription16Regular } from '@fluentui/react-icons';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
@@ -56,6 +57,9 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
             return aName.localeCompare(bName);
         });
     }, [attributes, primaryid, primaryname]);
+
+    // Track whether to use manual GUID input for primary ID field
+    const [useManualGuid, setUseManualGuid] = useState(false);
     
     const [fieldValues, setFieldValues] = useState<Record<string, FieldValue>>(() => {
         // Initialize from initialData, converting @odata.bind back to EntityReferenceValue
@@ -129,6 +133,37 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
     const renderFieldInput = useCallback((attr: AttributeMetadata) => {
         const value = fieldValues[attr.LogicalName];
         const onChange = (newValue: FieldValue) => handleFieldChange(attr.LogicalName, newValue);
+
+        // Special handling for primary ID field
+        if (attr.LogicalName === primaryid) {
+            if (useManualGuid) {
+                return (
+                    <Input
+                        appearance="filled-darker"
+                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        value={(value as string) ?? ''}
+                        onChange={(e) => onChange(e.target.value || undefined)}
+                    />
+                );
+            } else {
+                // Use EntityReferencePicker to select an existing record
+                const entityRef = value as EntityReferenceValue | null | undefined;
+                return (
+                    <EntityReferencePicker
+                        entityLogicalName={entityLogicalName}
+                        value={entityRef}
+                        onChange={(val) => {
+                            if (val) {
+                                // Store just the recordId as a string for primary ID
+                                onChange(val.recordId);
+                            } else {
+                                onChange(null);
+                            }
+                        }}
+                    />
+                );
+            }
+        }
 
         switch (attr.AttributeType) {
             case 'String':
@@ -284,7 +319,7 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                     />
                 );
         }
-    }, [fieldValues, handleFieldChange, collectionname, entityLogicalName]);
+    }, [fieldValues, handleFieldChange, collectionname, entityLogicalName, primaryid, useManualGuid]);
 
     const dialogSurfaceStyle = useMemo(() => ({
         maxWidth: '700px',
@@ -339,6 +374,14 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                                                         >
                                                             Primary ID
                                                         </Badge>
+                                                    )}
+                                                    {attr.LogicalName === primaryid && (
+                                                        <Switch
+                                                            checked={useManualGuid}
+                                                            onChange={(_, data) => setUseManualGuid(data.checked)}
+                                                            label={useManualGuid ? "Manual GUID" : "Pick record"}
+                                                            labelPosition="after"
+                                                        />
                                                     )}
                                                     {attr.LogicalName === primaryname && (
                                                         <Badge 
