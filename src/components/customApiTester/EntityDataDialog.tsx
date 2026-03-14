@@ -13,7 +13,7 @@ import {
     Spinner,
     Badge,
 } from '@fluentui/react-components';
-import { Checkmark24Regular, Dismiss24Regular, SquareRegular } from '@fluentui/react-icons';
+import { Checkmark24Regular, Dismiss24Regular, SquareRegular, Key16Regular, TextDescription16Regular } from '@fluentui/react-icons';
 import { DatePicker } from '@fluentui/react-datepicker-compat';
 import { useStyles } from '../../styles/Styles';
 import { useEntityAttributes, AttributeMetadata } from '../../hooks/useEntityAttributes';
@@ -42,7 +42,20 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
 }) => {
     const styles = useStyles();
     const { attributes, isFetching } = useEntityAttributes(entityLogicalName);
-    const { collectionname } = useMetadata(entityLogicalName);
+    const { collectionname, primaryid, primaryname } = useMetadata(entityLogicalName);
+
+    // Sort attributes: primaryid first, primaryname second, rest alphabetically
+    const sortedAttributes = useMemo(() => {
+        return [...attributes].sort((a, b) => {
+            if (a.LogicalName === primaryid) return -1;
+            if (b.LogicalName === primaryid) return 1;
+            if (a.LogicalName === primaryname) return -1;
+            if (b.LogicalName === primaryname) return 1;
+            const aName = a.DisplayName?.UserLocalizedLabel?.Label || a.LogicalName;
+            const bName = b.DisplayName?.UserLocalizedLabel?.Label || b.LogicalName;
+            return aName.localeCompare(bName);
+        });
+    }, [attributes, primaryid, primaryname]);
     
     const [fieldValues, setFieldValues] = useState<Record<string, FieldValue>>(() => {
         // Initialize from initialData, converting @odata.bind back to EntityReferenceValue
@@ -309,7 +322,7 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                         ) : (
                             <div style={contentStyle}>
                                 <div className={styles.flexColumnM}>
-                                    {attributes.map(attr => (
+                                    {sortedAttributes.map(attr => (
                                         <Field
                                             key={attr.LogicalName}
                                             label={
@@ -317,6 +330,26 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                                                     <span className={styles.semiBoldLabel}>
                                                         {getDisplayName(attr)}
                                                     </span>
+                                                    {attr.LogicalName === primaryid && (
+                                                        <Badge 
+                                                            appearance="filled" 
+                                                            size="small"
+                                                            color="brand"
+                                                            icon={<Key16Regular />}
+                                                        >
+                                                            Primary ID
+                                                        </Badge>
+                                                    )}
+                                                    {attr.LogicalName === primaryname && (
+                                                        <Badge 
+                                                            appearance="filled" 
+                                                            size="small"
+                                                            color="brand"
+                                                            icon={<TextDescription16Regular />}
+                                                        >
+                                                            Primary Name
+                                                        </Badge>
+                                                    )}
                                                     <Badge 
                                                         appearance="outline" 
                                                         size="small"
@@ -331,7 +364,7 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                                             {renderFieldInput(attr)}
                                         </Field>
                                     ))}
-                                    {attributes.length === 0 && (
+                                    {sortedAttributes.length === 0 && (
                                         <div className={styles.infoBox}>
                                             No editable attributes found for this entity.
                                         </div>
