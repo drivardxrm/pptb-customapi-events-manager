@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../store/useAppStore';
 import { queryKeys } from '../utils/queryKeys';
-import { OptionSetQueryResult, OptionsetType } from '../models/OptionSet';
+import { OptionSetOption, OptionSetQueryResult, OptionsetType } from '../models/OptionSet';
 
 
 
@@ -30,8 +30,20 @@ export const useOptionSetValues = (
         staleTime: Infinity
     });
 
+    // For Boolean attributes, options come from TrueOption/FalseOption instead of Options array
+    const getBooleanOptions = (): OptionSetOption[] => {
+        const result: OptionSetOption[] = [];
+        if (data?.OptionSet?.FalseOption) result.push(data.OptionSet.FalseOption);
+        if (data?.OptionSet?.TrueOption) result.push(data.OptionSet.TrueOption);
+        return result;
+    };
+
+    const options = optionsetType === 'Boolean'
+        ? getBooleanOptions()
+        : data?.OptionSet?.Options ?? [];
+
     return {
-        options: data?.OptionSet?.Options ?? [],
+        options,
         optionSetName: data?.LogicalName ?? '',
         optionsetDisplayName: data?.DisplayName?.UserLocalizedLabel?.Label ?? '',
         status,

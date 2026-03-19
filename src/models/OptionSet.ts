@@ -12,7 +12,9 @@ export interface OptionSetOption {
 }
 
 export interface OptionSet {
-    Options: OptionSetOption[];
+    Options?: OptionSetOption[];
+    TrueOption?: OptionSetOption;
+    FalseOption?: OptionSetOption;
     LogicalName?: string;
     DisplayName?: {
         LocalizedLabels: Array<{ Label: string; LanguageCode: number }>;
