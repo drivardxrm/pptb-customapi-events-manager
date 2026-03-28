@@ -417,6 +417,11 @@ export const EntityDataDialog: React.FC<EntityDataDialogProps> = ({
                         )}
                     </DialogContent>
                     <DialogActions>
+                        {fieldValues && Object.keys(fieldValues).length > 1 && (
+                            <Badge appearance="filled" color="success">
+                                {Object.keys(fieldValues).length} field(s) set
+                            </Badge>
+                        )}
                         <Button
                             appearance="secondary"
                             icon={<Dismiss24Regular />}
