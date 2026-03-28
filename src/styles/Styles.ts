@@ -247,6 +247,16 @@ export const useStyles = makeStyles({
         gap: tokens.spacingHorizontalXS,
         minHeight: '32px',
     },
+    fieldLabelClickable: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalXS,
+        minHeight: '32px',
+        cursor: 'pointer',
+        '&:hover': {
+            color: tokens.colorBrandForeground1,
+        },
+    },
     disabledInput: {
         backgroundColor: tokens.colorNeutralBackground6,
     },

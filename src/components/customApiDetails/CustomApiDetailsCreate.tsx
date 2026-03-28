@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Field, Input, Textarea, Switch, mergeClasses, Tooltip, Text } from '@fluentui/react-components';
-import { LockClosed16Regular, LockOpenRegular, LockClosedRegular } from '@fluentui/react-icons';
+import { LockClosed16Regular, LockOpenRegular, LockClosedRegular, ChevronRight16Regular, ChevronDown16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { ManagedStateToggle, ManagedStateFilter } from '../generic/ManagedStateToggle';
 import { CustomApiCreateable, getBindingTypeOptions, getAllowedCustomProcessingStepTypeOptions, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
@@ -33,6 +33,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const entityQuery = useEntities();
 
     const [showPluginTypes, setShowPluginTypes] = useState<ManagedStateFilter>('unmanaged');
+    const [isPublisherExpanded, setIsPublisherExpanded] = useState(!selectedPublisherId);
 
     const functionLabelRef = useRef<HTMLSpanElement | null>(null);
     const workflowLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -101,6 +102,13 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
         }
     }, [settingsQuery.isFetching, settingsQuery.appsettings?.defaultPublisherId, setSelectedPublisherId]);
 
+    // Sync expanded state when selectedPublisherId changes
+    useEffect(() => {
+        if (selectedPublisherId) {
+            setIsPublisherExpanded(false); // collapse when publisher is set
+        }
+    }, [selectedPublisherId]);
+
     // useMemo to get the prefix of the selected publisher
     const selectedPublisherPrefix = useMemo(() => {
         if (!selectedPublisherId || !publishersQuery.publishers) {
@@ -110,46 +118,88 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
         return publisher?.customizationprefix || '';
     }, [selectedPublisherId, publishersQuery.publishers]);
 
+    // useMemo to get the display text of the selected publisher
+    const selectedPublisherDisplay = useMemo(() => {
+        if (!selectedPublisherId || !publishersQuery.publishers) {
+            return '';
+        }
+        const publisher = publishersQuery.publishers.find(p => p.publisherid === selectedPublisherId);
+        return publisher ? `${publisher.friendlyname} (${publisher.customizationprefix})` : '';
+    }, [selectedPublisherId, publishersQuery.publishers]);
+
 
 
     return (
         <>
         
             <div className={styles.formGrid}>
-                <div className={mergeClasses(styles.formSection,styles.twoColumn)}>
-                    <Field 
-                        label='Publisher'
-                        required
+                {/* Collapsed publisher view - single column, clickable text only */}
+                {!isPublisherExpanded && selectedPublisherId && (
+                    <div 
+                        className={styles.formSection}
+                        onClick={() => setIsPublisherExpanded(true)}
+                        style={{ cursor: 'pointer' }}
                     >
-                        
-                        {publishersQuery.isFetching  && (
-                            <Input 
-                                value={"Loading publishers..."} 
-                                readOnly 
-                                appearance='filled-darker'
-                            />
-                        )}
-                        {publishersQuery.error && (
-                            <Input 
-                                value={`Error loading publishers: ${publishersQuery.error.message}`} 
-                                readOnly 
-                                appearance='filled-darker'
-                            />
-                        )}
-                        {!publishersQuery.isFetching && publishersQuery.publishers  && (
-                            <GenericTagPicker 
-                                    items={publishersQuery.publishers.map(p => ({
-                                        id: p.publisherid,
-                                        displayText: `${p.friendlyname} (${p.customizationprefix})` || ''
-                                    } as SelectableItem)      
-                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
-                                initialValue={selectedPublisherId || ''}
-                                //isDisabled={!isEditMode} 
-                                onSelect={(id) =>  setSelectedPublisherId(id || '')}
-                            />
-                        )}
-                    </Field>
-                </div>
+                        <span className={styles.fieldLabelClickable}>
+                            <ChevronRight16Regular />
+                            <span className={styles.semiBoldLabel}>Publisher:</span>
+                            <Text>{selectedPublisherDisplay}</Text>
+                        </span>
+                    </div>
+                )}
+
+                {/* Expanded publisher view - two columns with picker */}
+                {(isPublisherExpanded || !selectedPublisherId) && (
+                    <div className={mergeClasses(styles.formSection, styles.twoColumn)}>
+                        <Field 
+                            label={
+                                selectedPublisherId ? (
+                                    <span 
+                                        className={styles.fieldLabelClickable}
+                                        onClick={() => setIsPublisherExpanded(false)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <ChevronDown16Regular />
+                                        <span className={styles.semiBoldLabel}>Publisher</span>
+                                    </span>
+                                ) : 'Publisher'
+                            }
+                            required
+                        >
+                            
+                            {publishersQuery.isFetching  && (
+                                <Input 
+                                    value={"Loading publishers..."} 
+                                    readOnly 
+                                    appearance='filled-darker'
+                                />
+                            )}
+                            {publishersQuery.error && (
+                                <Input 
+                                    value={`Error loading publishers: ${publishersQuery.error.message}`} 
+                                    readOnly 
+                                    appearance='filled-darker'
+                                />
+                            )}
+                            {!publishersQuery.isFetching && publishersQuery.publishers  && (
+                                <GenericTagPicker 
+                                        items={publishersQuery.publishers.map(p => ({
+                                            id: p.publisherid,
+                                            displayText: `${p.friendlyname} (${p.customizationprefix})` || ''
+                                        } as SelectableItem)      
+                                    ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))} 
+                                    initialValue={selectedPublisherId || ''}
+                                    onSelect={(id) => {
+                                        setSelectedPublisherId(id || '');
+                                        if (id) {
+                                            setIsPublisherExpanded(false); // auto-collapse on selection
+                                        }
+                                    }}
+                                />
+                            )}
+                        </Field>
+                    </div>
+                )}
             </div>
             
             {selectedPublisherPrefix !== '' && (
