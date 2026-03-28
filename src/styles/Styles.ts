@@ -580,6 +580,15 @@ export const useStyles = makeStyles({
     },
 
     // ===========================================
+    // OPTION SET
+    // ===========================================
+    optionLabel: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalSNudge,
+    },
+
+    // ===========================================
     // ICONS
     // ===========================================
     icon12: { fontSize: '12px' },
