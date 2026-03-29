@@ -3,10 +3,10 @@ import {
     Field, 
     Card,
     CardHeader,
-    Divider,
     Input,
     Button,
     Text,
+    mergeClasses,
 } from '@fluentui/react-components'
 import { useAppStore } from '../store/useAppStore'
 import { useStyles } from '../styles/Styles'
@@ -53,15 +53,10 @@ export const CatalogSelector: React.FC = () => {
 
     return (
         <Card className={styles.card}>
-            <CardHeader 
-                header={<h2>Catalog Selector</h2>}
-            />
-            <Divider />
-            
-            <div className={styles.flexColumnM}>
-                {/* Primary Picker - Catalog */}
-                <div className={styles.formSection}>
-                    <Field label={<span className={styles.semiBoldLabel}>Catalog</span>}>
+            <div className={styles.selectorGrid}>
+                {/* LEFT COLUMN: Catalog Picker */}
+                <div className={styles.selectorColumn}>
+                    <Field label={<span className={styles.semiBoldLabel}>Selected Catalog</span>}>
                         {catalogsQuery.isFetching && (
                             <Input 
                                 appearance='filled-darker'
@@ -104,72 +99,72 @@ export const CatalogSelector: React.FC = () => {
                     </Field>
                 </div>
 
-                {/* Collapsible Filters Section */}
-                <div className={styles.flexColumn}>
+                {/* RIGHT COLUMN: Collapsible Filters Section */}
+                <div className={mergeClasses(styles.selectorColumn, styles.subtleBorderedBox)}>
                     <Button
                         appearance="subtle"
                         icon={filtersExpanded ? <ChevronDownRegular /> : <ChevronRightRegular />}
                         onClick={() => setFiltersExpanded(!filtersExpanded)}
                         size="small"
+                        className={styles.filterToggleButton}
                     >
                         Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
                     </Button>
                     
                     {filtersExpanded && (
-                        <div className={styles.formSection} style={{ paddingLeft: '24px', paddingTop: '8px' }}>
-                            {/* Solution Filter */}
-                            <Field 
-                                label={<span className={styles.semiBoldLabel}>Solution</span>}
-                                hint={selectedSolutionId ? 'Clear to show all Catalogs' : 'Leave empty to show all Catalogs'}
-                            >
-                                {solutionsQuery.isFetching && (
-                                    <Input 
-                                        appearance='filled-darker'
-                                        value={"Loading solutions..."} 
-                                        readOnly 
-                                    />
-                                )}
-                                {solutionsQuery.error && (
-                                    <Input 
-                                        appearance='filled-darker'
-                                        value={`Error loading solutions: ${solutionsQuery.error.message}`} 
-                                        readOnly 
-                                    />
-                                )}
-                                {!solutionsQuery.isFetching && solutionsQuery.solutions && (
-                                    <>
-                                        <GenericTagPicker 
-                                            items={filteredSolutions
-                                                .map(s => ({
-                                                    id: s.solutionid,
-                                                    displayText: `${s.friendlyname} (${s.uniquename})`,
-                                                    image: s.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
-                                                } as SelectableItem))
-                                                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
-                                            initialValue={solutionsQuery.solutions.find(s => s.solutionid === selectedSolutionId)?.solutionid || ''}
-                                            onSelect={(id) => {
-                                                setSelectedSolutionId(id);
-                                                if(id){
-                                                    addLog(`Solution selected: ${id}`, 'info');
-                                                } else {
-                                                    addLog('Solution selection cleared', 'info');
-                                                }
-                                            }}
+                        <div className={styles.flexColumnM}>
+                            {/* Solutions Filter Section */}
+                            <div className={styles.filterSubsection}>
+                                <Field label={
+                                    <div className={styles.fieldLabelWithToggle}>
+                                        <span className={styles.semiBoldLabel}>Selected Solution</span>
+                                        <ManagedStateToggle 
+                                            value={showSolutions} 
+                                            onChange={setShowSolutions} 
                                         />
-                                        {filteredSolutions.length === 0 && (
-                                            <Text className={styles.hintTextItalic}>No solutions match your filter.</Text>
-                                        )}
-                                    </>
-                                )}
-                            </Field>
-
-                            {/* Managed State Toggle */}
-                            <Field label={<span className={styles.semiBoldLabel}>Show Solutions</span>}>
-                                <ManagedStateToggle 
-                                    value={showSolutions} 
-                                    onChange={setShowSolutions} 
-                                />
-                            </Field>
+                                    </div>
+                                }>
+                                    {solutionsQuery.isFetching && (
+                                        <Input 
+                                            appearance='filled-darker'
+                                            value={"Loading solutions..."} 
+                                            readOnly 
+                                        />
+                                    )}
+                                    {solutionsQuery.error && (
+                                        <Input 
+                                            appearance='filled-darker'
+                                            value={`Error loading solutions: ${solutionsQuery.error.message}`} 
+                                            readOnly 
+                                        />
+                                    )}
+                                    {!solutionsQuery.isFetching && solutionsQuery.solutions && (
+                                        <>
+                                            <GenericTagPicker 
+                                                items={filteredSolutions
+                                                    .map(s => ({
+                                                        id: s.solutionid,
+                                                        displayText: `${s.friendlyname} (${s.uniquename})`,
+                                                        image: s.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
+                                                    } as SelectableItem))
+                                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
+                                                initialValue={solutionsQuery.solutions.find(s => s.solutionid === selectedSolutionId)?.solutionid || ''}
+                                                onSelect={(id) => {
+                                                    setSelectedSolutionId(id);
+                                                    if(id){
+                                                        addLog(`Solution selected: ${id}`, 'info');
+                                                    } else {
+                                                        addLog('Solution selection cleared', 'info');
+                                                    }
+                                                }}
+                                            />
+                                            {filteredSolutions.length === 0 && (
+                                                <Text className={styles.hintTextItalic}>No solutions match your filter.</Text>
+                                            )}
+                                        </>
+                                    )}
+                                </Field>
+                            </div>
                         </div>
                     )}
                 </div>
