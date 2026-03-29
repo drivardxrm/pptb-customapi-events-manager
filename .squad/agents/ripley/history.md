@@ -6,6 +6,44 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 ## Learnings
 - Initial team formation with Dallas (Frontend), Kane (Backend), Lambert (Tester)
 
+### 2026-03-XX: CustomAPI Selector Redesign Analysis
+
+**Current Implementation Review:**
+- Component: `src/components/CustomApiSelector.tsx` (line 19-161)
+- Layout: Solution selector (lines 55-106) comes FIRST, then Custom API selector (lines 109-155)
+- Uses: `GenericTagPicker` for both selectors, `ManagedStateToggle` for managed/unmanaged filter
+- Data sources: `useSolutions()` and `useCustomApis()` hooks (TanStack Query)
+- State: Zustand store (`selectedSolutionId`, `selectedCustomApiId`)
+- Filter state: `showSolutions`, `showCustomApis` (local component state)
+- Managed filter: Both selectors have independent managed/unmanaged toggles
+
+**Model Insights:**
+- `CustomApi` entity includes `_fxexpressionid_value` lookup to PowerFx entity (line 23 in CustomApi.ts)
+- `isfunction` boolean distinguishes between Actions and Functions (line 19 in CustomApi.ts)
+- BindingType options: Global, Entity, EntityCollection (for filtering potential)
+- PowerFx is displayed in separate `PowerFxDetails.tsx` component
+
+**UX Analysis:**
+1. **Information Architecture Issue:** Custom API is the PRIMARY user goal (it's the app's main purpose), but Solution selector comes first. This misrepresents the mental model.
+2. **Filter vs. Primary Selector:** Solution is truly a filter (narrows available APIs), not a primary selection.
+3. **Extensibility Gap:** Adding new filters (PowerFx enabled, Business Events, bindingtype, isfunction) to current flat layout will cause UI clutter.
+4. **Managed Filter Consistency:** Both selectors have independent toggle state — duplication/confusion potential.
+5. **Edge Case:** Empty results when filters are too restrictive — no error messaging.
+6. **Session State:** Filter state persists only in-session (lost on reload) — users may prefer to reset or persist between sessions.
+7. **Collapse Pattern:** Similar to `CatalogSelector.tsx` (lines 55-109) which also has Solution-first problem.
+8. **Mobile Consideration:** Current side-by-side toggle buttons and multiple fields may not scale well on mobile.
+
+**Architectural Precedent:**
+- `CatalogSelector.tsx` has identical pattern (Solution first, Catalog second) with toggle button UI (more clunky than ManagedStateToggle)
+- Decision: Fix both components or just CustomAPI in this issue? (Recommended: CustomAPI only, note CatalogSelector for follow-up)
+
+**Key Files for Implementation:**
+- Primary: `src/components/CustomApiSelector.tsx`
+- Hooks: `src/hooks/useCustomApis.tsx`, `src/hooks/useSolutions.tsx`
+- Models: `src/models/CustomApi.ts` (entity properties for filtering)
+- Styles: `src/styles/Styles.ts` (existing collapsible/expandable section support)
+- Similar: `src/components/CatalogSelector.tsx` (same pattern issue)
+
 ### 2026-02-28: Project Structure Review
 
 **Directory Layout:**

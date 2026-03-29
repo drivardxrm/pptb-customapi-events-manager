@@ -3,6 +3,8 @@ import {
     Field, 
     Card,
     Input,
+    Button,
+    Text,
     mergeClasses,
 } from '@fluentui/react-components'
 import { useAppStore } from '../store/useAppStore'
@@ -10,115 +12,48 @@ import { useStyles } from '../styles/Styles'
 import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
-import { LockClosedRegular, LockOpenRegular } from '@fluentui/react-icons'
+import { LockClosedRegular, LockOpenRegular, ChevronRightRegular, ChevronDownRegular } from '@fluentui/react-icons'
 import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
-
-
 
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const {  addLog,setSelectedSolutionId,setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
+    const { addLog, setSelectedSolutionId, setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     const isLocked = editingComponent !== 'none';
     
-    
-    //const [filter, setFilter] = useState<string>("all")
-    const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
+    const [filtersExpanded, setFiltersExpanded] = useState(false)
     const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>('all')
-    
+    const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
 
-    // if (!isLoadingConnection && connection?.isActive === false) {
-    //     return (
-    //         <Card className={styles.card}>
-    //             <CardHeader header={<h3>Custom API Selector</h3>} />
-    //             <div className={styles.infoBox}>
-    //                 <p>No connection</p>
-    //                 <p>Please select a Connection</p>
-    //             </div>
-    //         </Card>
-    //     );
-    // }
+    // Calculate active filter count
+    const activeFilterCount = 
+        (selectedSolutionId ? 1 : 0) + 
+        (showCustomApis !== 'all' ? 1 : 0)
 
-    
+    // Filter solutions based on managed state
+    const filteredSolutions = solutionsQuery.solutions?.filter(s => 
+        showSolutions === 'all' || 
+        (s.ismanaged && showSolutions === 'managed') || 
+        (!s.ismanaged && showSolutions === 'unmanaged')
+    ) ?? []
+
+    // Filter Custom APIs based on Custom API managed state filter
+    const filteredCustomApis = customapisQuery.customapis?.filter(c => 
+        showCustomApis === 'all' || 
+        (c.ismanaged && showCustomApis === 'managed') || 
+        (!c.ismanaged && showCustomApis === 'unmanaged')
+    ) ?? []
+
     return (
         <Card className={mergeClasses(styles.card, isLocked && styles.lockedSection)}>
-            {/* <CardHeader 
-                header={<h2>Custom API Selector</h2>}
-                // description={"Select a Custom API or Create a new one"}
-            />
-            <Divider /> */}
-            
-            <div className={styles.formGrid}>
-               
-                <div className={styles.formSection}>
-                    <Field label={
-                        <div className={styles.fieldLabelWithToggle}>
-                            <span className={styles.semiBoldLabel}>Selected Solution</span>
-                            <ManagedStateToggle 
-                                value={showSolutions} 
-                                onChange={setShowSolutions} 
-                            />
-                        </div>
-                    }
-                    hint={selectedSolutionId != null && selectedSolutionId != '' ? 'Clear to show all Custom APIs' : 'Leave empty to show all Custom APIs'}
-                    >
-                        {solutionsQuery.isFetching && (
-                            <Input 
-                                appearance='filled-darker'
-                                value={"Loading solutions..."} 
-                                readOnly 
-                                
-                            />
-                        )}
-                        {solutionsQuery.error && (
-                            <Input 
-                                appearance='filled-darker'
-                                value={`Error loading solutions: ${solutionsQuery.error.message}`} 
-                                readOnly 
-                                
-                            />
-                        )}
-                        {!solutionsQuery.isFetching && solutionsQuery.solutions && (
-                            <GenericTagPicker 
-                                items={solutionsQuery.solutions
-                                                                .filter(s => (showSolutions === 'all' || (s.ismanaged && showSolutions === 'managed') || (!s.ismanaged && showSolutions === 'unmanaged')))
-                                                                .map(s => ({
-                                                                        id: s.solutionid,
-                                                                        displayText: `${s.friendlyname} (${s.uniquename})`,
-                                                                        image: s.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
-                                                                    } as SelectableItem)      
-                                                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
-                                initialValue={solutionsQuery.solutions.find(s => s.solutionid === selectedSolutionId)?.solutionid || ''}
-                                onSelect={(id) => {
-                                    setSelectedSolutionId(id);
-                                    if(id){
-                                        addLog(`Solution selected: ${id}`, 'info');
-                                    } else {
-                                        addLog('Solution selection cleared', 'info');
-                                    }
-                                }}
-                            />
-                        )}
-                    </Field>
-                    
-                </div>
-            {/* </div>
-            <div className={styles.formGrid}> */}
-                <div className={styles.formSection}>
-                    <Field label={
-                        <div className={styles.fieldLabelWithToggle}>
-                            <span className={styles.semiBoldLabel}>Selected Custom API</span>
-                            <ManagedStateToggle 
-                                value={showCustomApis} 
-                                onChange={setShowCustomApis} 
-                            />
-                        </div>
-                    }>
+            <div className={styles.selectorGrid}>
+                {/* LEFT COLUMN: Custom API Picker */}
+                <div className={styles.selectorColumn}>
+                    <Field label={<span className={styles.semiBoldLabel}>Selected Custom API</span>}>
                         {customapisQuery.isFetching && (
-
-                             <Input 
+                            <Input 
                                 appearance='filled-darker'
                                 value={"Loading custom apis..."} 
                                 readOnly 
@@ -132,29 +67,124 @@ export const CustomApiSelector: React.FC = () => {
                             />
                         )}
                         {!customapisQuery.isFetching && customapisQuery.customapis && (
-                            <GenericTagPicker 
-                                items={customapisQuery.customapis
-                                    .filter(s => showCustomApis === 'all' || (s.ismanaged && showCustomApis === 'managed') || (!s.ismanaged && showCustomApis === 'unmanaged'))
-                                    .map(c => ({
-                                        id: c.customapiid,
-                                        displayText: `${c.name} (${c.uniquename})`
-                                    } as SelectableItem)      
-                                ).sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
-                                initialValue={customapisQuery.customapis.find(c => c.customapiid === selectedCustomApiId)?.customapiid || ''}
-                                onSelect={(id) => {
-                                    setSelectedCustomApiId(id);
-                                    if(id){
-                                        addLog(`Custom API selected: ${id}`, 'info');
-                                    } else {
-                                        addLog('Custom API selection cleared', 'warning');
-                                    }
-                                }}
-                            />
-                    )}
+                            <>
+                                <GenericTagPicker 
+                                    items={filteredCustomApis
+                                        .map(c => ({
+                                            id: c.customapiid,
+                                            displayText: `${c.name} (${c.uniquename})`,
+                                            image: c.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
+                                        } as SelectableItem))
+                                        .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
+                                    initialValue={customapisQuery.customapis.find(c => c.customapiid === selectedCustomApiId)?.customapiid || ''}
+                                    onSelect={(id) => {
+                                        setSelectedCustomApiId(id);
+                                        if(id){
+                                            addLog(`Custom API selected: ${id}`, 'info');
+                                        } else {
+                                            addLog('Custom API selection cleared', 'warning');
+                                        }
+                                    }}
+                                />
+                                {filteredCustomApis.length === 0 && (
+                                    <Text className={styles.hintTextItalic}>No Custom APIs match your filters.</Text>
+                                )}
+                            </>
+                        )}
                     </Field>
                 </div>
 
-                
+                {/* RIGHT COLUMN: Collapsible Filters Section */}
+                <div className={mergeClasses(styles.selectorColumn, styles.subtleBorderedBox)}>
+                    <Button
+                        appearance="subtle"
+                        icon={filtersExpanded ? <ChevronDownRegular /> : <ChevronRightRegular />}
+                        onClick={() => setFiltersExpanded(!filtersExpanded)}
+                        size="small"
+                        className={styles.filterToggleButton}
+                    >
+                        Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
+                    </Button>
+                    
+                    {filtersExpanded && (
+                        <div className={styles.flexColumnM}>
+                            
+
+                            {/* Solutions Filter Section */}
+                            <div className={styles.filterSubsection}>
+                                <Field label=
+                                    {
+                                        <div className={styles.fieldLabelWithToggle}>
+                                            <span className={styles.semiBoldLabel}>Selected Solution</span>
+                                            <ManagedStateToggle 
+                                                value={showSolutions} 
+                                                onChange={setShowSolutions} 
+                                            />
+                                        </div>
+                                    }
+                                >
+                                    {solutionsQuery.isFetching && (
+                                        <Input 
+                                            appearance='filled-darker'
+                                            value={"Loading solutions..."} 
+                                            readOnly 
+                                        />
+                                    )}
+                                    {solutionsQuery.error && (
+                                        <Input 
+                                            appearance='filled-darker'
+                                            value={`Error loading solutions: ${solutionsQuery.error.message}`} 
+                                            readOnly 
+                                        />
+                                    )}
+                                    {!solutionsQuery.isFetching && solutionsQuery.solutions && (
+                                        <>
+                                            <GenericTagPicker 
+                                                items={filteredSolutions
+                                                    .map(s => ({
+                                                        id: s.solutionid,
+                                                        displayText: `${s.friendlyname} (${s.uniquename})`,
+                                                        image: s.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />
+                                                    } as SelectableItem))
+                                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}  
+                                                initialValue={solutionsQuery.solutions.find(s => s.solutionid === selectedSolutionId)?.solutionid || ''}
+                                                onSelect={(id) => {
+                                                    setSelectedSolutionId(id);
+                                                    if(id){
+                                                        addLog(`Solution selected: ${id}`, 'info');
+                                                    } else {
+                                                        addLog('Solution selection cleared', 'info');
+                                                    }
+                                                }}
+                                            />
+                                            {filteredSolutions.length === 0 && (
+                                                <Text className={styles.hintTextItalic}>No solutions match your filter.</Text>
+                                            )}
+                                        </>
+                                    )}
+
+                                </Field>
+                                
+                                <Field label=
+                                    {
+                                        <div className={styles.fieldLabelWithToggle}>
+                                            <span className={styles.semiBoldLabel}>Custom API filters</span>
+                                        </div>
+                                    }
+                                >
+                                    
+                                    <ManagedStateToggle 
+                                        value={showCustomApis} 
+                                        onChange={setShowCustomApis} 
+                                    />
+
+                                </Field>
+                                
+                            </div>
+                        </div>
+                        
+                    )}
+                </div>
             </div>
         </Card>
     );
