@@ -12,9 +12,16 @@ import { useStyles } from '../../styles/Styles';
 import { CustomApiResponseProperty, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
 
 interface ResponsePanelProps {
-    executionResult: { success: boolean; data?: unknown; error?: string } | null;
+    executionResult: { success: boolean; data?: unknown; error?: string; elapsedMs?: number } | null;
     responseProperties: CustomApiResponseProperty[];
 }
+
+const formatElapsedTime = (ms: number): string => {
+    if (ms < 1000) {
+        return `${Math.round(ms)} ms`;
+    }
+    return `${(ms / 1000).toFixed(1)} s`;
+};
 
 export const ResponsePanel: React.FC<ResponsePanelProps> = ({
     executionResult,
@@ -44,6 +51,11 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
             <CardHeader
                 header={
                     <span className={styles.flexRowCentered}><ArrowDownloadRegular /> Response</span>
+                }
+                action={
+                    executionResult?.success && executionResult.elapsedMs !== undefined
+                        ? <Badge appearance="outline" size="medium" color="informative">{formatElapsedTime(executionResult.elapsedMs)}</Badge>
+                        : undefined
                 }
             />
             <div className={styles.testerPanelContent}>
