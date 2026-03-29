@@ -37,3 +37,15 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Card placed below Request/Response panels when visible
 - Pattern: Use card-level actions for feature toggles, keep individual panels focused
 
+### 2026-03-09: Issue #65 - Selector Redesign
+- Redesigned `CustomApiSelector.tsx` and `CatalogSelector.tsx` with new layout
+- Primary picker (Custom API / Catalog) now comes FIRST for better UX
+- Solution picker moved to collapsible "Filters" section (collapsed by default)
+- Single Managed/Unmanaged toggle in filters section applies to solution list filtering
+- Filter badge shows count of active filters (e.g., "Filters (2)")
+- Empty state messages shown when filters yield no results
+- Collapse state is component-local (useState), not persisted
+- Pattern: Collapsible sections use ChevronRightRegular / ChevronDownRegular icons with subtle Button
+- Reusable `ManagedStateToggle` component from `src/components/generic/ManagedStateToggle.tsx`
+- Fluent UI `flexColumnM` style used for vertical layout with medium spacing
+

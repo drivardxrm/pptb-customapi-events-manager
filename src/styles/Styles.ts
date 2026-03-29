@@ -191,6 +191,39 @@ export const useStyles = makeStyles({
     },
 
     // ===========================================
+    // SELECTOR LAYOUT (Two-column: picker left, filters right)
+    // ===========================================
+    selectorGrid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: tokens.spacingHorizontalL,
+        alignItems: 'start',
+    },
+    selectorColumn: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: tokens.spacingVerticalS,
+    },
+    subtleBorderedBox: {
+        border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
+        borderRadius: tokens.borderRadiusMedium,
+        padding: tokens.spacingHorizontalM,
+    },
+    filterSubsection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: tokens.spacingVerticalXS,
+        paddingLeft: tokens.spacingHorizontalM,
+    },
+    filterSubsectionLabel: {
+        fontWeight: tokens.fontWeightSemibold,
+        fontSize: tokens.fontSizeBase200,
+        color: tokens.colorNeutralForeground2,
+    },    filterToggleButton: {
+        width: '100%',
+        justifyContent: 'flex-start',
+    },
+    // ===========================================
     // FORMS
     // ===========================================
     formGrid: {
