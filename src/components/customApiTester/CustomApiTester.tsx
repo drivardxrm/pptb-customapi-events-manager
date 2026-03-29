@@ -48,7 +48,7 @@ export const CustomApiTester: React.FC = () => {
     const [boundRecordId, setBoundRecordId] = useState<string | null>(null);
     // Execution state
     const [isExecuting, setIsExecuting] = useState(false);
-    const [executionResult, setExecutionResult] = useState<{ success: boolean; data?: unknown; error?: string } | null>(null);
+    const [executionResult, setExecutionResult] = useState<{ success: boolean; data?: unknown; error?: string; elapsedMs?: number } | null>(null);
     // OData visibility state
     const [showOdata, setShowOdata] = useState(false);
 
@@ -336,9 +336,11 @@ export const CustomApiTester: React.FC = () => {
             }
 
             addLog(`Executing Custom API '${selectedCustomApi.uniquename}'...`, 'info');
+            const startTime = performance.now();
             const result = await window.dataverseAPI.execute(request);
+            const elapsedMs = performance.now() - startTime;
 
-            setExecutionResult({ success: true, data: result });
+            setExecutionResult({ success: true, data: result, elapsedMs });
             addLog(`Custom API '${selectedCustomApi.uniquename}' executed successfully`, 'success');
             notify({
                 title: 'Execution Successful',
