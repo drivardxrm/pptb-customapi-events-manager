@@ -54,7 +54,7 @@ export const ResponsePanel: React.FC<ResponsePanelProps> = ({
                 }
                 action={
                     executionResult?.success && executionResult.elapsedMs !== undefined
-                        ? <Badge appearance="outline" size="medium" color="informative">{formatElapsedTime(executionResult.elapsedMs)}</Badge>
+                        ? <Badge appearance="outline" size="medium" color="success">{formatElapsedTime(executionResult.elapsedMs)}</Badge>
                         : undefined
                 }
             />

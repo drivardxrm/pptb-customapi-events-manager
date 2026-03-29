@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Card, 
-    CardHeader,
-    ToggleButton
+    CardHeader
 } from '@fluentui/react-components';
-import { CodeFilled, CodeRegular } from '@fluentui/react-icons';
 import { CustomApiSelector } from '../CustomApiSelector';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis } from '../../hooks/useCustomApis';
@@ -49,8 +47,7 @@ export const CustomApiTester: React.FC = () => {
     // Execution state
     const [isExecuting, setIsExecuting] = useState(false);
     const [executionResult, setExecutionResult] = useState<{ success: boolean; data?: unknown; error?: string; elapsedMs?: number } | null>(null);
-    // OData visibility state
-    const [showOdata, setShowOdata] = useState(false);
+
 
     // Reset parameter values and bound record when custom API changes
     useEffect(() => {
@@ -395,18 +392,7 @@ export const CustomApiTester: React.FC = () => {
                                     )}
                                 </div>
                             }
-                            action={
-                                <ToggleButton
-                                    size="small"
-                                    appearance={showOdata ? 'primary' : 'secondary'}
-                                    shape="circular"
-                                    icon={showOdata ? <CodeFilled /> : <CodeRegular />}
-                                    checked={showOdata}
-                                    onClick={() => setShowOdata(prev => !prev)}
-                                >
-                                    OData
-                                </ToggleButton>
-                            }
+                            
                         />
                     </Card>
 
@@ -433,18 +419,17 @@ export const CustomApiTester: React.FC = () => {
                         />
                     </div>
 
-                    {/* OData Card - shown when OData toggle is enabled */}
-                    {showOdata && (
-                        <ODataCard
-                            customApi={selectedCustomApi}
-                            requestParameters={sortedParameters}
-                            parameterValues={parameterValues}
-                            boundEntityCollectionName={boundEntityCollectionName}
-                            boundRecordId={boundRecordId}
-                            requestPreview={requestPreview}
-                            executionResult={executionResult}
-                        />
-                    )}
+  
+                    <ODataCard
+                        customApi={selectedCustomApi}
+                        requestParameters={sortedParameters}
+                        parameterValues={parameterValues}
+                        boundEntityCollectionName={boundEntityCollectionName}
+                        boundRecordId={boundRecordId}
+                        requestPreview={requestPreview}
+                        executionResult={executionResult}
+                    />
+
                 </>
             )}
             

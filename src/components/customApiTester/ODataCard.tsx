@@ -14,8 +14,8 @@ import { CustomApi } from '../../models/CustomApi';
 import { CustomApiRequestParameter } from '../../models/CustomApiRequestParameter';
 import { ParameterValues } from './RequestPanel';
 import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
 import { lightTheme } from '@uiw/react-json-view/light';
+import { darkTheme } from '@uiw/react-json-view/dark';
 
 interface ODataCardProps {
     customApi: CustomApi;
@@ -113,7 +113,7 @@ export const ODataCard: React.FC<ODataCardProps> = ({
                             <div className={styles.jsonViewerWrapper}>
                                 <JsonView
                                     value={requestPreview.parameters as object}
-                                    style={theme === 'dark' ? darkTheme : lightTheme}
+                                    style={theme === 'dark' ? darkTheme : lightTheme}    
                                     displayDataTypes={false}
                                     enableClipboard={true}
                                 />
@@ -131,7 +131,7 @@ export const ODataCard: React.FC<ODataCardProps> = ({
                                     value={typeof executionResult.data === 'object' && executionResult.data !== null ? executionResult.data as object : { result: executionResult.data }}
                                     displayDataTypes={false}
                                     collapsed={2}
-                                    style={theme === 'light' ? lightTheme : darkTheme}
+                                    style={theme === 'dark' ? darkTheme : lightTheme}                       
                                     shortenTextAfterLength={0}
                                     enableClipboard={true}
                                 />
