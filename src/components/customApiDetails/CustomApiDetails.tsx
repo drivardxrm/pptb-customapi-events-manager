@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Activity } from 'react';
-import { Button, Card, CardHeader, Divider, Spinner } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor } from '@fluentui/react-icons';
+import { Button, Card, CardHeader, Divider, Spinner, Switch, Tooltip } from '@fluentui/react-components';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor, TreeDeciduousFilled } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
@@ -9,6 +9,7 @@ import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
 import { CustomApiCreateDialog } from './CustomApiCreateDialog';
+import { CustomApiTreeView } from './CustomApiTreeView';
 
 import { RequestParameterDetails } from './../requestParameterDetails/RequestParameterDetails';
 import { CustomApiSelector } from '../CustomApiSelector';
@@ -19,6 +20,8 @@ import { ModeBadge } from '../generic/ModeBadge';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
 import { PowerFxDetails } from '../powerfxDetails/PowerFxDetails';
+import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
+import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 
 
 
@@ -43,12 +46,15 @@ export const CustomApiDetails: React.FC = () => {
     const updateCustomApi = useUpdateCustomApi();
     const createCustomApi = useCreateCustomApi();
     const deleteCustomApi = useDeleteCustomApi();
+    const { requestParameters } = useCustomApiRequestParameters();
+    const { responseProperties } = useCustomApiResponseProperties();
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
 
 
     const [mode, setMode] = useState<CustomApiDetailsMode>('read');
+    const [showTreeView, setShowTreeView] = useState(false);
     const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiCreateable>(DEFAULT_CREATE_TEMPLATE);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({
@@ -357,6 +363,15 @@ export const CustomApiDetails: React.FC = () => {
                 </div>;
         }
 
+        // Show tree view or form view based on toggle
+        if (mode === 'read' && selectedCustomApi && showTreeView) {
+            return <CustomApiTreeView 
+                api={selectedCustomApi} 
+                requestParameters={requestParameters} 
+                responseProperties={responseProperties}
+            />;
+        }
+
         return <CustomApiDetailsRead api={selectedCustomApi!} />;
     })();
 
@@ -379,6 +394,17 @@ export const CustomApiDetails: React.FC = () => {
                                         {selectedCustomApi?._fxexpressionid_value && (
                                             <PowerFxBadge />
                                         )}
+                                        {/* Tree View Toggle - only visible in read mode with a selected API */}
+                                        {mode === 'read' && selectedCustomApi && (
+                                            <Tooltip content="Toggle compact tree view" relationship="label">
+                                                <Switch
+                                                    checked={showTreeView}
+                                                    onChange={(_, data) => setShowTreeView(data.checked)}
+                                                    label={<TreeDeciduousFilled />}
+                                                    labelPosition="before"
+                                                />
+                                            </Tooltip>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -389,8 +415,8 @@ export const CustomApiDetails: React.FC = () => {
                     <Divider />
                     {content}
                 </div>
-                {
-                    selectedCustomApi &&
+                {/* Hide request/response sections when in tree view mode */}
+                {selectedCustomApi && !showTreeView && (
                     <>
                         <RequestParameterDetails/>
             
@@ -400,7 +426,7 @@ export const CustomApiDetails: React.FC = () => {
                             <PowerFxDetails fxexpressionid={selectedCustomApi._fxexpressionid_value} />
                         )}
                     </>
-                }
+                )}
                 
             </Card>
 

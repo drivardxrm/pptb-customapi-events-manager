@@ -49,3 +49,14 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Reusable `ManagedStateToggle` component from `src/components/generic/ManagedStateToggle.tsx`
 - Fluent UI `flexColumnM` style used for vertical layout with medium spacing
 
+### 2026-03-12: Issue #66 - Compact Tree View Toggle
+- Created `src/components/customApiDetails/CustomApiTreeView.tsx` - tree view component for Custom API inspection
+- Uses Fluent UI Tree component (`Tree`, `TreeItem`, `TreeItemLayout`) for expandable/collapsible structure
+- Tree displays: Custom API details, Request Parameters (with count), Response Properties (with count)
+- Boolean flags (Is Function, Is Private, Workflow Enabled) shown with checkmark/dismiss icons
+- Parameter/property types displayed with type labels; optional params have "Optional" badge
+- Toggle Switch added to CardHeader badge group, only visible in read mode when a Custom API is selected
+- When tree view is active, hides RequestParameterDetails and ResponsePropertyDetails cards
+- Component uses local `makeStyles` for tree-specific styling (component-level styles pattern)
+- Key files: `CustomApiDetails.tsx` (toggle state + conditional rendering), `CustomApiTreeView.tsx` (tree component)
+

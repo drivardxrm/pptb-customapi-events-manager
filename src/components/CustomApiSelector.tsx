@@ -12,7 +12,7 @@ import { useStyles } from '../styles/Styles'
 import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
-import { LockClosedRegular, LockOpenRegular, ChevronRightRegular, ChevronDownRegular } from '@fluentui/react-icons'
+import { LockClosedRegular, LockOpenRegular, ChevronRightRegular, FilterFilled } from '@fluentui/react-icons'
 import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
 
 
@@ -98,7 +98,7 @@ export const CustomApiSelector: React.FC = () => {
                 <div className={mergeClasses(styles.selectorColumn, styles.subtleBorderedBox)}>
                     <Button
                         appearance="subtle"
-                        icon={filtersExpanded ? <ChevronDownRegular /> : <ChevronRightRegular />}
+                        icon={filtersExpanded ? <FilterFilled /> : <ChevronRightRegular />}
                         onClick={() => setFiltersExpanded(!filtersExpanded)}
                         size="small"
                         className={styles.filterToggleButton}
@@ -115,7 +115,7 @@ export const CustomApiSelector: React.FC = () => {
                                 <Field label=
                                     {
                                         <div className={styles.fieldLabelWithToggle}>
-                                            <span className={styles.semiBoldLabel}>Selected Solution</span>
+                                            <span className={styles.semiBoldLabel}>Solution</span>
                                             <ManagedStateToggle 
                                                 value={showSolutions} 
                                                 onChange={setShowSolutions} 
