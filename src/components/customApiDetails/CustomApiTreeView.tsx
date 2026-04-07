@@ -8,12 +8,14 @@ import {
     makeStyles,
     Image,
     Tooltip,
+    Button,
 } from '@fluentui/react-components';
 import {
     CheckmarkCircleFilled,
     DismissCircleFilled,
     LockClosedRegular,
-    DeveloperBoardLightningFilled
+    DeveloperBoardLightningFilled,
+    Edit20Regular
 } from '@fluentui/react-icons';
 import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
@@ -108,7 +110,24 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
             <Tree aria-label="Custom API Tree View" defaultOpenItems={['api-root', 'api-details', 'parameters-section', 'properties-section']}>
                 {/* Root: Custom API */}
                 <TreeItem itemType="branch" value="api-root">
-                    <TreeItemLayout iconBefore={<DeveloperBoardLightningFilled primaryFill={tokens.colorBrandForeground1} />}>
+                    <TreeItemLayout 
+                        iconBefore={
+                            <DeveloperBoardLightningFilled 
+                                primaryFill={tokens.colorBrandForeground1} 
+                            />
+                        }
+                        actions={
+                            <>
+                                <Button
+                                    aria-label="Edit"
+                                    appearance="subtle"
+                                    icon={<Edit20Regular />}
+                                    onClick={() => alert("test")}
+                                />
+
+                            </>
+                            }
+                    >
                         <span className={styles.sectionHeader}>
                             Custom API: {api.displayname || api.uniquename}
                         </span>

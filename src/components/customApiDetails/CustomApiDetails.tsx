@@ -435,6 +435,12 @@ export const CustomApiDetails: React.FC = () => {
                     </>
                 )}
                 
+                {selectedCustomApi  && selectedCustomApi._fxexpressionid_value && (
+                    <PowerFxDetails fxexpressionid={selectedCustomApi._fxexpressionid_value} />
+                )}
+                
+               
+                
             </Card>
 
             {/* Create Confirmation Dialog */}
