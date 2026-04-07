@@ -42,7 +42,8 @@ export const SettingsForm: React.FC = () => {
             (localSettings.defaultPublisherId !== settingsQuery.appsettings.defaultPublisherId ||
             localSettings.requestParameterDefaultName !== settingsQuery.appsettings.requestParameterDefaultName ||
             localSettings.responsePropertyDefaultName !== settingsQuery.appsettings.responsePropertyDefaultName ||
-            localSettings.showDebug !== settingsQuery.appsettings.showDebug)
+            localSettings.showDebug !== settingsQuery.appsettings.showDebug ||
+            localSettings.showCustomApiDetailsTreeView !== settingsQuery.appsettings.showCustomApiDetailsTreeView)
         );
     };
 
@@ -208,6 +209,24 @@ export const SettingsForm: React.FC = () => {
                                     })
                                 }
                                 label={localSettings.showDebug ? 'Enabled' : 'Disabled'}
+                            />
+                        </Field>
+                    </div>
+
+                    <div className={styles.formSection}>
+                        <Field 
+                            label="Show Custom API Details in Tree View"
+                            hint="Display Custom API details as a compact tree structure by default"
+                        >
+                            <Switch
+                                checked={localSettings.showCustomApiDetailsTreeView}
+                                onChange={(_, data) =>
+                                    setLocalSettings({
+                                        ...localSettings,
+                                        showCustomApiDetailsTreeView: data.checked,
+                                    })
+                                }
+                                label={localSettings.showCustomApiDetailsTreeView ? 'Enabled' : 'Disabled'}
                             />
                         </Field>
                     </div>

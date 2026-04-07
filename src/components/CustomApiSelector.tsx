@@ -23,7 +23,7 @@ export const CustomApiSelector: React.FC = () => {
     const customapisQuery = useCustomApis()
     const isLocked = editingComponent !== 'none';
     
-    const [filtersExpanded, setFiltersExpanded] = useState(false)
+    const [filtersExpanded, setFiltersExpanded] = useState(true)
     const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>('all')
     const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
 

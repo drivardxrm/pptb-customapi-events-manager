@@ -27,6 +27,8 @@ interface CustomApiTreeViewProps {
     api: CustomApi;
     requestParameters: CustomApiRequestParameter[];
     responseProperties: CustomApiResponseProperty[];
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
 const useTreeStyles = makeStyles({
@@ -99,6 +101,8 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
     api,
     requestParameters,
     responseProperties,
+    onEdit,
+    onDelete
 }) => {
     const styles = useTreeStyles();
 
@@ -122,8 +126,16 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                     aria-label="Edit"
                                     appearance="subtle"
                                     icon={<Edit20Regular />}
-                                    onClick={() => alert("test")}
+                                    onClick={onEdit}
                                 />
+                                {!api.ismanaged && !api._fxexpressionid_value  && 
+                                    <Button
+                                        aria-label="Delete"
+                                        appearance="subtle"
+                                        icon={<DismissCircleFilled />}
+                                        onClick={onDelete}
+                                    />
+                                }
 
                             </>
                             }
@@ -138,12 +150,13 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                         <TreeItem itemType="branch" value="api-details">
                             <TreeItemLayout>Details</TreeItemLayout>
                             <Tree>
-                                {/* Display Name */}
-                                <TreeItem itemType="leaf" value="display-name">
+                                {/* Unique Name */}
+                                <TreeItem itemType="leaf" value="unique-name">
                                     <TreeItemLayout>
                                         <span className={styles.treeItemContent}>
-                                            <span>Display Name:</span>
-                                            <span className={styles.subtleText}>{api.displayname || '—'}</span>
+                                            <span>Unique Name:</span>
+                                            <span className={styles.subtleText}>{api.uniquename}</span>
+                                            <LockIcon />
                                         </span>
                                     </TreeItemLayout>
                                 </TreeItem>
@@ -158,16 +171,17 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                     </TreeItemLayout>
                                 </TreeItem>
 
-                                {/* Unique Name */}
-                                <TreeItem itemType="leaf" value="unique-name">
+                                
+                                {/* Display Name */}
+                                <TreeItem itemType="leaf" value="display-name">
                                     <TreeItemLayout>
                                         <span className={styles.treeItemContent}>
-                                            <span>Unique Name:</span>
-                                            <span className={styles.subtleText}>{api.uniquename}</span>
-                                            <LockIcon />
+                                            <span>Display Name:</span>
+                                            <span className={styles.subtleText}>{api.displayname || '—'}</span>
                                         </span>
                                     </TreeItemLayout>
                                 </TreeItem>
+
 
                                 {/* Description */}
                                 <TreeItem itemType="leaf" value="description">
@@ -175,6 +189,17 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                         <span className={styles.treeItemContent}>
                                             <span>Description:</span>
                                             <span className={styles.subtleText}>{api.description || '—'}</span>
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                 {/* Allowed Custom Processing Step Type */}
+                                <TreeItem itemType="leaf" value="allowed-processing-step-type">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Allowed Processing Step Type:</span>
+                                            <span className={styles.subtleText}>{allowedProcessingStepTypeLabel}</span>
+                                            <LockIcon />
                                         </span>
                                     </TreeItemLayout>
                                 </TreeItem>
@@ -207,16 +232,7 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                     </TreeItem>
                                 )}
 
-                                {/* Allowed Custom Processing Step Type */}
-                                <TreeItem itemType="leaf" value="allowed-processing-step-type">
-                                    <TreeItemLayout>
-                                        <span className={styles.treeItemContent}>
-                                            <span>Allowed Processing Step Type:</span>
-                                            <span className={styles.subtleText}>{allowedProcessingStepTypeLabel}</span>
-                                            <LockIcon />
-                                        </span>
-                                    </TreeItemLayout>
-                                </TreeItem>
+                               
 
                                 {/* Plugin */}
                                 <TreeItem itemType="leaf" value="plugin">
@@ -322,14 +338,6 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                                 </span>
                                             </TreeItemLayout>
                                             <Tree>
-                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-name`}>
-                                                    <TreeItemLayout>
-                                                        <span className={styles.treeItemContent}>
-                                                            <span>Name:</span>
-                                                            <span className={styles.subtleText}>{param.name || '—'}</span>
-                                                        </span>
-                                                    </TreeItemLayout>
-                                                </TreeItem>
                                                 <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-uniquename`}>
                                                     <TreeItemLayout>
                                                         <span className={styles.treeItemContent}>
@@ -339,6 +347,25 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                                         </span>
                                                     </TreeItemLayout>
                                                 </TreeItem>
+                                                
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-name`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Name:</span>
+                                                            <span className={styles.subtleText}>{param.name || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-name`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Display Name:</span>
+                                                            <span className={styles.subtleText}>{param.displayname || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                
                                                 <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-desc`}>
                                                     <TreeItemLayout>
                                                         <span className={styles.treeItemContent}>
@@ -425,14 +452,7 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                                 </span>
                                             </TreeItemLayout>
                                             <Tree>
-                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-name`}>
-                                                    <TreeItemLayout>
-                                                        <span className={styles.treeItemContent}>
-                                                            <span>Name:</span>
-                                                            <span className={styles.subtleText}>{prop.name || '—'}</span>
-                                                        </span>
-                                                    </TreeItemLayout>
-                                                </TreeItem>
+                                                
                                                 <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-uniquename`}>
                                                     <TreeItemLayout>
                                                         <span className={styles.treeItemContent}>
@@ -442,6 +462,25 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                                         </span>
                                                     </TreeItemLayout>
                                                 </TreeItem>
+
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-name`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Name:</span>
+                                                            <span className={styles.subtleText}>{prop.name || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-name`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Display Name:</span>
+                                                            <span className={styles.subtleText}>{prop.displayname || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+
                                                 <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-desc`}>
                                                     <TreeItemLayout>
                                                         <span className={styles.treeItemContent}>

@@ -22,6 +22,7 @@ import { PowerFxBadge } from '../generic/PowerFxBadge';
 import { PowerFxDetails } from '../powerfxDetails/PowerFxDetails';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
+import { useAppSettings } from '../../hooks/useAppSettings';
 
 
 
@@ -48,13 +49,14 @@ export const CustomApiDetails: React.FC = () => {
     const deleteCustomApi = useDeleteCustomApi();
     const { requestParameters } = useCustomApiRequestParameters();
     const { responseProperties } = useCustomApiResponseProperties();
+    const { appsettings } = useAppSettings();
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
 
 
     const [mode, setMode] = useState<CustomApiDetailsMode>('read');
-    const [showTreeView, setShowTreeView] = useState(false);
+    const [showTreeView, setShowTreeView] = useState(appsettings?.showCustomApiDetailsTreeView ?? false);
     const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiCreateable>(DEFAULT_CREATE_TEMPLATE);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({
@@ -62,6 +64,13 @@ export const CustomApiDetails: React.FC = () => {
     });
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+    // Sync showTreeView with app settings when settings load
+    useEffect(() => {
+        if (appsettings?.showCustomApiDetailsTreeView !== undefined) {
+            setShowTreeView(appsettings.showCustomApiDetailsTreeView);
+        }
+    }, [appsettings?.showCustomApiDetailsTreeView]);
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -369,6 +378,15 @@ export const CustomApiDetails: React.FC = () => {
                 api={selectedCustomApi} 
                 requestParameters={requestParameters} 
                 responseProperties={responseProperties}
+                onEdit={() => {
+                    setShowTreeView(false);
+                    handleEdit();
+                }}
+                onDelete={ 
+                    () => {
+                        handleDelete();
+                    }
+                }
             />;
         }
 
@@ -395,7 +413,7 @@ export const CustomApiDetails: React.FC = () => {
                                             <PowerFxBadge />
                                         )}
                                         {/* Tree View Toggle - only visible in read mode with a selected API */}
-                                        {mode === 'read' && selectedCustomApi && (
+                                        {mode === 'read' && (
                                             <div>
                                                
                                                 
@@ -434,7 +452,7 @@ export const CustomApiDetails: React.FC = () => {
                         )}
                     </>
                 )}
-                
+
                 {selectedCustomApi  && selectedCustomApi._fxexpressionid_value && (
                     <PowerFxDetails fxexpressionid={selectedCustomApi._fxexpressionid_value} />
                 )}
