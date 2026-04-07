@@ -11,8 +11,6 @@ import {
     AppItem
 } from "@fluentui/react-components";
 import { 
-    // ConnectedRegular, 
-    // ConnectedFilled,
     DeveloperBoardLightningRegular,
     DeveloperBoardLightningFilled,
     ClipboardBulletListRegular, 

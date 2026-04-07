@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Activity } from 'react';
 import { Button, Card, CardHeader, Divider, Spinner, Switch, Tooltip } from '@fluentui/react-components';
-import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor, TreeDeciduousFilled } from '@fluentui/react-icons';
+import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor, TextBulletListTreeRegular, FormRegular } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
@@ -294,7 +294,7 @@ export const CustomApiDetails: React.FC = () => {
             </Activity>
 
             {/* EDIT */}
-            <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged  ? 'visible' : 'hidden'}>
+            <Activity mode={mode === 'read' && selectedCustomApi && !selectedCustomApi.ismanaged && !showTreeView ? 'visible' : 'hidden'}>
                 <Button
                     appearance='secondary'
                     icon={<Edit24Regular />}
@@ -396,14 +396,21 @@ export const CustomApiDetails: React.FC = () => {
                                         )}
                                         {/* Tree View Toggle - only visible in read mode with a selected API */}
                                         {mode === 'read' && selectedCustomApi && (
-                                            <Tooltip content="Toggle compact tree view" relationship="label">
-                                                <Switch
-                                                    checked={showTreeView}
-                                                    onChange={(_, data) => setShowTreeView(data.checked)}
-                                                    label={<TreeDeciduousFilled />}
-                                                    labelPosition="before"
-                                                />
-                                            </Tooltip>
+                                            <div>
+                                               
+                                                
+                                                <Tooltip content='Toggle compact tree view' relationship='label'>
+                                                    <Switch
+                                                        checked={showTreeView}
+                                                        onChange={(_, data) => setShowTreeView(data.checked)}
+                                                        label={showTreeView ? 
+                                                            <div className={styles.flexRowCentered}><TextBulletListTreeRegular /><span>Tree View</span></div> : 
+                                                            <div className={styles.flexRowCentered}><FormRegular /><span>Form View</span></div>  }
+                                                        labelPosition='after'
+                                                    />
+                                                </Tooltip>
+                                            </div>
+                                            
                                         )}
                                     </div>
                                 </div>

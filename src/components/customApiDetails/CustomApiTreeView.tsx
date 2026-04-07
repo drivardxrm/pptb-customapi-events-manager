@@ -6,21 +6,20 @@ import {
     Badge,
     tokens,
     makeStyles,
+    Image,
+    Tooltip,
 } from '@fluentui/react-components';
 import {
-    BoxFilled,
-    ArrowDownloadFilled,
-    ArrowUploadFilled,
     CheckmarkCircleFilled,
     DismissCircleFilled,
-    GlobeRegular,
-    SquareRegular,
-    SquareMultipleRegular,
-    PlugConnectedRegular,
+    LockClosedRegular,
+    DeveloperBoardLightningFilled
 } from '@fluentui/react-icons';
-import { CustomApi, Customapisbindingtype } from '../../models/CustomApi';
+import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 import { CustomApiResponseProperty, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
+import inputImage from '../../assets/input.png';
+import outputImage from '../../assets/output.png';
 
 interface CustomApiTreeViewProps {
     api: CustomApi;
@@ -31,16 +30,6 @@ interface CustomApiTreeViewProps {
 const useTreeStyles = makeStyles({
     treeContainer: {
         padding: tokens.spacingVerticalS,
-    },
-    flagsContainer: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalXS,
-        marginLeft: tokens.spacingHorizontalS,
-    },
-    flagBadge: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: tokens.spacingHorizontalXXS,
     },
     parameterItem: {
         display: 'flex',
@@ -65,36 +54,44 @@ const useTreeStyles = makeStyles({
     sectionHeader: {
         fontWeight: tokens.fontWeightSemibold,
     },
+    lockIcon: {
+        color: tokens.colorNeutralForeground3,
+        fontSize: '12px',
+        marginLeft: tokens.spacingHorizontalXXS,
+    },
+    booleanValue: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalXXS,
+    },
 });
 
-const BooleanFlag: React.FC<{ value: boolean; label: string }> = ({ value, label }) => {
+const BooleanValue: React.FC<{ value: boolean }> = ({ value }) => {
     const styles = useTreeStyles();
     return (
-        <span className={styles.flagBadge}>
+        <span className={styles.booleanValue}>
             {value ? (
                 <CheckmarkCircleFilled primaryFill={tokens.colorPaletteGreenForeground1} />
             ) : (
                 <DismissCircleFilled primaryFill={tokens.colorNeutralForeground3} />
             )}
             <span style={{ color: value ? tokens.colorPaletteGreenForeground1 : tokens.colorNeutralForeground3 }}>
-                {label}
+                {value ? 'Yes' : 'No'}
             </span>
         </span>
     );
 };
 
-const getBindingTypeIcon = (bindingType: number | null) => {
-    switch (bindingType) {
-        case 0:
-            return <GlobeRegular />;
-        case 1:
-            return <SquareRegular />;
-        case 2:
-            return <SquareMultipleRegular />;
-        default:
-            return <GlobeRegular />;
-    }
+const LockIcon: React.FC = () => {
+    const styles = useTreeStyles();
+    return (
+        <Tooltip content="Cannot be changed after creation" relationship="label">
+            <LockClosedRegular className={styles.lockIcon} />
+        </Tooltip>
+    );
 };
+
+
 
 export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
     api,
@@ -103,7 +100,7 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 }) => {
     const styles = useTreeStyles();
 
-    const bindingTypeLabel = Customapisbindingtype[api.bindingtype!] || 'Unknown';
+    const allowedProcessingStepTypeLabel = Customapisallowedcustomprocessingsteptype[api.allowedcustomprocessingsteptype!] || 'Unknown';
     const pluginName = api['_plugintypeid_value@OData.Community.Display.V1.FormattedValue'] || 'None';
 
     return (
@@ -111,7 +108,7 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
             <Tree aria-label="Custom API Tree View" defaultOpenItems={['api-root', 'api-details', 'parameters-section', 'properties-section']}>
                 {/* Root: Custom API */}
                 <TreeItem itemType="branch" value="api-root">
-                    <TreeItemLayout iconBefore={<BoxFilled primaryFill={tokens.colorBrandForeground1} />}>
+                    <TreeItemLayout iconBefore={<DeveloperBoardLightningFilled primaryFill={tokens.colorBrandForeground1} />}>
                         <span className={styles.sectionHeader}>
                             Custom API: {api.displayname || api.uniquename}
                         </span>
@@ -122,34 +119,89 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                         <TreeItem itemType="branch" value="api-details">
                             <TreeItemLayout>Details</TreeItemLayout>
                             <Tree>
+                                {/* Display Name */}
+                                <TreeItem itemType="leaf" value="display-name">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Display Name:</span>
+                                            <span className={styles.subtleText}>{api.displayname || '—'}</span>
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Name (Logical) */}
+                                <TreeItem itemType="leaf" value="name">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Name:</span>
+                                            <span className={styles.subtleText}>{api.name || '—'}</span>
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
                                 {/* Unique Name */}
                                 <TreeItem itemType="leaf" value="unique-name">
                                     <TreeItemLayout>
                                         <span className={styles.treeItemContent}>
                                             <span>Unique Name:</span>
                                             <span className={styles.subtleText}>{api.uniquename}</span>
+                                            <LockIcon />
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Description */}
+                                <TreeItem itemType="leaf" value="description">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Description:</span>
+                                            <span className={styles.subtleText}>{api.description || '—'}</span>
                                         </span>
                                     </TreeItemLayout>
                                 </TreeItem>
 
                                 {/* Binding */}
                                 <TreeItem itemType="leaf" value="binding">
-                                    <TreeItemLayout iconBefore={getBindingTypeIcon(api.bindingtype)}>
+                                    <TreeItemLayout>
                                         <span className={styles.treeItemContent}>
-                                            <span>Binding:</span>
+                                            <span>Binding Type:</span>
                                             <span className={styles.subtleText}>
-                                                {bindingTypeLabel}
-                                                {(api.bindingtype === 1 || api.bindingtype === 2) && api.boundentitylogicalname && (
-                                                    <> → {api.boundentitylogicalname}</>
-                                                )}
+                                                {Customapisbindingtype[api.bindingtype!]}
                                             </span>
+                                            <LockIcon />
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Bound Entity Logical Name */}
+                                {(api.bindingtype === 1 || api.bindingtype === 2) && api.boundentitylogicalname && (
+                                    <TreeItem itemType="leaf" value="binding">
+                                        <TreeItemLayout>
+                                            <span className={styles.treeItemContent}>
+                                                <span>Bound Entity Logical Name:</span>
+                                                <span className={styles.subtleText}>
+                                                    {api.boundentitylogicalname}
+                                                </span>
+                                                <LockIcon />
+                                            </span>
+                                        </TreeItemLayout>
+                                    </TreeItem>
+                                )}
+
+                                {/* Allowed Custom Processing Step Type */}
+                                <TreeItem itemType="leaf" value="allowed-processing-step-type">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Allowed Processing Step Type:</span>
+                                            <span className={styles.subtleText}>{allowedProcessingStepTypeLabel}</span>
+                                            <LockIcon />
                                         </span>
                                     </TreeItemLayout>
                                 </TreeItem>
 
                                 {/* Plugin */}
                                 <TreeItem itemType="leaf" value="plugin">
-                                    <TreeItemLayout iconBefore={<PlugConnectedRegular />}>
+                                    <TreeItemLayout>
                                         <span className={styles.treeItemContent}>
                                             <span>Plugin:</span>
                                             <span className={styles.subtleText}>{pluginName}</span>
@@ -157,16 +209,55 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                     </TreeItemLayout>
                                 </TreeItem>
 
-                                {/* Flags */}
-                                <TreeItem itemType="leaf" value="flags">
+                                {/* Execute Privilege Name */}
+                                <TreeItem itemType="leaf" value="execute-privilege">
                                     <TreeItemLayout>
                                         <span className={styles.treeItemContent}>
-                                            <span>Flags:</span>
-                                            <span className={styles.flagsContainer}>
-                                                <BooleanFlag value={api.isfunction} label="Function" />
-                                                <BooleanFlag value={api.isprivate} label="Private" />
-                                                <BooleanFlag value={api.workflowsdkstepenabled} label="Workflow" />
-                                            </span>
+                                            <span>Execute Privilege Name:</span>
+                                            <span className={styles.subtleText}>{api.executeprivilegename || '—'}</span>
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Is Function */}
+                                <TreeItem itemType="leaf" value="is-function">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Is Function:</span>
+                                            <BooleanValue value={api.isfunction} />
+                                            <LockIcon />
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Is Private */}
+                                <TreeItem itemType="leaf" value="is-private">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Is Private:</span>
+                                            <BooleanValue value={api.isprivate} />
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Workflow SDK Step Enabled */}
+                                <TreeItem itemType="leaf" value="workflow-enabled">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Workflow SDK Step Enabled:</span>
+                                            <BooleanValue value={api.workflowsdkstepenabled} />
+                                            <LockIcon />
+                                        </span>
+                                    </TreeItemLayout>
+                                </TreeItem>
+
+                                {/* Is Managed */}
+                                <TreeItem itemType="leaf" value="is-managed">
+                                    <TreeItemLayout>
+                                        <span className={styles.treeItemContent}>
+                                            <span>Is Managed:</span>
+                                            <BooleanValue value={api.ismanaged} />
+                                            <LockIcon />
                                         </span>
                                     </TreeItemLayout>
                                 </TreeItem>
@@ -175,7 +266,7 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 
                         {/* Request Parameters Branch */}
                         <TreeItem itemType="branch" value="parameters-section">
-                            <TreeItemLayout iconBefore={<ArrowDownloadFilled primaryFill={tokens.colorPaletteBlueForeground2} />}>
+                            <TreeItemLayout iconBefore={<Image alt="Request Parameters" src={inputImage} height={24} width={24} />}>
                                 <span className={styles.sectionHeader}>
                                     Request Parameters ({requestParameters.length})
                                 </span>
@@ -191,12 +282,12 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                     requestParameters.map((param) => (
                                         <TreeItem
                                             key={param.customapirequestparameterid}
-                                            itemType="leaf"
+                                            itemType="branch"
                                             value={`param-${param.customapirequestparameterid}`}
                                         >
                                             <TreeItemLayout>
                                                 <span className={styles.parameterItem}>
-                                                    <span>{param.uniquename}</span>
+                                                    <span>{param.displayname || param.uniquename}</span>
                                                     <span className={styles.typeLabel}>
                                                         ({Customapirequestparameterstype[param.type] || 'Unknown'})
                                                     </span>
@@ -211,6 +302,74 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                                     )}
                                                 </span>
                                             </TreeItemLayout>
+                                            <Tree>
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-name`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Name:</span>
+                                                            <span className={styles.subtleText}>{param.name || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-uniquename`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Unique Name:</span>
+                                                            <span className={styles.subtleText}>{param.uniquename}</span>
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-desc`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Description:</span>
+                                                            <span className={styles.subtleText}>{param.description || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-type`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Type:</span>
+                                                            <span className={styles.subtleText}>
+                                                                {Customapirequestparameterstype[param.type] || 'Unknown'}
+                                                            </span>
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                {(Customapirequestparameterstype[param.type] === 'Entity' ||
+                                                                    Customapirequestparameterstype[param.type] === 'EntityReference')  && (
+                                                    <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-entity`}>
+                                                        <TreeItemLayout>
+                                                            <span className={styles.treeItemContent}>
+                                                                <span>Logical Entity Name:</span>
+                                                                <span className={styles.subtleText}>{param.logicalentityname || 'expando'}</span>
+                                                                <LockIcon />
+                                                            </span>
+                                                        </TreeItemLayout>
+                                                    </TreeItem>
+                                                )}
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-optional`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Is Optional:</span>
+                                                            <BooleanValue value={param.isoptional} />
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`param-${param.customapirequestparameterid}-managed`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Is Managed:</span>
+                                                            <BooleanValue value={param.ismanaged} />
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                            </Tree>
                                         </TreeItem>
                                     ))
                                 )}
@@ -219,7 +378,7 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 
                         {/* Response Properties Branch */}
                         <TreeItem itemType="branch" value="properties-section">
-                            <TreeItemLayout iconBefore={<ArrowUploadFilled primaryFill={tokens.colorPaletteGreenForeground2} />}>
+                            <TreeItemLayout iconBefore={<Image alt="Response Properties" src={outputImage} height={24} width={24} />}>
                                 <span className={styles.sectionHeader}>
                                     Response Properties ({responseProperties.length})
                                 </span>
@@ -235,17 +394,76 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                     responseProperties.map((prop) => (
                                         <TreeItem
                                             key={prop.customapiresponsepropertyid}
-                                            itemType="leaf"
+                                            itemType="branch"
                                             value={`prop-${prop.customapiresponsepropertyid}`}
                                         >
                                             <TreeItemLayout>
                                                 <span className={styles.parameterItem}>
-                                                    <span>{prop.uniquename}</span>
+                                                    <span>{prop.displayname || prop.uniquename}</span>
                                                     <span className={styles.typeLabel}>
                                                         ({Customapiresponsepropertiestype[prop.type] || 'Unknown'})
                                                     </span>
                                                 </span>
                                             </TreeItemLayout>
+                                            <Tree>
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-name`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Name:</span>
+                                                            <span className={styles.subtleText}>{prop.name || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-uniquename`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Unique Name:</span>
+                                                            <span className={styles.subtleText}>{prop.uniquename}</span>
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-desc`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Description:</span>
+                                                            <span className={styles.subtleText}>{prop.description || '—'}</span>
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-type`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Type:</span>
+                                                            <span className={styles.subtleText}>
+                                                                {Customapiresponsepropertiestype[prop.type] || 'Unknown'}
+                                                            </span>
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                                {(Customapiresponsepropertiestype[prop.type] === 'Entity' ||
+                                                                    Customapiresponsepropertiestype[prop.type] === 'EntityReference') && (
+                                                    <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-entity`}>
+                                                        <TreeItemLayout>
+                                                            <span className={styles.treeItemContent}>
+                                                                <span>Logical Entity Name:</span>
+                                                                <span className={styles.subtleText}>{prop.logicalentityname || 'expando'}</span>
+                                                                <LockIcon />
+                                                            </span>
+                                                        </TreeItemLayout>
+                                                    </TreeItem>
+                                                )}
+                                                <TreeItem itemType="leaf" value={`prop-${prop.customapiresponsepropertyid}-managed`}>
+                                                    <TreeItemLayout>
+                                                        <span className={styles.treeItemContent}>
+                                                            <span>Is Managed:</span>
+                                                            <BooleanValue value={prop.ismanaged} />
+                                                            <LockIcon />
+                                                        </span>
+                                                    </TreeItemLayout>
+                                                </TreeItem>
+                                            </Tree>
                                         </TreeItem>
                                     ))
                                 )}
