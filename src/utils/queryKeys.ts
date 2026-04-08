@@ -8,6 +8,7 @@ export const queryKeys = defineQueryKeys("keys", {
   appsettings: key((connectionId: string, instanceId: string) => ['appsettings', instanceId, connectionId]),
   customapis: key((connectionId: string, instanceId: string, solutionId: string) => ['customapis', instanceId, connectionId, solutionId]),
   catalogs: key((connectionId: string, instanceId: string, solutionId: string) => ['catalogs', instanceId, connectionId, solutionId]),
+  catalogassignments: key((connectionId: string, instanceId: string, solutionId: string) => ['catalogassignments', instanceId, connectionId, solutionId]),
   requestparameters: key((customApiId: string, connectionId: string, instanceId: string) => ['customapirequestparameters', instanceId, connectionId, customApiId]),
   responseproperties: key((customApiId: string, connectionId: string, instanceId: string) => ['customapiresponseproperties', instanceId, connectionId, customApiId]),
   plugintypes: key((connectionId: string, instanceId: string) => ['plugintypes', instanceId, connectionId]),
