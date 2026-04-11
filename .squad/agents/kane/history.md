@@ -22,3 +22,13 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Key categories: app-level (appsettings), solution-scoped (customapis, catalogs), child entities (requestparameters, responseproperties), reference data (plugintypes, privileges, etc.)
 - Moving entity-specific params to end enables future partial invalidation by prefix
 - `react-query-key-manager` used for typed key definitions
+
+### 2026-03-08: Business Event (Catalog) Models & Services (#69)
+- Enhanced `src/models/Catalog.ts`: Added `_publisherid_value` with lookup metadata, renamed template to `DEFAULT_CATALOG_CREATE_TEMPLATE`
+- Enhanced `src/models/CatalogAssignment.ts`: Added `catalogassignmenttype` optionset (0=Table, 1=CustomAPI, 2=CustomProcessAction), `getCatalogAssignmentTypeOptions()` helper, icons, `DEFAULT_ASSIGNMENT_CREATE_TEMPLATE` defaulting to CustomAPI
+- Created `src/services/PublisherService.ts` for Publisher entity lookup binding
+- Enhanced `src/services/CatalogService.ts`: Added `fetchRootCatalogs()` and `fetchCategoryChildren()` methods, publisher lookup
+- Enhanced `src/services/CatalogAssignmentService.ts`: Added `fetchSolutionAssignments()`, `fetchAssignmentsByCatalog()`, `createCatalogAssignment()` with polymorphic object binding, `updateCatalogAssignment()`
+- Added `catalogassignmentsByCatalog` query key for catalog-scoped assignment queries
+- Polymorphic lookups (like `_object_value`) require special handling — skip in buildCreatePayload and manually construct OData bind
+- Catalog componenttype = 10017, CatalogAssignment componenttype = 10018

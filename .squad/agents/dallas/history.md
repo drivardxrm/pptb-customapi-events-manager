@@ -60,3 +60,27 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Component uses local `makeStyles` for tree-specific styling (component-level styles pattern)
 - Key files: `CustomApiDetails.tsx` (toggle state + conditional rendering), `CustomApiTreeView.tsx` (tree component)
 
+### 2026-04-11: Issue #69 - Business Event (Catalog) Management UI
+- Implemented full UI layer for Business Events (Catalogs and CatalogAssignments)
+- Created `src/components/BusinessEventDetails/` folder with:
+  - `BusinessEventDetails.tsx` - Main container with CatalogSelector and tree view
+  - `CatalogTreeView.tsx` - Hierarchical tree view (Root Catalog → Category → Assignment)
+  - `CatalogModal.tsx` - Create/Edit modal for Catalogs (supports root + category modes)
+  - `CatalogAssignmentModal.tsx` - Create/Edit modal for Assignments (Custom API selector)
+  - `ConfirmDialog.tsx` - Reusable confirmation dialog for delete operations
+- Enhanced `src/hooks/useCatalogs.tsx`:
+  - Added `useRootCatalogs()` for solution-scoped root catalogs
+  - Added `useCatalogChildren()` for fetching category children
+  - Added notifications to all mutations
+- Enhanced `src/hooks/useCatalogAssignments.tsx`:
+  - Added `useCatalogAssignmentsByCatalog()` for catalog-scoped assignments
+  - Added `useCreateCatalogAssignment()`, `useUpdateCatalogAssignment()`, `useDeleteCatalogAssignment()` mutations
+  - Cache invalidation includes both solution-level and catalog-level queries
+- Added `catalogChildren` query key to `src/utils/queryKeys.ts`
+- Updated `src/components/App.tsx` to route 'businessevent' nav item to BusinessEventDetails
+- Tree component uses local `makeStyles` for tree-specific styling (component-level pattern)
+- CRUD operations only available for unmanaged records (ismanaged=false check)
+- Managed records show lock badge and hide edit/delete buttons
+- Pattern: Fluent UI Tree with nested TreeItem components for hierarchical data
+- Pattern: Modal dialogs with validation, loading states, and notifications
+

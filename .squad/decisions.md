@@ -73,3 +73,52 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 - Removed individual OData toggles from RequestPanel and ResponsePanel
 - Uses existing `buildCustomApiODataUrl` and `buildFunctionParamString` utilities from `src/utils/odataUrl.ts`
 **Why:** Consolidates OData technical details into a single card for cleaner UX. Users who don't need OData info see a simpler interface, while developers can toggle the card for detailed URL/JSON inspection.
+
+---
+
+### 2026-04-11: Polymorphic Lookup Handling for CatalogAssignment
+**By:** Kane (Backend Developer)  
+**What:** Established pattern for polymorphic lookup field handling in CatalogAssignment entity (Issue #69).
+**Issue:** The `catalogassignment` entity has a polymorphic lookup field `_object_value` that can reference different entity types (customapi, workflow, entity) depending on the `catalogassignmenttype`.
+**Decision:**
+1. Use `skipKeys: ['_object_value']` in buildCreatePayload options
+2. Manually construct the OData bind: `payload['Object@odata.bind'] = \`${collectionName}(${id})\``
+3. Maintain a `getCollectionName()` helper in the service to map entity names to collection names
+**Rationale:** The `buildCreatePayload()` diff utility assumes a single target entity per lookup field. Polymorphic lookups require runtime determination of the target entity collection name.
+**Impact:**
+- `CatalogAssignmentService.createCatalogAssignment()` requires `objectEntityName` parameter
+- Future polymorphic lookups should follow this same pattern
+- Frontend receives this contract for assignment creation UI
+
+---
+
+### 2026-04-11: Business Event UI Architecture
+**By:** Dallas (Frontend Developer)  
+**What:** Implemented Business Events UI as a tree-based hierarchical view with modal dialogs for CRUD operations (Issue #69).
+**Architecture Choices:**
+1. **Tree View Structure** - Root Catalogs → Categories → Assignments hierarchy using Fluent UI Tree component
+   - Root catalogs use FolderRegular icon
+   - Categories use FolderOpenRegular icon
+   - Assignments use type-specific icons
+   - Action buttons (Add, Edit, Delete) appear on hover for unmanaged items
+2. **Component Organization** - Created `src/components/BusinessEventDetails/` with:
+   - `BusinessEventDetails.tsx` - Main container, orchestrates modals
+   - `CatalogTreeView.tsx` - Tree view with nested item components
+   - `CatalogModal.tsx` - Unified create/edit modal with mode switching
+   - `CatalogAssignmentModal.tsx` - Assignment-specific modal
+   - `ConfirmDialog.tsx` - Reusable delete confirmation
+3. **Hook Enhancements** - Added hooks for:
+   - `useCatalogChildren()` for lazy-loading category children
+   - `useCatalogAssignmentsByCatalog()` for catalog-scoped assignment queries
+   - All mutations include notifications via `notify()` utility
+   - Cache invalidation covers both solution-level and catalog-level queries
+4. **Managed State Handling** - CRUD operations only available when `ismanaged === false`
+   - Managed items display lock badge and hide edit/delete buttons
+   - Consistent with CustomAPI patterns
+**Rationale:** Tree view provides natural navigation for hierarchical Catalog data. Modal dialogs keep main view clean while supporting full CRUD. Lazy-loading children via separate queries improves performance.
+**Files Changed:**
+- `src/hooks/useCatalogs.tsx` - Added hooks, notifications
+- `src/hooks/useCatalogAssignments.tsx` - Added CRUD mutations
+- `src/utils/queryKeys.ts` - Added `catalogChildren` key
+- `src/components/App.tsx` - Wired up navigation
+- `src/components/BusinessEventDetails/*` - New components

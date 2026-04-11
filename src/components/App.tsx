@@ -33,6 +33,7 @@ import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
 import { About } from "./About";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { CustomApiTester } from "./customApiTester/CustomApiTester";
+import { BusinessEventDetails } from "./BusinessEventDetails/BusinessEventDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
@@ -51,7 +52,7 @@ type NavSection = 'customapi' | 'customapitester' | 'businessevent' | 'logs' | '
 function App() {
     
     const styles = useStyles();
-    const {instanceId, addLog, selectedNavItem, setSelectedNavItem, setGlobalMessage, clearGlobalMessage} = useAppStore();
+    const {instanceId, addLog, selectedNavItem, setSelectedNavItem, clearGlobalMessage} = useAppStore();
     const { appsettings } = useAppSettings();
 
 
@@ -85,17 +86,9 @@ function App() {
 
     // Show coming soon message for business events
     useEffect(() => {
-        if (selectedNavItem === 'businessevent') {
-            setGlobalMessage('businessevent-coming-soon', {
-                intent: 'info',
-                title: 'Business Events - Coming Soon!',
-                body: 'This feature is currently under development.',
-                dismissable: false,
-            });
-        } else {
-            clearGlobalMessage('businessevent-coming-soon');
-        }
-    }, [selectedNavItem, setGlobalMessage, clearGlobalMessage]);
+        // Clear the old coming soon message - now implemented!
+        clearGlobalMessage('businessevent-coming-soon');
+    }, [selectedNavItem, clearGlobalMessage]);
 
    
 
@@ -139,13 +132,7 @@ function App() {
             case 'customapitester':
                 return <CustomApiTester />;
             case 'businessevent':
-                return (
-                    <>
-                        
-
-                         {/* <CatalogSelector /> */}
-                    </>
-                );
+                return <BusinessEventDetails />;
             case 'logs':
                 return <EventLog/>;
             case 'settings':
