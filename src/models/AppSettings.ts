@@ -4,6 +4,7 @@ export interface AppSettings  {
     requestParameterDefaultName: string | null;
     responsePropertyDefaultName: string | null;
   showDebug: boolean;
+  showCustomApiDetailsTreeView: boolean;
 
 };
 
@@ -12,6 +13,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   requestParameterDefaultName: '{customapiname}-In-{uniquename}',
   responsePropertyDefaultName: '{customapiname}-Out-{uniquename}',
   showDebug: false,
+  showCustomApiDetailsTreeView: false,
 };
 
 export async function getAllSettings(connectionId:string): Promise<AppSettings> {
@@ -43,6 +45,11 @@ export function mapRecordToSettings(record: Record<string, any>, connectionId:st
           : record.showDebug === 'true'
             ? true
             : DEFAULT_SETTINGS.showDebug,
+        showCustomApiDetailsTreeView: typeof record.showCustomApiDetailsTreeView === 'boolean'
+          ? record.showCustomApiDetailsTreeView
+          : record.showCustomApiDetailsTreeView === 'true'
+            ? true
+            : DEFAULT_SETTINGS.showCustomApiDetailsTreeView,
 
     };
 }
