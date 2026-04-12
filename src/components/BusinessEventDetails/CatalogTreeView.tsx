@@ -150,9 +150,17 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
         );
     }
 
+    // Get category IDs for auto-expansion (children of selected catalog)
+    const categoryIds = catalogs
+        .filter(c => c._parentcatalogid_value === selectedCatalogId)
+        .map(c => c.catalogid);
+
     return (
         <div className={styles.treeContainer}>
-            <Tree aria-label="Business Events Catalog Tree">
+            <Tree 
+                aria-label="Business Events Catalog Tree"
+                defaultOpenItems={[selectedCatalog.catalogid, ...categoryIds]}
+            >
                 <RootCatalogItem
                     catalog={selectedCatalog}
                     allCatalogs={catalogs}
