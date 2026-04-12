@@ -14,7 +14,7 @@ import { CatalogAssignment } from '../../models/CatalogAssignment';
 
 export const BusinessEventDetails: React.FC = () => {
     const styles = useStyles();
-    const { selectedCatalogId, selectedSolutionId, setGlobalMessage, clearGlobalMessage, selectedNavItem } = useAppStore();
+    const { selectedCatalogId, selectedSolutionId, clearGlobalMessage } = useAppStore();
     const { catalogs } = useCatalogs();
 
     // Modal states
@@ -29,24 +29,9 @@ export const BusinessEventDetails: React.FC = () => {
 
     const selectedCatalog = catalogs.find(c => c.catalogid === selectedCatalogId);
 
-    // Show info message when no solution is selected
-    useEffect(() => {
-        if (selectedNavItem === 'businessevent' && !selectedSolutionId) {
-            setGlobalMessage('no-solution-selected-be', {
-                intent: 'info',
-                title: 'Select a Solution to manage Business Events.',
-                body: 'Use the filters section to select a solution.',
-                dismissable: false,
-            });
-        } else {
-            clearGlobalMessage('no-solution-selected-be');
-        }
-    }, [selectedNavItem, selectedSolutionId, setGlobalMessage, clearGlobalMessage]);
-
     // Clear message when component unmounts
     useEffect(() => {
         return () => {
-            clearGlobalMessage('no-solution-selected-be');
             clearGlobalMessage('businessevent-coming-soon');
         };
     }, [clearGlobalMessage]);
@@ -151,10 +136,10 @@ export const BusinessEventDetails: React.FC = () => {
                 />
                 <Divider />
 
-                {!selectedSolutionId ? (
+                {!selectedCatalogId ? (
                     <div className={styles.infoBox}>
-                        <p>No Solution selected</p>
-                        <p>Please select a Solution in the filters above to view Business Events</p>
+                        <p>No Catalog selected</p>
+                        <p>Select a Catalog above to view its hierarchy</p>
                     </div>
                 ) : (
                     <CatalogTreeView
