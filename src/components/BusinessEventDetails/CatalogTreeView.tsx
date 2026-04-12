@@ -24,6 +24,7 @@ import {
 } from '@fluentui/react-icons';
 import { useCatalogs, useDeleteCatalog } from '../../hooks/useCatalogs';
 import { useCatalogAssignmentsByCatalog, useDeleteCatalogAssignment } from '../../hooks/useCatalogAssignments';
+import { useAppStore } from '../../store/useAppStore';
 import { Catalog } from '../../models/Catalog';
 import { CatalogAssignment, CatalogAssignmentTypeOptions } from '../../models/CatalogAssignment';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -94,6 +95,7 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
     onEditAssignment,
 }) => {
     const styles = useTreeStyles();
+    const { selectedCatalogId } = useAppStore();
     const { catalogs, isFetching: isFetchingCatalogs } = useCatalogs();
     const deleteCatalog = useDeleteCatalog();
     const deleteAssignment = useDeleteCatalogAssignment();
@@ -102,8 +104,8 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<{ type: 'catalog' | 'assignment'; item: Catalog | CatalogAssignment } | null>(null);
 
-    // Get root catalogs (no parent)
-    const rootCatalogs = catalogs.filter(c => !c._parentcatalogid_value);
+    // Get the selected root catalog only
+    const selectedCatalog = catalogs.find(c => c.catalogid === selectedCatalogId);
 
     const handleDeleteClick = (type: 'catalog' | 'assignment', item: Catalog | CatalogAssignment) => {
         setItemToDelete({ type, item });
@@ -138,12 +140,12 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
         );
     }
 
-    if (rootCatalogs.length === 0) {
+    if (!selectedCatalog) {
         return (
             <div className={styles.emptyState}>
-                <Text>No Business Event catalogs found in this solution.</Text>
+                <Text>Selected catalog not found.</Text>
                 <br />
-                <Text size={200}>Create a Root Catalog to get started.</Text>
+                <Text size={200}>Select a different Catalog above.</Text>
             </div>
         );
     }
@@ -151,19 +153,16 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
     return (
         <div className={styles.treeContainer}>
             <Tree aria-label="Business Events Catalog Tree">
-                {rootCatalogs.map(rootCatalog => (
-                    <RootCatalogItem
-                        key={rootCatalog.catalogid}
-                        catalog={rootCatalog}
-                        allCatalogs={catalogs}
-                        onCreateCategory={onCreateCategory}
-                        onEditCatalog={onEditCatalog}
-                        onDeleteCatalog={(c) => handleDeleteClick('catalog', c)}
-                        onCreateAssignment={onCreateAssignment}
-                        onEditAssignment={onEditAssignment}
-                        onDeleteAssignment={(a) => handleDeleteClick('assignment', a)}
-                    />
-                ))}
+                <RootCatalogItem
+                    catalog={selectedCatalog}
+                    allCatalogs={catalogs}
+                    onCreateCategory={onCreateCategory}
+                    onEditCatalog={onEditCatalog}
+                    onDeleteCatalog={(c) => handleDeleteClick('catalog', c)}
+                    onCreateAssignment={onCreateAssignment}
+                    onEditAssignment={onEditAssignment}
+                    onDeleteAssignment={(a) => handleDeleteClick('assignment', a)}
+                />
             </Tree>
 
             <ConfirmDialog
