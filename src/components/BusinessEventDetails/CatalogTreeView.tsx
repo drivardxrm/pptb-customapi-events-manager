@@ -259,18 +259,22 @@ const RootCatalogItem: React.FC<RootCatalogItemProps> = ({
                 </div>
             </TreeItemLayout>
 
-            {/* Category children */}
-            {children.map(category => (
-                <CategoryItem
-                    key={category.catalogid}
-                    catalog={category}
-                    onEditCatalog={onEditCatalog}
-                    onDeleteCatalog={onDeleteCatalog}
-                    onCreateAssignment={onCreateAssignment}
-                    onEditAssignment={onEditAssignment}
-                    onDeleteAssignment={onDeleteAssignment}
-                />
-            ))}
+            {/* Category children - wrapped in Tree for proper nesting */}
+            {children.length > 0 && (
+                <Tree>
+                    {children.map(category => (
+                        <CategoryItem
+                            key={category.catalogid}
+                            catalog={category}
+                            onEditCatalog={onEditCatalog}
+                            onDeleteCatalog={onDeleteCatalog}
+                            onCreateAssignment={onCreateAssignment}
+                            onEditAssignment={onEditAssignment}
+                            onDeleteAssignment={onDeleteAssignment}
+                        />
+                    ))}
+                </Tree>
+            )}
         </TreeItem>
     );
 };
@@ -341,25 +345,30 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
                 </div>
             </TreeItemLayout>
 
-            {/* Loading state for assignments */}
-            {isFetching && (
-                <TreeItem itemType="leaf" value={`${catalog.catalogid}-loading`}>
-                    <TreeItemLayout>
-                        <Spinner size="tiny" label="Loading assignments..." />
-                    </TreeItemLayout>
-                </TreeItem>
-            )}
+            {/* Assignment children - wrapped in Tree for proper nesting */}
+            {(assignments.length > 0 || isFetching) && (
+                <Tree>
+                    {/* Loading state for assignments */}
+                    {isFetching && (
+                        <TreeItem itemType="leaf" value={`${catalog.catalogid}-loading`}>
+                            <TreeItemLayout>
+                                <Spinner size="tiny" label="Loading assignments..." />
+                            </TreeItemLayout>
+                        </TreeItem>
+                    )}
 
-            {/* Assignment children */}
-            {assignments.map(assignment => (
-                <AssignmentItem
-                    key={assignment.catalogassignmentid}
-                    assignment={assignment}
-                    parentCatalog={catalog}
-                    onEditAssignment={onEditAssignment}
-                    onDeleteAssignment={onDeleteAssignment}
-                />
-            ))}
+                    {/* Assignment children */}
+                    {assignments.map(assignment => (
+                        <AssignmentItem
+                            key={assignment.catalogassignmentid}
+                            assignment={assignment}
+                            parentCatalog={catalog}
+                            onEditAssignment={onEditAssignment}
+                            onDeleteAssignment={onDeleteAssignment}
+                        />
+                    ))}
+                </Tree>
+            )}
         </TreeItem>
     );
 };
