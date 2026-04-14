@@ -84,3 +84,12 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Pattern: Fluent UI Tree with nested TreeItem components for hierarchical data
 - Pattern: Modal dialogs with validation, loading states, and notifications
 
+### 2025-01-XX: CatalogAssignment Model Contract Update
+- Updated UI components to use new API contract from Kane after removal of fake `catalogassignmenttype` field
+- `CatalogTreeView.tsx`: Replaced switch statement on `catalogassignmenttype` with `getObjectTypeLabel(objectidtype)` and `getObjectTypeIcon(objectidtype)`
+- `CatalogAssignmentModal.tsx`: Replaced `selectedType` (numeric optionset) state with `selectedObjectType` (entity logical name string like 'customapi')
+- Type dropdown now uses `ObjectIdTypeLabels` mapping (entity logical name → display label)
+- Create payload no longer includes `catalogassignmenttype` — Dataverse sets `objectidtype` automatically based on the bound object lookup
+- Pattern: When Dataverse populates derived fields automatically, don't send them in create payload
+- Pattern: Use entity logical names (strings) directly as type identifiers when that's what Dataverse stores
+

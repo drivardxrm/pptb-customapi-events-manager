@@ -375,3 +375,61 @@ Created GitHub issue #67 for Compact Tree View feature in CustomApiDetails.
 ### Rationale
 
 David requested this feature issue with detailed requirements. Dallas is the appropriate owner for a new UI component in the Custom API details section.
+
+---
+
+## Decision: CatalogAssignment Model Refactor
+
+**Date:** 2026-04-14  
+**By:** Kane (Backend Dev)  
+**Status:** Implemented  
+**Issue:** Model fix for catalogassignment entity
+
+### Context
+
+The `CatalogAssignment` model contained a fabricated `catalogassignmenttype` optionset field that does not exist in the actual Dataverse `catalogassignment` entity. This field needed to be removed and replaced with proper helpers for the actual `objectidtype` field.
+
+### Problem
+
+- Model defined a non-existent optionset field
+- UI components built around incorrect field structure
+- Type information is actually derived from `objectidtype` field (polymorphic lookup indicator)
+
+### Decision
+
+Removed `catalogassignmenttype` field and implemented type-safe helpers for `objectidtype`:
+
+**New Exports from `src/models/CatalogAssignment.ts`:**
+- `ObjectIdTypeLabels` — Maps entity logical names to display labels
+- `objectIdTypeIcons` — Maps entity logical names to icon components
+- `getObjectTypeLabel(objectidtype)` — Returns display label
+- `getObjectTypeIcon(objectidtype)` — Returns icon element
+
+### API Contract
+
+```typescript
+import { getObjectTypeLabel, getObjectTypeIcon } from '../../models/CatalogAssignment';
+
+const label = getObjectTypeLabel(assignment.objectidtype); // "Custom API"
+const icon = getObjectTypeIcon(assignment.objectidtype);   // Icon element
+```
+
+### Implementation
+
+**Backend (Kane):**
+- Removed `catalogassignmenttype` type, constants, and helpers from model
+- Added `objectIdTypeLabels`, `objectIdTypeIcons`, helper functions
+- Updated model interfaces to remove the fake field
+
+**Frontend (Dallas):**
+- Updated `CatalogTreeView.tsx` to use new objectidtype API
+- Updated `CatalogAssignmentModal.tsx` to use `ObjectIdTypeLabels` for type selection
+- Removed all references to `catalogassignmenttype`
+- Build passes with no errors
+
+### Impact
+
+- Models now accurately reflect Dataverse entity structure
+- Type information correctly sourced from polymorphic `objectidtype` field
+- UI components have clean, type-safe API for type display and selection
+- Build passes cleanly with no errors

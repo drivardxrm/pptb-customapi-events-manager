@@ -32,3 +32,10 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Added `catalogassignmentsByCatalog` query key for catalog-scoped assignment queries
 - Polymorphic lookups (like `_object_value`) require special handling — skip in buildCreatePayload and manually construct OData bind
 - Catalog componenttype = 10017, CatalogAssignment componenttype = 10018
+
+### 2025-01-XX: CatalogAssignment Model Correction
+- Removed fabricated `catalogassignmenttype` optionset field — does not exist in Dataverse entity
+- Assignment type is derived from `objectidtype` field (contains entity logical name: 'customapi', 'entity', 'workflow')
+- Added helper functions: `getObjectTypeLabel()`, `getObjectTypeIcon()`, `ObjectIdTypeLabels`, `objectIdTypeIcons`
+- Dataverse populates `objectidtype` automatically when the polymorphic `_object_value` lookup is bound
+- UI components (`CatalogTreeView.tsx`, `CatalogAssignmentModal.tsx`) need updates by Dallas
