@@ -475,6 +475,11 @@ export const useStyles = makeStyles({
         flexDirection: 'column',
         gap: tokens.spacingVerticalS,
     },
+    catalogPathContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalS,
+    },
     summaryRow: {
         display: 'flex',
         gap: tokens.spacingHorizontalS,

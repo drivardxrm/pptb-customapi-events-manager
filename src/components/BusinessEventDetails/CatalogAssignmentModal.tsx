@@ -14,14 +14,17 @@ import {
     Spinner,
     Text,
 } from '@fluentui/react-components';
-import { LockClosedRegular, LockOpenRegular, TableRegular, PlugConnectedRegular, PlayRegular } from '@fluentui/react-icons';
+import { LockClosedRegular, LockOpenRegular, FolderRegular, FolderOpenRegular, ChevronRightRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useCreateCatalogAssignment, useUpdateCatalogAssignment } from '../../hooks/useCatalogAssignments';
+import { useCatalogs } from '../../hooks/useCatalogs';
 import { useCustomApis } from '../../hooks/useCustomApis';
+import { useEntities } from '../../hooks/useEntities';
+import { useWorflows } from '../../hooks/useWorkflows';
 import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
 import { Catalog } from '../../models/Catalog';
-import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable, CatalogAssignmentType, CatalogAssignmentTypeOptions, DEFAULT_ASSIGNMENT_CREATE_TEMPLATE } from '../../models/CatalogAssignment';
+import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable, DEFAULT_ASSIGNMENT_CREATE_TEMPLATE, ObjectIdTypeLabels, getObjectTypeLabel, getObjectType, objectIdTypeIcons } from '../../models/CatalogAssignment';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 
 interface CatalogAssignmentModalProps {
@@ -40,16 +43,24 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     const styles = useStyles();
     const createAssignment = useCreateCatalogAssignment();
     const updateAssignment = useUpdateCatalogAssignment();
+    const { catalogs } = useCatalogs();
     const { customapis, isFetching: isFetchingCustomApis } = useCustomApis();
+    const { entities, isFetching: isFetchingEntities } = useEntities();
+    const { entities: workflows, isFetching: isFetchingWorkflows } = useWorflows();
     const { solutions } = useSolutions();
     const { selectedSolutionId } = useAppStore();
+
+    // Find root catalog (parent of the category)
+    const rootCatalog = parentCatalog 
+        ? catalogs.find(c => c.catalogid === parentCatalog._parentcatalogid_value) 
+        : null;
 
     const isEdit = !!assignment;
 
     // Form state
     const [formData, setFormData] = useState<CatalogAssignmentCreateable>(DEFAULT_ASSIGNMENT_CREATE_TEMPLATE);
     const [editData, setEditData] = useState<CatalogAssignmentUpdateable>({ name: '' });
-    const [selectedType, setSelectedType] = useState<CatalogAssignmentType | null>(1); // Default to Custom API
+    const [selectedObjectType, setSelectedObjectType] = useState<string>('customapi'); // Entity logical name
 
     // Get selected solution
     const selectedSolution = solutions.find(s => s.solutionid === selectedSolutionId);
@@ -61,13 +72,14 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                 setEditData({
                     name: assignment.name || '',
                 });
-                setSelectedType(assignment.catalogassignmenttype);
+                // Read object type from the annotation field for display purposes
+                setSelectedObjectType(getObjectType(assignment) || 'customapi');
             } else {
                 setFormData({
                     ...DEFAULT_ASSIGNMENT_CREATE_TEMPLATE,
                     _catalogid_value: parentCatalog?.catalogid || '',
                 });
-                setSelectedType(1); // Default to Custom API
+                setSelectedObjectType('customapi'); // Default to Custom API
             }
         }
     }, [open, isEdit, assignment, parentCatalog]);
@@ -82,7 +94,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
             if (!formData.name?.trim()) {
                 return { isValid: false, message: 'Name is required.' };
             }
-            if (selectedType === null) {
+            if (!selectedObjectType) {
                 return { isValid: false, message: 'Assignment type is required.' };
             }
             if (!formData._object_value) {
@@ -90,7 +102,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
             }
         }
         return { isValid: true, message: '' };
-    }, [isEdit, formData, editData, selectedType]);
+    }, [isEdit, formData, editData, selectedObjectType]);
 
     const handleSave = async () => {
         try {
@@ -100,17 +112,11 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                     next: editData,
                 });
             } else {
-                // Determine entity name based on type
-                let objectEntityName = 'customapi';
-                if (selectedType === 0) objectEntityName = 'entity';
-                if (selectedType === 2) objectEntityName = 'workflow';
-
+                // objectEntityName is the entity logical name (e.g., 'customapi')
+                // Dataverse will populate objectidtype automatically based on the bound object
                 await createAssignment.mutateAsync({
-                    next: {
-                        ...formData,
-                        catalogassignmenttype: selectedType,
-                    },
-                    objectEntityName,
+                    next: formData,
+                    objectEntityName: selectedObjectType,
                     solutionUniqueName: selectedSolution?.uniquename,
                 });
             }
@@ -125,18 +131,13 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
         return 'Create Assignment';
     };
 
-    const getTypeIcon = (type: number) => {
-        switch (type) {
-            case 0: return <TableRegular />;
-            case 1: return <PlugConnectedRegular />;
-            case 2: return <PlayRegular />;
-            default: return null;
-        }
+    const getTypeIcon = (objectType: string) => {
+        return objectIdTypeIcons[objectType] || null;
     };
 
     // Get selectable items based on type
     const getObjectItems = (): SelectableItem[] => {
-        if (selectedType === 1) {
+        if (selectedObjectType === 'customapi') {
             // Custom APIs
             return customapis
                 .filter(api => !api.ismanaged) // Only unmanaged for assignment
@@ -147,13 +148,56 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                 }))
                 .sort((a, b) => a.displayText.localeCompare(b.displayText));
         }
-        // For Table and Custom Process Action, we would need additional hooks
-        // For now, return empty array - these would need entity/workflow queries
+        if (selectedObjectType === 'entity') {
+            // Tables/Entities
+            return entities
+                .map(entity => ({
+                    id: entity.entityid,
+                    displayText: entity.logicalname || '',
+                } as SelectableItem))
+                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
+        }
+        if (selectedObjectType === 'workflow') {
+            // Custom Process Actions (Workflows)
+            return workflows
+                .map(workflow => ({
+                    id: workflow.workflowid,
+                    displayText: workflow.name || '',
+                } as SelectableItem))
+                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
+        }
         return [];
     };
 
     const isSaving = createAssignment.isPending || updateAssignment.isPending;
     const objectItems = getObjectItems();
+
+    // Handle object selection - also auto-fill name if empty
+    const handleObjectSelect = (id: string | null) => {
+        if (!id) {
+            setFormData(prev => ({ ...prev, _object_value: '' }));
+            return;
+        }
+
+        let objectName = '';
+        if (selectedObjectType === 'customapi') {
+            const api = customapis.find(a => a.customapiid === id);
+            objectName = api?.displayname || api?.name || '';
+        } else if (selectedObjectType === 'entity') {
+            const entity = entities.find(e => e.entityid === id);
+            objectName = entity?.logicalname || '';
+        } else if (selectedObjectType === 'workflow') {
+            const workflow = workflows.find(w => w.workflowid === id);
+            objectName = workflow?.name || '';
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            _object_value: id,
+            // Auto-fill name only if currently empty
+            name: prev.name?.trim() ? prev.name : objectName,
+        }));
+    };
 
     return (
         <Dialog open={open} onOpenChange={(_, data) => !data.open && onClose()}>
@@ -161,11 +205,16 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                 <DialogBody>
                     <DialogTitle>{getTitle()}</DialogTitle>
                     <DialogContent className={styles.dialogContentColumn}>
-                        {/* Parent Catalog info */}
+                        {/* Catalog path: Root Catalog → Category */}
                         {parentCatalog && (
                             <div className={styles.dialogSection}>
-                                <Text size={200} weight="semibold">Parent Category</Text>
-                                <Text>{parentCatalog.displayname || parentCatalog.name}</Text>
+                                <div className={styles.catalogPathContainer}>
+                                    <FolderRegular />
+                                    <Text>{rootCatalog?.displayname || rootCatalog?.name || 'Unknown Catalog'}</Text>
+                                    <ChevronRightRegular />
+                                    <FolderOpenRegular />
+                                    <Text>{parentCatalog.displayname || parentCatalog.name}</Text>
+                                </div>
                             </div>
                         )}
 
@@ -191,19 +240,19 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                                 <Dropdown
                                     appearance="filled-darker"
                                     placeholder="Select type"
-                                    selectedOptions={selectedType !== null ? [selectedType.toString()] : []}
-                                    value={selectedType !== null ? CatalogAssignmentTypeOptions[selectedType as keyof typeof CatalogAssignmentTypeOptions] : ''}
+                                    selectedOptions={selectedObjectType ? [selectedObjectType] : []}
+                                    value={selectedObjectType ? ObjectIdTypeLabels[selectedObjectType] || selectedObjectType : ''}
                                     onOptionSelect={(_, data) => {
-                                        const value = data.optionValue ? parseInt(data.optionValue, 10) as CatalogAssignmentType : null;
-                                        setSelectedType(value);
+                                        const value = data.optionValue || 'customapi';
+                                        setSelectedObjectType(value);
                                         // Clear object selection when type changes
                                         setFormData(prev => ({ ...prev, _object_value: '' }));
                                     }}
                                 >
-                                    {Object.entries(CatalogAssignmentTypeOptions).map(([key, label]) => (
+                                    {Object.entries(ObjectIdTypeLabels).map(([key, label]) => (
                                         <Option key={key} value={key} text={label}>
                                             <span className={styles.optionLabel}>
-                                                {getTypeIcon(parseInt(key, 10))}
+                                                {getTypeIcon(key)}
                                                 {label}
                                             </span>
                                         </Option>
@@ -213,9 +262,9 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                         )}
 
                         {/* Object Selector (create only) */}
-                        {!isEdit && selectedType !== null && (
+                        {!isEdit && selectedObjectType && (
                             <Field label={<span className={styles.semiBoldLabel}>Object <span className={styles.required}>*</span></span>}>
-                                {selectedType === 1 ? (
+                                {selectedObjectType === 'customapi' ? (
                                     // Custom API selector
                                     isFetchingCustomApis ? (
                                         <Input value="Loading Custom APIs..." readOnly appearance="filled-darker" />
@@ -225,14 +274,36 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                                         <GenericTagPicker
                                             items={objectItems}
                                             initialValue={formData._object_value}
-                                            onSelect={(id) => setFormData(prev => ({ ...prev, _object_value: id || '' }))}
+                                            onSelect={handleObjectSelect}
                                         />
                                     )
-                                ) : (
-                                    <Text className={styles.hintTextItalic}>
-                                        {selectedType === 0 ? 'Table selection coming soon' : 'Custom Process Action selection coming soon'}
-                                    </Text>
-                                )}
+                                ) : selectedObjectType === 'entity' ? (
+                                    // Entity/Table selector
+                                    isFetchingEntities ? (
+                                        <Input value="Loading Tables..." readOnly appearance="filled-darker" />
+                                    ) : objectItems.length === 0 ? (
+                                        <Text className={styles.hintTextItalic}>No Tables available</Text>
+                                    ) : (
+                                        <GenericTagPicker
+                                            items={objectItems}
+                                            initialValue={formData._object_value}
+                                            onSelect={handleObjectSelect}
+                                        />
+                                    )
+                                ) : selectedObjectType === 'workflow' ? (
+                                    // Workflow/Custom Process Action selector
+                                    isFetchingWorkflows ? (
+                                        <Input value="Loading Custom Process Actions..." readOnly appearance="filled-darker" />
+                                    ) : objectItems.length === 0 ? (
+                                        <Text className={styles.hintTextItalic}>No Custom Process Actions available</Text>
+                                    ) : (
+                                        <GenericTagPicker
+                                            items={objectItems}
+                                            initialValue={formData._object_value}
+                                            onSelect={handleObjectSelect}
+                                        />
+                                    )
+                                ) : null}
                             </Field>
                         )}
 
@@ -244,9 +315,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                                     {assignment['_object_value@OData.Community.Display.V1.FormattedValue'] || assignment.objectname || 'Unknown'}
                                 </Text>
                                 <Text size={200} className={styles.hintText}>
-                                    Type: {assignment.catalogassignmenttype !== null 
-                                        ? CatalogAssignmentTypeOptions[assignment.catalogassignmenttype as keyof typeof CatalogAssignmentTypeOptions] 
-                                        : 'Unknown'}
+                                    Type: {getObjectTypeLabel(assignment)}
                                 </Text>
                             </div>
                         )}

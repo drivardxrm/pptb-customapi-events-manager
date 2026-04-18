@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Tree,
     TreeItem,
@@ -10,6 +10,8 @@ import {
     makeStyles,
     tokens,
     mergeClasses,
+    TreeOpenChangeData,
+    TreeOpenChangeEvent,
 } from '@fluentui/react-components';
 import {
     FolderRegular,
@@ -19,20 +21,21 @@ import {
     EditRegular,
     DeleteRegular,
     LockClosedRegular,
-    TableRegular,
-    PlayRegular,
 } from '@fluentui/react-icons';
 import { useCatalogs, useDeleteCatalog } from '../../hooks/useCatalogs';
 import { useCatalogAssignmentsByCatalog, useDeleteCatalogAssignment } from '../../hooks/useCatalogAssignments';
 import { useAppStore } from '../../store/useAppStore';
 import { Catalog } from '../../models/Catalog';
-import { CatalogAssignment, CatalogAssignmentTypeOptions } from '../../models/CatalogAssignment';
+import { CatalogAssignment, getObjectTypeLabel, getObjectTypeIcon } from '../../models/CatalogAssignment';
 import { ConfirmDialog } from './ConfirmDialog';
+import { SelectedTreeItem } from './TreeItemDetailsPanel';
 
 const useTreeStyles = makeStyles({
     treeContainer: {
         padding: tokens.spacingVerticalM,
         minHeight: '200px',
+        flex: 1,
+        minWidth: '280px',
     },
     treeItem: {
         marginBottom: tokens.spacingVerticalXS,
@@ -79,6 +82,13 @@ const useTreeStyles = makeStyles({
         justifyContent: 'center',
         padding: tokens.spacingVerticalL,
     },
+    treeItemSelected: {
+        backgroundColor: tokens.colorNeutralBackground1Selected,
+        borderRadius: tokens.borderRadiusMedium,
+    },
+    treeItemClickable: {
+        cursor: 'pointer',
+    },
 });
 
 interface CatalogTreeViewProps {
@@ -86,6 +96,8 @@ interface CatalogTreeViewProps {
     onEditCatalog: (catalog: Catalog) => void;
     onCreateAssignment: (parentCatalog: Catalog) => void;
     onEditAssignment: (assignment: CatalogAssignment, parentCatalog: Catalog) => void;
+    selectedItem: SelectedTreeItem;
+    onSelectItem: (item: SelectedTreeItem) => void;
 }
 
 export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
@@ -93,6 +105,8 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
     onEditCatalog,
     onCreateAssignment,
     onEditAssignment,
+    selectedItem,
+    onSelectItem,
 }) => {
     const styles = useTreeStyles();
     const { selectedCatalogId } = useAppStore();
@@ -155,11 +169,23 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
         .filter(c => c._parentcatalogid_value === selectedCatalogId)
         .map(c => c.catalogid);
 
+    // All items that should be open - root + all categories
+    const allOpenItems = useMemo(() => 
+        [selectedCatalog.catalogid, ...categoryIds],
+        [selectedCatalog.catalogid, categoryIds]
+    );
+
+    // Prevent collapsing by always keeping all items open
+    const handleOpenChange = (_event: TreeOpenChangeEvent, _data: TreeOpenChangeData) => {
+        // Do nothing - keep tree always expanded
+    };
+
     return (
         <div className={styles.treeContainer}>
             <Tree 
                 aria-label="Business Events Catalog Tree"
-                defaultOpenItems={[selectedCatalog.catalogid, ...categoryIds]}
+                openItems={allOpenItems}
+                onOpenChange={handleOpenChange}
             >
                 <RootCatalogItem
                     catalog={selectedCatalog}
@@ -170,6 +196,8 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
                     onCreateAssignment={onCreateAssignment}
                     onEditAssignment={onEditAssignment}
                     onDeleteAssignment={(a) => handleDeleteClick('assignment', a)}
+                    selectedItem={selectedItem}
+                    onSelectItem={onSelectItem}
                 />
             </Tree>
 
@@ -197,6 +225,8 @@ interface RootCatalogItemProps {
     onCreateAssignment: (parentCatalog: Catalog) => void;
     onEditAssignment: (assignment: CatalogAssignment, parentCatalog: Catalog) => void;
     onDeleteAssignment: (assignment: CatalogAssignment) => void;
+    selectedItem: SelectedTreeItem;
+    onSelectItem: (item: SelectedTreeItem) => void;
 }
 
 const RootCatalogItem: React.FC<RootCatalogItemProps> = ({
@@ -208,17 +238,32 @@ const RootCatalogItem: React.FC<RootCatalogItemProps> = ({
     onCreateAssignment,
     onEditAssignment,
     onDeleteAssignment,
+    selectedItem,
+    onSelectItem,
 }) => {
     const styles = useTreeStyles();
 
     // Get children of this catalog
     const children = allCatalogs.filter(c => c._parentcatalogid_value === catalog.catalogid);
 
+    // Check if this catalog is selected
+    const isSelected = selectedItem?.type === 'catalog' && selectedItem.item.catalogid === catalog.catalogid;
+
+    const handleClick = () => {
+        onSelectItem({ type: 'catalog', item: catalog, isCategory: false });
+    };
+
     return (
         <TreeItem itemType={children.length > 0 ? 'branch' : 'leaf'} value={catalog.catalogid}>
             <TreeItemLayout
-                className={mergeClasses(styles.treeItem, styles.treeItemHover)}
+                className={mergeClasses(
+                    styles.treeItem, 
+                    styles.treeItemHover, 
+                    styles.treeItemClickable,
+                    isSelected && styles.treeItemSelected
+                )}
                 iconBefore={<FolderRegular />}
+                onClick={handleClick}
                 actions={
                     <div className={mergeClasses(styles.itemActions, 'item-actions')}>
                         {!catalog.ismanaged && (
@@ -271,6 +316,8 @@ const RootCatalogItem: React.FC<RootCatalogItemProps> = ({
                             onCreateAssignment={onCreateAssignment}
                             onEditAssignment={onEditAssignment}
                             onDeleteAssignment={onDeleteAssignment}
+                            selectedItem={selectedItem}
+                            onSelectItem={onSelectItem}
                         />
                     ))}
                 </Tree>
@@ -287,6 +334,8 @@ interface CategoryItemProps {
     onCreateAssignment: (parentCatalog: Catalog) => void;
     onEditAssignment: (assignment: CatalogAssignment, parentCatalog: Catalog) => void;
     onDeleteAssignment: (assignment: CatalogAssignment) => void;
+    selectedItem: SelectedTreeItem;
+    onSelectItem: (item: SelectedTreeItem) => void;
 }
 
 const CategoryItem: React.FC<CategoryItemProps> = ({
@@ -296,15 +345,42 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
     onCreateAssignment,
     onEditAssignment,
     onDeleteAssignment,
+    selectedItem,
+    onSelectItem,
 }) => {
     const styles = useTreeStyles();
     const { assignments, isFetching } = useCatalogAssignmentsByCatalog(catalog.catalogid);
 
+    // Check if this category is selected
+    const isSelected = selectedItem?.type === 'catalog' && selectedItem.item.catalogid === catalog.catalogid;
+
+    // Sync selected assignment with latest data from query cache
+    useEffect(() => {
+        if (selectedItem?.type === 'assignment') {
+            const updatedAssignment = assignments.find(
+                a => a.catalogassignmentid === selectedItem.item.catalogassignmentid
+            );
+            if (updatedAssignment && updatedAssignment !== selectedItem.item) {
+                onSelectItem({ type: 'assignment', item: updatedAssignment });
+            }
+        }
+    }, [assignments, selectedItem, onSelectItem]);
+
+    const handleClick = () => {
+        onSelectItem({ type: 'catalog', item: catalog, isCategory: true });
+    };
+
     return (
         <TreeItem itemType={assignments.length > 0 || isFetching ? 'branch' : 'leaf'} value={catalog.catalogid}>
             <TreeItemLayout
-                className={mergeClasses(styles.treeItem, styles.treeItemHover)}
+                className={mergeClasses(
+                    styles.treeItem, 
+                    styles.treeItemHover, 
+                    styles.treeItemClickable,
+                    isSelected && styles.treeItemSelected
+                )}
                 iconBefore={<FolderOpenRegular />}
+                onClick={handleClick}
                 actions={
                     <div className={mergeClasses(styles.itemActions, 'item-actions')}>
                         {!catalog.ismanaged && (
@@ -365,6 +441,8 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
                             parentCatalog={catalog}
                             onEditAssignment={onEditAssignment}
                             onDeleteAssignment={onDeleteAssignment}
+                            selectedItem={selectedItem}
+                            onSelectItem={onSelectItem}
                         />
                     ))}
                 </Tree>
@@ -379,6 +457,8 @@ interface AssignmentItemProps {
     parentCatalog: Catalog;
     onEditAssignment: (assignment: CatalogAssignment, parentCatalog: Catalog) => void;
     onDeleteAssignment: (assignment: CatalogAssignment) => void;
+    selectedItem: SelectedTreeItem;
+    onSelectItem: (item: SelectedTreeItem) => void;
 }
 
 const AssignmentItem: React.FC<AssignmentItemProps> = ({
@@ -386,30 +466,32 @@ const AssignmentItem: React.FC<AssignmentItemProps> = ({
     parentCatalog,
     onEditAssignment,
     onDeleteAssignment,
+    selectedItem,
+    onSelectItem,
 }) => {
     const styles = useTreeStyles();
 
-    const getTypeIcon = () => {
-        switch (assignment.catalogassignmenttype) {
-            case 0: return <TableRegular />;
-            case 1: return <PlugConnectedRegular />;
-            case 2: return <PlayRegular />;
-            default: return <PlugConnectedRegular />;
-        }
-    };
+    const typeIcon = getObjectTypeIcon(assignment);
+    const typeName = getObjectTypeLabel(assignment);
 
-    const getTypeName = () => {
-        if (assignment.catalogassignmenttype !== null && assignment.catalogassignmenttype !== undefined) {
-            return CatalogAssignmentTypeOptions[assignment.catalogassignmenttype as keyof typeof CatalogAssignmentTypeOptions] || 'Unknown';
-        }
-        return 'Unknown';
+    // Check if this assignment is selected
+    const isSelected = selectedItem?.type === 'assignment' && selectedItem.item.catalogassignmentid === assignment.catalogassignmentid;
+
+    const handleClick = () => {
+        onSelectItem({ type: 'assignment', item: assignment });
     };
 
     return (
         <TreeItem itemType="leaf" value={assignment.catalogassignmentid}>
             <TreeItemLayout
-                className={mergeClasses(styles.treeItem, styles.treeItemHover)}
-                iconBefore={getTypeIcon()}
+                className={mergeClasses(
+                    styles.treeItem, 
+                    styles.treeItemHover,
+                    styles.treeItemClickable,
+                    isSelected && styles.treeItemSelected
+                )}
+                iconBefore={typeIcon || <PlugConnectedRegular />}
+                onClick={handleClick}
                 actions={
                     <div className={mergeClasses(styles.itemActions, 'item-actions')}>
                         {!assignment.ismanaged && (
@@ -438,7 +520,7 @@ const AssignmentItem: React.FC<AssignmentItemProps> = ({
                         {assignment.name || assignment['_object_value@OData.Community.Display.V1.FormattedValue'] || 'Unnamed Assignment'}
                     </span>
                     <Badge appearance="tint" size="small" className={styles.typeBadge}>
-                        {getTypeName()}
+                        {typeName}
                     </Badge>
                     {assignment.ismanaged && (
                         <Badge appearance="outline" size="small" className={styles.managedBadge} icon={<LockClosedRegular />}>

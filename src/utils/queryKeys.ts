@@ -19,6 +19,7 @@ export const queryKeys = defineQueryKeys("keys", {
   solutions: key((connectionId: string, instanceId: string) => ['solutions', instanceId, connectionId]),
   solutioncomponents: key((connectionId: string, instanceId: string) => ['solutioncomponents', instanceId, connectionId]),
   entities: key((connectionId: string, instanceId: string) => ['entities', instanceId, connectionId]),
+  workflows: key((connectionId: string, instanceId: string) => ['workflows', instanceId, connectionId]),
   fxexpressions: key((connectionId: string, instanceId: string) => ['fxexpressions', instanceId, connectionId]),
   
   // Entity-specific queries

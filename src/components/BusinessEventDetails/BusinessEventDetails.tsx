@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, Divider, Button, Text } from '@fluentui/react-components';
+import { Card, CardHeader, Divider, Button, Text, makeStyles, tokens } from '@fluentui/react-components';
 import { AddCircleColor, FolderRegular, FolderOpenRegular, PlugConnectedRegular } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { useStyles } from '../../styles/Styles';
@@ -7,15 +7,41 @@ import { CatalogSelector } from '../CatalogSelector';
 import { CatalogTreeView } from './CatalogTreeView';
 import { CatalogModal, CatalogModalMode } from './CatalogModal';
 import { CatalogAssignmentModal } from './CatalogAssignmentModal';
+import { TreeItemDetailsPanel, SelectedTreeItem } from './TreeItemDetailsPanel';
 import { useCatalogs } from '../../hooks/useCatalogs';
 import { Catalog } from '../../models/Catalog';
 import { CatalogAssignment } from '../../models/CatalogAssignment';
 
+const useLocalStyles = makeStyles({
+    contentLayout: {
+        display: 'flex',
+        flexDirection: 'row',
+        gap: tokens.spacingHorizontalL,
+        minHeight: '400px',
+        padding: tokens.spacingVerticalM,
+    },
+    treeSection: {
+        flex: '0 0 400px',
+        minWidth: '400px',
+        maxWidth: '500px',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+    },
+    detailsSection: {
+        flex: 1,
+        minWidth: '300px',
+        overflowY: 'auto',
+    },
+});
 
 export const BusinessEventDetails: React.FC = () => {
     const styles = useStyles();
+    const localStyles = useLocalStyles();
     const { selectedCatalogId, selectedSolutionId, clearGlobalMessage } = useAppStore();
     const { catalogs } = useCatalogs();
+
+    // Selection state for tree items
+    const [selectedTreeItem, setSelectedTreeItem] = useState<SelectedTreeItem>(null);
 
     // Modal states
     const [catalogModalOpen, setCatalogModalOpen] = useState(false);
@@ -28,6 +54,25 @@ export const BusinessEventDetails: React.FC = () => {
     const [parentCatalogForAssignment, setParentCatalogForAssignment] = useState<Catalog | null>(null);
 
     const selectedCatalog = catalogs.find(c => c.catalogid === selectedCatalogId);
+
+    // Clear selection when catalog changes
+    useEffect(() => {
+        setSelectedTreeItem(null);
+    }, [selectedCatalogId]);
+
+    // Sync selected catalog with latest data from query cache
+    useEffect(() => {
+        if (selectedTreeItem?.type === 'catalog') {
+            const updatedCatalog = catalogs.find(c => c.catalogid === selectedTreeItem.item.catalogid);
+            if (updatedCatalog && updatedCatalog !== selectedTreeItem.item) {
+                setSelectedTreeItem({
+                    type: 'catalog',
+                    item: updatedCatalog,
+                    isCategory: selectedTreeItem.isCategory,
+                });
+            }
+        }
+    }, [catalogs, selectedTreeItem]);
 
     // Clear message when component unmounts
     useEffect(() => {
@@ -142,12 +187,21 @@ export const BusinessEventDetails: React.FC = () => {
                         <p>Select a Catalog above to view its hierarchy</p>
                     </div>
                 ) : (
-                    <CatalogTreeView
-                        onCreateCategory={handleCreateCategory}
-                        onEditCatalog={handleEditCatalog}
-                        onCreateAssignment={handleCreateAssignment}
-                        onEditAssignment={handleEditAssignment}
-                    />
+                    <div className={localStyles.contentLayout}>
+                        <div className={localStyles.treeSection}>
+                            <CatalogTreeView
+                                onCreateCategory={handleCreateCategory}
+                                onEditCatalog={handleEditCatalog}
+                                onCreateAssignment={handleCreateAssignment}
+                                onEditAssignment={handleEditAssignment}
+                                selectedItem={selectedTreeItem}
+                                onSelectItem={setSelectedTreeItem}
+                            />
+                        </div>
+                        <div className={localStyles.detailsSection}>
+                            <TreeItemDetailsPanel selectedItem={selectedTreeItem} />
+                        </div>
+                    </div>
                 )}
             </Card>
 

@@ -2,30 +2,38 @@
 
 **Timestamp:** 2026-04-14T00:10:00Z  
 **Agent:** Dallas (Frontend Dev)  
-**Task:** Update UI components to use new objectidtype API  
-**Outcome:** SUCCESS, Build passes
+**Task:** Update UI components to use OData annotation-based object type API  
+**Outcome:** CORRECTED — Using `_object_value@Microsoft.Dynamics.CRM.lookuplogicalname` annotation
 
 ## Execution Summary
 
-Updated CatalogTreeView and CatalogAssignmentModal components to use the new `objectidtype`-based API from Kane's model refactor. All build errors resolved, build passes cleanly.
+Updated CatalogTreeView and CatalogAssignmentModal components to use the corrected API from Kane's model refactor. The object type comes from the OData lookup annotation field, not a dedicated `objectidtype` column.
+
+## API Changes (CORRECTED)
+
+The `catalogassignment` entity does NOT have an `objectidtype` field. The object type is derived from the OData annotation on the polymorphic `_object_value` lookup:
+
+```typescript
+// The annotation field contains values like 'customapi', 'entity', 'workflow'
+assignment['_object_value@Microsoft.Dynamics.CRM.lookuplogicalname']
+
+// Helper functions now take the full assignment object:
+getObjectType(assignment)     // Returns: 'customapi' | 'entity' | 'workflow' | null
+getObjectTypeLabel(assignment) // Returns: 'Custom API' | 'Table' | 'Custom Process Action' | 'Unknown'
+getObjectTypeIcon(assignment)  // Returns: React icon element or null
+```
 
 ## Changes Made
 
 ### `src/components/BusinessEventDetails/CatalogTreeView.tsx`
 
-- Removed imports for `CatalogAssignmentType`, `CatalogAssignmentTypeOptions`
-- Added imports for `getObjectTypeLabel`, `getObjectTypeIcon`
-- Updated type display logic (lines 393-403) to use `getObjectTypeLabel(assignment.objectidtype)`
-- Replaced `getAssignmentIcon()` logic with `getObjectTypeIcon(assignment.objectidtype)`
+- Updated to use `getObjectTypeLabel(assignment)` and `getObjectTypeIcon(assignment)` with full assignment object
 
 ### `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx`
 
-- Removed imports for `CatalogAssignmentType`, `CatalogAssignmentTypeOptions`
-- Added imports for `getObjectTypeLabel`, `getObjectTypeIcon`, `ObjectIdTypeLabels`
-- Removed `setSelectedType(assignment.catalogassignmenttype)` from edit flow
-- Updated type selection dropdown to use `ObjectIdTypeLabels` as option values
-- Removed `catalogassignmenttype` from create payload (field no longer exists)
-- Updated type display logic in UI to use new helpers
+- Added import for `getObjectType` helper
+- Updated edit flow to use `getObjectType(assignment)` for reading the type
+- Updated display logic to use `getObjectTypeLabel(assignment)` with full object
 
 ## Build Status
 
@@ -35,7 +43,7 @@ Updated CatalogTreeView and CatalogAssignmentModal components to use the new `ob
 
 ## Quality Assurance
 
-- Type safety maintained across both components
-- API contract fulfilled per Kane's specification
-- No orphaned references to removed field
-- Icon and label rendering consistent with new API
+- Removed invalid `objectidtype` field reference
+- Using correct OData annotation pattern for polymorphic lookup type
+- Helper functions encapsulate annotation field access
+- Type safety maintained across components

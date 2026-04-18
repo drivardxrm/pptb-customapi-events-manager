@@ -1,5 +1,4 @@
 import React, { createElement } from "react";
-import { SelectableItem } from "../components/generic/GenericTagPicker";
 import { EntityService } from "../services/EntityService";
 import { TableRegular, PlugConnectedRegular, PlayRegular } from "@fluentui/react-icons";
 
@@ -7,7 +6,6 @@ import { TableRegular, PlugConnectedRegular, PlayRegular } from "@fluentui/react
 export interface CatalogAssignment  {
   catalogassignmentid: string;
   name: string;
-  objectidtype: string;
   objectname: string;
   ismanaged: boolean;
   ownerid: string;
@@ -19,7 +17,6 @@ export interface CatalogAssignment  {
   '_object_value@Microsoft.Dynamics.CRM.associatednavigationproperty': string;
   '_object_value@Microsoft.Dynamics.CRM.lookuplogicalname': string;
   '_object_value@OData.Community.Display.V1.FormattedValue': string;
-  catalogassignmenttype: CatalogAssignmentType | null;
   solutionid: string;
   statecode: CatalogAssignmentstatecode;
   statuscode: CatalogAssignmentstatuscode;
@@ -31,8 +28,7 @@ export interface CatalogAssignmentCreateable  extends
   Pick<CatalogAssignment,   
   'name' |   
   '_catalogid_value' | 
-  '_object_value' |
-  'catalogassignmenttype'
+  '_object_value'
   > {}
 
 
@@ -50,28 +46,38 @@ export const CatalogAssignmentLookups: Partial<Record<keyof CatalogAssignmentCre
 };
 
 
-// OPTIONSETS
-export const CatalogAssignmentTypeOptions = {
-  0: 'Table',
-  1: 'Custom API',
-  2: 'Custom Process Action'
-} as const;
-export type CatalogAssignmentType = keyof typeof CatalogAssignmentTypeOptions;
+// The lookup annotation field name (use this key to access the object type value)
+export const OBJECT_TYPE_ANNOTATION = '_object_value@Microsoft.Dynamics.CRM.lookuplogicalname';
 
-// Icon mapping for CatalogAssignmentType
-export const catalogAssignmentTypeIcons: Record<string, React.JSX.Element> = {
-  '0': createElement(TableRegular),              // Table
-  '1': createElement(PlugConnectedRegular),      // Custom API
-  '2': createElement(PlayRegular),               // Custom Process Action
+// Maps Dataverse entity logical names to display labels
+export const ObjectIdTypeLabels: Record<string, string> = {
+  'customapi': 'Custom API',
+  'entity': 'Table',
+  'workflow': 'Custom Process Action'
 };
 
-// Helper to get options for CatalogAssignmentType
-export const getCatalogAssignmentTypeOptions = (): Array<SelectableItem> =>
-  Object.entries(CatalogAssignmentTypeOptions).map(([key, value]) => ({
-    id: Number(key).toString(),
-    displayText: value,
-    image: catalogAssignmentTypeIcons[key] ?? null,
-  }));
+// Icon mapping for object type values (entity logical names from the annotation)
+export const objectIdTypeIcons: Record<string, React.JSX.Element> = {
+  'entity': createElement(TableRegular),
+  'customapi': createElement(PlugConnectedRegular),
+  'workflow': createElement(PlayRegular),
+};
+
+// Helper to get the object type from an assignment (reads from OData annotation)
+export const getObjectType = (assignment: CatalogAssignment): string | null =>
+  assignment['_object_value@Microsoft.Dynamics.CRM.lookuplogicalname'] || null;
+
+// Helper to get display label for an assignment
+export const getObjectTypeLabel = (assignment: CatalogAssignment): string => {
+  const objectType = getObjectType(assignment);
+  return objectType ? (ObjectIdTypeLabels[objectType] ?? objectType) : 'Unknown';
+};
+
+// Helper to get icon for an assignment
+export const getObjectTypeIcon = (assignment: CatalogAssignment): React.JSX.Element | null => {
+  const objectType = getObjectType(assignment);
+  return objectType ? (objectIdTypeIcons[objectType] ?? null) : null;
+};
 
 
 export const CatalogAssignmentstatecode = {
@@ -88,10 +94,8 @@ export type CatalogAssignmentstatuscode = keyof typeof CatalogAssignmentstatusco
 
 
 // TEMPLATE FOR CREATING NEW CatalogAssignment
-// Defaults to Custom API type (1) since this tool manages Custom APIs
 export const DEFAULT_ASSIGNMENT_CREATE_TEMPLATE: CatalogAssignmentCreateable = {
   name: '',
   _catalogid_value: '',
   _object_value: '',
-  catalogassignmenttype: 1 as CatalogAssignmentType, // Default to Custom API
 };
