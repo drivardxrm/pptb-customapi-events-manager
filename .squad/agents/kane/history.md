@@ -39,3 +39,18 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Added helper functions: `getObjectTypeLabel()`, `getObjectTypeIcon()`, `ObjectIdTypeLabels`, `objectIdTypeIcons`
 - Dataverse populates `objectidtype` automatically when the polymorphic `_object_value` lookup is bound
 - UI components (`CatalogTreeView.tsx`, `CatalogAssignmentModal.tsx`) need updates by Dallas
+
+### 2026-04-15: Collapsed Filter Summary Fix (CustomApiSelector)
+- Fixed collapsed filter overview in `src/components/CustomApiSelector.tsx` to include ALL active filters
+- Added missing Solution managed/unmanaged filter (`showSolutions`) to both filter count and badge summary
+- Filter count now correctly includes: selectedSolutionId + showSolutions + showCustomApis + showPowerFxOnly + showBusinessEventsOnly
+- Badge summary displays "Managed Solutions" or "Unmanaged Solutions" when `showSolutions !== 'all'`
+- Changed order: Selected Solution → Solution Managed State → Custom API Managed State → PowerFx → Business Event
+- Revision handled by Kane per Ripley's delegation (Dallas was in reviewer lockout)
+
+**Delegation Context (2026-04-15 cross-agent):**
+- Ripley reviewed Dallas's initial implementation and found it incomplete
+- Missing: Solution managed/unmanaged filter in both summary display and active-filter count
+- Ripley delegated revision to Kane, authorizing cross-ownership modification
+- Kane's changes restored completeness; Ripley re-reviewed and approved
+- Pattern established: Collapsed summaries must fully enumerate active filter set; count must sync with summary

@@ -93,3 +93,20 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Pattern: When Dataverse populates derived fields automatically, don't send them in create payload
 - Pattern: Use entity logical names (strings) directly as type identifiers when that's what Dataverse stores
 
+### 2026-04-15: Collapsed Filter Summary in CustomApiSelector
+- Added filter summary display when filter section is collapsed in `CustomApiSelector.tsx`
+- Summary shows active filters as Fluent UI Badges: selected solution, managed state filter, PowerFx toggle, Business Event toggle
+- Used `useMemo` to build filter summary dynamically based on filter state
+- Filter summary appears below the Filters toggle button when `filtersExpanded === false` and filters are active
+- Reused existing `badgeContainer` style from `src/styles/Styles.ts` for badge layout
+- Pattern: Use Badge components with icons to provide compact, visual summaries of active filters
+- Pattern: Conditional rendering based on collapse state to show contextual information
+- Key file: `src/components/CustomApiSelector.tsx`
+
+**Review Cycle Note (2026-04-15 cross-agent):**
+- Ripley rejected initial implementation: missing Solution managed/unmanaged filter in both summary and count
+- Delegated revision to Kane (Dallas in reviewer lockout)
+- Kane added Solution managed state to summary and count
+- Ripley approved Kane's revision
+- Pattern established: Collapsed summaries must enumerate full active filter set; count must sync with summary
+

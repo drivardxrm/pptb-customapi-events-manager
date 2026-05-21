@@ -122,3 +122,46 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 - `src/utils/queryKeys.ts` - Added `catalogChildren` key
 - `src/components/App.tsx` - Wired up navigation
 - `src/components/BusinessEventDetails/*` - New components
+
+---
+
+### 2026-04-15: Collapsed Filter Summary Pattern
+**By:** Dallas (Frontend Dev)  
+**What:** Added visual filter summary to `CustomApiSelector.tsx` that appears when the filters section is collapsed, using Fluent UI Badge components.
+**Implementation:**
+- Created `filterSummary` computed value using `useMemo` that builds an array of Badge components
+- Summary shows: selected solution, Custom API managed state (when not 'all'), PowerFx toggle (when enabled), Business Event toggle (when enabled)
+- Badges use `appearance="outline"` for contextual filters and `appearance="filled"` with `color="informative"` for feature toggles
+- Summary renders conditionally: `!filtersExpanded && filterSummary.length > 0`
+- Reused existing `badgeContainer` style from `Styles.ts`
+**Files Changed:**
+- `src/components/CustomApiSelector.tsx`
+
+---
+
+### 2026-04-15: Collapsed Filter Summary Revision
+**By:** Kane (Backend Dev), delegated by Ripley  
+**What:** Fixed incomplete collapsed filter summary in `CustomApiSelector.tsx` to include Solution managed/unmanaged filter.
+**Why:** Ripley identified that the Solution managed/unmanaged filter (`showSolutions`) was missing from both the badge summary AND the active-filter count, even though this control lives in the collapsed filter section and materially affects the solution list.
+**Changes Made:**
+1. **Filter Count** (lines 44-49): Added `(showSolutions !== 'all' ? 1 : 0)` to count calculation
+2. **Filter Summary Badges** (lines 58-106): Added badge for `showSolutions !== 'all'` displaying "Managed Solutions" or "Unmanaged Solutions"; placed after selected solution
+3. Added `showSolutions` to `useMemo` dependency array
+**Rationale:** Collapsed filter summaries must enumerate the full active filter set. Partial summaries create misleading state. Count and summary must stay in sync.
+**Files Changed:**
+- `src/components/CustomApiSelector.tsx`
+**Build Status:** ✅ `npm run build` passed
+
+---
+
+### 2026-04-15: Collapsed Filter Summary Pattern — Approved
+**By:** Ripley (Lead)  
+**What:** Re-reviewed and approved the `CustomApiSelector.tsx` collapsed filter summary implementation.
+**Why:** Kane's revision restored the missing Solution managed/unmanaged filter to both the count and badge summary. All 5 active filter controls now reflected: selected solution, solution managed state, Custom API managed state, PowerFx, Business Event. Existing badge-based presentation preserved.
+**Pattern Established:**
+- Collapsed filter summaries are acceptable when they enumerate the full active filter set
+- The active-filter count must stay in sync with the summarized filters
+- Badges serve as the shared presentation pattern for compact collapsed-state overviews in selector cards
+**Files Approved:**
+- `src/components/CustomApiSelector.tsx`
+**Build Status:** ✅ `npm run build` passed
