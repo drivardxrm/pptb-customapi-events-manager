@@ -110,3 +110,17 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Ripley approved Kane's revision
 - Pattern established: Collapsed summaries must enumerate full active filter set; count must sync with summary
 
+### 2026-04-15: Solution Filter Count Scope in CustomApiSelector
+- Updated `src/components/CustomApiSelector.tsx` so the solution managed/unmanaged picker no longer counts as its own active filter
+- Collapsed filter badges now only show solution-related context when an actual solution is selected
+- Kept Custom API managed state, PowerFx, and Business Event collapsed badges unchanged
+- Key paths: `src/components/CustomApiSelector.tsx`, `.squad/skills/collapsed-filter-summary-parity/SKILL.md`
+
+### 2026-05-21: Solution Filter Count Refinement — Selection-Scoped Toggle
+- Revised `CustomApiSelector.tsx` filter count calculation to exclude Solution managed/unmanaged toggle as standalone filter
+- Collapsed filter badges conditionally show solution context only when a solution is selected
+- Filter count now correctly reflects user-facing filters that materially change displayed records
+- Custom API managed state, PowerFx, and Business Event remain independent badges
+- Approved by Ripley as correct implementation of selection-scoped toggle behavior
+- Key file: `src/components/CustomApiSelector.tsx`
+

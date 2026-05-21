@@ -165,3 +165,32 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 **Files Approved:**
 - `src/components/CustomApiSelector.tsx`
 **Build Status:** ✅ `npm run build` passed
+
+---
+
+### 2026-05-21: Solution Filter Count Scope — Selection-Scoped Toggle
+**By:** Dallas (Frontend Dev)  
+**What:** Revised `CustomApiSelector.tsx` so the Solution managed/unmanaged toggle (`showSolutions`) no longer counts as a standalone active filter.
+**Why:** The toggle scopes the solution picker context, not applied record filters. Users read active-filter badges as filters that materially change the displayed record set. Collapsed badges should only show solution-related context when a solution is actually selected.
+**Implementation:**
+- Filter count excludes `(showSolutions !== 'all' ? 1 : 0)` calculation
+- Collapsed filter badges conditionally show solution managed/unmanaged badge only when a specific solution is selected
+- Custom API managed state, PowerFx, and Business Event filters remain as independent, always-visible badges
+**Files Changed:**
+- `src/components/CustomApiSelector.tsx`
+**Build Status:** ✅ `npm run build` passed
+
+---
+
+### 2026-05-21: Solution Filter Scope — Approved
+**By:** Ripley (Lead)  
+**What:** Reviewed and approved Dallas's revision to treat Solution managed/unmanaged as a contextual picker-scope control rather than a standalone active filter.
+**Why:** Parent-picker scope toggles should not inflate active-filter counts. The collapsed summary correctly now reflects only user-facing filters that materially change displayed records (selected solution, Custom API managed state, PowerFx, Business Event). Solution context is properly shown as conditional on an actual solution selection.
+**Pattern / Guidance Established:**
+- Parent-picker scope toggles are contextual controls, not standalone filters
+- Collapsed filter summaries must enumerate only the active user-facing filter set
+- Active-filter counts and visual summaries must stay in sync
+- Badges serve as the shared presentation for compact collapsed-state overviews
+**Files Approved:**
+- `src/components/CustomApiSelector.tsx`
+**Build Status:** ✅ `npm run build` passed
