@@ -140,3 +140,31 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
   - `src/components/generic/GenericTagPicker.tsx`
   - `src/components/requestParameterDetails/RequestParameterCreate.tsx`
   - `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
+
+### 2026-05-24: Response Property Tree-View Create Reset Follow-up
+- Tree-view remounts do not reset Zustand selection or TanStack Query cache by themselves; both survive when `ResponsePropertyDetails` unmounts.
+- Safe create handoff now clears `selectedResponsePropertyId` before opening the response-property form from `CustomApiTreeView`.
+- `ResponsePropertyDetails.tsx` now passes a cloned response-property array into `ResponsePropertyList` so DataGrid sorting cannot mutate React Query cache state.
+- `ResponsePropertyCreateDialog.tsx` now resets its optional solution picker state when the dialog closes, preventing consecutive create attempts from reusing stale dialog selection.
+- `src/store/useAppStore.ts` now uses idempotent setters for `selectedResponsePropertyId` and `editingComponent` to avoid no-op store writes retriggering subscribers during remount-heavy flows.
+- Added regression coverage in `tests/e2e/specs/response-property.spec.ts` for repeated response-property creates across tree-view remounts.
+
+### 2026-05-24: Response Property Tree-View Create State Reset — Implementation & Validation
+
+**Task:** Implement follow-up fix for React #185 regression on response-property tree-view create/create-again flows after Lambert identified shared conditional render block as root cause.
+
+**Implementation (Four-Part Hardening):**
+- Clear selectedResponsePropertyId before opening create mode from CustomApiTreeView
+- Clone response-property query data at details boundary into ResponsePropertyList to prevent mutation of React Query cache
+- Reset create-dialog solution selection on real open/close transitions (prevent stale solution across consecutive creates)
+- Make Zustand setters for selectedResponsePropertyId and ditingComponent idempotent
+
+**Why:** Tree-view toggles unmount form components, but Zustand selection state and TanStack Query cache survive remount. Consecutive create attempts were re-entering with stale selection/dialog state. Resetting handoff state and avoiding no-op store writes is safest frontend-only fix.
+
+**Validation:**
+- ✅ 
+pm run build — TypeScript compile + Vite build passed
+- ✅ Focused Playwright response-property suite — 7/7 tests passed (includes remount regression scenario)
+- ✅ No page errors or React #185 warnings
+
+**Status:** ✅ Complete & Approved by Ripley

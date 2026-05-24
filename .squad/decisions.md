@@ -229,3 +229,50 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 - `src/components/requestParameterDetails/RequestParameterCreate.tsx`
 - `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
 **Build Status:** ✅ `npm run build` passed
+
+---
+
+### 2026-05-24: Response Property Tree-View Create State Reset (Follow-up)
+**By:** Lambert (Tester)  
+**What:** Validated and traced React #185 regression specific to response-property tree-view create/create-again scenarios (distinct from earlier GenericTagPicker fix).
+**Root Causes Identified:**
+1. Shared conditional render block for RequestParameterDetails and ResponsePropertyDetails causes simultaneous mount/unmount
+2. TanStack Query cache with `staleTime: Infinity` persists across unmount/remount without invalidation
+3. Component-level `lastHandledCreationRequestToken` ref resets on mount, creating race condition with dual component initialization
+**Regression Scenarios:**
+- Scenario 1: Create Request Parameter → Toggle Tree View → Create Response Property
+- Scenario 2: Create Response Property → Toggle Tree View → Create Response Property Again
+- Scenario 3: Rapid tree-view toggles during creation
+**Deliverable:** Regression checklist with three scenarios and DevTools inspection points for Dallas implementation.
+
+---
+
+### 2026-05-24: Response Property Tree-View Create State Reset — Implementation
+**By:** Dallas (Frontend Dev)  
+**What:** Hardened response-property tree-view create flow against React #185 follow-up failures by resetting persisted frontend state at tree/form handoff.
+**Implementation (Four-Part):**
+1. Clear `selectedResponsePropertyId` before opening create mode from `CustomApiTreeView`
+2. Clone response-property query data at details boundary into `ResponsePropertyList` to prevent mutation of React Query-backed data
+3. Reset create-dialog solution selection when dialog closes (avoid stale solution across consecutive creates)
+4. Make Zustand setters for `selectedResponsePropertyId` and `editingComponent` idempotent
+**Why:** Tree-view toggles unmount form components, but Zustand selection state and TanStack Query cache survive remount. Consecutive create attempts were re-entering with stale selection/dialog state. Resetting handoff state and avoiding no-op store writes is the safest frontend-only fix.
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright response-property suite: 7/7 tests passed (including remount regression scenario)
+- ✅ No page errors or React #185 warnings
+
+---
+
+### 2026-05-24: Response Property Tree-View Fix — Approved
+**By:** Ripley (Lead)  
+**What:** Reviewed and approved Dallas's follow-up response-property fix for tree-view create/create-again React #185 regression.
+**Reasoning:**
+- Parent tree-view handoff now clears persisted response-property selection before detail panel remounts ✓
+- Response-property list receives cloned array so in-render sorting cannot mutate React Query-backed data ✓
+- Create dialog state resets on real open/close transitions, avoiding stale solution selection across consecutive creates ✓
+- Store setters are idempotent, reducing no-op update churn during remount-heavy transitions ✓
+**Validation:**
+- Build: `npm run build` passed ✓
+- Focused Playwright scenario: Create twice after tree-view remounts, no page errors ✓
+- Regression checklist: All three scenarios covered and validated ✓
+**Decision:** ✅ **APPROVED** — No material regression found. Ready for merge.

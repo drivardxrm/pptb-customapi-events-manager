@@ -106,3 +106,54 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 - **Root cause confirmed:** Validation cascade + stale query state + unstable picker items
 - **Regression checklist provided:** 4 comprehensive test cases with DevTools verification steps
 - **Status:** ✅ Fix approved by Ripley; build passed; create-form tests passed
+
+### 2026-05-24: React #185 Repro v2 Analysis — Shared Mount Pattern Root Cause
+- **User reported:** Still getting React #185 error in two scenarios:
+  1. Create request parameter in treeview → return to treeview → create response property
+  2. Create response property in treeview → return to treeview → create response property again
+- **Code validation (NO REPRODUCTION TESTING, source analysis only):**
+  - **Critical find:** Lines 472-489 in CustomApiDetails.tsx use **shared conditional render block** for both RequestParameterDetails AND ResponsePropertyDetails
+  - Condition: `{selectedCustomApi && !showTreeView && (...)}`
+  - This causes **simultaneous mount/unmount** of both components when tree view toggles
+- **Repro 1 root cause identified:** Simultaneous mount of both RequestParameterDetails and ResponsePropertyDetails during tree view OFF triggers dual initialization race condition
+  - When tree view toggle resets `editingComponent` to 'none' (line 449-450), both unmount
+  - When create response property fires, both mount again simultaneously
+  - Validation logic in ResponsePropertyCreate depends on `responsePropertyQuery.responseProperties` which may be in transition
+- **Repro 2 root cause identified:** TanStack Query cache (`staleTime: Infinity`) persists across unmount/remount cycles
+  - When ResponsePropertyDetails remounts after tree view toggle, cache contains previously created response properties
+  - Validation check (line 59 in ResponsePropertyCreate) may find false duplicates or stale data
+- **Stale state path confirmed:** `responsePropertyQuery.responseProperties` array not explicitly invalidated on tree view toggle
+- **Files created:** `.squad/decisions/inbox/lambert-treeview-repro-v2.md` with comprehensive regression checklist
+  - 3 validation scenarios with DevTools monitoring steps
+  - Identifies simultaneous mount pattern as architectural fragility point
+  - Provides success criteria for Dallas's investigation
+- **Status:** Regression checklist ready for Dallas to execute actual testing
+
+### 2026-05-24: Response Property Tree-View Repro v2 — Root Cause Analysis Complete
+
+**User Report:** React #185 error persists in two scenarios:
+1. Create Request Parameter → Toggle Tree View → Create Response Property
+2. Create Response Property → Toggle Tree View → Create Response Property Again
+
+**Analysis Results:**
+
+**Repro 1 Root Cause:** Shared conditional render block in CustomApiDetails.tsx (lines 472-489)
+- Both RequestParameterDetails and ResponsePropertyDetails mount simultaneously when tree view toggles OFF
+- When tree view toggles ON, both unmount due to !showTreeView condition
+- When create response property fires, both mount again simultaneously
+- This dual-mount race condition + stale esponsePropertyQuery cache + validation logic dependent on query state = React #185
+
+**Repro 2 Root Cause:** TanStack Query cache with staleTime: Infinity persists across unmount/remount
+- ResponsePropertyDetails completely unmounts when tree view toggles ON
+- Newly created response property from first create still in cache when component remounts
+- Validation check (ResponsePropertyCreate line 59) checks duplicate names against stale cache
+- If user creates another property with similar name pattern, validation gets confused by old cached data
+
+**Regression Checklist Delivered:**
+- 3 comprehensive validation scenarios with DevTools inspection points
+- Scenario 1: Request Parameter → Response Property
+- Scenario 2: Response Property → Response Property (same session)
+- Scenario 3: Rapid tree-view toggles during creation
+- Includes React Profiler, console, Query DevTools, and network tab checkpoints
+
+**Status:** ✅ Analysis complete; checklist ready for Dallas to execute actual testing & implement fix

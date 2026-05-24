@@ -8,6 +8,28 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - **Project Architecture (2026-02-28 to 2026-03-01):** Reviewed and approved PPTB project structure including entity service patterns, TanStack Query hooks with solution-scoped caching, Zustand state management, Vite IIFE build for iframe compatibility. Key patterns: Model → Service → Hook → Component architecture. Identified 50 backlog items across testing, Business Events completion, and UX gaps. Approved minimal README strategy; recommended Playwright for E2E testing with window-level mock injection over MSW.
 - **CustomApiSelector UX Analysis (2026-03-XX):** Documented architectural pattern and identified potential improvements for future iterations. Current implementation uses GenericTagPicker with independent managed/unmanaged toggles; CatalogSelector has identical pattern for future harmonization.
 
+### 2026-05-24: Tree View Response Property Review — Approved
+
+**Review Outcome:** Approved Dallas's response-property tree view follow-up fix as safe and complete enough for the reported create-twice loop.
+
+**Key Findings:**
+- `src/components/customApiDetails/CustomApiDetails.tsx` now clears `selectedResponsePropertyId` before tree-view create handoff, preventing stale selection from surviving the remount.
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` now resets create-mode confirmation/validation state and passes a cloned array into `ResponsePropertyList`, isolating React Query data from in-place list sorting.
+- `src/components/responsePropertyDetails/ResponsePropertyCreateDialog.tsx` now resets dialog-local solution selection only on open/close transitions, preventing stale carryover between consecutive create attempts.
+- `src/store/useAppStore.ts` now makes `setSelectedResponsePropertyId` and `setEditingComponent` idempotent, reducing no-op subscriber churn during remount-heavy mode switches.
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright test passed: `response-property.spec.ts` tree-view create-twice scenario
+
+**Key Files:**
+- `src/components/customApiDetails/CustomApiDetails.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreateDialog.tsx`
+- `src/store/useAppStore.ts`
+- `tests/e2e/specs/response-property.spec.ts`
+
 ### 2026-05-24: Tree View Create Flow React #185 Fix Review — Approved
 
 **Review Outcome:** Approved Dallas's picker-stability fix for the tree view create-flow React #185 regression.
@@ -107,3 +129,19 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - `src/components/CustomApiSelector.tsx`
 - `src/styles/Styles.ts`
 - `.squad/decisions/inbox/kane-collapsed-filter-revision.md`
+
+### 2026-05-24: Response Property Tree-View Create State Follow-up — Reviewed & Approved
+
+**Review Scope:** Dallas's follow-up response-property fix for tree-view create/create-again React #185 regression (distinct from earlier GenericTagPicker fix).
+
+**Implementation Validation:**
+- \u2705 `selectedResponsePropertyId` cleared before tree-view create handoff prevents stale selection from surviving remount
+- \u2705 Response-property list receives cloned array isolates React Query cache from in-render sorting mutations
+- \u2705 Create-dialog solution selection resets on real open/close transitions prevents stale carryover between creates
+- \u2705 Zustand setters for `selectedResponsePropertyId` and `editingComponent` are idempotent reduces no-op subscriber churn during remount-heavy mode switches
+
+**Validation Data:**
+- \u2705 Build: `npm run build` passed
+- \u2705 Focused Playwright scenario passed: Tree-view create-twice with no page errors
+
+**Decision:** \u2705 **APPROVED** — No material regression found. Fix is well-scoped, idempotent, and validated. Ready for merge.
