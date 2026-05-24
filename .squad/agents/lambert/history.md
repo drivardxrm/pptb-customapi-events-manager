@@ -157,3 +157,89 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 - Includes React Profiler, console, Query DevTools, and network tab checkpoints
 
 **Status:** ✅ Analysis complete; checklist ready for Dallas to execute actual testing & implement fix
+
+### 2026-05-25: TreeView Edit Action Flow Analysis
+
+**User Request:** "Add a new action on the treeview. on existing request parameters and responseproperties, add a Edit action that will open the corresponding request or parameter in edit mode of the form view."
+
+**Analysis Deliverable:** Comprehensive regression checklist for Dallas's implementation
+
+**Expected Handoff Flow Identified:**
+1. TreeView Edit button clicked on unmanaged request parameter or response property
+2. Callback: `onEditRequestParameter(paramId)` or `onEditResponseProperty(propId)`
+3. CustomApiDetails handler:
+   - `setShowTreeView(false)` (exit tree view)
+   - `setSelectedRequestParameterId(id)` or `setSelectedResponsePropertyId(id)` (set selection)
+4. RequestParameterDetails/ResponsePropertyDetails component auto-detects selection via useEffect
+5. `handleEdit()` called automatically → `setMode('edit')` + `setEditingComponent(...)`
+6. Form renders edit UI with selected entity data
+
+**Key State Transitions:**
+- `showTreeView: true → false` (tree disappears, form appears)
+- `selectedRequest/ResponseParameterId: null → id` (selection in Zustand)
+- `editingComponent: 'none' → 'requestparameter'|'responseproperty'` (editing lock)
+- Form mode auto-transitions via existing useEffect pattern (NOT manually triggered)
+
+**Regression Checklist Created:**
+- 58 total test points across 9 phases (T1–T9)
+- Phase 1: TreeView component changes (button visibility, callback props)
+- Phase 2: CustomApiDetails integration (callback wiring)
+- Phase 3: Tree-to-form handoff (state transitions, form render)
+- Phase 4: Managed/unmanaged state handling (button visibility rules)
+- Phase 5: Edit form behavior (locked/editable fields, save/cancel flow)
+- Phase 6: Edge cases (rapid clicks, competing edits, tree toggle during edit)
+- Phase 7: Accessibility & UX polish (aria-labels, keyboard nav, icons)
+- Phase 8: Regression against prior fixes (React #185, GenericTagPicker, Query cache)
+- Phase 9: Integration with other features (PowerFx, managed badges, other nav items)
+
+**DevTools Validation Points:**
+- Zustand state inspection: `showTreeView`, `selectedRequest/ResponsePropertyId`, `editingComponent`
+- React Query DevTools: Verify fresh data loaded (not stale cache)
+- React Profiler: Check render batching, no unnecessary re-renders
+- Network Inspector: Single PATCH on save, no unexpected calls
+
+**Behavioral Baselines Identified:**
+- Create from tree: Form mounts below tree (NOT replacing tree) — Edit should REPLACE tree
+- Edit from form: Selection auto-triggers edit mode — Edit should trigger SAME flow
+- Tree toggle: Clears child selections — Edit MUST prevent toggle interference
+- Save flow: Returns to read mode, clears editingComponent — Unchanged from existing
+
+**Files Created:** `.squad/decisions/inbox/lambert-treeview-edit-flow.md`
+
+**Status:** ✅ Regression checklist complete; ready for Dallas to execute implementation
+
+### 2026-05-24T22:11:53Z: TreeView Edit Action Implementation — Complete & Approved
+
+**Scope:** Edit actions for unmanaged request parameters and response properties in CustomApiTreeView, plus comprehensive regression validation
+
+**Analysis Completed by Lambert:**
+- Documented expected handoff flow with state transition chain
+- Mapped 9 critical handoff points and dependency relationships
+- Created 58+ validation checkpoints across 9 test phases
+- Provided DevTools validation steps, known behavioral baselines, success criteria
+- Audited prior React #185 fixes; confirmed root cause analysis
+- Delivered component state diagram for reference implementation
+
+**Implementation Completed by Dallas:**
+- Added `onEditRequestParameter` and `onEditResponseProperty` callback props to CustomApiTreeView
+- Placed Edit buttons (Edit20Regular) in TreeItemLayout actions slot for unmanaged items only
+- Implemented two-phase handoff in CustomApiDetails: exit tree → store pending ID → form component detects ID → selects → enters edit
+- RequestParameterDetails and ResponsePropertyDetails now detect pending edit ID after mount and auto-enter edit mode
+- Updated RequestParametersList and ResponsePropertyList with guard logic to prevent controlled-selection loops
+- Made store setters (setSelectedRequest/ResponseParameterId, setEditingComponent) idempotent
+- Extended Playwright specs with comprehensive tree-view Edit action tests
+
+**Validation Performed:**
+- ✅ `npm run build` passed
+- ✅ `npm run test:e2e` passed: 33 passed, 3 skipped
+- ✅ React #185 regression test passed (tree-to-form transitions stable)
+- ✅ All checkpoint items (T1–T9) verified through E2E and code inspection
+
+**Review & Approval by Ripley:**
+- Reviewed 8 files spanning TreeView, CustomApiDetails, form components, store, and Playwright specs
+- Validated scoped Edit actions (unmanaged items only, consistent with existing constraints)
+- Confirmed parent-level handoff cleanly bridges remount boundary
+- Verified child components only enter edit mode after record selected and available
+- Approved all decisions; no material safety or completeness issues
+
+**Decision:** ✅ **APPROVED AND MERGED** — TreeView Edit actions complete, tested, reviewed, and ready for production.

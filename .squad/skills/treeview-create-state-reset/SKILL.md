@@ -71,3 +71,4 @@ const handleCreate = () => {
 - Leaving dialog-local picker state intact after the dialog closes
 - Re-entering create mode while stale validation or confirmation state is still mounted
 - Writing the same store value repeatedly during create/read handoff effects
+- Duplicating the same selection reset in both the tree-view entry effect and the tree-to-form create callback when the tree view cannot reselect that child state

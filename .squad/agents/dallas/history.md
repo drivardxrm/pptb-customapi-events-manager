@@ -181,3 +181,48 @@ pm run build — TypeScript compile + Vite build passed
 - Approved by Ripley as safe and complete for requested scope
 - Build status: ✅ `npm run build` passed
 - Regression validation: ✅ Focused response-property remount scenario passed
+
+### 2026-05-24: Tree View Edit Handoff for Request Parameters / Response Properties
+- Added Edit actions to nested request parameter and response property tree items in `CustomApiTreeView.tsx`.
+- Safe handoff pattern is now **two-phase**: parent stores a pending edit request and exits tree view; child details component selects the requested item after mount, then enters edit mode and clears the pending request.
+- Direct pre-selection during the tree→form transition triggered React max-depth failures in Playwright; delaying selection until the details card is mounted resolved the issue.
+- Hardened controlled selection flows with idempotent `selectedRequestParameterId` store updates and guarded DataGrid `onSelectionChange` handlers in both request/response lists.
+- Validation: ✅ `npm run build` passed, ✅ focused tree-view edit Playwright tests passed, ✅ full `npm run test:e2e` passed (33 passed / 3 skipped).
+
+### 2026-05-24T22:11:53Z: TreeView Edit Action Implementation Complete & Approved
+
+**Final Status:** Implementation complete, reviewed by Ripley, and merged to main.
+
+**Deliverables:**
+- Edit buttons (Edit20Regular icon) added to CustomApiTreeView for unmanaged request parameters and response properties
+- Two-phase handoff implemented: TreeView click → exit tree + store pending ID → form component detects pending ID after mount → select item → enter edit mode
+- Form components (RequestParameterDetails, ResponsePropertyDetails) updated to detect pending edit IDs via new store fields
+- Selection update logic hardened with guards to prevent controlled-selection loops
+- Zustand store setters made idempotent to reduce no-op subscriber churn during remounts
+- Playwright specs extended with comprehensive tree-view Edit action tests covering both parameter and property edit flows
+
+**Validation Results:**
+- ✅ All 9 regression test phases (T1–T9) verified through E2E and code inspection
+- ✅ `npm run build` passed (TypeScript compile + Vite build)
+- ✅ `npm run test:e2e` passed: 33 passed, 3 skipped (no new failures)
+- ✅ React #185 regression test confirmed stable (tree-to-form transitions no longer cause max-depth errors)
+- ✅ Managed/unmanaged visibility constraints correctly applied (Edit button hidden for managed items)
+- ✅ State consistency verified (no stale selection persists across remount)
+
+**Review Outcome (Ripley):**
+- Approved all 8 files spanning TreeView, CustomApiDetails, form components, store, and E2E specs
+- Confirmed scoped Edit actions (unmanaged items only, consistent with existing constraints)
+- Validated parent-level handoff bridges remount boundary cleanly
+- Verified child components only enter edit mode after record selected and available
+- No material safety or completeness issues identified
+
+**Key Files Modified:**
+- `src/components/customApiDetails/CustomApiTreeView.tsx` (added Edit callbacks)
+- `src/components/customApiDetails/CustomApiDetails.tsx` (added two-phase handoff)
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx` (detect pending ID)
+- `src/components/requestParameterDetails/RequestParametersList.tsx` (guard selection)
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` (detect pending ID)
+- `src/components/responsePropertyDetails/ResponsePropertyList.tsx` (guard selection)
+- `src/store/useAppStore.ts` (idempotent setters)
+- `tests/e2e/specs/request-parameter.spec.ts` (edit action tests)
+- `tests/e2e/specs/response-property.spec.ts` (edit action tests)

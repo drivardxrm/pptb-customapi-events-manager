@@ -7,6 +7,7 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Initial team formation with Dallas (Frontend), Kane (Backend), Lambert (Tester)
 - **Project Architecture (2026-02-28 to 2026-03-01):** Reviewed and approved PPTB project structure including entity service patterns, TanStack Query hooks with solution-scoped caching, Zustand state management, Vite IIFE build for iframe compatibility. Key patterns: Model → Service → Hook → Component architecture. Identified 50 backlog items across testing, Business Events completion, and UX gaps. Approved minimal README strategy; recommended Playwright for E2E testing with window-level mock injection over MSW.
 - **CustomApiSelector UX Analysis (2026-03-XX):** Documented architectural pattern and identified potential improvements for future iterations. Current implementation uses GenericTagPicker with independent managed/unmanaged toggles; CatalogSelector has identical pattern for future harmonization.
+- **2026-05-24 Prior-Fix Audit:** With tree-view entry now clearing both child selection IDs, the extra `setSelectedResponsePropertyId(null)` inside `CustomApiDetails.handleCreateResponsePropertyFromTree` is redundant. The earlier response-property hardening in `ResponsePropertyDetails`, `ResponsePropertyCreateDialog`, and the cloned list boundary still protects independent correctness concerns and should remain.
 
 ### 2026-05-24: Tree View Entry Clears Child Selections — Reviewed & Approved
 
@@ -21,6 +22,22 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - ✅ `npm run build` passed
 
 **Decision:** ✅ **APPROVED** — Safe and complete relative to the user request.
+
+### 2026-05-24: Tree View Edit Handoff Review — Approved
+
+**Review Outcome:** Approved Dallas's tree-view Edit handoff for existing request parameters and response properties.
+
+**Key Findings:**
+- `CustomApiTreeView.tsx` adds scoped Edit actions only for unmanaged child items, matching existing form-view edit affordances.
+- `CustomApiDetails.tsx` hands tree-view edit requests into the form view through explicit pending edit IDs, clears the opposite child selection, exits tree view, and lets the remounted details panel finish selection + mode entry.
+- `RequestParameterDetails.tsx` and `ResponsePropertyDetails.tsx` use two-stage effects to select the requested item after remount and enter edit mode only once the matching record is present.
+- Updated Playwright specs cover both request-parameter and response-property tree-view Edit actions end-to-end.
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright specs passed: request-parameter + response-property suites (15/15)
+
+**Decision:** ✅ **APPROVED** — Safe, complete, and validated for the requested tree-view Edit behavior.
 
 ### 2026-05-24: Tree View Response Property Review — Approved
 
@@ -158,4 +175,61 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - \u2705 Build: `npm run build` passed
 - \u2705 Focused Playwright scenario passed: Tree-view create-twice with no page errors
 
-**Decision:** \u2705 **APPROVED** — No material regression found. Fix is well-scoped, idempotent, and validated. Ready for merge.
+**Decision:** ✅ **APPROVED** — No material regression found. Fix is well-scoped, idempotent, and validated. Ready for merge.
+
+### 2026-05-24T22:11:53Z: TreeView Edit Action Implementation — Final Review & Approval
+
+**Review Scope:** Dallas's complete TreeView Edit action implementation for request parameters and response properties, plus Lambert's regression analysis and prior-fix audit.
+
+**Scope Reviewed:**
+1. `src/components/customApiDetails/CustomApiTreeView.tsx` - Edit button callbacks for unmanaged items
+2. `src/components/customApiDetails/CustomApiDetails.tsx` - Parent-level two-phase handoff logic
+3. `src/components/requestParameterDetails/RequestParameterDetails.tsx` - Detect pending ID, auto-enter edit
+4. `src/components/requestParameterDetails/RequestParametersList.tsx` - Guard selection updates
+5. `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` - Detect pending ID, auto-enter edit
+6. `src/components/responsePropertyDetails/ResponsePropertyList.tsx` - Guard selection updates
+7. `src/store/useAppStore.ts` - Idempotent setters
+8. `tests/e2e/specs/request-parameter.spec.ts` + `response-property.spec.ts` - Edit action coverage
+
+**Validation Analysis (from Lambert):**
+- 58+ regression checkpoints across 9 test phases (T1–T9) verified through E2E and code inspection
+- Expected handoff flow documented and validated: Edit button → tree exit + pending ID → form mount → select → edit mode
+- Critical handoff points identified and confirmed working: tree toggle, selection set, form auto-enter, editing lock, data binding
+- Prior React #185 fixes audited and rationale confirmed (keep all hardening pieces; only mark redundant clear for future cleanup)
+
+**Implementation Validation:**
+- ✅ Edit actions scoped to unmanaged items only (consistent with form-view edit constraints)
+- ✅ Parent-level handoff bridges tree-view-to-form remount cleanly (no remount race conditions)
+- ✅ Child components only enter edit mode after record selected and available (avoids React #185 racing)
+- ✅ Two-phase handoff prevents direct pre-selection from causing max-depth errors
+- ✅ Selection logic hardened with guards (prevents controlled-selection loops)
+- ✅ Store setters made idempotent (reduces no-op subscriber churn)
+
+**Test Coverage Validation:**
+- ✅ `npm run build` passed (TypeScript compile + Vite build)
+- ✅ `npm run test:e2e` passed: 33 passed, 3 skipped (no new failures)
+- ✅ Focused request-parameter edit specs: Full coverage of tree item Edit action, form auto-entry, save/cancel
+- ✅ Focused response-property edit specs: Full coverage of tree item Edit action, form auto-entry, save/cancel
+- ✅ No page errors or React #185 warnings in E2E logs
+- ✅ Managed/unmanaged visibility constraints correctly applied
+
+**Prior Fix Assessment (from Lambert audit):**
+- Root cause confirmed: Stale persisted child selection surviving transition into tree view
+- Keep decision: Tree-view entry cleanup (clears both child IDs) — still essential
+- Keep decision: Response-property list cloning (prevents React Query cache mutation)
+- Keep decision: Create-dialog solution reset (prevents stale carryover between creates)
+- Keep decision: Store setter idempotence (reduces no-op churn during remounts)
+- Future cleanup: Redundant `setSelectedResponsePropertyId(null)` in create handoff marked for removal once other validations complete
+
+**Decision:** ✅ **APPROVED** — Safe, complete, and fully validated. TreeView Edit actions ready for production.
+
+**Key Files Approved:**
+- `src/components/customApiDetails/CustomApiTreeView.tsx` ✅
+- `src/components/customApiDetails/CustomApiDetails.tsx` ✅
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx` ✅
+- `src/components/requestParameterDetails/RequestParametersList.tsx` ✅
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` ✅
+- `src/components/responsePropertyDetails/ResponsePropertyList.tsx` ✅
+- `src/store/useAppStore.ts` ✅
+- `tests/e2e/specs/request-parameter.spec.ts` ✅
+- `tests/e2e/specs/response-property.spec.ts` ✅
