@@ -41,7 +41,17 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage, selectedNavItem, editingComponent, setEditingComponent } = useAppStore();
+    const {
+        selectedCustomApiId,
+        setSelectedCustomApiId,
+        setSelectedRequestParameterId,
+        setSelectedResponsePropertyId,
+        setGlobalMessage,
+        clearGlobalMessage,
+        selectedNavItem,
+        editingComponent,
+        setEditingComponent,
+    } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'customapi';
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
@@ -73,6 +83,15 @@ export const CustomApiDetails: React.FC = () => {
             setShowTreeView(appsettings.showCustomApiDetailsTreeView);
         }
     }, [appsettings?.showCustomApiDetailsTreeView]);
+
+    useEffect(() => {
+        if (!showTreeView) {
+            return;
+        }
+
+        setSelectedRequestParameterId(null);
+        setSelectedResponsePropertyId(null);
+    }, [showTreeView, setSelectedRequestParameterId, setSelectedResponsePropertyId]);
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -263,9 +282,10 @@ export const CustomApiDetails: React.FC = () => {
     }, []);
 
     const handleCreateResponsePropertyFromTree = useCallback(() => {
+        setSelectedResponsePropertyId(null);
         setShowTreeView(false);
         setResponsePropertyCreateTrigger((current) => current + 1);
-    }, []);
+    }, [setSelectedResponsePropertyId]);
 
     const handleRequestParameterCreationRequestHandled = useCallback(() => {
         setRequestParameterCreateTrigger(0);

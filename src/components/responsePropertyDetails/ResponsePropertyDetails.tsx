@@ -1,4 +1,4 @@
-import React, { Activity, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { 
     Image, 
     Button,
@@ -65,6 +65,10 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
+    const responsePropertiesForList = useMemo(
+        () => responseProperties.slice(),
+        [responseProperties]
+    );
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -101,6 +105,8 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
 
     const handleCreate = () => {
         setSelectedResponsePropertyId(null);
+        setShowCreateConfirmation(false);
+        setCreateValidation({ isValid: true });
         setCreateData(getResponsePropertyCreateTemplate(selectedCustomApiId!));
         setMode('create');
         setEditingComponent('responseproperty');
@@ -343,7 +349,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
             <div className={styles.cardBody}>
                     <div className={styles.splitContainer} >
                         <div className={styles.splitPaneContent}>
-                            <ResponsePropertyList responseProperties={responseProperties} />
+                            <ResponsePropertyList responseProperties={responsePropertiesForList} />
                         </div>
                         <Divider inset vertical/>
                         <div className={styles.splitPaneContent}>

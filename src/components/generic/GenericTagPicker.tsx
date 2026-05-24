@@ -27,6 +27,7 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
     const [isInputFocused, setInputFocused] = useState(false);
     const [selectedOption, setSelectedOption] = useState<string | undefined>(initialValue);
     const styles = useStyles()
+    const lastClearedSelectionRef = useRef<string | null>(null);
 
     // Use ref for onSelect to avoid infinite re-render loops (React Error #185)
     // when parent passes unmemoized callback
@@ -35,21 +36,38 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
         onSelectRef.current = onSelect;
     });
 
+    const itemsById = useMemo(
+        () => new Map(items.map((item) => [item.id, item])),
+        [items]
+    );
+
     // Sync selectedOption when initialValue changes
     useEffect(() => {
-        if (initialValue !== undefined) {
-            setSelectedOption(initialValue);
-        }
+        setSelectedOption((current) => current === initialValue ? current : initialValue);
     }, [initialValue]);
 
     // Clear selection if the selected option is no longer in the available items
     useEffect(() => {
-        if (selectedOption && items.length > 0 && !items.some((item) => item.id === selectedOption)) {
-            setSelectedOption(undefined);
-            onSelectRef.current?.(null, undefined);
+        if (!selectedOption) {
+            lastClearedSelectionRef.current = null;
+            return;
         }
-    }, [items, selectedOption]);
 
+        if (items.length === 0 || itemsById.has(selectedOption)) {
+            lastClearedSelectionRef.current = null;
+            return;
+        }
+
+        if (lastClearedSelectionRef.current === selectedOption) {
+            return;
+        }
+
+        lastClearedSelectionRef.current = selectedOption;
+        setSelectedOption((current) => current === selectedOption ? undefined : current);
+        onSelectRef.current?.(null, undefined);
+    }, [items.length, itemsById, selectedOption]);
+    
+    const selectedItem = selectedOption ? itemsById.get(selectedOption) : undefined;
 
 
     const selectedOptions = useMemo(
@@ -69,7 +87,7 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
 
     const handleClear: React.MouseEventHandler = (_event) => {
         setSelectedOption(undefined)
-        onSelect?.(null, undefined)
+        onSelectRef.current?.(null, undefined)
     };
 
      const onOptionSelect: TagPickerProps["onOptionSelect"] = (_e, data) => {
@@ -80,12 +98,12 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
         }
         
           if(data.value === undefined || data.value === '-1'){
-              setSelectedOption(undefined)
-              onSelect?.(null, undefined)
+            setSelectedOption(undefined);
+              onSelectRef.current?.(null, undefined)
           }else{
               setSelectedOption(data.value)
-              const item = items.find((item) => item.id === data.value)
-              onSelect?.(data.value, item)
+              const item = itemsById.get(data.value)
+              onSelectRef.current?.(data.value, item)
           }
         setQuery('');
         setInputFocused(false);
@@ -106,20 +124,20 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
                 optionidToRender === selectedOption ? styles.tagSelected : '')
             }
             media={
-                items.find((item) => item.id === optionidToRender)?.image 
-                    ? cloneElement(items.find((item) => item.id === optionidToRender)!.image!, { className: styles.icon24 })
+                itemsById.get(optionidToRender)?.image 
+                    ? cloneElement(itemsById.get(optionidToRender)!.image!, { className: styles.icon24 })
                     : null
             }
-            text={items.find((item) => item.id === optionidToRender)?.displayText ?? ''}
+            text={itemsById.get(optionidToRender)?.displayText ?? ''}
             value={optionidToRender}
             key={optionidToRender}
         >
-            {items.find((item) => item.id === optionidToRender)?.displayText}
+            {itemsById.get(optionidToRender)?.displayText}
         </TagPickerOption>
         ),
 
         filter: (item) =>
-        (items.find((i) => i.id === item)?.displayText.toLowerCase().includes(query.toLowerCase()) ?? false)
+        (itemsById.get(item)?.displayText.toLowerCase().includes(query.toLowerCase()) ?? false)
     });
 
     return (
@@ -176,18 +194,18 @@ export const GenericTagPicker = <T extends SelectableItem>({ items, initialValue
                             size={'medium'}
                             appearance={'outline'}
                             media={
-                                items.find((item) => item.id === selectedOption)?.image
-                                    ? cloneElement(items.find((item) => item.id === selectedOption)!.image!, { className: styles.icon24 })
+                                selectedItem?.image
+                                    ? cloneElement(selectedItem.image, { className: styles.icon24 })
                                     : null
                             }
                            
                             value={selectedOption}
-                            title={items.find((item) => item.id === selectedOption)?.displayText}
+                            title={selectedItem?.displayText}
                             dismissible = {false}
                             primaryText={{className: styles.tagOverflow }}
                             color='brand'
                         >
-                            {items.find((item) => item.id === selectedOption)?.displayText}
+                            {selectedItem?.displayText}
                         </Tag>
                         </TagPickerGroup>
                     )}

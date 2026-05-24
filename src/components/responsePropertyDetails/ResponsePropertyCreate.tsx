@@ -32,9 +32,20 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
     // which can contribute to React Error #185 (Maximum update depth exceeded).
     const typeItems = useMemo(
         () => getCustomApiResponsePropertiesTypeOptions()
+            .slice()
             .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || '')),
         []
     );
+
+    const entityItems = useMemo(() => (
+        entityQuery.entities
+            .map((entity) => ({
+                id: entity.entityid,
+                displayText: entity.logicalname || '',
+                image: null,
+            } as SelectableItem))
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))
+    ), [entityQuery.entities]);
 
     // Validation logic
     const validation: ValidationStatus = useMemo(() => {
@@ -222,12 +233,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                         )}
                         {!entityQuery.isFetching && entityQuery.entities && (
                             <GenericTagPicker
-                                items={entityQuery.entities
-                                    .map((entity) => ({
-                                        id: entity.entityid,
-                                        displayText: entity.logicalname || '',
-                                    } as SelectableItem))
-                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                items={entityItems}
                                 isDisabled={false}
                                 onSelect={(id) => {
                                     const selected = entityQuery.entities?.find((entity) => entity.entityid === id);

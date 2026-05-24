@@ -176,8 +176,10 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setSelectedRequestParameterId: (requestParameterId) => set(
             { selectedRequestParameterId: requestParameterId }
         ),
-        setSelectedResponsePropertyId: (responsePropertyId) => set(
-            { selectedResponsePropertyId: responsePropertyId }
+        setSelectedResponsePropertyId: (responsePropertyId) => set((state) =>
+            state.selectedResponsePropertyId === responsePropertyId
+                ? state
+                : { selectedResponsePropertyId: responsePropertyId }
         ),
         setSelectedPublisherId: (publisherId) => set(
             { selectedPublisherId: publisherId }
@@ -186,7 +188,11 @@ export const useAppStore = create<AppState>((set, _get) => ({
             { selectedNavItem: navItem, editingComponent: 'none' }
         ),
 
-        setEditingComponent: (component) => set({ editingComponent: component }),
+        setEditingComponent: (component) => set((state) =>
+            state.editingComponent === component
+                ? state
+                : { editingComponent: component }
+        ),
         
         // Log actions
         addLog: (message, type = 'info') => {
@@ -222,4 +228,3 @@ export const useAppStore = create<AppState>((set, _get) => ({
         clearAllGlobalMessages: () => set({ globalMessages: {} }),
     })
 );
-

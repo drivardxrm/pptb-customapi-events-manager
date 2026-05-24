@@ -52,8 +52,19 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                 }
                 return true;
             })
+            .slice()
             .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
     }, [selectedCustomApiId, customApiQuery.customapis]);
+
+    const entityItems = useMemo(() => (
+        entityQuery.entities
+            .map((entity) => ({
+                id: entity.entityid,
+                displayText: entity.logicalname || '',
+                image: null,
+            } as SelectableItem))
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))
+    ), [entityQuery.entities]);
 
     // Validation logic
     const validation: ValidationStatus = useMemo(() => {
@@ -249,12 +260,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                         )}
                         {!entityQuery.isFetching && entityQuery.entities && (
                             <GenericTagPicker
-                                items={entityQuery.entities
-                                    .map((entity) => ({
-                                        id: entity.entityid,
-                                        displayText: entity.logicalname || '',
-                                    } as SelectableItem))
-                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                items={entityItems}
                                 isDisabled={false}
                                 onSelect={(id) => {
                                     const selected = entityQuery.entities?.find((entity) => entity.entityid === id);

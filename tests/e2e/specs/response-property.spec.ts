@@ -196,6 +196,48 @@ test.describe('Custom API Response Properties', () => {
       await expect(cancelButton).toBeVisible();
     });
 
+    test('can create twice after tree view remounts without page errors', async ({ page }) => {
+      const pageErrors: string[] = [];
+      page.on('pageerror', error => {
+        pageErrors.push(error.message);
+      });
+
+      await setupTestData(page, {
+        responseProperties: emptyResponseProperties,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      const responsePropertiesCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Response Properties (Output)"))');
+      await treeViewToggle.click();
+
+      const newButton = responsePropertiesCard.getByRole('button', { name: /new response property/i });
+      await expect(newButton).toBeVisible({ timeout: 5000 });
+      await newButton.click();
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+
+      await responsePropertiesCard.locator('input').first().fill('treeViewCreateOne');
+      await responsePropertiesCard.getByRole('button', { name: /^save$/i }).click();
+
+      const createDialog = page.getByRole('dialog').filter({ hasText: /confirm response property creation/i });
+      await expect(createDialog).toBeVisible({ timeout: 5000 });
+      await createDialog.getByRole('button', { name: /^confirm$/i }).click();
+
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toHaveCount(0, { timeout: 5000 });
+      await treeViewToggle.click();
+      await treeViewToggle.click();
+      await expect(newButton).toBeVisible({ timeout: 5000 });
+      await newButton.click();
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await expect(pageErrors).toEqual([]);
+    });
+
     test('delete property calls delete API', async ({ page }) => {
       await setupTestData(page, {
         responseProperties: mockResponsePropertiesForGlobalApi,
