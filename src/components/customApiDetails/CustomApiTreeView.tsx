@@ -15,7 +15,8 @@ import {
     DismissCircleFilled,
     LockClosedRegular,
     DeveloperBoardLightningFilled,
-    Edit20Regular
+    Edit20Regular,
+    AddRegular
 } from '@fluentui/react-icons';
 import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
@@ -29,6 +30,8 @@ interface CustomApiTreeViewProps {
     responseProperties: CustomApiResponseProperty[];
     onEdit?: () => void;
     onDelete?: () => void;
+    onCreateRequestParameter?: () => void;
+    onCreateResponseProperty?: () => void;
 }
 
 const useTreeStyles = makeStyles({
@@ -102,7 +105,9 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
     requestParameters,
     responseProperties,
     onEdit,
-    onDelete
+    onDelete,
+    onCreateRequestParameter,
+    onCreateResponseProperty
 }) => {
     const styles = useTreeStyles();
 
@@ -301,7 +306,23 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 
                         {/* Request Parameters Branch */}
                         <TreeItem itemType="branch" value="parameters-section">
-                            <TreeItemLayout iconBefore={<Image alt="Request Parameters" src={inputImage} height={24} width={24} />}>
+                            <TreeItemLayout
+                                iconBefore={<Image alt="Request Parameters" src={inputImage} height={24} width={24} />}
+                                actions={
+                                    !api.ismanaged && !api._fxexpressionid_value ? (
+                                        <Button
+                                            aria-label="Add Request Parameter"
+                                            appearance="subtle"
+                                            size="small"
+                                            icon={<AddRegular />}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                onCreateRequestParameter?.();
+                                            }}
+                                        />
+                                    ) : undefined
+                                }
+                            >
                                 <span className={styles.sectionHeader}>
                                     Request Parameters ({requestParameters.length})
                                 </span>
@@ -424,7 +445,23 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 
                         {/* Response Properties Branch */}
                         <TreeItem itemType="branch" value="properties-section">
-                            <TreeItemLayout iconBefore={<Image alt="Response Properties" src={outputImage} height={24} width={24} />}>
+                            <TreeItemLayout
+                                iconBefore={<Image alt="Response Properties" src={outputImage} height={24} width={24} />}
+                                actions={
+                                    !api.ismanaged && !api._fxexpressionid_value ? (
+                                        <Button
+                                            aria-label="Add Response Property"
+                                            appearance="subtle"
+                                            size="small"
+                                            icon={<AddRegular />}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                onCreateResponseProperty?.();
+                                            }}
+                                        />
+                                    ) : undefined
+                                }
+                            >
                                 <span className={styles.sectionHeader}>
                                     Response Properties ({responseProperties.length})
                                 </span>

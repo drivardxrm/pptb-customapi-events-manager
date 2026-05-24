@@ -1,4 +1,4 @@
-import React, { Activity, useCallback, useEffect, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useRef, useState } from 'react';
 import { 
     Image, 
     Button,
@@ -40,7 +40,12 @@ import { useCustomApis } from '../../hooks/useCustomApis';
 export type ResponsePropertiesMode = 'read' | 'edit' | 'create';
 
 
-export const ResponsePropertyDetails: React.FC = () => {
+interface ResponsePropertyDetailsProps {
+    creationRequestToken?: number;
+    onCreationRequestHandled?: () => void;
+}
+
+export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = ({ creationRequestToken, onCreationRequestHandled }) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage, editingComponent, setEditingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'responseproperty';
@@ -56,6 +61,7 @@ export const ResponsePropertyDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+    const lastHandledCreationRequestToken = useRef<number | undefined>(undefined);
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -100,6 +106,15 @@ export const ResponsePropertyDetails: React.FC = () => {
         setEditingComponent('responseproperty');
     };
 
+    useEffect(() => {
+        if (!creationRequestToken || !selectedCustomApiId || creationRequestToken === lastHandledCreationRequestToken.current) {
+            return;
+        }
+
+        lastHandledCreationRequestToken.current = creationRequestToken;
+        handleCreate();
+        onCreationRequestHandled?.();
+    }, [creationRequestToken, selectedCustomApiId, onCreationRequestHandled]);
 
     const handleEdit = () => {
         if (!selectedResponseProperty) {

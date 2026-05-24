@@ -1,4 +1,4 @@
-import React, { Activity, useCallback, useEffect, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useRef, useState } from 'react';
 import {  
     Button,
     Card,
@@ -40,7 +40,12 @@ import { ModeBadge } from '../generic/ModeBadge';
 export type RequestParametersMode = 'read' | 'edit' | 'create';
 
 
-export const RequestParameterDetails: React.FC = () => {
+interface RequestParameterDetailsProps {
+    creationRequestToken?: number;
+    onCreationRequestHandled?: () => void;
+}
+
+export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = ({ creationRequestToken, onCreationRequestHandled }) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage, setEditingComponent, editingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'requestparameter';
@@ -56,6 +61,7 @@ export const RequestParameterDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+    const lastHandledCreationRequestToken = useRef<number | undefined>(undefined);
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -100,6 +106,15 @@ export const RequestParameterDetails: React.FC = () => {
         setEditingComponent('requestparameter');
     };
 
+    useEffect(() => {
+        if (!creationRequestToken || !selectedCustomApiId || creationRequestToken === lastHandledCreationRequestToken.current) {
+            return;
+        }
+
+        lastHandledCreationRequestToken.current = creationRequestToken;
+        handleCreate();
+        onCreationRequestHandled?.();
+    }, [creationRequestToken, selectedCustomApiId, onCreationRequestHandled]);
 
     const handleEdit = () => {
         if (!selectedRequestParameter) {

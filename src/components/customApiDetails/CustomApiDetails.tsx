@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Activity } from 'react';
+import React, { useState, useEffect, useCallback, Activity } from 'react';
 import { Button, Card, CardHeader, Divider, Spinner, Switch, Tooltip } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor, TextBulletListTreeRegular, FormRegular } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
@@ -57,6 +57,8 @@ export const CustomApiDetails: React.FC = () => {
 
     const [mode, setMode] = useState<CustomApiDetailsMode>('read');
     const [showTreeView, setShowTreeView] = useState(appsettings?.showCustomApiDetailsTreeView ?? false);
+    const [requestParameterCreateTrigger, setRequestParameterCreateTrigger] = useState(0);
+    const [responsePropertyCreateTrigger, setResponsePropertyCreateTrigger] = useState(0);
     const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiCreateable>(DEFAULT_CREATE_TEMPLATE);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({
@@ -255,6 +257,24 @@ export const CustomApiDetails: React.FC = () => {
         setShowDeleteConfirmation(false);
     };
 
+    const handleCreateRequestParameterFromTree = useCallback(() => {
+        setShowTreeView(false);
+        setRequestParameterCreateTrigger((current) => current + 1);
+    }, []);
+
+    const handleCreateResponsePropertyFromTree = useCallback(() => {
+        setShowTreeView(false);
+        setResponsePropertyCreateTrigger((current) => current + 1);
+    }, []);
+
+    const handleRequestParameterCreationRequestHandled = useCallback(() => {
+        setRequestParameterCreateTrigger(0);
+    }, []);
+
+    const handleResponsePropertyCreationRequestHandled = useCallback(() => {
+        setResponsePropertyCreateTrigger(0);
+    }, []);
+
     
 
 
@@ -378,6 +398,8 @@ export const CustomApiDetails: React.FC = () => {
                 api={selectedCustomApi} 
                 requestParameters={requestParameters} 
                 responseProperties={responseProperties}
+                onCreateRequestParameter={handleCreateRequestParameterFromTree}
+                onCreateResponseProperty={handleCreateResponsePropertyFromTree}
                 onEdit={() => {
                     setShowTreeView(false);
                     handleEdit();
@@ -443,9 +465,15 @@ export const CustomApiDetails: React.FC = () => {
                 {/* Hide request/response sections when in tree view mode */}
                 {selectedCustomApi && !showTreeView && (
                     <>
-                        <RequestParameterDetails/>
-            
-                        <ResponsePropertyDetails/>
+                        <RequestParameterDetails
+                            creationRequestToken={requestParameterCreateTrigger}
+                            onCreationRequestHandled={handleRequestParameterCreationRequestHandled}
+                        />
+             
+                        <ResponsePropertyDetails
+                            creationRequestToken={responsePropertyCreateTrigger}
+                            onCreationRequestHandled={handleResponsePropertyCreationRequestHandled}
+                        />
 
                         {selectedCustomApi._fxexpressionid_value && (
                             <PowerFxDetails fxexpressionid={selectedCustomApi._fxexpressionid_value} />

@@ -315,7 +315,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             <GenericTagPicker
                                 items={
                                     getAllowedCustomProcessingStepTypeOptions()
-                                        .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                        .sort((a, b) => (a.id || '').localeCompare(b.id || ''))}
                                 initialValue={createData.allowedcustomprocessingsteptype?.toString()}
                                 isDisabled={false}
                                 onSelect={(id) => {
