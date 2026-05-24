@@ -173,8 +173,10 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setSelectedCatalogId: (catalogId) => set(
             { selectedCatalogId: catalogId }
         ),
-        setSelectedRequestParameterId: (requestParameterId) => set(
-            { selectedRequestParameterId: requestParameterId }
+        setSelectedRequestParameterId: (requestParameterId) => set((state) =>
+            state.selectedRequestParameterId === requestParameterId
+                ? state
+                : { selectedRequestParameterId: requestParameterId }
         ),
         setSelectedResponsePropertyId: (responsePropertyId) => set((state) =>
             state.selectedResponsePropertyId === responsePropertyId

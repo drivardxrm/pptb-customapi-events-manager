@@ -196,6 +196,30 @@ test.describe('Custom API Response Properties', () => {
       await expect(cancelButton).toBeVisible();
     });
 
+    test('tree view Edit action opens selected response property in form edit mode', async ({ page }) => {
+      await setupTestData(page, {
+        responseProperties: mockResponsePropertiesForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      await page.getByText(mockStringResponseProperty.displayname, { exact: true }).hover();
+      const treeEditButton = page.locator(`button[aria-label="Edit Response Property ${mockStringResponseProperty.displayname}"]`);
+      await expect(treeEditButton).toHaveCount(1);
+      await treeEditButton.click({ force: true });
+
+      const responsePropertiesCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Response Properties (Output)"))');
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await expect(responsePropertiesCard.getByRole('button', { name: /^cancel$/i })).toBeVisible();
+      await expect(responsePropertiesCard.getByLabel(/unique name/i)).toHaveValue(mockStringResponseProperty.uniquename);
+    });
+
     test('can create twice after tree view remounts without page errors', async ({ page }) => {
       const pageErrors: string[] = [];
       page.on('pageerror', error => {

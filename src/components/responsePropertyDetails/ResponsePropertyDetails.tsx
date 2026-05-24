@@ -43,9 +43,16 @@ export type ResponsePropertiesMode = 'read' | 'edit' | 'create';
 interface ResponsePropertyDetailsProps {
     creationRequestToken?: number;
     onCreationRequestHandled?: () => void;
+    editRequestPropertyId?: string | null;
+    onEditRequestHandled?: () => void;
 }
 
-export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = ({ creationRequestToken, onCreationRequestHandled }) => {
+export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = ({
+    creationRequestToken,
+    onCreationRequestHandled,
+    editRequestPropertyId,
+    onEditRequestHandled,
+}) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage, editingComponent, setEditingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'responseproperty';
@@ -62,6 +69,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
     const lastHandledCreationRequestToken = useRef<number | undefined>(undefined);
+    const lastHandledEditRequestId = useRef<string | null>(null);
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -121,6 +129,49 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
         handleCreate();
         onCreationRequestHandled?.();
     }, [creationRequestToken, selectedCustomApiId, onCreationRequestHandled]);
+
+    useEffect(() => {
+        if (
+            !editRequestPropertyId ||
+            !selectedCustomApiId ||
+            editRequestPropertyId === lastHandledEditRequestId.current ||
+            selectedResponsePropertyId === editRequestPropertyId
+        ) {
+            return;
+        }
+
+        setSelectedResponsePropertyId(editRequestPropertyId);
+    }, [
+        editRequestPropertyId,
+        selectedCustomApiId,
+        selectedResponsePropertyId,
+        setSelectedResponsePropertyId,
+    ]);
+
+    useEffect(() => {
+        if (
+            !editRequestPropertyId ||
+            !selectedCustomApiId ||
+            editRequestPropertyId === lastHandledEditRequestId.current ||
+            selectedResponseProperty?.customapiresponsepropertyid !== editRequestPropertyId
+        ) {
+            return;
+        }
+
+        lastHandledEditRequestId.current = editRequestPropertyId;
+        setSelectedResponsePropertyId(editRequestPropertyId);
+        setEditedData(selectedResponseProperty);
+        setMode('edit');
+        setEditingComponent('responseproperty');
+        onEditRequestHandled?.();
+    }, [
+        editRequestPropertyId,
+        onEditRequestHandled,
+        selectedCustomApiId,
+        selectedResponseProperty,
+        setEditingComponent,
+        setSelectedResponsePropertyId,
+    ]);
 
     const handleEdit = () => {
         if (!selectedResponseProperty) {

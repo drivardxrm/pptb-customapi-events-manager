@@ -43,9 +43,16 @@ export type RequestParametersMode = 'read' | 'edit' | 'create';
 interface RequestParameterDetailsProps {
     creationRequestToken?: number;
     onCreationRequestHandled?: () => void;
+    editRequestParameterId?: string | null;
+    onEditRequestHandled?: () => void;
 }
 
-export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = ({ creationRequestToken, onCreationRequestHandled }) => {
+export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = ({
+    creationRequestToken,
+    onCreationRequestHandled,
+    editRequestParameterId,
+    onEditRequestHandled,
+}) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage, setEditingComponent, editingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'requestparameter';
@@ -62,6 +69,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
     const lastHandledCreationRequestToken = useRef<number | undefined>(undefined);
+    const lastHandledEditRequestId = useRef<string | null>(null);
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -115,6 +123,49 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
         handleCreate();
         onCreationRequestHandled?.();
     }, [creationRequestToken, selectedCustomApiId, onCreationRequestHandled]);
+
+    useEffect(() => {
+        if (
+            !editRequestParameterId ||
+            !selectedCustomApiId ||
+            editRequestParameterId === lastHandledEditRequestId.current ||
+            selectedRequestParameterId === editRequestParameterId
+        ) {
+            return;
+        }
+
+        setSelectedRequestParameterId(editRequestParameterId);
+    }, [
+        editRequestParameterId,
+        selectedCustomApiId,
+        selectedRequestParameterId,
+        setSelectedRequestParameterId,
+    ]);
+
+    useEffect(() => {
+        if (
+            !editRequestParameterId ||
+            !selectedCustomApiId ||
+            editRequestParameterId === lastHandledEditRequestId.current ||
+            selectedRequestParameter?.customapirequestparameterid !== editRequestParameterId
+        ) {
+            return;
+        }
+
+        lastHandledEditRequestId.current = editRequestParameterId;
+        setSelectedRequestParameterId(editRequestParameterId);
+        setEditedData(selectedRequestParameter);
+        setMode('edit');
+        setEditingComponent('requestparameter');
+        onEditRequestHandled?.();
+    }, [
+        editRequestParameterId,
+        onEditRequestHandled,
+        selectedCustomApiId,
+        selectedRequestParameter,
+        setEditingComponent,
+        setSelectedRequestParameterId,
+    ]);
 
     const handleEdit = () => {
         if (!selectedRequestParameter) {

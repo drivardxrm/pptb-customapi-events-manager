@@ -197,6 +197,30 @@ test.describe('Custom API Request Parameters', () => {
       await expect(cancelButton).toBeVisible();
     });
 
+    test('tree view Edit action opens selected request parameter in form edit mode', async ({ page }) => {
+      await setupTestData(page, {
+        requestParameters: mockRequestParametersForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      await page.getByText(mockStringParameter.displayname, { exact: true }).hover();
+      const treeEditButton = page.locator(`button[aria-label="Edit Request Parameter ${mockStringParameter.displayname}"]`);
+      await expect(treeEditButton).toHaveCount(1);
+      await treeEditButton.click({ force: true });
+
+      const requestParametersCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input)"))');
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await expect(requestParametersCard.getByRole('button', { name: /^cancel$/i })).toBeVisible();
+      await expect(requestParametersCard.getByLabel(/unique name/i)).toHaveValue(mockStringParameter.uniquename);
+    });
+
     test('delete parameter calls delete API', async ({ page }) => {
       await setupTestData(page, {
         requestParameters: mockRequestParametersForGlobalApi,

@@ -32,6 +32,8 @@ interface CustomApiTreeViewProps {
     onDelete?: () => void;
     onCreateRequestParameter?: () => void;
     onCreateResponseProperty?: () => void;
+    onEditRequestParameter?: (requestParameterId: string) => void;
+    onEditResponseProperty?: (responsePropertyId: string) => void;
 }
 
 const useTreeStyles = makeStyles({
@@ -107,7 +109,9 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
     onEdit,
     onDelete,
     onCreateRequestParameter,
-    onCreateResponseProperty
+    onCreateResponseProperty,
+    onEditRequestParameter,
+    onEditResponseProperty
 }) => {
     const styles = useTreeStyles();
 
@@ -341,7 +345,22 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                             itemType="branch"
                                             value={`param-${param.customapirequestparameterid}`}
                                         >
-                                            <TreeItemLayout>
+                                            <TreeItemLayout
+                                                actions={
+                                                    !param.ismanaged ? (
+                                                        <Button
+                                                            aria-label={`Edit Request Parameter ${param.displayname || param.uniquename}`}
+                                                            appearance="subtle"
+                                                            size="small"
+                                                            icon={<Edit20Regular />}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                onEditRequestParameter?.(param.customapirequestparameterid);
+                                                            }}
+                                                        />
+                                                    ) : undefined
+                                                }
+                                            >
                                                 <span className={styles.parameterItem}>
                                                     <span>{param.displayname || param.uniquename}</span>
                                                     <span className={styles.typeLabel}>
@@ -480,7 +499,22 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                             itemType="branch"
                                             value={`prop-${prop.customapiresponsepropertyid}`}
                                         >
-                                            <TreeItemLayout>
+                                            <TreeItemLayout
+                                                actions={
+                                                    !prop.ismanaged ? (
+                                                        <Button
+                                                            aria-label={`Edit Response Property ${prop.displayname || prop.uniquename}`}
+                                                            appearance="subtle"
+                                                            size="small"
+                                                            icon={<Edit20Regular />}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                onEditResponseProperty?.(prop.customapiresponsepropertyid);
+                                                            }}
+                                                        />
+                                                    ) : undefined
+                                                }
+                                            >
                                                 <span className={styles.parameterItem}>
                                                     <span>{prop.displayname || prop.uniquename}</span>
                                                     <span className={styles.typeLabel}>
