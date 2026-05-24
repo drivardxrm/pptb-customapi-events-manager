@@ -45,6 +45,7 @@ interface RequestParameterDetailsProps {
     onCreationRequestHandled?: () => void;
     editRequestParameterId?: string | null;
     onEditRequestHandled?: () => void;
+    onActionFinished?: () => void;
 }
 
 export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = ({
@@ -52,6 +53,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
     onCreationRequestHandled,
     editRequestParameterId,
     onEditRequestHandled,
+    onActionFinished,
 }) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage, setEditingComponent, editingComponent } = useAppStore();
@@ -195,6 +197,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
         }
         setMode('read');
         setEditingComponent('none');
+        onActionFinished?.();
     };
 
     const handleSave = async () => {
@@ -205,12 +208,18 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
         }
 
         // For edit mode, save directly
-        await performSave(null);
+        const saved = await performSave(null);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
 
     const handleCreateConfirm = async (solutionUniqueName: string | null) => {
-        await performSave(solutionUniqueName);
+        const saved = await performSave(solutionUniqueName);
         setShowCreateConfirmation(false);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
     const handleCreateCancel = () => {
         setShowCreateConfirmation(false);
@@ -221,7 +230,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
             if (mode === 'create') {
                 // Creating new Request Param
                 if (selectedRequestParameter || !createData) {
-                    return;
+                    return false;
                 }
                 let result = await createCustomApiRequestParameter.mutateAsync({
                     next: createData,
@@ -237,7 +246,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
             else if(mode === 'edit') {
                 
                 if (!selectedRequestParameter || !editedData) {
-                    return;
+                    return false;
                 }
                 await updateCustomApiRequestParameter.mutateAsync({
                     current: selectedRequestParameter,
@@ -247,8 +256,10 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
 
             setMode('read');
             setEditingComponent('none');
+            return true;
         } catch (error) {
             console.error('Error saving Request Parameter', error);
+            return false;
         }
     };
 

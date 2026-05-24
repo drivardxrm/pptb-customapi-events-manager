@@ -45,6 +45,7 @@ interface ResponsePropertyDetailsProps {
     onCreationRequestHandled?: () => void;
     editRequestPropertyId?: string | null;
     onEditRequestHandled?: () => void;
+    onActionFinished?: () => void;
 }
 
 export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = ({
@@ -52,6 +53,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
     onCreationRequestHandled,
     editRequestPropertyId,
     onEditRequestHandled,
+    onActionFinished,
 }) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage, editingComponent, setEditingComponent } = useAppStore();
@@ -188,6 +190,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
         }
         setMode('read');
         setEditingComponent('none');
+        onActionFinished?.();
     };
 
     const handleSave = async () => {
@@ -198,12 +201,18 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
         }
 
         // For edit mode, save directly
-        await performSave(null);
+        const saved = await performSave(null);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
 
     const handleCreateConfirm = async (solutionUniqueName: string | null) => {
-        await performSave(solutionUniqueName);
+        const saved = await performSave(solutionUniqueName);
         setShowCreateConfirmation(false);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
 
     const handleCreateCancel = () => {
@@ -215,7 +224,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
             if (mode === 'create') {
                 // Creating new Response Property
                 if (selectedResponseProperty || !createData) {
-                    return;
+                    return false;
                 }
                 let result = await createCustomApiResponseProperty.mutateAsync({
                     next: createData,
@@ -231,7 +240,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
             else if(mode === 'edit') {
                 
                 if (!selectedResponseProperty || !editedData) {
-                    return;
+                    return false;
                 }
                 await updateCustomApiResponseProperty.mutateAsync({
                     current: selectedResponseProperty,
@@ -241,8 +250,10 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
 
             setMode('read');
             setEditingComponent('none');
+            return true;
         } catch (error) {
             console.error('Error saving Response Property', error);
+            return false;
         }
     };
 
