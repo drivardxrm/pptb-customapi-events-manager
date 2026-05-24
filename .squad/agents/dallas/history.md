@@ -226,3 +226,27 @@ pm run build — TypeScript compile + Vite build passed
 - `src/store/useAppStore.ts` (idempotent setters)
 - `tests/e2e/specs/request-parameter.spec.ts` (edit action tests)
 - `tests/e2e/specs/response-property.spec.ts` (edit action tests)
+
+### 2026-05-24: TreeView Return-on-Exit Flow
+- Tree-originated edit/create flows should return to tree view only through a parent-owned completion callback; form-originated flows must keep existing read/form behavior.
+- `CustomApiDetails.tsx` now tracks per-entity “return to tree” intent and only supplies `onActionFinished` to request/response detail panels when the action started from tree view.
+- `RequestParameterDetails.tsx` and `ResponsePropertyDetails.tsx` treat cancel + successful save as action completion points; create-dialog cancellation does **not** exit tree-handled flows because the form action is still in progress.
+- Validation: ✅ `npm run build` passed, ✅ targeted tree-view Playwright coverage passed, ✅ full Playwright suite passed serially (36 passed / 3 skipped).
+
+### 2026-05-24T23:44:54Z: TreeView Return Flow Implementation V2 — Rejected, Kane Revised, Approved
+
+**Initial Implementation (Rejected by Ripley):**
+- Implemented tree-originated return-flow wiring with parent-owned completion callbacks
+- Issue: Tree-return flags survived when user manually toggled back to tree view before child form completion
+- Stale flags then corrupted later non-tree actions with unwanted return-to-tree behavior
+
+**Revision Outcome (Kane's fix approved by Ripley):**
+- Kane fixed flag-lifecycle gap by clearing return-intent state on every tree-view re-entry
+- Clean boundary fix in `CustomApiDetails.tsx`: entering tree view now clears both return-to-tree flags and pending handoff state
+- Child detail panels preserved existing save/cancel return behavior
+- Focused Playwright regressions added: manual-toggle → non-tree action stays in form view
+- ✅ `npm run build` passed
+- ✅ Focused regressions passed; no new material issues
+- ✅ Approved by Ripley for merge
+
+**Key Learning:** Tree-origin return intent is transient, not durable state. Lifecycle cleanup must occur on every exit path (manual toggle, form unmount) to prevent state leakage into unrelated flows.

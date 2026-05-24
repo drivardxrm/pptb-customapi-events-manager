@@ -186,3 +186,77 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 - ✅ `npm run test:e2e` passed: 33 passed, 3 skipped
 - ✅ Focused request-parameter and response-property edit specs passing
 **Decision:** ✅ **APPROVED** — Safe, complete, and validated for requested TreeView Edit behavior.
+
+---
+
+### 2026-05-24: TreeView Return Flow — Architecture Decision
+**By:** Dallas (Frontend Dev)  
+**What:** Established the parent-owned return-to-tree intent pattern. When a create/edit action is launched from `CustomApiTreeView`, the parent container (CustomApiDetails) owns a completion callback that returns to tree view after the action finishes. Child detail panels receive an optional callback and invoke it only on **successful save** or **form cancel**.
+**Why:** The parent already owns `showTreeView`, making it the safest place to preserve tree-vs-form intent. Tree-originated flows need different exit behavior than standard form flows; an optional callback keeps non-tree paths unchanged. Treating create-dialog cancel as "still editing" avoids accidentally dismissing the form before the user has cancelled the actual create action.
+**Scope:**
+- `src/components/customApiDetails/CustomApiDetails.tsx` - Parent handoff logic
+- `src/components/customApiDetails/CustomApiTreeView.tsx` - Tree action initiators
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx` - Optional callback invocation
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` - Optional callback invocation
+**Pattern:** Tree-originated request/response create/edit actions set intent flags before toggling tree view OFF, then invoke completion callbacks only on save/cancel from the child. Non-tree flows unaffected (no callback passed).
+**Decision:** ✅ **APPROVED** (architectural pattern established).
+
+---
+
+### 2026-05-24: TreeView Return Flow — Implementation Review V1 (Rejected)
+**By:** Ripley (Lead)  
+**What:** Reviewed Dallas's initial implementation of parent-owned return-to-tree intent and identified critical flag-lifecycle gap.
+**Rejection Reason:** `returnToTreeViewAfterRequestParameterAction` and `returnToTreeViewAfterResponsePropertyAction` flags are set when tree-originated child actions begin but cleared only from child `onActionFinished` callbacks. The Tree/Form switch remains usable while those child forms are active. If the user manually toggles back to tree view before saving/canceling, the child component unmounts and the flag survives unchanged. On a later non-tree request/response action, that stale flag still injects the completion callback, causing save/cancel to unexpectedly bounce the user back to tree view.
+**Scope Reviewed:**
+- `src/components/customApiDetails/CustomApiDetails.tsx`
+- `src/components/customApiDetails/CustomApiTreeView.tsx`
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx`
+- Related test files
+**Required Revision:**
+1. Clear tree-return flags on every path that exits child form mode without invoking the child save/cancel callback.
+2. Ensure manual Tree/Form toggling cannot leak tree-origin intent into later non-tree actions.
+3. Add Playwright regression proving: tree-origin action starts → user toggles back to tree view before finishing → user returns to form view and starts a non-tree action → save/cancel does **not** bounce to tree view.
+**Validation Performed:** `npm run build` ✅, focused Playwright suites ✅
+**Decision:** 🔴 **REJECTED FOR REVISION** — Close but not safe enough; designated Kane as revision owner.
+
+---
+
+### 2026-05-24: TreeView Return Intent Reset — Revision Decision
+**By:** Kane (Backend/Backend-Revision Owner)  
+**Decision:** When `CustomApiDetails` re-enters tree view, it must clear request/response tree-return intent and any pending child handoff state before later form actions begin.
+**Why:** Tree-origin return behavior is a one-action intent, not durable UI state. If a user abandons a tree-launched child form by manually toggling back to tree view, the child unmounts without calling its normal save/cancel completion callback. Leaving the parent flags or pending handoff ids in place causes later form-originated request/response actions to inherit stale `onActionFinished` behavior or replay abandoned handoffs.
+**Implementation Guidance:**
+- Keep return-intent booleans owned by `CustomApiDetails`
+- On every transition into tree view, clear:
+  - `returnToTreeViewAfterRequestParameterAction`
+  - `returnToTreeViewAfterResponsePropertyAction`
+  - `requestParameterCreateTrigger`
+  - `responsePropertyCreateTrigger`
+  - `requestParameterEditId`
+  - `responsePropertyEditId`
+- Continue clearing child selections on tree entry
+- Preserve save/cancel return-to-tree behavior only when the active action genuinely originated from the tree
+**Validation:** `npm run build` ✅, focused Playwright regression for request-parameter and response-property manual-toggle leak scenarios ✅
+**Decision:** ✅ **DECISION RECORDED** — Ready for implementation.
+
+---
+
+### 2026-05-24: TreeView Return Flow — Implementation Review V2 (Approved)
+**By:** Ripley (Lead)  
+**What:** Reviewed Kane's revised implementation of tree-return-to-tree intent reset and approved for merge.
+**Why Approved:** Kane fixed the specific rejection gap cleanly at the parent boundary in `CustomApiDetails.tsx`: entering tree view now clears both child return-to-tree flags and the queued request/response create-edit handoff state together before a later form action can reuse them. The child detail panels still return to tree only on successful save or explicit cancel, so ordinary form-originated flows remain unchanged.
+**Regression Coverage:** The focused Playwright regressions in request-parameter and response-property suites cover the previously missing manual-toggle path: start from tree, abandon the child form by toggling back to tree, return to form view, then start a normal header action and confirm cancel/save stays in form view. Existing custom API tree-edit coverage remains sufficient because the Tree/Form switch is only rendered in `mode === 'read'`, so that specific manual-toggle leak path is not reachable while the parent edit form is active.
+**Scope Reviewed:**
+- `src/components/customApiDetails/CustomApiDetails.tsx`
+- `src/components/customApiDetails/CustomApiTreeView.tsx`
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx`
+- `tests/e2e/specs/request-parameter.spec.ts` + `response-property.spec.ts` (new regressions)
+- `tests/e2e/specs/custom-api.spec.ts`
+**Validation Performed:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright tree-return regressions (`request-parameter.spec.ts` + `response-property.spec.ts`) passed
+- ✅ Existing custom API tree-edit return test passed
+- ⚠️ Unrelated baseline e2e failures remain in `tests/e2e/specs/custom-api.spec.ts`
+**Decision:** ✅ **APPROVED FOR MERGE** — Kane resolved the rejected flag-lifecycle gap without introducing new material issues in reviewed flows. Tree-origin return intent is now properly transient, scoped per action, not durable state.

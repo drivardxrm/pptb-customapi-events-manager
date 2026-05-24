@@ -11,6 +11,38 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Query keys in `src/utils/queryKeys.ts` with solution-scoped caching (instanceId + connectionId + solutionId)
 - TanStack Query with staleTime: Infinity (no auto-refetch)
 
+### 2026-05-24: TreeView Return Flag Leak Revision
+- Re-entering tree view must clear request/response tree-origin return flags and any pending create/edit handoff state, or a later non-tree child action can inherit stale return-to-tree behavior.
+- Playwright coverage for this pattern should abandon a tree-origin child flow via Tree/Form toggle, then verify a normal header-launched action stays in form view on cancel/save.
+
+### 2026-05-24T23:44:54Z: TreeView Return Flow Revision — Approved by Ripley
+
+**Task:** Fix the flag-lifecycle leak identified by Ripley's rejection of Dallas's initial implementation.
+
+**Implementation:**
+- On every tree-view re-entry (`showTreeView = true`), clear all return-intent flags and pending handoff state
+- Clear in `CustomApiDetails.tsx`:
+  - `returnToTreeViewAfterRequestParameterAction`
+  - `returnToTreeViewAfterResponsePropertyAction`
+  - `requestParameterCreateTrigger`
+  - `responsePropertyCreateTrigger`
+  - `requestParameterEditId`
+  - `responsePropertyEditId`
+- Preserve existing save/cancel return behavior for genuine tree-originated actions
+- Continue clearing child selections on tree entry
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright manual-toggle regressions passed:
+  - request-parameter: tree-origin → manual toggle-back → form action → no tree return
+  - response-property: same pattern
+- ✅ Existing custom API tree-edit return test passed
+- ⚠️ Unrelated baseline e2e failures remain
+
+**Review Outcome:** ✅ Approved by Ripley — flag-lifecycle gap resolved cleanly, no new material issues, ready for merge
+
+**Pattern Established:** Tree-origin return intent is transient, scoped per action, not durable state.
+
 ### 2026-03-01: Cross-Agent Update from Ripley Review
 - Service pattern validated across CustomApi, RequestParameter, ResponseProperty, Catalog
 - Hook pattern: Query + mutation hooks in single file per entity

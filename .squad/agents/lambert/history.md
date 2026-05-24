@@ -243,3 +243,113 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 - Approved all decisions; no material safety or completeness issues
 
 **Decision:** ✅ **APPROVED AND MERGED** — TreeView Edit actions complete, tested, reviewed, and ready for production.
+
+### 2026-05-25: TreeView Create/Edit Return-to-TreeView Flow Analysis
+
+**User Request:** "when a create or update action is initiated from the treeview, (create , update of customapi, request param or response prop). The app should go back to the treeview when the action is completed (or cancelled)"
+
+**Analysis Scope:** Trace expected state transitions for tree-initiated create/edit flows across three entity types (Custom API, Request Parameter, Response Property), identify return-to-tree trigger points, document edge cases for implementation.
+
+**Key Findings:**
+
+1. **Current Create Flow (from Tree):**
+   - Tree view toggle OFF (`showTreeView: false`)
+   - Create trigger fired (counter increment in CustomApiDetails)
+   - Child component mounts, detects trigger, enters create mode
+   - After save: Form exits create mode (`setMode('read')`, `setEditingComponent('none')`)
+   - **Missing:** No explicit logic to return to tree view on form exit
+
+2. **Current Edit Flow (from Tree):**
+   - Edit button clicked in tree
+   - Tree view toggle OFF + Pending edit ID stored
+   - Child component mounts, detects edit ID, auto-enters edit mode
+   - After save: Form exits edit mode (same as above)
+   - **Missing:** No explicit logic to return to tree view on form exit
+
+3. **State Transition Points Identified:**
+   - `showTreeView` toggle controls tree view visibility (lines 516-530)
+   - Child selections cleared on tree entry (lines 89-96)
+   - Editing lock prevents tree toggle during create/edit
+   - Form mode (read/create/edit) drives UI display
+   - **Gap:** Form exit doesn't trigger `showTreeView = true` return
+
+4. **Custom API Edit Exception:**
+   - Custom API edit from tree should NOT auto-return to tree view
+   - Tree view controls visibility of child details; toggling tree during parent edit would hide just-edited data
+   - User should manually toggle tree view to return to tree visualization
+   - **Pattern:** Different from child create/edit flows
+
+5. **Return Trigger Options:**
+   - Option A: Explicit callback from child → parent (add new callback props)
+   - Option B: Parent watches child `editingComponent` clearing + `showTreeView` state (React effect)
+   - Option C: Parent effect watches form mode transitions (useEffect on mode change)
+   - **Preferred:** Option B or C (minimal coupling, reuses existing patterns)
+
+6. **High-Risk Edge Cases Identified:**
+   - **Dual component mount:** Lines 516-530 render both RequestParameterDetails and ResponsePropertyDetails in same block → simultaneous mount/unmount on tree toggle (React #185 fragility point)
+   - **Query cache persistence:** `staleTime: Infinity` means stale data carries across unmount/remount cycles
+   - **Solution selector carryover:** Create dialog may retain solution selection across consecutive creates
+   - **Rapid toggle during save:** User toggles tree view while form is saving (disabled switch should prevent, but guard needed)
+   - **Managed/unmanaged constraint:** Edit button must NOT appear for managed items (tree view must enforce)
+
+7. **Regression Checklist Structure:**
+   - 20 comprehensive test groups (R1–R20) covering:
+     - Request/Response parameter create (success + cancel)
+     - Request/Response parameter edit (success + cancel)
+     - Custom API edit (exception: stay in form view)
+     - Tree toggle during create/edit
+     - Rapid create cycles
+     - Cross-component state isolation
+     - Managed vs. unmanaged visibility
+     - Solution selector reset
+     - Deletion flow
+     - Network call sequencing
+     - Accessibility
+     - React #185 regression safety
+   - DevTools validation points for each scenario
+   - Edge case risk assessment (High/Medium/Low)
+
+8. **Existing Hardening to Preserve:**
+   - Tree entry clears child selections (lines 89-96) — prevents stale UI state
+   - GenericTagPicker idempotent clearing — prevents duplicate parent state updates
+   - Picker item arrays memoized — prevents validation re-fire cascades
+   - Response property list array cloned — prevents React Query data mutation
+   - Solution dialog state resets — prevents stale carryover
+
+**Files Created:**
+- `.squad/decisions/inbox/lambert-treeview-return-flow.md` (28KB)
+  - Expected state transitions for all flows
+  - Detailed return-to-tree paths
+  - 20-item regression checklist with DevTools validation
+  - Edge case risk assessment (High/Medium/Low)
+  - Implementation notes for Dallas
+
+**Status:** ✅ **ANALYSIS COMPLETE** — Comprehensive regression checklist ready for Dallas implementation.
+
+### 2026-05-24T23:44:54Z: TreeView Return Flow Analysis — Regression Checklist & Lifecycle Validation
+
+**Task:** Document expected state transitions and regression checklist for tree-view return-flow behavior across create, edit, and cancel paths.
+
+**Deliverables:**
+- Traced expected TreeView return-flow logic for Request Parameters, Response Properties, and Custom APIs
+- Documented success/cancel paths with detailed state transitions
+- Identified manual toggle-away scenario as critical regression case
+- Created comprehensive regression checklist (R1–R12) with 20+ test scenarios
+- Provided DevTools inspection points for Zustand state, React Query, Profiler, network
+- Risk assessment for 10+ edge cases (High/Medium/Low)
+
+**Key Finding:**
+Manual toggle-away path is where flag-lifecycle leak occurs: tree-origin action begins → user toggles back to tree view before completion → child unmounts without callback → flag survives → later non-tree action inherits stale return behavior.
+
+**Validation Provided:**
+- Expected handoff flow documented and testable
+- Critical handoff points identified: tree toggle, selection set, form auto-entry, editing lock, data binding
+- File-level references and line numbers for implementation
+- Pattern guidance for future tree-view feature work
+
+**Outcome:**
+Analysis fed directly into Dallas's initial implementation, which Ripley rejected for the exact manual-toggle leak case that Lambert identified. Kane's revision fixed this specific case with tree-view re-entry cleanup.
+
+**Impact:** Lambert's regression checklist and lifecycle analysis enabled Ripley to identify the gap quickly and Kane to implement the targeted fix with focused Playwright coverage.
+
+**Status:** ✅ **ANALYSIS VALIDATED** — Manual-toggle regression case identified; Kane's fix confirmed to address it.

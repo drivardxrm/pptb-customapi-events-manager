@@ -8,6 +8,26 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - **Project Architecture (2026-02-28 to 2026-03-01):** Reviewed and approved PPTB project structure including entity service patterns, TanStack Query hooks with solution-scoped caching, Zustand state management, Vite IIFE build for iframe compatibility. Key patterns: Model → Service → Hook → Component architecture. Identified 50 backlog items across testing, Business Events completion, and UX gaps. Approved minimal README strategy; recommended Playwright for E2E testing with window-level mock injection over MSW.
 - **CustomApiSelector UX Analysis (2026-03-XX):** Documented architectural pattern and identified potential improvements for future iterations. Current implementation uses GenericTagPicker with independent managed/unmanaged toggles; CatalogSelector has identical pattern for future harmonization.
 - **2026-05-24 Prior-Fix Audit:** With tree-view entry now clearing both child selection IDs, the extra `setSelectedResponsePropertyId(null)` inside `CustomApiDetails.handleCreateResponsePropertyFromTree` is redundant. The earlier response-property hardening in `ResponsePropertyDetails`, `ResponsePropertyCreateDialog`, and the cloned list boundary still protects independent correctness concerns and should remain.
+- **2026-05-24 TreeView Return Review:** Tree-initiated child-form return flags must be cleared not only on save/cancel callbacks, but also on any manual escape path that unmounts the child form (for example toggling back to tree view). Otherwise the flag can leak into later non-tree request/response flows and cause an unexpected forced return to tree view on the next save/cancel.
+- **2026-05-24 TreeView Return Review V2:** Kane's revision is safe because tree-view re-entry now clears both child return flags and pending create/edit handoff state together, and the new manual-toggle Playwright regressions prove later non-tree child actions stay in form view. The Custom API tree-edit flow does not need the same manual-toggle cleanup because the Tree/Form switch is only rendered in `mode === 'read'`, so it is unavailable during parent edit mode.
+
+### 2026-05-24: TreeView Return Behavior Review — Rejected
+
+**Review Scope:** Dallas's return-to-tree implementation in `CustomApiDetails.tsx`, `CustomApiTreeView.tsx`, `RequestParameterDetails.tsx`, `ResponsePropertyDetails.tsx`, and the three updated Playwright specs.
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright suites passed: `custom-api.spec.ts`, `request-parameter.spec.ts`, `response-property.spec.ts`
+
+**Material Issue:**
+- `CustomApiDetails.tsx` sets `returnToTreeViewAfterRequestParameterAction` / `returnToTreeViewAfterResponsePropertyAction` when a tree-originated child action starts, but only clears those flags from child save/cancel callbacks.
+- The parent Tree/Form switch remains available while request-parameter or response-property forms are active, and switching back to tree view unmounts the child form without clearing the corresponding return flag.
+- If the user later comes back to form view and starts a normal non-tree request/response action, `onActionFinished` is still wired, so that later save/cancel can unexpectedly force a return to tree view. That breaks the stated requirement that non-tree flows remain unchanged.
+
+**Test Gap:**
+- The new specs validate happy-path tree-originated save/cancel returns, but they do not cover manual Tree/Form toggling during an in-flight tree-originated child action, which is where the leaked flag regression lives.
+
+**Decision:** ❌ **REJECTED** — Route to **Kane** for revision. Clear tree-return flags on every alternate exit path that can dismiss/unmount child forms, then add an E2E regression covering toggle-away/toggle-back before a normal form action.
 
 ### 2026-05-24: Tree View Entry Clears Child Selections — Reviewed & Approved
 
@@ -233,3 +253,33 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - `src/store/useAppStore.ts` ✅
 - `tests/e2e/specs/request-parameter.spec.ts` ✅
 - `tests/e2e/specs/response-property.spec.ts` ✅
+
+### 2026-05-24T23:44:54Z: TreeView Return Flow Implementation Review Cycle — Two-Round Cycle Complete
+
+**Round 1: Initial Implementation Review (Rejected)**
+- Reviewed Dallas's tree-return-flow wiring with parent-owned completion callbacks
+- Issue identified: Tree-return intent flags set on action start but cleared only on save/cancel callbacks
+- Stale flag leak scenario: User starts tree-origin action → manually toggles back to tree view before completion → flag survives unmount → later non-tree action inherits stale callback → unexpected return-to-tree on save/cancel
+- Test gap: No regression covering manual-toggle abandonment path
+- **Decision:** ❌ Rejected — Designated Kane as revision owner. Guidance: Clear flags on every exit path, add manual-toggle regression test.
+
+**Round 2: Revision Implementation Review (Approved)**
+- Reviewed Kane's flag-lifecycle fix with tree-view re-entry cleanup
+- Solution: Entering tree view clears both return-intent flags and pending handoff state together
+- Parent boundary fix prevents later form actions from reusing stale state
+- Child detail panels preserve existing save/cancel return behavior
+- Focused Playwright regressions added for manual-toggle path
+- Pattern confirmed: Tree-origin intent is transient, scoped per action, not durable state
+- **Validation:**
+  - ✅ `npm run build` passed
+  - ✅ Focused regressions (`request-parameter.spec.ts` + `response-property.spec.ts`) passed
+  - ✅ Existing tree-edit return test passed
+  - ⚠️ Unrelated baseline e2e failures remain in custom-api.spec.ts (pre-existing)
+- **Decision:** ✅ **APPROVED FOR MERGE** — Flag-lifecycle gap cleanly resolved. No new material issues in reviewed flows.
+
+**Team Orchestration:**
+- Lambert: Documented expected return flows and regression checklist
+- Dallas: Implemented architectural pattern (rejected v1), revised (approved v2)
+- Ripley: Lead review across two cycles; rejection provided clear guidance; v2 approved for merge
+- Kane: Executed targeted revision; flag-lifecycle leak fixed at parent boundary
+
