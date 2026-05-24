@@ -276,3 +276,19 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 - Focused Playwright scenario: Create twice after tree-view remounts, no page errors ✓
 - Regression checklist: All three scenarios covered and validated ✓
 **Decision:** ✅ **APPROVED** — No material regression found. Ready for merge.
+
+---
+
+### 2026-05-24: Tree View Entry Clears Child Selections
+**By:** Dallas (Frontend Dev) + Ripley (Lead approval)
+**What:** Added directive to clear persisted child selections when entering tree view: both `selectedRequestParameterId` and `selectedResponsePropertyId` are cleared by `useEffect` in `CustomApiDetails.tsx` when `showTreeView` becomes true.
+**Directive Source:** User request captured 2026-05-24T17:03:44.617-04:00
+**Why:** Tree view hides request-parameter and response-property detail panes; retaining child selections creates stale UI state with no visible owner. Clearing selections keeps tree/form transitions consistent.
+**Implementation:**
+- Single `useEffect` in `CustomApiDetails.tsx` watches `showTreeView` flag
+- Clears both store IDs when entering tree view
+- No impact on form-view flows or create/edit logic beyond requested store cleanup
+**Validation:**
+- Build: `npm run build` passed ✓
+- Focused regression: Response-property remount scenario passed ✓
+**Decision:** ✅ **APPROVED** by Ripley — Safe and complete for requested scope.

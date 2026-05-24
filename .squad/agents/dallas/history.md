@@ -168,3 +168,16 @@ pm run build — TypeScript compile + Vite build passed
 - ✅ No page errors or React #185 warnings
 
 **Status:** ✅ Complete & Approved by Ripley
+
+### 2026-05-24: Tree View Entry Clears Child Selections
+- `CustomApiDetails.tsx` now clears both `selectedRequestParameterId` and `selectedResponsePropertyId` whenever Custom API Details enters tree view.
+- Pattern: tree/form mode switches should reset child-detail selections that cannot remain visible in the destination mode.
+- Validation on this follow-up: `npm run build` passed; focused response-property remount regression test passed; full E2E suite still has one unrelated pre-existing failure in Custom API edit cancel flow.
+
+### 2026-05-24: Tree View Entry Clears Child Selections — Implementation Complete & Approved
+- Added `useEffect` in `CustomApiDetails.tsx` that clears both store selections whenever `showTreeView` becomes true
+- User directive captured from Copilot interactive session: "When entering TreeView mode, clear `selectedRequestParameterId` and `selectedResponsePropertyId` from the store"
+- Implementation scope: Narrowly targeted to tree-view entry, no impact on form-view flows or create/edit logic
+- Approved by Ripley as safe and complete for requested scope
+- Build status: ✅ `npm run build` passed
+- Regression validation: ✅ Focused response-property remount scenario passed

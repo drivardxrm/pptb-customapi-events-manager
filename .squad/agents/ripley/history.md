@@ -8,6 +8,20 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - **Project Architecture (2026-02-28 to 2026-03-01):** Reviewed and approved PPTB project structure including entity service patterns, TanStack Query hooks with solution-scoped caching, Zustand state management, Vite IIFE build for iframe compatibility. Key patterns: Model → Service → Hook → Component architecture. Identified 50 backlog items across testing, Business Events completion, and UX gaps. Approved minimal README strategy; recommended Playwright for E2E testing with window-level mock injection over MSW.
 - **CustomApiSelector UX Analysis (2026-03-XX):** Documented architectural pattern and identified potential improvements for future iterations. Current implementation uses GenericTagPicker with independent managed/unmanaged toggles; CatalogSelector has identical pattern for future harmonization.
 
+### 2026-05-24: Tree View Entry Clears Child Selections — Reviewed & Approved
+
+**Review Scope:** Dallas's `CustomApiDetails.tsx` change to clear persisted request/response selection IDs when entering tree view mode.
+
+**Key Findings:**
+- `showTreeView` now drives a dedicated effect that clears both `selectedRequestParameterId` and `selectedResponsePropertyId` whenever tree view becomes active.
+- The reset is narrowly scoped to tree-view entry, matching the request without broadening behavior in unrelated form-view flows.
+- The change is compile-safe and does not alter create/edit logic beyond the requested store cleanup.
+
+**Validation:**
+- ✅ `npm run build` passed
+
+**Decision:** ✅ **APPROVED** — Safe and complete relative to the user request.
+
 ### 2026-05-24: Tree View Response Property Review — Approved
 
 **Review Outcome:** Approved Dallas's response-property tree view follow-up fix as safe and complete enough for the reported create-twice loop.
