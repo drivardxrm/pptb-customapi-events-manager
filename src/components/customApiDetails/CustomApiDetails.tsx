@@ -442,7 +442,14 @@ export const CustomApiDetails: React.FC = () => {
                                                 <Tooltip content='Toggle compact tree view' relationship='label'>
                                                     <Switch
                                                         checked={showTreeView}
-                                                        onChange={(_, data) => setShowTreeView(data.checked)}
+                                                        onChange={(_, data) => {
+                                                            setShowTreeView(data.checked);
+                                                            // Reset the editing lock when switching to tree view, since
+                                                            // child components unmount without getting a chance to reset it.
+                                                            if (data.checked && (editingComponent === 'requestparameter' || editingComponent === 'responseproperty')) {
+                                                                setEditingComponent('none');
+                                                            }
+                                                        }}
                                                         label={showTreeView ? 
                                                             <div className={styles.flexRowCentered}><TextBulletListTreeRegular /><span>Tree View</span></div> : 
                                                             <div className={styles.flexRowCentered}><FormRegular /><span>Form View</span></div>  }

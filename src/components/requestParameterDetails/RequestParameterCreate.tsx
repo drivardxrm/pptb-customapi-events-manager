@@ -38,6 +38,23 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
 
+    // Memoize items to keep the array reference stable across re-renders.
+    // Unstable references cause GenericTagPicker's items effect to run every render,
+    // which can contribute to React Error #185 (Maximum update depth exceeded).
+    const typeItems = useMemo(() => {
+        return getCustomApiRequestParametersTypeOptions()
+            .filter(option => {
+                const selectedCustomApi = customApiQuery.customapis?.find(api => api.customapiid === selectedCustomApiId);
+                if (selectedCustomApi?.isfunction) {
+                    return option.displayText !== "Entity" &&
+                        option.displayText !== "EntityReference" &&
+                        option.displayText !== "EntityCollection";
+                }
+                return true;
+            })
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
+    }, [selectedCustomApiId, customApiQuery.customapis]);
+
     // Validation logic
     const validation: ValidationStatus = useMemo(() => {
         // Required Fields
@@ -184,19 +201,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     required
                 >
                     <GenericTagPicker
-                        items={
-                            getCustomApiRequestParametersTypeOptions()
-                                // add a filter , if customapi is a function, remove Entity, EntityReference, EntityCollection options
-                                .filter(option => {
-                                    const selectedCustomApi = customApiQuery.customapis?.find(api => api.customapiid === selectedCustomApiId);
-                                    if (selectedCustomApi?.isfunction) {
-                                        return option.displayText !== "Entity" && 
-                                        option.displayText !== "EntityReference" &&
-                                        option.displayText !== "EntityCollection";
-                                    }
-                                    return true;
-                                })
-                                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                        items={typeItems}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
                         onSelect={(id) => {
