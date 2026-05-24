@@ -8,6 +8,33 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - **Project Architecture (2026-02-28 to 2026-03-01):** Reviewed and approved PPTB project structure including entity service patterns, TanStack Query hooks with solution-scoped caching, Zustand state management, Vite IIFE build for iframe compatibility. Key patterns: Model → Service → Hook → Component architecture. Identified 50 backlog items across testing, Business Events completion, and UX gaps. Approved minimal README strategy; recommended Playwright for E2E testing with window-level mock injection over MSW.
 - **CustomApiSelector UX Analysis (2026-03-XX):** Documented architectural pattern and identified potential improvements for future iterations. Current implementation uses GenericTagPicker with independent managed/unmanaged toggles; CatalogSelector has identical pattern for future harmonization.
 
+### 2026-05-24: Tree View Create Flow React #185 Fix Review — Approved
+
+**Review Outcome:** Approved Dallas's picker-stability fix for the tree view create-flow React #185 regression.
+
+**Architecture / Pattern:**
+- GenericTagPicker should treat stale-selection cleanup as idempotent and dispatch parent callbacks through a ref-backed handler.
+- Query-backed picker `items` must be memoized in create/edit forms; inline `map(...).sort(...)` arrays are unsafe around remount-heavy tree view flows.
+- Picker state should not be force-cleared while option data is temporarily empty during remount/loading; clear only once the option set is present and the selected id is actually absent.
+
+**Root Cause Confirmed (from Lambert's analysis):**
+- Stale `responsePropertyQuery` cache state combined with validation cascades caused re-render loops
+- Unstable picker item arrays compounded issue during remounts
+
+**Implementation Details:**
+- `GenericTagPicker.tsx`: Made stale-selection clearing idempotent with ref-backed guard; prevents duplicate parent updates
+- `RequestParameterCreate.tsx` & `ResponsePropertyCreate.tsx`: Memoized picker item arrays with `useMemo`
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright create-form tests passed
+- ✅ No material regressions found
+
+**Key Files:**
+- `src/components/generic/GenericTagPicker.tsx`
+- `src/components/requestParameterDetails/RequestParameterCreate.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
+
 ### 2026-04-15: Solution Filter Count Review
 
 **Review Outcome:** Approved the latest `CustomApiSelector` filter-summary revision for solution-scoped behavior.

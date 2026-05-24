@@ -194,3 +194,38 @@ page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input
 **Files Approved:**
 - `src/components/CustomApiSelector.tsx`
 **Build Status:** ✅ `npm run build` passed
+
+---
+
+### 2026-05-24: React #185 Picker State Stability Fix
+**By:** Dallas (Frontend Dev)  
+**What:** Fixed React #185 (Maximum update depth exceeded) regression occurring when creating response properties after toggling tree view mode in Custom API Details.
+**Root Cause:** Stale `responsePropertyQuery` cache state combined with validation cascades caused re-render loops. GenericTagPicker items instability compounded the issue during remounts.
+**Solution Implemented:**
+1. **GenericTagPicker.tsx** - Made stale-selection clearing callback idempotent with ref-backed guard to prevent duplicate parent state updates during remounts. Added logic to avoid clearing while option list is temporarily empty (important for modal remounts).
+2. **RequestParameterCreate.tsx** - Memoized picker item arrays with `useMemo` to eliminate inline `map(...).sort(...)` arrays passed to picker.
+3. **ResponsePropertyCreate.tsx** - Memoized picker item arrays with `useMemo` matching pattern in RequestParameterCreate.
+**Why:** Unstable references cause picker effects to re-fire on every render, which during remounts after tree view toggles creates validation cascades and re-render loops. Memoization stabilizes references; idempotent clearing prevents duplicate state updates.
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused Playwright create-form tests passed
+- ✅ No material regressions found
+**Files Changed:**
+- `src/components/generic/GenericTagPicker.tsx`
+- `src/components/requestParameterDetails/RequestParameterCreate.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
+
+---
+
+### 2026-05-24: React #185 Fix — Approved
+**By:** Ripley (Lead)  
+**What:** Reviewed and approved Dallas's GenericTagPicker refactor and picker state stability fix for React #185 regression.
+**Why:** The reported React #185 loop was caused by unstable picker item arrays plus stale-selection clearing that could re-fire parent updates during remounts. Dallas fixed both sides: form-level picker items are memoized, and GenericTagPicker now clears stale selections through a ref-backed callback with an idempotence guard. The picker also correctly avoids clearing while the option list is temporarily empty, which is important for tree view modal remount/loading gaps.
+**Guidance for Future Work:**
+- Do not pass inline `map(...).sort(...)` arrays into GenericTagPicker.
+- Any picker effect that can call back into parent state must be idempotent across remounts.
+**Files Approved:**
+- `src/components/generic/GenericTagPicker.tsx`
+- `src/components/requestParameterDetails/RequestParameterCreate.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
+**Build Status:** ✅ `npm run build` passed

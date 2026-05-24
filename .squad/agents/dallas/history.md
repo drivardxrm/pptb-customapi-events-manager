@@ -124,3 +124,19 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Approved by Ripley as correct implementation of selection-scoped toggle behavior
 - Key file: `src/components/CustomApiSelector.tsx`
 
+### 2026-05-24: Tree View Create Flow React #185 Regression Fix
+- **Problem:** React Error #185 (Maximum update depth exceeded) when creating response properties after toggling tree view mode
+- **Root Cause (from Lambert):** Stale `responsePropertyQuery` cache state combined with validation cascades caused re-render loops. GenericTagPicker items instability compounded the issue during remounts.
+- **Implementation:**
+  - Fixed `src/components/generic/GenericTagPicker.tsx`: Made stale-selection clearing idempotent with ref-backed guard; prevents duplicate parent state updates during remounts; avoids clearing while option list is temporarily empty (important for modal remounts)
+  - Updated `src/components/requestParameterDetails/RequestParameterCreate.tsx`: Memoized picker item arrays with `useMemo` to eliminate inline arrays
+  - Updated `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`: Memoized picker item arrays with `useMemo` matching RequestParameterCreate pattern
+- **Pattern Established:** Any `GenericTagPicker` fed by query data must receive memoized `items`; unstable arrays plus selection-reset effects trigger React max-depth loops
+- **Validation:**
+  - ✅ `npm run build` passed
+  - ✅ Focused Playwright create-form specs for request parameters and response properties passed
+  - ✅ Ripley approved fix with no material regressions
+- **Files Modified:**
+  - `src/components/generic/GenericTagPicker.tsx`
+  - `src/components/requestParameterDetails/RequestParameterCreate.tsx`
+  - `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`

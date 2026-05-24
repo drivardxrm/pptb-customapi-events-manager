@@ -86,3 +86,23 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
   - `reuseExistingServer: !process.env.CI` ensures fresh server on CI
   - `retries: 2` on CI for flakiness tolerance
   - Single worker on CI for stability
+
+### 2026-05-22: React #185 Error Reproduction Analysis - TreeView State Bug
+- **Issue:** React Error #185 (Maximum update depth exceeded) when creating response property after tree view toggle
+- **Reproduction sequence:** Tree View → Create Request Param → Toggle Tree View Back → Create Response Property → Error
+- **Root cause identified:** Stale query state from `useCustomApiResponseProperties()` not reinitialized when ResponsePropertyDetails mounts after tree view mode toggling
+- **Key findings:**
+  - Component mount/unmount lifecycle in tree view toggle doesn't fully reset TanStack Query cache
+  - Both RequestParameterCreate and ResponsePropertyCreate have validation useMemo that depends on query state
+  - When ResponsePropertyDetails mounts, if query cache is stale, validation runs → triggers parent re-render → query updates → validation re-runs (infinite loop until max depth)
+  - GenericTagPicker's items stabilization (memoization) is relevant but not primary cause
+- **Specific stale state:** `responsePropertyQuery` hook state; `createValidation` state may not reset; tree view toggle effect doesn't properly clean up before child components re-mount
+- **Test pattern established:** Regression checklist created with 4 comprehensive test cases + DevTools state verification
+- **Files created:** `.squad/decisions/inbox/lambert-treeview-repro.md` with full reproduction path and validation checklist for Dallas
+- **Architecture insight:** Tree view conditional rendering (`!showTreeView && <RequestParameterDetails/>`) combined with shared query cache and validation cascade creates state initialization race condition
+
+### 2026-05-24: React #185 Regression - Validation Complete
+- **Dallas's fix validated:** Stale-selection clearing callback made idempotent + picker item arrays memoized in both create forms
+- **Root cause confirmed:** Validation cascade + stale query state + unstable picker items
+- **Regression checklist provided:** 4 comprehensive test cases with DevTools verification steps
+- **Status:** ✅ Fix approved by Ripley; build passed; create-form tests passed
