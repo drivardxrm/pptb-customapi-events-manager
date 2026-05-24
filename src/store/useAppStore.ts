@@ -212,9 +212,12 @@ export const useAppStore = create<AppState>((set, _get) => ({
             }
         })),
 
-        clearGlobalMessage: (id) => set(produce((state: AppState) => {
-            delete state.globalMessages[id];
-        })),
+        clearGlobalMessage: (id) => set((state) => {
+            if (!(id in state.globalMessages)) return state;
+            const next = { ...state.globalMessages };
+            delete next[id];
+            return { ...state, globalMessages: next };
+        }),
 
         clearAllGlobalMessages: () => set({ globalMessages: {} }),
     })

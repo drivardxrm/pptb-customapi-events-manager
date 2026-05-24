@@ -43,7 +43,6 @@ export const CustomApiSelector: React.FC = () => {
     // Calculate active filter count
     const activeFilterCount = 
         (selectedSolutionId ? 1 : 0) + 
-        (showSolutions !== 'all' ? 1 : 0) +
         (showCustomApis !== 'all' ? 1 : 0) +
         (showPowerFxOnly ? 1 : 0) +
         (showBusinessEventsOnly ? 1 : 0)
@@ -69,15 +68,6 @@ export const CustomApiSelector: React.FC = () => {
                     </Badge>
                 )
             }
-        }
-
-        // Managed state filter for Solutions
-        if (showSolutions !== 'all') {
-            parts.push(
-                <Badge key="solution-managed" appearance="outline" size="small">
-                    {showSolutions === 'managed' ? <LockClosedRegular /> : <LockOpenRegular />} {showSolutions === 'managed' ? 'Managed' : 'Unmanaged'} Solutions
-                </Badge>
-            )
         }
 
         // Managed state filter for Custom APIs
@@ -108,7 +98,7 @@ export const CustomApiSelector: React.FC = () => {
         }
 
         return parts
-    }, [selectedSolutionId, showSolutions, showCustomApis, showPowerFxOnly, showBusinessEventsOnly, solutionsQuery.solutions])
+    }, [selectedSolutionId, showCustomApis, showPowerFxOnly, showBusinessEventsOnly, solutionsQuery.solutions])
 
     // Filter Custom APIs based on Custom API managed state filter, PowerFx filter, and Business Event filter
     const filteredCustomApis = customapisQuery.customapis?.filter(c => 
@@ -191,44 +181,7 @@ export const CustomApiSelector: React.FC = () => {
 
                             {/* Solutions Filter Section */}
                             <div className={styles.filterSubsection}>
-                                <Field label=
-                                    {
-                                        <div className={styles.fieldLabelWithToggle}>
-                                            <span className={styles.semiBoldLabel}>Custom API filters</span>
-                                        </div>
-                                    }
-                                >
-                                    <div className={styles.flexColumn} style={{ alignItems: 'flex-start' }}>
-                                        <ManagedStateToggle 
-                                            value={showCustomApis} 
-                                            onChange={setShowCustomApis} 
-                                        />
-                                        <div className={styles.flexRow} style={{ gap: '8px' }}>
-                                            <ToggleButton
-                                                appearance={showPowerFxOnly ? 'primary' : 'secondary'}
-                                                size="small"
-                                                shape="circular"
-                                                icon={showPowerFxOnly ? <MathFormulaFilled /> : <MathFormulaRegular />}
-                                                checked={showPowerFxOnly}
-                                                onClick={() => setShowPowerFxOnly(!showPowerFxOnly)}
-                                                title="PowerFx"
-                                            >
-                                                PowerFx
-                                            </ToggleButton>
-                                            <ToggleButton
-                                                appearance={showBusinessEventsOnly ? 'primary' : 'secondary'}
-                                                size="small"
-                                                shape="circular"
-                                                icon={showBusinessEventsOnly ? <FlashFlowFilled /> : <FlashFlowRegular />}
-                                                checked={showBusinessEventsOnly}
-                                                onClick={() => setShowBusinessEventsOnly(!showBusinessEventsOnly)}
-                                                title="Business Event"
-                                            >
-                                                Business Event
-                                            </ToggleButton>
-                                        </div>
-                                    </div>
-                                </Field>
+                                
                                 
                                 
                                 <Field label=
@@ -282,6 +235,45 @@ export const CustomApiSelector: React.FC = () => {
                                         </>
                                     )}
 
+                                </Field>
+
+                                <Field label=
+                                    {
+                                        <div className={styles.fieldLabelWithToggle}>
+                                            <span className={styles.semiBoldLabel}>Custom API filters</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className={styles.flexColumn} style={{ alignItems: 'flex-start' }}>
+                                        <ManagedStateToggle 
+                                            value={showCustomApis} 
+                                            onChange={setShowCustomApis} 
+                                        />
+                                        <div className={styles.flexRow} style={{ gap: '8px' }}>
+                                            <ToggleButton
+                                                appearance={showPowerFxOnly ? 'primary' : 'secondary'}
+                                                size="small"
+                                                shape="circular"
+                                                icon={showPowerFxOnly ? <MathFormulaFilled /> : <MathFormulaRegular />}
+                                                checked={showPowerFxOnly}
+                                                onClick={() => setShowPowerFxOnly(!showPowerFxOnly)}
+                                                title="PowerFx"
+                                            >
+                                                PowerFx
+                                            </ToggleButton>
+                                            <ToggleButton
+                                                appearance={showBusinessEventsOnly ? 'primary' : 'secondary'}
+                                                size="small"
+                                                shape="circular"
+                                                icon={showBusinessEventsOnly ? <FlashFlowFilled /> : <FlashFlowRegular />}
+                                                checked={showBusinessEventsOnly}
+                                                onClick={() => setShowBusinessEventsOnly(!showBusinessEventsOnly)}
+                                                title="Business Event"
+                                            >
+                                                Business Event
+                                            </ToggleButton>
+                                        </div>
+                                    </div>
                                 </Field>
                                 
                                 

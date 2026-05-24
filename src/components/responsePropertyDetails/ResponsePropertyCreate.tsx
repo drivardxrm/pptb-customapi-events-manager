@@ -27,6 +27,15 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
 
+    // Memoize items to keep the array reference stable across re-renders.
+    // Unstable references cause GenericTagPicker's items effect to run every render,
+    // which can contribute to React Error #185 (Maximum update depth exceeded).
+    const typeItems = useMemo(
+        () => getCustomApiResponsePropertiesTypeOptions()
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || '')),
+        []
+    );
+
     // Validation logic
     const validation: ValidationStatus = useMemo(() => {
         // Required Fields
@@ -166,8 +175,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     required
                 >
                     <GenericTagPicker
-                        items={getCustomApiResponsePropertiesTypeOptions()
-                            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                        items={typeItems}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
                         onSelect={(id) => {
