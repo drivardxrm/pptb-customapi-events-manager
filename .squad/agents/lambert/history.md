@@ -1,92 +1,33 @@
 # Lambert — History
 
 ## Core Context
-Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
+
+**Foundation (2026-02-28 through 2026-03-02):**
+- Joined PPTB Dataverse Custom API Manager team as Tester
+- No test framework initially configured; focus on manual verification and documentation
+- E2E testing established via Playwright with Chromium browser
+- Mock architecture: Window-level injection via test-main.tsx entry point + addInitScript for pre-session setup
+- Key insight: fixHtmlForPPTB plugin must only apply during build (pply: 'build'), not dev mode - otherwise breaks Vite dev server
+- Vite plugin pattern: transformIndexHtml swaps entry point in test mode to load mocks before app
+- Test control methods: Prefix with __ (e.g., __setConnection, __reset) for window API mocks
+- Mock initialization pattern: Lazy initialization via nsureInitialized() reads from window.__E2E_TEST_DATA__ set by ddInitScript
+- This avoids race conditions where ES modules load before setup completes
+- Nested UI selector pattern: Use CSS direct child selector :has(> ...) to avoid strict mode violations with Fluent UI Cards
+- Playwright config: 15-minute timeout, Chromium-only (saves ~2 min CI time), artifacts uploaded on failure only (7-day retention)
+- E2E test coverage: Smoke tests + CRUD journeys established; 18+ Custom API tests with various binding types
+
+**Architecture Decisions:**
+- E2E tests in 	ests/e2e/specs/ with corresponding page objects in 	ests/e2e/pages/
+- Mock fixtures in 	ests/e2e/fixtures/ organized by entity type
+- Test commands: 
+pm run test:e2e, 
+pm run test:e2e:ui, 
+pm run dev:test
+- CI workflow: .github/workflows/e2e-tests.yml for automated PR testing
 
 ## Learnings
-- No test framework currently configured
-- Focus on manual verification and edge case documentation
-- Project uses Vite with custom IIFE build plugin for PPTB iframe compatibility
-- Build command: `npm run build` (TypeScript compile + Vite build)
-- Dev server: `npm run dev` (with HMR)
 
-### 2026-03-01: Cross-Agent Update from Ripley Review
-- Architecture review complete: clean separation of concerns, consistent patterns
-- Some commented-out code in App.tsx and models (cleanup opportunity identified)
-- Business Events feature marked as "Coming Soon" - note for test planning
-- No critical issues detected; codebase well-organized
-
-### 2026-03-02: E2E Testing Foundation (Phase 1) Implemented
-- Installed Playwright with Chromium browser for E2E testing
-- Created mock implementations for PPTB APIs (`dataverseAPI`, `toolboxAPI`)
-- Key insight: The `fixHtmlForPPTB` plugin must only apply during build (`apply: 'build'`), not dev mode - otherwise it removes `type="module"` from scripts and breaks Vite dev server
-- Test entry point pattern: `test-main.tsx` imports mocks first, then imports main app
-- Vite plugin swaps entry point in test mode via `transformIndexHtml`
-- Created page object pattern for maintainable tests
-- 4 smoke tests passing, PR #53 created
-- Test commands: `npm run test:e2e`, `npm run test:e2e:ui`, `npm run dev:test`
-- Mocks use test control methods prefixed with `__` (e.g., `__setConnection`, `__reset`)
-
-### 2026-03-02: E2E Testing Phase 2 - Core Journey Tests
-- Added comprehensive Custom API CRUD tests (18 tests passing, 3 skipped)
-- **Critical discovery**: The app uses `GenericTagPicker` (combobox/dropdown) for Custom API selection, NOT a DataGrid - selectors had to be adjusted accordingly
-- **Mock timing solution**: Implemented lazy initialization pattern for mocks
-  - Mocks read from `window.__E2E_TEST_DATA__` on first method call, not at module load time
-  - This avoids race conditions where ES modules load before `addInitScript` completes
-  - Pattern: `setupTestData()` → `addInitScript` sets `window.__E2E_TEST_DATA__` → page loads → mock methods call `ensureInitialized()` → reads pre-configured data
-- **Key mock additions**:
-  - `queryData()` for OData queries (used by CustomApiService)
-  - `getSolutions()` for solution queries (used by useSolutions hook)
-  - Entity extraction from both OData query strings and FetchXML
-- **UI selector patterns discovered**:
-  - "New Custom API" button appears in TWO places (message bar + details card) - must be specific
-  - "Test Environment" badge also appears twice - use `.first()` to avoid strict mode violations
-  - Custom API picker: `.fui-Field` filtered by label text, then `[role="combobox"]`
-- Files created:
-  - `tests/e2e/fixtures/custom-api.fixture.ts` - Mock Custom API data with various binding types
-  - `tests/e2e/specs/custom-api.spec.ts` - CRUD operation tests
-- Extended `tests/e2e/pages/app.page.ts` with Custom API picker interactions
-- Extended `tests/e2e/mocks/dataverseAPI.mock.ts` with `queryData`, `getSolutions`, lazy init
-
-### 2026-03-02: E2E Testing Phase 3 - Request Parameters & Response Properties
-- Added 12 tests for Request Parameters and Response Properties CRUD operations
-- **Nested card selector challenge**: Cards are nested (Custom API Details contains Request Parameters and Response Properties cards)
-  - Standard `hasText` filter matches BOTH parent and child cards → strict mode violation
-  - Solution: Use CSS direct child selector with `:has(> ...)` to match only cards that directly contain the specific header
-  - Pattern: `.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input)"))`
-- **Mock data extension**:
-  - Added `window.__E2E_REQUEST_PARAMETERS__` and `window.__E2E_RESPONSE_PROPERTIES__` globals
-  - Extended `ensureInitialized()` to read these during lazy initialization
-  - Entity names: `customapirequestparameter`, `customapiresponseproperty`
-- **Files created**:
-  - `tests/e2e/fixtures/request-parameter.fixture.ts` - Mock request parameters (String, EntityReference, Optional, Managed types)
-  - `tests/e2e/fixtures/response-property.fixture.ts` - Mock response properties (String, EntityCollection, Integer, Managed types)
-  - `tests/e2e/specs/request-parameter.spec.ts` - 6 tests for parameter CRUD
-  - `tests/e2e/specs/response-property.spec.ts` - 6 tests for property CRUD
-- **Test coverage summary**:
-  - List loads when Custom API selected
-  - Empty state display
-  - New button visibility for unmanaged APIs
-  - New button hidden for managed APIs
-  - Create form opens on button click
-  - Delete calls delete API
-- Total E2E tests: 30 passing, 3 skipped (pre-existing)
-
-### 2026-03-02: E2E Testing Phase 4 - GitHub Actions CI Workflow
-- Created `.github/workflows/e2e-tests.yml` for automated E2E testing
-- **Workflow triggers**: Push to `main`, PRs to `main`
-- **CI configuration details**:
-  - Uses `ubuntu-latest` runner with Node.js 20.x
-  - npm caching enabled via `setup-node` action
-  - Only installs Chromium browser (`--with-deps chromium`) to minimize CI time
-  - 15-minute timeout to prevent hung jobs
-  - Artifacts (playwright-report, test-results) uploaded only on failure with 7-day retention
-- **Leverages existing Playwright config**:
-  - `webServer` already configured to run `npm run dev:test` 
-  - `reuseExistingServer: !process.env.CI` ensures fresh server on CI
-  - `retries: 2` on CI for flakiness tolerance
-  - Single worker on CI for stability
-
+### 2026-05-22: React #185 Error Reproduction Analysis - TreeView State Bug
 ### 2026-05-22: React #185 Error Reproduction Analysis - TreeView State Bug
 - **Issue:** React Error #185 (Maximum update depth exceeded) when creating response property after tree view toggle
 - **Reproduction sequence:** Tree View → Create Request Param → Toggle Tree View Back → Create Response Property → Error
@@ -141,7 +82,8 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 - Both RequestParameterDetails and ResponsePropertyDetails mount simultaneously when tree view toggles OFF
 - When tree view toggles ON, both unmount due to !showTreeView condition
 - When create response property fires, both mount again simultaneously
-- This dual-mount race condition + stale esponsePropertyQuery cache + validation logic dependent on query state = React #185
+- This dual-mount race condition + stale 
+esponsePropertyQuery cache + validation logic dependent on query state = React #185
 
 **Repro 2 Root Cause:** TanStack Query cache with staleTime: Infinity persists across unmount/remount
 - ResponsePropertyDetails completely unmounts when tree view toggles ON
@@ -629,3 +571,102 @@ Analysis fed directly into Dallas's initial implementation, which Ripley rejecte
 **Impact:** Lambert's regression checklist and lifecycle analysis enabled Ripley to identify the gap quickly and Kane to implement the targeted fix with focused Playwright coverage.
 
 **Status:** ✅ **ANALYSIS VALIDATED** — Manual-toggle regression case identified; Kane's fix confirmed to address it.
+
+### 2026-03-06: Business Event Selector Filter UX — Regression Test Checklist
+
+**User Request:** "when selecting Business Event in the nav, filter section should be expanded in the business event selector. Selecting a Business event should collapse the filter section"
+
+**Analysis Completed:**
+
+Traced the Business Event selector (CatalogSelector) filter UX pattern through App.tsx navigation flow, component state management, and filter behavior.
+
+**Key Findings:**
+
+1. **Current State:**
+   - CatalogSelector manages Business Events catalog browsing and selection
+   - `filtersExpanded` state initialized to `false` (line 27)
+   - No logic currently monitors nav entry or catalog selection to manage filter expand/collapse
+   - Feature requirement: Auto-expand filters on Business Events nav entry; auto-collapse on catalog selection
+
+2. **Expected Flow:**
+   - **User navigates to Business Events** → CatalogSelector mounts/renders → Filters should auto-expand (`filtersExpanded = true`)
+   - **User selects a Catalog** → `setSelectedCatalogId(id)` fires → Filters should auto-collapse (`filtersExpanded = false`)
+   - **Filter summary displays** → When collapsed with active filters (Solution, Managed state), show badge summary
+   - **Manual override available** → User can click Filters button to re-expand anytime
+
+3. **Existing Pattern Alignment:**
+   - Matches **selector-auto-collapse-on-selection** skill (already used in CustomApiSelector)
+   - Matches **collapsed-filter-summary-parity** skill (filter summary badges already in place)
+   - CatalogSelector already has filter summary logic (lines 31-54)
+   - Active filter count correctly derived: `selectedSolutionId + showCatalogs !== 'all'` (line 57)
+
+4. **Store Integration:**
+   - `selectedCatalogId` in global Zustand store
+   - Selection managed by `setSelectedCatalogId()` (line 117)
+   - No coupling to `filtersExpanded` UI state (which is component-local)
+   - Logging confirms selection events (line 119: `addLog('Catalog selected...')`)
+
+**Regression Test Checklist (5 Scenarios, 21 Test Cases):**
+
+**Scenario 1: Filter Auto-Expand on Business Events Nav Entry**
+- Test 1.1: Filters Start Expanded — Verify `filtersExpanded = true` on nav entry
+- Test 1.2: Filter Summary Hidden While Expanded — Verify badges only show when collapsed
+- Test 1.3: Manual Toggle Still Works — Verify filters can be collapsed by user click
+
+**Scenario 2: Filter Auto-Collapse on Catalog Selection**
+- Test 2.1: Selecting Catalog Collapses Filters — Verify `filtersExpanded = false` after selection
+- Test 2.2: Filter Summary Reflects Selection — Verify all active badges appear when collapsed
+- Test 2.3: User Can Re-Expand After Selection — Verify filter controls remain interactive and state preserved
+
+**Scenario 3: Filter State Changes Preserve Collapse**
+- Test 3.1: Toggle Solution While Collapsed — Verify filters remain collapsed, badge updates
+- Test 3.2: Toggle Managed Filter While Collapsed — Verify filters remain collapsed, badge updates
+- Test 3.3: Clear Solution While Collapsed — Verify filters remain collapsed, badge list updates
+
+**Scenario 4: Unrelated Selector Interactions Don't Regress**
+- Test 4.1: Custom API Selector Doesn't Affect Business Event Filters — Verify state isolation
+- Test 4.2: Clear Selection Preserves Manual Preference — Verify collapsed state stays expanded if user manually expanded
+- Test 4.3: New Selection After Clear Behavior — Verify selection still triggers collapse (not clear action)
+
+**Scenario 5: Edge Cases**
+- Test 5.1: Rapid Catalog Selection Changes — Verify UI remains consistent with rapid clicks
+- Test 5.2: Solution Filter Depends on Selection — Verify filters still interactive even with zero catalog results
+- Test 5.3: Filter Summary Correctness on Empty Catalogs — Verify badge count and content match active controls
+
+**Design Decisions Confirmed:**
+1. **Entry expansion:** Filters expand automatically when Business Events nav item selected
+2. **Selection collapse:** Catalog selection triggers auto-collapse (consistent with CustomApiSelector pattern)
+3. **Manual override:** User can always click Filters button to toggle, overriding auto-behavior
+4. **Clear selection behavior:** Clearing selection does NOT auto-expand (preserve user's manual preference per selector-auto-collapse-on-selection skill Option A)
+5. **Filter change during collapse:** Filter toggles while collapsed do NOT re-expand (only auto-collapse on selection)
+
+**File Location & Implementation Notes:**
+- Test file: `tests/e2e/specs/catalog-selector.spec.ts` (extend existing suite)
+- Mock data: Use existing `mockCatalogs` and `mockSolutions` fixtures
+- Navigation: Use `page.getByRole('button', { name: 'Business Events', exact: true }).click()`
+- Verification: DOM inspection of Filters button chevron (down = expanded, right = collapsed)
+
+**Status:** ✅ Regression checklist produced; UX behavior documented; ready for implementation testing
+
+### 2026-05-25: Business Event Selector Filter Expand/Collapse Behavior — UX Test Planning & Regression Checklist
+- Produced comprehensive UX specification and regression test checklist for Business Event selector filter expand/collapse behavior
+- **5 Scenarios, 13 Test Cases:**
+  1. Filter Auto-Expand on Business Events Nav Entry (3 tests) — Filters start expanded, summary hidden, manual toggle works
+  2. Filter Auto-Collapse on Catalog Selection (3 tests) — Selection collapses filters, summary reflects state, user can re-expand
+  3. Filter State Changes Preserve Collapse (3 tests) — Solution/Managed toggles while collapsed don't re-expand, badges update correctly
+  4. Unrelated Selector Interactions Don't Regress (3 tests) — Custom API selector doesn't interfere, manual preferences preserved, cross-selector isolation
+  5. Edge Cases (3 tests) — Rapid selections, empty filter results, solution-scoped empty states
+- **Test Coverage Details:**
+  - Location: `tests/e2e/specs/catalog-selector.spec.ts`
+  - Mock data: Existing `mockCatalogs`, `mockSolutions` from test fixtures
+  - Verification methods: DOM inspection (chevron direction), badge visibility, filter count regex patterns
+  - DevTools monitoring: Fluent UI button state, badge container visibility, filter count calculations
+- **UX Design Decisions Recorded:**
+  1. Entry expansion: Auto-expand when Business Events nav item selected
+  2. Selection collapse: Catalog selection triggers auto-collapse (consistent with CustomApiSelector pattern)
+  3. Manual override: Always available via Filters button click
+  4. Clear selection behavior: Does NOT re-expand (preserves user's manual preference)
+  5. Filter changes while collapsed: Do NOT trigger re-expand (only selection triggers collapse)
+- **Acceptance Criteria:** All 5 scenarios pass, no regressions in other selectors, filter toggle responsive, badge summaries accurate, state deterministic
+- **Status:** ✅ Test specification complete; regression checklist ready for QA execution
+

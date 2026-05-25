@@ -415,3 +415,44 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 **Implementation Fix Required:**
 - Collapse trigger should account for `editingComponent === 'customapi'` in addition to truthy `selectedCustomApiId`
 **Decision:** ✅ **QA REPORT RECORDED** — Implementation gap identified, fix guidance provided.
+
+---
+
+### 2026-05-25: Business Event Selector Filter Expand/Collapse Behavior
+**By:** Dallas (Frontend Dev)  
+**What:** Implemented auto-expand of `CatalogSelector` filters when the Business Events nav item becomes active, and auto-collapse when a catalog is selected.
+**Why:** Users should land in browse/filter mode when entering Business Events navigation. Once a catalog is selected, the focus shifts to details viewing, so the filter panel collapses to reclaim space. Preserves manual filter toggling after both auto-expand and auto-collapse behaviors.
+**Implementation Details:**
+- Added `useEffect` in `src/components/CatalogSelector.tsx` to expand filters when Business Events nav item becomes active
+- Auto-collapse filters only when `selectedCatalogId` changes to a new non-null value, preserving nav-entry expansion even if Zustand has an older catalog selected
+- Manual filter toggle state survives both auto-expand and auto-collapse
+**Files Modified:**
+- `src/components/CatalogSelector.tsx`
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Targeted E2E catalog selector tests passed
+**Decision:** ✅ **DECISION RECORDED** — Feature implemented and ready for regression testing.
+
+---
+
+### 2026-05-25: Business Event Selector Filter UX — Regression Test Checklist
+**By:** Lambert (Tester)  
+**What:** Produced comprehensive UX specification and regression test checklist for Business Event selector filter expand/collapse behavior.
+**Scope (5 scenarios, 13 test cases):**
+1. **Filter Auto-Expand on Business Events Nav Entry** (3 tests) - Filters start expanded, summary hidden, manual toggle works
+2. **Filter Auto-Collapse on Catalog Selection** (3 tests) - Selection collapses filters, summary reflects state, user can re-expand
+3. **Filter State Changes Preserve Collapse** (3 tests) - Solution/Managed toggles while collapsed don't re-expand, badges update
+4. **Unrelated Selector Interactions Don't Regress** (3 tests) - Custom API selector doesn't affect Business Event filters, manual preferences preserved
+5. **Edge Cases** (3 tests) - Rapid selections, empty filters, solution-scoped empty states
+**Test Implementation Notes:**
+- Location: `tests/e2e/specs/catalog-selector.spec.ts`
+- Mock data: Use existing `mockCatalogs`, `mockSolutions` from test fixtures
+- Verification: DOM inspection (chevron direction), badge visibility, filter count regex matching
+**Acceptance Criteria:**
+- ✅ All 5 scenarios pass
+- ✅ No regressions in Custom API or other selector behaviors
+- ✅ Filter toggle always responds to manual clicks
+- ✅ Badge summary correctly reflects all active controls
+- ✅ Collapse/expand state is deterministic (no thrashing)
+**Decision:** ✅ **TEST SPECIFICATION APPROVED** — Ready for QA validation.
+

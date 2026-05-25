@@ -42,6 +42,28 @@ useEffect(() => {
 }, [selectedCustomApiId, editingComponent])
 ```
 
+### Nav Entry Can Intentionally Re-Expand Filters
+If a selector is behind a dedicated nav destination, entering that nav section can intentionally reset the card into browsing mode by expanding filters. Pair that with selection-change detection so persisted Zustand selection does not immediately undo the nav-entry expansion on mount.
+
+```tsx
+const { selectedCatalogId, selectedNavItem } = useAppStore()
+const previousSelectedCatalogId = useRef<string | null>(selectedCatalogId)
+
+useEffect(() => {
+  if (selectedNavItem === 'businessevent') {
+    setFiltersExpanded(true)
+  }
+}, [selectedNavItem])
+
+useEffect(() => {
+  if (selectedCatalogId && selectedCatalogId !== previousSelectedCatalogId.current) {
+    setFiltersExpanded(false)
+  }
+
+  previousSelectedCatalogId.current = selectedCatalogId
+}, [selectedCatalogId])
+```
+
 ### Manual Override Preserved
 Even after auto-collapse, the user can manually re-expand the filters via the existing toggle button. The auto-collapse should NOT prevent manual interaction—it should be a default convenience, not a lock.
 
@@ -168,11 +190,12 @@ useEffect(() => {
 
 ### E2E Regression Tests
 1. **Selection triggers collapse:** Select API → verify `filtersExpanded = false`
-2. **Create entry also collapses:** Click `New Custom API` → verify filters collapse and create form appears
-3. **Filter summary displays:** Select API with active filters → verify badges shown
-4. **Manual override works:** Select API (collapsed) → click Filters → verify `filtersExpanded = true`
-5. **Filter changes preserve collapse:** Select API, collapse, toggle filter → verify stays collapsed, summary updates
-6. **Clear selection state preserved:** Select API, collapse, clear selection → verify collapse state unchanged (or auto-expand per design decision)
+2. **Nav entry expands filters:** Enter the feature from navigation → verify the full filter controls are visible before any selection
+3. **Create entry also collapses:** Click `New Custom API` → verify filters collapse and create form appears
+4. **Filter summary displays:** Select API with active filters → verify badges shown
+5. **Manual override works:** Select API (collapsed) → click Filters → verify `filtersExpanded = true`
+6. **Filter changes preserve collapse:** Select API, collapse, toggle filter → verify stays collapsed, summary updates
+7. **Clear selection state preserved:** Select API, collapse, clear selection → verify collapse state unchanged (or auto-expand per design decision)
 
 ### Regression Against Auto-Collapse
 - ✅ Component still mounts/renders without auto-collapse logic (graceful fallback)
