@@ -36,25 +36,13 @@ export const useCatalogs = () => {
   }
 }
 
-// Hook for fetching root catalogs (no parent) for a solution
+// Hook for fetching root catalogs (those without a parent)
 export const useRootCatalogs = () => {
-  const { connection, isLoadingConnection, instanceId, selectedSolutionId } = useAppStore();
-
-  const { data, status, error, isFetching, refetch } = useQuery<Catalog[], Error>({
-    queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, selectedSolutionId ?? ''),
-    queryFn: async () => {
-      if (!selectedSolutionId) {
-        return [];
-      }
-      return await catalogService.fetchRootCatalogs(selectedSolutionId);
-    },
-    enabled: !!connection && !isLoadingConnection && !!selectedSolutionId,
-    staleTime: Infinity
-  });
+  const {catalogs, status, error, isFetching} = useCatalogs()
 
   return {
-    rootCatalogs: data || [],
-    status, error, isFetching, refetch
+    rootCatalogs: catalogs.filter(c => !c._parentcatalogid_value) || [],
+    status, error, isFetching
   };
 };
 

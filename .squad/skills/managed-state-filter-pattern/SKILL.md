@@ -10,6 +10,34 @@ A reusable UI pattern for filtering entities by managed/unmanaged state using Ma
 const [showEntityType, setShowEntityType] = useState<ManagedStateFilter>('all')
 ```
 
+### 1a. Settings-Driven Initial Value
+When the initial managed-state filter should come from app settings, initialize with the default, then hydrate from settings once they load. Stop syncing after the user manually changes that filter so their in-session choice wins.
+
+```typescript
+const { connection } = useAppStore()
+const { appsettings } = useAppSettings()
+const [showEntityType, setShowEntityType] = useState<ManagedStateFilter>(DEFAULT_SETTINGS.customApiSelectionInit)
+const entityFilterWasChangedRef = useRef(false)
+
+useEffect(() => {
+  entityFilterWasChangedRef.current = false
+  setShowEntityType(DEFAULT_SETTINGS.customApiSelectionInit)
+}, [connection?.id])
+
+useEffect(() => {
+  if (entityFilterWasChangedRef.current) {
+    return
+  }
+
+  setShowEntityType(appsettings?.customApiSelectionInit ?? DEFAULT_SETTINGS.customApiSelectionInit)
+}, [appsettings?.customApiSelectionInit, connection?.id])
+
+const handleShowEntityTypeChange = (value: ManagedStateFilter) => {
+  entityFilterWasChangedRef.current = true
+  setShowEntityType(value)
+}
+```
+
 ### 2. Filter Logic
 ```typescript
 const filteredEntities = entitiesQuery.entities?.filter(e =>
@@ -80,7 +108,7 @@ const filterSummary = useMemo(() => {
   }>
     <ManagedStateToggle 
       value={showEntityType} 
-      onChange={setShowEntityType} 
+      onChange={handleShowEntityTypeChange}
     />
   </Field>
 </div>
@@ -122,6 +150,8 @@ items={filteredEntities
 
 ## Testing Checklist
 - [ ] Default state is `'all'`
+- [ ] Settings-provided initial value applies after async settings load
+- [ ] Manual filter changes are not overwritten by later settings/query updates
 - [ ] Toggle buttons show primary appearance when selected
 - [ ] Filter updates picker items immediately
 - [ ] Active filter count increments correctly

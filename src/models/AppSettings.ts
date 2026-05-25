@@ -1,10 +1,14 @@
+export type SelectionInitSetting = 'all' | 'unmanaged' | 'managed';
+
 export interface AppSettings  {
     // User defaults
     defaultPublisherId: string | null;  
     requestParameterDefaultName: string | null;
     responsePropertyDefaultName: string | null;
-  showDebug: boolean;
-  showCustomApiDetailsTreeView: boolean;
+    customApiSelectionInit: SelectionInitSetting;
+    businessEventSelectionInit: SelectionInitSetting;
+    showDebug: boolean;
+    showCustomApiDetailsTreeView: boolean;
 
 };
 
@@ -12,6 +16,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   defaultPublisherId: null,
   requestParameterDefaultName: '{customapiname}-In-{uniquename}',
   responsePropertyDefaultName: '{customapiname}-Out-{uniquename}',
+  customApiSelectionInit: 'all',
+  businessEventSelectionInit: 'all',
   showDebug: false,
   showCustomApiDetailsTreeView: false,
 };
@@ -36,10 +42,17 @@ const getScopedValue = <K extends keyof AppSettings>(
 
 // Utility: convert arbitrary record to strongly-typed Settings, applying defaults
 export function mapRecordToSettings(record: Record<string, any>, connectionId:string): AppSettings {
+    const parseSelectionInit = (value: unknown, fallback: SelectionInitSetting): SelectionInitSetting =>
+      value === 'managed' || value === 'unmanaged' || value === 'all'
+        ? value
+        : fallback;
+
     return {
         defaultPublisherId: getScopedValue(record, 'defaultPublisherId', connectionId) ?? DEFAULT_SETTINGS.defaultPublisherId,
         requestParameterDefaultName: record.requestParameterDefaultName ?? DEFAULT_SETTINGS.requestParameterDefaultName,
         responsePropertyDefaultName: record.responsePropertyDefaultName ??  DEFAULT_SETTINGS.responsePropertyDefaultName,
+        customApiSelectionInit: parseSelectionInit(record.customApiSelectionInit, DEFAULT_SETTINGS.customApiSelectionInit),
+        businessEventSelectionInit: parseSelectionInit(record.businessEventSelectionInit, DEFAULT_SETTINGS.businessEventSelectionInit),
         showDebug: typeof record.showDebug === 'boolean'
           ? record.showDebug
           : record.showDebug === 'true'
@@ -71,4 +84,3 @@ export async function updateSetting<K extends keyof AppSettings>(
   await window.toolboxAPI.settings.set(keyStr, value);
   
 }
-

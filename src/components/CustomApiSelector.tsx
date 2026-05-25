@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { 
     Field, 
     Card,
@@ -17,27 +17,49 @@ import { useCustomApis } from '../hooks/useCustomApis'
 import { LockClosedRegular, LockOpenRegular, ChevronRightRegular, FilterFilled, MathFormulaRegular, MathFormulaFilled, FlashFlowRegular, FlashFlowFilled } from '@fluentui/react-icons'
 import { useCatalogAssignements } from '../hooks/useCatalogAssignments'
 import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
+import { useAppSettings } from '../hooks/useAppSettings'
+import { DEFAULT_SETTINGS } from '../models/AppSettings'
 
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { addLog, setSelectedSolutionId, setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
+    const { connection, addLog, setSelectedSolutionId, setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     const catalogAssignmentsQuery = useCatalogAssignements()
+    const { appsettings } = useAppSettings()
     const isLocked = editingComponent !== 'none';
     
     const [filtersExpanded, setFiltersExpanded] = useState(true)
-    const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>('all')
+    const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>(DEFAULT_SETTINGS.customApiSelectionInit)
     const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
     const [showPowerFxOnly, setShowPowerFxOnly] = useState(false)
     const [showBusinessEventsOnly, setShowBusinessEventsOnly] = useState(false)
+    const customApiFilterWasChangedRef = useRef(false)
 
     useEffect(() => {
-        if (selectedCustomApiId) {
+        if (selectedCustomApiId || editingComponent === 'customapi') {
             setFiltersExpanded(false)
         }
-    }, [selectedCustomApiId])
+    }, [selectedCustomApiId, editingComponent])
+
+    useEffect(() => {
+        customApiFilterWasChangedRef.current = false
+        setShowCustomApis(DEFAULT_SETTINGS.customApiSelectionInit)
+    }, [connection?.id])
+
+    useEffect(() => {
+        if (customApiFilterWasChangedRef.current) {
+            return
+        }
+
+        setShowCustomApis(appsettings?.customApiSelectionInit ?? DEFAULT_SETTINGS.customApiSelectionInit)
+    }, [appsettings?.customApiSelectionInit, connection?.id])
+
+    const handleShowCustomApisChange = (value: ManagedStateFilter) => {
+        customApiFilterWasChangedRef.current = true
+        setShowCustomApis(value)
+    }
 
     // Create Set of Custom API IDs that are Business Events (have a CatalogAssignment)
     const businessEventCustomApiIds = new Set(
@@ -253,7 +275,7 @@ export const CustomApiSelector: React.FC = () => {
                                     <div className={styles.flexColumn} style={{ alignItems: 'flex-start' }}>
                                         <ManagedStateToggle 
                                             value={showCustomApis} 
-                                            onChange={setShowCustomApis} 
+                                            onChange={handleShowCustomApisChange}
                                         />
                                         <div className={styles.flexRow} style={{ gap: '8px' }}>
                                             <ToggleButton

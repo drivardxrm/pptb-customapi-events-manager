@@ -31,6 +31,17 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 - Scenario 3: Filter State Changes Preserve Collapse (3 tests)
 - Scenario 4: Unrelated Selector Interactions Don't Regress (3 tests)
 - Scenario 5: Edge Cases (3 tests)
-- Test location: 	ests/e2e/specs/catalog-selector.spec.ts
+- Test location: tests/e2e/specs/catalog-selector.spec.ts
 - Acceptance criteria: All scenarios pass, no regressions, filter toggle responsive, badges accurate, state deterministic
 - Status: ✅ Test specification complete and ready for QA validation
+
+### Selector Init Settings — UX/State Behavior Analysis & Regression Checklist
+- Traced two new app settings: `customapiSelectionInit` and `businessEventSelectionInit` (both all/unmanaged/managed, defaults 'all')
+- Key architectural insight: Settings drive INITIAL filter state on mount; manual session changes are ephemeral (don't persist to settings)
+- Identified initialization chain: AppSettings query → CustomApiSelector mount → useEffect applies init setting to useState
+- Critical design question answered: Business Event filter semantic mapping options (A: 'all'/'managed'/'unmanaged', B: boolean, C: reuse toggle + conditional)
+- Comprehensive regression checklist: 10 phases, 80+ checkpoints covering defaults, form behavior, initialization, manual changes, persistence, edge cases, integration
+- State flow validation: First load defaults → settings form saves value → next load applies setting → manual change resets on reload
+- Cross-selector impact analysis: Solution toggle remains contextual (per 2026-05-21 decision); Business Event and Custom API filters independent
+- Document location: .squad/decisions/inbox/lambert-selector-init-settings.md
+- Status: ✅ Analysis complete, 80+ checkpoints ready for implementation validation

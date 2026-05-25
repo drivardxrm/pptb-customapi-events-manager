@@ -131,6 +131,10 @@ function createToolboxAPIMock(): ToolboxAPIMock {
       toolContext.connectionUrl = conn.url;
       toolContext.connectionId = conn.id;
     }
+
+    if (typeof window !== 'undefined' && window.__E2E_TEST_DATA__?.settings) {
+      settings = window.__E2E_TEST_DATA__.settings;
+    }
   };
 
   const mock: ToolboxAPIMock = {

@@ -30,20 +30,23 @@ async function setupTestData(
   options: {
     customApis?: { value: unknown[] };
     createResult?: { id: string };
+    settings?: Record<string, unknown>;
   } = {}
 ) {
   const apis = options.customApis ?? mockCustomApis;
   const createRes = options.createResult ?? createCustomApiResult;
+  const settings = options.settings ?? {};
 
   // Set up test data BEFORE the page loads - mocks will read this during initialization
   await page.addInitScript(
-    ({ connection, solutions, customApis, createResult }) => {
+    ({ connection, solutions, customApis, createResult, settings }) => {
       // This runs before any other scripts, including test-main.tsx
       window.__E2E_TEST_DATA__ = {
         connection: connection,
         solutions: solutions,
         customApis: customApis,
         createResult: createResult,
+        settings: settings,
       };
       console.log('[E2E Test] Pre-configured test data set on window.__E2E_TEST_DATA__');
     },
@@ -52,6 +55,7 @@ async function setupTestData(
       solutions: mockSolutions.value,
       customApis: apis,
       createResult: createRes,
+      settings: settings,
     }
   );
 }
@@ -147,6 +151,29 @@ test.describe('Custom API CRUD Operations', () => {
       await expect(comboboxes).toHaveCount(1);
     });
 
+    test('uses the Custom API selection init setting for the initial managed-state filter', async ({ page }) => {
+      await setupTestData(page, {
+        settings: {
+          customApiSelectionInit: 'managed',
+        },
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      const customApiSelectorCard = page.locator('.fui-Card').filter({ hasText: 'Selected Custom API' });
+      const filtersToggle = customApiSelectorCard.getByRole('button', { name: /^Filters/ });
+
+      await expect(filtersToggle).toHaveText(/Filters \(1\)/);
+
+      await appPage.customApiPicker.click();
+
+      const managedOption = page.locator('[role="option"]').filter({ hasText: mockManagedCustomApi.uniquename });
+      const unmanagedOption = page.locator('[role="option"]').filter({ hasText: mockGlobalCustomApi.uniquename });
+
+      await expect(managedOption).toBeVisible();
+      await expect(unmanagedOption).toHaveCount(0);
+    });
+
     test('shows Edit and Delete buttons for unmanaged Custom APIs', async ({ page }) => {
       await setupTestData(page);
       await appPage.goto();
@@ -211,6 +238,22 @@ test.describe('Custom API CRUD Operations', () => {
       // Should show create mode indicator
       const createTitle = page.getByText('Create Custom API');
       await expect(createTitle).toBeVisible();
+    });
+
+    test('clicking New Custom API collapses the filter section', async ({ page }) => {
+      await setupTestData(page);
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      const customApiSelectorCard = page.locator('.fui-Card').filter({ hasText: 'Selected Custom API' });
+      const comboboxes = customApiSelectorCard.locator('[role="combobox"]');
+
+      await expect(comboboxes).toHaveCount(2);
+
+      await appPage.clickNewCustomApi();
+
+      await expect(comboboxes).toHaveCount(1);
+      await expect(page.getByText('Create Custom API')).toBeVisible();
     });
 
     test('Cancel button exits create mode without saving', async ({ page }) => {

@@ -40,25 +40,7 @@ export class CatalogService extends EntityService {
         return typed.value;
     }
 
-    async fetchRootCatalogs(solutionid: string): Promise<Catalog[]> {
-        const result = await window.dataverseAPI.fetchXmlQuery(`
-            <fetch>
-                <entity name='${this.entityName}'>
-                    <filter>
-                        <condition attribute='parentcatalogid' operator='null' />
-                    </filter>
-                    <link-entity name='solutioncomponent' from='objectid' to='${this.entityName}id' link-type='inner' alias='sc'>
-                    <filter>
-                        <condition attribute='solutionid' operator='eq' value='${solutionid}' />
-                    </filter>
-                    </link-entity>
-                </entity>
-            </fetch>
-        `);
-        const typed = result as unknown as { value: Catalog[] };
-        return typed.value;
-    }
-
+   
     async fetchCategoryChildren(parentCatalogId: string): Promise<Catalog[]> {
         const result = await window.dataverseAPI.fetchXmlQuery(`
             <fetch>

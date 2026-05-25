@@ -18,6 +18,7 @@ interface E2ETestData {
   customApis?: { value: Record<string, unknown>[] };
   createResult?: { id: string };
   connection?: E2ETestDataConnection;
+  settings?: Record<string, unknown>;
 }
 
 declare global {

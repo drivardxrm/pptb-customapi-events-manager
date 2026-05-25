@@ -143,11 +143,7 @@ export const CustomApiDetails: React.FC = () => {
                 action: {
                     label: 'New Custom API',
                     icon: <AddCircleColor />,
-                    onClick: () => {
-                        setSelectedCustomApiId(null);
-                        setCreateData(DEFAULT_CREATE_TEMPLATE);
-                        setMode('create');
-                    },
+                    onClick: handleCreate,
                 },
             });
         } else {

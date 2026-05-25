@@ -31,3 +31,8 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Preserves manual filter toggle behavior after both auto-expand and auto-collapse
 - Added E2E coverage for nav-entry expansion, managed filtering, selection-collapse
 - Validation: ✅ build passed, ✅ targeted E2E tests passed
+
+### Selector Init Settings
+- Managed-state filters can hydrate from app settings after async settings load, but should stop auto-syncing once the user manually changes that filter
+- Reusing `ManagedStateToggle` in SettingsForm keeps selector behavior and labels aligned with the live filter controls
+- Added focused E2E coverage proving settings-driven initial managed filters for both Custom APIs and Business Events
