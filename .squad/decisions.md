@@ -456,3 +456,98 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 - ✅ Collapse/expand state is deterministic (no thrashing)
 **Decision:** ✅ **TEST SPECIFICATION APPROVED** — Ready for QA validation.
 
+---
+
+### 2026-05-29: About Section Removal
+**By:** Dallas (Frontend Dev)  
+**What:** Removed the About section end-to-end from navigation and app, including nav item entry, render branch, dedicated component file, and page-only styles.
+**Why:** Keeps the nav model, rendered content switch, dedicated component file, and page-only styles aligned so the app has no dead About wiring to maintain. Avoids dead-code branches by fully removing all About references.
+**Implementation:**
+- Removed 'about' from `NavSection` type union in `App.tsx`
+- Removed About nav item from `navItems` array
+- Removed `case 'about':` from `renderContent()` switch statement
+- Removed About component import
+- Deleted `src/components/About.tsx` file
+- Removed 6 unused About-only style definitions from `src/styles/Styles.ts`
+- Added fallback logic: if `selectedNavItem === 'about'`, redirect to 'customapi' on mount
+**Files Changed:**
+- `src/components/App.tsx` (modified)
+- `src/components/About.tsx` (deleted)
+- `src/styles/Styles.ts` (modified)
+- `tests/e2e/specs/smoke.spec.ts` (modified)
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Targeted smoke E2E tests passed (nav rendering, content switch, state fallback)
+- ✅ No TypeScript compilation errors
+**Decision:** ✅ **APPROVED** — About section fully removed; stale nav fallback handled; ready for merge.
+
+---
+
+### 2026-05-29: About Section Removal — Regression Test Specification
+**By:** Lambert (Tester)  
+**What:** Produced comprehensive regression checklist for About section removal, covering 4 scenarios with 12 test cases.
+**Scope:**
+1. **Navigation Rendering** (3 tests) — Nav drawer renders 6 items, About absent, no visual gaps
+2. **Navigation Click & Selection** (3 tests) — Clicking nav items updates state correctly, tab order correct, keyboard navigation works
+3. **Content Rendering** (3 tests) — Switching between sections renders expected components, no console errors, message bar renders correctly
+4. **Edge Cases & State Fallback** (3 tests) — Stale 'about' selection redirects to 'customapi', theme switcher works, hamburger collapse works
+**Additional Checks:**
+- Build & Compile Checks (3 checkpoints) — TypeScript compilation, Vite build, no unused imports
+- Smoke Test Validation (3 checkpoints) — App loads without errors, FluentUI provider active, no 404s
+**Acceptance Criteria:**
+- ✅ All 12 regression test cases pass
+- ✅ TypeScript compiles cleanly
+- ✅ About file and styles removed, no orphaned references
+- ✅ Existing E2E tests still pass
+- ✅ No console errors or visual regressions
+**Decision:** ✅ **REGRESSION CHECKLIST RECORDED** — Ready for QA validation.
+
+---
+
+### 2026-05-29: Selector Init Settings — Feature Decision
+**By:** Dallas (Frontend Dev)  
+**What:** Added `customApiSelectionInit` and `businessEventSelectionInit` as app-level settings with default value `'all'`.
+**Why:** Allow users to persist their preferred managed-state filter defaults (all, managed, unmanaged) for Custom API and Business Event selectors across sessions.
+**Implementation:**
+- Added both settings to `AppSettings` interface with `ManagedStateFilter` type ('all' | 'unmanaged' | 'managed')
+- Reused `ManagedStateToggle` in `SettingsForm` so settings UI matches live selector control exactly
+- Added `useEffect` in `CustomApiSelector` to initialize `showCustomApis` from `appSettings.customapiSelectionInit` on mount
+- Added similar init logic for Business Event filter (`showBusinessEventsOnly`)
+- Manual session-level filter changes are ephemeral (don't persist to settings)
+**Files Changed:**
+- `src/models/AppSettings.ts` (models updated)
+- `src/components/settingsForm/SettingsForm.tsx` (UI added)
+- `src/components/CustomApiSelector.tsx` (init effect added)
+- `src/components/CatalogSelector.tsx` (init effect added)
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Focused E2E tests for init settings passed
+- ✅ Settings persist across reload
+- ✅ Manual session changes reset on reload
+**Decision:** ✅ **APPROVED** — Selector init settings feature complete; settings drive only initial state on mount; session changes remain ephemeral.
+
+---
+
+### 2026-05-29: Selector Init Settings — UX/State Behavior Analysis
+**By:** Lambert (Tester)  
+**What:** Produced detailed UX specification and comprehensive regression checklist for selector init settings feature (10 phases, 80+ checkpoints).
+**Coverage Areas:**
+1. **AppSettings Model & Persistence** (6 checkpoints) — Interface includes new settings, defaults provided, persistence verified
+2. **Settings Form Integration** (11 checkpoints) — Form renders new fields, uses ManagedStateToggle, values load correctly, Save/Reset work
+3. **CustomApiSelector Initialization** (6 checkpoints) — Component reads appSettings on mount, applies init values, handles errors/undefined
+4. **Filter Default Values (First Load)** (6 test cases) — Default 'all' behavior, 'managed' behavior, 'unmanaged' behavior
+5. **Manual Filter Changes (Session Persistence)** (6 test cases) — Changes update UI, don't write to settings, reset on reload
+6. **Business Event Filter Init Behavior** (2 test cases) — Semantic mapping of 'all'/'managed' to boolean `showBusinessEventsOnly`
+7. **Settings Form Changes & Persistence** (3 test cases) — Change and save, verify new init takes effect, reset changes
+8. **Edge Cases & Boundary Conditions** (4 test cases) — Settings load error, partial settings, rapid toggles, combined filter init + manual change
+9. **Cross-Selector Integration** (2 test cases) — Filter independence, solution filter remains contextual
+10. **Regression Baseline (No Regressions)** (6 checkpoints) — Existing selector behavior unchanged, no console errors, build succeeds, E2E tests pass
+**Acceptance Criteria:**
+- ✅ All 80+ regression checkpoints pass
+- ✅ No new console errors or React warnings
+- ✅ `npm run build` succeeds
+- ✅ Existing E2E tests pass
+- ✅ Settings persist across reload
+- ✅ Manual session changes reset on reload
+**Decision:** ✅ **REGRESSION CHECKLIST RECORDED** — 80+ checkpoints ready for implementation validation.
+

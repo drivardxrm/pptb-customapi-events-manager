@@ -45,3 +45,31 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 - Cross-selector impact analysis: Solution toggle remains contextual (per 2026-05-21 decision); Business Event and Custom API filters independent
 - Document location: .squad/decisions/inbox/lambert-selector-init-settings.md
 - Status: ✅ Analysis complete, 80+ checkpoints ready for implementation validation
+
+## Learnings (Session: 2026-05-29)
+
+### About Section Removal — UX Regression Checklist & Removal Scope Analysis
+- Traced About section across 3 files: App.tsx (import + NavSection type + navItems + renderContent), About.tsx (component), Styles.ts (6 style classes)
+- No e2e tests reference About section; no integration dependencies found
+- Expected UX after removal: 6 nav items (Custom APIs, Tester, Events, Settings, Logs, Debug); About icon/label absent
+- Key risk identified: State fallback if user's selectedNavItem='about' persists in store; handled by useEffect redirect to 'customapi'
+- Comprehensive regression checklist: 4 scenarios, 12 test cases covering nav rendering, selection behavior, content rendering, edge cases
+- Removal scope: NavSection type union update, navItems filter, renderContent switch case removal, import deletion, 6 style definitions cleanup
+- Document location: .squad/decisions/inbox/lambert-about-removal-regression.md
+- Status: ✅ UX impact traced, regression checklist complete and ready for implementation validation
+
+### Selector Init Settings — UX/State Behavior Analysis & Regression Checklist (Session: 2026-05-29)
+- Selector init settings feature completed with validation (customApiSelectionInit, businessEventSelectionInit)
+- Settings-driven initialization confirmed working: AppSettings loads → CustomApiSelector/CatalogSelector mount → init effect applies persisted setting
+- Session-level manual changes confirmed ephemeral: Users can change filters in-session, but reload resets to settings default
+- Cross-selector integration verified: Business Event filter init independent from Custom API filter init
+- Solution toggle confirmed remaining contextual (per 2026-05-21 decision): doesn't count toward active filter badge
+- 80+ regression checkpoints documented across 10 phases: defaults, form behavior, persistence, manual changes, edge cases, cross-selector integration
+- Test acceptance criteria: All phases pass, no console errors, existing E2E tests pass, settings persist
+- Status: ✅ Regression checklist complete and ready for implementation validation
+
+## Team Updates (Session: 2026-05-29)
+
+**Orchestration Log:** 2026-05-25T23-40-24Z-lambert.md  
+**Scope:** About section removal sprint + selector init settings test planning  
+**Status:** ✅ Complete — Regression checklists delivered for both About removal (12 test cases) and selector init settings (80+ checkpoints)

@@ -36,3 +36,23 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Managed-state filters can hydrate from app settings after async settings load, but should stop auto-syncing once the user manually changes that filter
 - Reusing `ManagedStateToggle` in SettingsForm keeps selector behavior and labels aligned with the live filter controls
 - Added focused E2E coverage proving settings-driven initial managed filters for both Custom APIs and Business Events
+
+### About Section Removal
+- Removing a nav section should include its nav item entry, render switch branch, dedicated view component, and any page-only styles to avoid dead UI wiring
+- A focused smoke regression can verify removed sections stay absent from the rendered nav without affecting remaining navigation
+- Validation: baseline build passed; updated build and targeted smoke E2E validation should be rerun after the change
+- **Completed (2026-05-29):** Fully removed About section end-to-end (nav item, render branch, component file, styles); added fallback redirect for stale 'about' selectedNavItem; build and targeted E2E tests passed
+
+### Selector Init Settings Implementation
+- Added `customApiSelectionInit` and `businessEventSelectionInit` app-level settings (ManagedStateFilter type, default 'all')
+- Reused `ManagedStateToggle` in SettingsForm to keep UI consistent with live selector controls
+- Settings drive initial filter state on mount only; manual session changes are ephemeral and reset on reload
+- Added useEffect in CustomApiSelector and CatalogSelector to initialize from appSettings on component mount
+- Business Event init uses semantic mapping: 'all' → `showBusinessEventsOnly=false`, 'managed'/'unmanaged' → `showBusinessEventsOnly=true`
+- Validation: build passed, E2E coverage for init behavior passed, settings persist across reload
+
+## Team Updates (Session: 2026-05-29)
+
+**Orchestration Log:** 2026-05-25T23-40-24Z-dallas.md  
+**Scope:** About section removal sprint  
+**Status:** ✅ Complete — All about-section removal work delivered, validated with build and E2E
