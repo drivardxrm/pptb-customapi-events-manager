@@ -14,6 +14,7 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Connection state in Zustand store includes `connection.url` for building OData URLs
 - OData URL format for Custom APIs: Global vs Bound (Entity/EntityCollection), Action vs Function
 - Utility functions placed in `src/utils/` - created `odataUrl.ts` for URL building logic
+- Selecting a Custom API in `CustomApiSelector.tsx` should auto-collapse the sibling Filters section to reclaim space, but clearing selection should not force a re-expand
 
 ### 2026-03-01: Cross-Agent Update from Ripley Review
 - Component structure validation complete

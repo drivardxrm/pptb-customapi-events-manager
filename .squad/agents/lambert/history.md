@@ -208,6 +208,76 @@ Joined the PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 
 **Status:** ✅ Regression checklist complete; ready for Dallas to execute implementation
 
+### 2026-02-28: Custom API Selector Filter Collapse Flow Analysis
+
+**User Request:** "when a custom api is selected in the custom api selector, the filter section should colapse to allow more real estate"
+
+**Trace & Analysis Completed:**
+
+Analyzed CustomApiSelector.tsx, useAppStore.ts, and CatalogSelector.tsx to trace the expected selection-to-collapse behavior.
+
+**Key Findings:**
+
+1. **Current State:**
+   - `filtersExpanded` local state initialized to `true` (line 30 in CustomApiSelector)
+   - Manual toggle button exists (line 165: `onClick={() => setFiltersExpanded(!filtersExpanded)}`)
+   - No logic currently monitors `selectedCustomApiId` to auto-collapse filters
+   - Feature requirement: Auto-collapse filters when Custom API selected to free vertical space
+
+2. **Expected Flow:**
+   - **User selects Custom API** → `setSelectedCustomApiId(id)` fires (line 144)
+   - **Filters should auto-collapse** → `setFiltersExpanded(false)` should trigger (NOT IMPLEMENTED)
+   - **Details card gains space** → User sees full Custom API details without filter clutter
+   - **Filter summary displays** → If active filters exist (Solution, PowerFx, etc.), show badge summary when collapsed
+   - **Manual override available** → User can click Filters button to re-expand anytime
+
+3. **Store Integration:**
+   - `selectedCustomApiId` in global Zustand store (line 39 in useAppStore)
+   - Selection managed by `setSelectedCustomApiId()` (line 170)
+   - No coupling to `filtersExpanded` UI state (which is component-local)
+   - Logging confirms selection events (line 146: `addLog('Custom API selected...')`)
+
+4. **Existing Pattern:**
+   - CatalogSelector.tsx shows similar structure with `filtersExpanded` local state
+   - Already uses filter summary badges (lines 58-101 in CustomApiSelector)
+   - Badges are conditionally rendered when collapsed AND `filterSummary.length > 0`
+
+**Regression Checklist (16 Test Cases, 3 Priorities):**
+
+**CRITICAL (1 case):**
+- RC-1.1: Selecting Custom API auto-collapses filter section
+
+**HIGH (6 cases):**
+- RC-1.2: Filter summary displays correctly when collapsed after selection
+- RC-1.3: User can manually expand filters after auto-collapse
+- RC-3.1: Changing Custom API selection keeps filters collapsed
+- RC-5.1: Filter changes while API selected preserve collapse state
+- RC-5.2: Solution selection while API selected preserves collapse
+
+**MEDIUM (7 cases):**
+- RC-2.1: Clearing Custom API selection restores previous filter state
+- RC-2.2: Clearing selection returns to initial expanded state or stays collapsed (spec TBD)
+- RC-4.1, RC-4.2, RC-4.3: Non-selection filter operations (PowerFx, Solution, Managed) do NOT collapse filters when no API selected
+- RC-5.3: Combined scenario — manual expand, filter change, then select API triggers collapse
+- RC-6.1: Editing lock state does not prevent filter collapse
+
+**LOW (2 cases):**
+- RC-3.2: Selection changes produce correct console logs
+- RC-6.2, RC-6.3: Edge cases (empty list, loading state) remain stable
+
+**Design Decisions to Clarify:**
+1. **Clear selection behavior:** Should filters auto-expand when user clears selection? (Default: restore prior manual state)
+2. **Filter change during collapse:** If user toggles filter while API selected, stay collapsed or auto-expand? (Default: stay collapsed, filter summary updates)
+3. **Managed state toggle:** Does toggling Managed/Unmanaged while API selected trigger expand? (Default: no, stays collapsed)
+
+**Files Referenced:**
+- `src/components/CustomApiSelector.tsx` - Main selector component
+- `src/store/useAppStore.ts` - Global state (selectedCustomApiId)
+- `tests/e2e/specs/custom-api.spec.ts` - Current E2E tests (no collapse behavior tests)
+- `.squad/skills/collapsed-filter-summary-parity/SKILL.md` - Existing pattern for collapsed summaries
+
+**Status:** ✅ Analysis complete; regression checklist produced; feature ready for implementation
+
 ### 2026-05-24T22:11:53Z: TreeView Edit Action Implementation — Complete & Approved
 
 **Scope:** Edit actions for unmanaged request parameters and response properties in CustomApiTreeView, plus comprehensive regression validation

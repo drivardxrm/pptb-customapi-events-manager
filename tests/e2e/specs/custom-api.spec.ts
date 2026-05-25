@@ -132,6 +132,21 @@ test.describe('Custom API CRUD Operations', () => {
       await expect(displayNameText).toBeVisible({ timeout: 5000 });
     });
 
+    test('selecting a Custom API collapses the filter section', async ({ page }) => {
+      await setupTestData(page);
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      const customApiSelectorCard = page.locator('.fui-Card').filter({ hasText: 'Selected Custom API' });
+      const comboboxes = customApiSelectorCard.locator('[role="combobox"]');
+
+      await expect(comboboxes).toHaveCount(2);
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+
+      await expect(comboboxes).toHaveCount(1);
+    });
+
     test('shows Edit and Delete buttons for unmanaged Custom APIs', async ({ page }) => {
       await setupTestData(page);
       await appPage.goto();

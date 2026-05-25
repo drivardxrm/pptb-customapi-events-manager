@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { 
     Field, 
     Card,
@@ -32,6 +32,12 @@ export const CustomApiSelector: React.FC = () => {
     const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
     const [showPowerFxOnly, setShowPowerFxOnly] = useState(false)
     const [showBusinessEventsOnly, setShowBusinessEventsOnly] = useState(false)
+
+    useEffect(() => {
+        if (selectedCustomApiId) {
+            setFiltersExpanded(false)
+        }
+    }, [selectedCustomApiId])
 
     // Create Set of Custom API IDs that are Business Events (have a CatalogAssignment)
     const businessEventCustomApiIds = new Set(
