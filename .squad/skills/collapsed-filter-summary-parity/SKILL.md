@@ -36,6 +36,16 @@ const activeFilters = [
 const activeFilterCount = activeFilters.length
 ```
 
+```tsx
+// Catalog selector follows the same pattern:
+const filterSummary = [
+  selectedSolutionId && { key: 'solution', label: solutionName },
+  showCatalogs !== 'all' && { key: 'catalog-managed', label: 'Managed Catalogs' },
+].filter(Boolean)
+
+const activeFilterCount = filterSummary.length
+```
+
 ## Anti-Patterns
 - Showing a collapsed summary for only some controls in the section
 - Treating picker-scoping toggles as standalone active filters when no item is selected

@@ -118,6 +118,10 @@ Joined the PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Key paths: `src/components/CustomApiSelector.tsx`, `.squad/skills/collapsed-filter-summary-parity/SKILL.md`
 
 ### 2026-05-21: Solution Filter Count Refinement — Selection-Scoped Toggle
+- Applied the collapsed filter summary parity pattern to `CatalogSelector.tsx`
+- Added a dedicated Catalog Filters managed-state toggle that filters `useRootCatalogs()` results without counting the Solution scoping toggle as a standalone active filter
+- Collapsed Catalog selector badges now summarize selected Solution and managed/unmanaged Catalog filters from the same derived source as the filter count
+- Added focused Playwright coverage in `tests/e2e/specs/catalog-selector.spec.ts` for managed root-catalog filtering and collapsed summary display
 - Revised `CustomApiSelector.tsx` filter count calculation to exclude Solution managed/unmanaged toggle as standalone filter
 - Collapsed filter badges conditionally show solution context only when a solution is selected
 - Filter count now correctly reflects user-facing filters that materially change displayed records
@@ -221,6 +225,35 @@ pm run build — TypeScript compile + Vite build passed
 - `src/components/customApiDetails/CustomApiTreeView.tsx` (added Edit callbacks)
 - `src/components/customApiDetails/CustomApiDetails.tsx` (added two-phase handoff)
 - `src/components/requestParameterDetails/RequestParameterDetails.tsx` (detect pending ID)
+
+### 2026-05-25: Catalog Selector Managed-State Filter Implementation
+**Session:** Catalog Selector Managed-State Filters & Collapsed Summary Parity  
+**Topic:** Implemented All/Unmanaged/Managed filter toggle for root catalogs in CatalogSelector.tsx, mirroring Custom API selector pattern. Added collapsed-summary parity with filter badge display.
+
+**Implementation Details:**
+- **State:** Added `showCatalogs` state (type: `ManagedStateFilter`, default: `'all'`)
+- **Filter Logic:** `filteredCatalogs = rootCatalogs?.filter(c => showCatalogs === 'all' || (c.ismanaged && showCatalogs === 'managed') || (!c.ismanaged && showCatalogs === 'unmanaged'))`
+- **Active Filter Count:** `(selectedSolutionId ? 1 : 0) + (showSolutions !== 'all' ? 1 : 0) + (showCatalogs !== 'all' ? 1 : 0)`
+- **Catalog Filters Section:** New subsection with ManagedStateToggle, positioned below "Selected Solution" filter
+- **Collapsed Summary:** Filter badge shows with lock icons (LockClosedRegular / LockOpenRegular) and state label ("Managed Catalogs" / "Unmanaged Catalogs")
+- **Empty State:** "No Catalogs match your filters." message using consistent hint-text styling
+
+**Key Decision:**
+- Catalog managed-state filter counts as **standalone active filter** (unlike Solution managed toggle, which is contextual to selection)
+- This means filtered catalogs materially change the displayed set, warranting badge display on collapse
+
+**Test Coverage:**
+- Added focused E2E tests validating toggle states, filtered catalogs, empty state, badge display, filter count
+- All tests passing: `npm run test:e2e -- tests/e2e/specs/catalog-selector.spec.ts` ✅
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ No regressions in existing E2E tests
+- ✅ Collapsed summary badges align with CustomApiSelector pattern
+
+**Files Modified:**
+- `src/components/CatalogSelector.tsx`
+- `tests/e2e/specs/catalog-selector.spec.ts`
 - `src/components/requestParameterDetails/RequestParametersList.tsx` (guard selection)
 - `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` (detect pending ID)
 - `src/components/responsePropertyDetails/ResponsePropertyList.tsx` (guard selection)
@@ -251,3 +284,9 @@ pm run build — TypeScript compile + Vite build passed
 - ✅ Approved by Ripley for merge
 
 **Key Learning:** Tree-origin return intent is transient, not durable state. Lifecycle cleanup must occur on every exit path (manual toggle, form unmount) to prevent state leakage into unrelated flows.
+
+### 2026-05-25: Custom API Selector Create-Flow Collapse
+- Extended `CustomApiSelector.tsx` auto-collapse so the Filters section also collapses when `editingComponent === 'customapi'`, covering "New Custom API" entry in addition to existing-record selection.
+- Kept collapse behavior one-way: entering create/edit or selecting an API collapses the panel, but unrelated interactions still do not force a re-expand or re-collapse loop.
+- Added focused Playwright regression coverage in `tests/e2e/specs/custom-api.spec.ts` asserting the selector card drops from two comboboxes to one after clicking `New Custom API`.
+- Validation: ✅ `npm run build` passed, ✅ `npm run test:e2e` passed (40 passed / 3 skipped).

@@ -278,6 +278,76 @@ Analyzed CustomApiSelector.tsx, useAppStore.ts, and CatalogSelector.tsx to trace
 
 **Status:** ✅ Analysis complete; regression checklist produced; feature ready for implementation
 
+### 2026-03-01: New Custom API Filter Collapse Behavior — Regression Checklist
+
+**User Request:** "clicking on new custom api should collapse the filter section of the custom api selector"
+
+**Trace Analysis Completed:**
+
+Extended the prior filter collapse analysis to specifically trace the "New Custom API" button flow and identify gaps in the current implementation.
+
+**Code Path Traced:**
+1. Button click → `CustomApiDetails.tsx:401` → `handleCreate()`
+2. `handleCreate()` → `CustomApiDetails.tsx:206` → `setSelectedCustomApiId(null)`
+3. State propagates to `CustomApiSelector` dependency
+4. **GAP FOUND:** `CustomApiSelector.tsx:36-40` useEffect only collapses when `selectedCustomApiId` is **truthy**
+5. Since "New" sets it to null, the collapse doesn't trigger
+
+**Key Findings:**
+
+1. **Implementation Gap:**
+   - Current useEffect: `if (selectedCustomApiId) { setFiltersExpanded(false) }`
+   - This **ONLY** triggers collapse on non-null selection
+   - "New Custom API" sets selectedCustomApiId to null → no collapse
+   - Same issue affects: Delete action, manual clear (X click)
+
+2. **Existing Test Coverage:**
+   - ✅ custom-api.spec.ts:135-148 tests "selecting Custom API collapses"
+   - ⚠️ custom-api.spec.ts:199-214 tests "New enters create mode" BUT doesn't verify filter collapse
+   - ❌ No test for delete filter collapse
+   - ❌ No test for manual clear filter collapse
+
+3. **State Flow Under New Button:**
+   - Before click: `filtersExpanded=true`, `mode='read'`, `selectedCustomApiId=id` (or null)
+   - After click: `filtersExpanded=?` (should be false), `mode='create'`, `selectedCustomApiId=null`
+   - Currently: No collapse because null value doesn't satisfy `if (selectedCustomApiId)` guard
+
+4. **Related Scenarios Also Affected:**
+   - **Delete:** `setSelectedCustomApiId(null)` after delete confirmation → no collapse
+   - **Manual Clear:** Clicking X in picker sets id to null → no collapse
+   - **Create Mode Exit (Cancel):** Returns to read mode, selection cleared → no collapse
+
+**Regression Checklist (8 Test Categories):**
+
+**Core Functionality (2 tests):**
+- RC-NEW-1: Selecting existing Custom API collapses filter section (PASSING, verified at custom-api.spec.ts:135-148)
+- RC-NEW-2: Clicking "New Custom API" button collapses filter section (NOT TESTED - implementation gap)
+
+**Related Collapse Triggers (2 tests):**
+- RC-NEW-3: Deleting Custom API collapses filter section (NOT TESTED - same implementation gap)
+- RC-NEW-4: Manually clearing selection (clicking X) collapses filter section (NOT TESTED - same gap)
+
+**Filter State Consistency (2 tests):**
+- RC-NEW-5: Filter summary updates correctly when collapsed after New button click
+- RC-NEW-6: Filter summary persists when selecting → clearing → selecting APIs
+
+**Unrelated Filter Interactions (1 test):**
+- RC-NEW-7: Toggling PowerFx/BusinessEvent filters while filters collapsed preserves collapse state
+- RC-NEW-8: Manually expanding filters with Filters button overrides auto-collapse (manual wins)
+
+**Implementation Considerations:**
+- Solution 1: Monitor `editingComponent` state instead of just `selectedCustomApiId` (mode-aware collapse)
+- Solution 2: Extend useEffect dependency to trigger on mode change → 'create' (explicit create mode collapse)
+- Solution 3: Add prop or Zustand action for explicit filter collapse request (decoupled from selection)
+
+**Files Referenced:**
+- `.squad/decisions/inbox/lambert-new-custom-api-collapse-check.md` - Full regression report with detailed flow
+- `src/components/CustomApiSelector.tsx` - Current collapse logic (lines 36-40)
+- `src/components/customApiDetails/CustomApiDetails.tsx` - handleCreate, handleDelete, handleCancel
+- `tests/e2e/specs/custom-api.spec.ts` - Test coverage (line 135-148 exists, line 199-214 incomplete)
+
+**Status:** ✅ Regression checklist created; implementation gap identified; ready for Dallas to implement fix
+
 ### 2026-05-24T22:11:53Z: TreeView Edit Action Implementation — Complete & Approved
 
 **Scope:** Edit actions for unmanaged request parameters and response properties in CustomApiTreeView, plus comprehensive regression validation
@@ -319,6 +389,142 @@ Analyzed CustomApiSelector.tsx, useAppStore.ts, and CatalogSelector.tsx to trace
 **User Request:** "when a create or update action is initiated from the treeview, (create , update of customapi, request param or response prop). The app should go back to the treeview when the action is completed (or cancelled)"
 
 **Analysis Scope:** Trace expected state transitions for tree-initiated create/edit flows across three entity types (Custom API, Request Parameter, Response Property), identify return-to-tree trigger points, document edge cases for implementation.
+
+### 2026-05-26: Catalog Filters UX Specification & Pattern Documentation
+
+**User Request:** "add a section in the Catalog filters of the catalog selector. Catalog Filters -> put a All/Unmanaged/Managed switch. Filter available root catalogs accordingly. Add the same logic as the custom api filters for display on collapsed section."
+
+**Analysis Deliverables:**
+
+**UX Specification Document:** `.squad/decisions/inbox/lambert-catalog-filter-ux.md`
+- Expected behavior for Catalog Filters section
+- Structure: New subsection below "Selected Solution" in collapsible filters area
+- Filter controls: ManagedStateToggle with All/Unmanaged/Managed states
+- State management: `showCatalogs` state variable, filter logic identical to `showCustomApis`
+- Active filter counting: Catalog filter increments counter, displays in "Filters (N)" header
+- Collapsed summary: Badge display when filters active and section collapsed ("Managed Catalogs"/"Unmanaged Catalogs")
+- Empty state: "No Catalogs match your filters." message displays when zero results
+- Icon patterns: Managed = LockClosedRegular, Unmanaged = LockOpenRegular
+
+**Pattern Documentation:** `.squad/skills/managed-state-filter-pattern/SKILL.md`
+- Extracted reusable pattern from CustomApiSelector implementation
+- Components: State setup, filter logic, active count accumulation, badge summary generation, conditional rendering
+- Integration points: Picker display, empty state messaging
+- Icon usage conventions and styling patterns
+- Testing checklist with 10 key verification points
+- Real-world examples (CatalogSelector, CustomApiSelector) and notes
+
+**Regression Checklist: 32 Test Cases**
+
+1. **Expansion/Collapse (3 cases):**
+   - [ ] Filters section starts collapsed by default
+   - [ ] Clicking Filters button expands section, shows Catalog Filters subsection
+   - [ ] Filters subsection appears below Solution subsection in correct order
+
+2. **Filter Toggle States (4 cases):**
+   - [ ] Default: "All" button selected
+   - [ ] Clicking "Unmanaged": appearance primary, icon filled
+   - [ ] Clicking "Managed": appearance primary, icon filled
+   - [ ] Only one state active at a time (radio-like)
+
+3. **Catalog Picker Updates (4 cases):**
+   - [ ] "All" selected: All unfiltered root catalogs in picker
+   - [ ] "Unmanaged" selected: Only unmanaged catalogs displayed
+   - [ ] "Managed" selected: Only managed catalogs displayed
+   - [ ] Picker updates immediately without page reload
+
+4. **Active Filter Count (4 cases):**
+   - [ ] No solution + All catalogs: "Filters (0)"
+   - [ ] Solution + All catalogs: "Filters (1)"
+   - [ ] No solution + Managed catalogs: "Filters (1)"
+   - [ ] Solution + Managed catalogs: "Filters (2)"
+
+5. **Collapsed Summary Badges (5 cases):**
+   - [ ] No filters active: No badges displayed
+   - [ ] Solution selected: Solution badge only
+   - [ ] Catalog filter active: "Managed Catalogs" or "Unmanaged Catalogs" badge
+   - [ ] Both active: Both badges in correct order (solution first, catalog second)
+   - [ ] Badge styling: Outline appearance, not filled; correct lock icons
+
+6. **Integration with Existing Filters (3 cases):**
+   - [ ] Solution filter independent from catalog filter (no cross-coupling)
+   - [ ] Adjusting one doesn't change the other
+   - [ ] Both filters can be active simultaneously
+
+7. **Empty State Messaging (3 cases):**
+   - [ ] Select catalog → Apply managed filter that excludes it → Selection cleared, log created
+   - [ ] Select catalog → Apply managed filter that includes it → Selection remains
+   - [ ] Filter results in zero items → Hint text displays
+   - [ ] Clear filter → Hint text disappears, catalogs return
+
+8. **Collapsed/Expanded Transitions (2 cases):**
+   - [ ] Collapse with active filters → Expand → Toggle state preserved
+   - [ ] Collapse → Expand → Filter state matches button state exactly
+
+9. **Accessibility & Performance (2 cases):**
+   - [ ] ManagedStateToggle buttons have proper title attributes (All, Managed, Unmanaged)
+   - [ ] No console errors during rapid filter interactions
+
+10. **Filter Behavior Mirrors CustomApiSelector (3 cases):**
+    - [ ] Icon usage identical (LockClosedRegular/LockOpenRegular pairs)
+    - [ ] Badge generation follows exact same pattern (appearance, size, layout)
+    - [ ] Empty state message format matches existing pattern
+
+**Key Testing Notes:**
+- Filter should be applied BEFORE picker display (source from `filteredCatalogs` array)
+- Empty state message uses `styles.hintTextItalic` for consistency
+- ManagedStateToggle component is already available and tested; no modifications needed
+
+### 2026-05-25: Catalog Selector Managed-State Filter — Test Specification & Regression Checklist
+**Session:** Catalog Selector Managed-State Filters & Collapsed Summary Parity  
+**Topic:** Produced comprehensive UX specification and regression checklist for catalog managed-state filters implementation.
+
+**Deliverables:**
+
+1. **Catalog Filters UX Specification (lambert-catalog-filter-ux.md, 171 lines)**
+   - Detailed specification covering filter structure, state management, active filter counting, collapsed summary display
+   - Placement: Below "Selected Solution" subsection in Filters container
+   - Component: ManagedStateToggle with three states (All, Unmanaged, Managed)
+   - Filter Logic: Mirrors CustomApiSelector pattern exactly
+   - Badge Display: Lock icons (LockClosedRegular/LockOpenRegular) with state label in outline appearance
+   - Empty State: "No Catalogs match your filters." messaging
+   - Edge Cases: Filter interactions, reset scenarios, collapse/expand behavior
+   - 31-step manual verification checklist with acceptance criteria
+   - 6 core acceptance criteria documented
+
+2. **Catalog Filters Regression Checklist (lambert-catalog-filters-regression-checklist.md, 21.8 KB)**
+   - 16+ comprehensive test cases organized by priority (Critical, High, Medium, Low)
+   - Coverage areas: Expansion/Collapse (3), Filter States (4), Catalog Updates (4), Filter Count (4), Badges (5), Integration (2), Edge Cases (4), Accessibility (2)
+   - Key scenarios: All filters combined, reset sequences, empty state messaging, state persistence, rapid interactions
+   - Data integrity: Selection preservation, no stale UI state
+   - Managed-state icons: Display accuracy across all states
+   - Testing approach: Manual verification steps with specific acceptance criteria per test case
+
+3. **Supporting Documentation:**
+   - Custom API Selector Filter Collapse Flow (lambert-selector-collapse-flow.md): 16 test cases with design decision clarity
+   - New Custom API Collapse Check (lambert-new-custom-api-collapse-check.md): QA report tracing collapse behavior gap
+   - Regression documentation for Dallas implementation reference
+
+**Decision Alignment:**
+- Catalog filter **counts as standalone active filter** (includes in activeFilterCount when not 'all')
+- Distinct from Solution managed toggle (which is contextual to selection)
+- Follows established CustomApiSelector pattern per collapsed-filter-summary-parity skill
+
+**QA Findings:**
+- Feature scope matches user requirement exactly: "All/Unmanaged/Managed switch" in Catalog Filters section
+- Filter behavior mirrors Custom API selector without deviation
+- Icon and badge styling consistent with existing design patterns
+- Edge cases documented and testable
+
+**Validation Outcome:**
+- ✅ Specification approved and aligned with Dallas implementation
+- ✅ Regression checklist ready for ongoing QA reference
+- ✅ Feature coverage complete: expansion, toggle states, catalog updates, counting, badges, integration, edge cases
+- ✅ 31 manual verification steps executable and measurable
+- Pattern matches CustomApiSelector's `showCustomApis` filter exactly (different from PowerFx/BusinessEvent feature filters)
+- No data should be lost during filter application/removal cycles
+
+**Status:** ✅ UX specification complete; reusable pattern documented; regression checklist ready for implementation
 
 **Key Findings:**
 

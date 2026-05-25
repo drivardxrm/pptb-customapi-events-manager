@@ -260,3 +260,158 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 - ✅ Existing custom API tree-edit return test passed
 - ⚠️ Unrelated baseline e2e failures remain in `tests/e2e/specs/custom-api.spec.ts`
 **Decision:** ✅ **APPROVED FOR MERGE** — Kane resolved the rejected flag-lifecycle gap without introducing new material issues in reviewed flows. Tree-origin return intent is now properly transient, scoped per action, not durable state.
+
+---
+
+### 2026-05-25: Custom API Selector Auto-Collapse on Selection
+**By:** Dallas (Frontend Dev)  
+**What:** Implemented auto-collapse of `CustomApiSelector` Filters section whenever `selectedCustomApiId` becomes truthy.
+**Why:** The selected Custom API becomes the primary focus after pick time, so collapsing the secondary filter panel returns space to the details workflow. Limiting the behavior to selection events preserves existing non-selection behavior, including manual filter expansion when no API is selected.
+**Implementation Notes:**
+- Added a small `useEffect` in `src/components/CustomApiSelector.tsx` that sets `filtersExpanded` to `false` when a Custom API is selected.
+- Added focused Playwright coverage in `tests/e2e/specs/custom-api.spec.ts` that asserts the selector card combobox count drops from 2 to 1 after selection.
+**Validation:**
+- ✅ `npm run build`
+- ✅ Focused Playwright: `npx playwright test tests/e2e/specs/custom-api.spec.ts`
+**Decision:** ✅ **DECISION RECORDED** — Auto-collapse on selection now active.
+
+---
+
+### 2026-05-25: New Custom API Should Collapse Selector Filters
+**By:** Dallas (Frontend Dev)  
+**What:** Treat entering Custom API create mode as the same UX milestone as selecting an existing Custom API: collapse the sibling Filters section in `CustomApiSelector`.
+**Why:** Once the user clicks `New Custom API`, the workflow focus shifts from browsing/filtering to authoring details, so keeping the filter panel expanded wastes vertical space. The create flow already sets shared store state via `editingComponent = 'customapi'`, which gives the selector a stable, frontend-only signal without changing service contracts.
+**Implementation Notes:**
+- Updated `src/components/CustomApiSelector.tsx` so the auto-collapse effect runs when either `selectedCustomApiId` is truthy or `editingComponent === 'customapi'`.
+- This preserves existing manual toggle behavior because the effect only reacts to selection/create-entry state changes, not filter toggles.
+- Added Playwright coverage in `tests/e2e/specs/custom-api.spec.ts` to verify clicking `New Custom API` reduces the selector card from two comboboxes to one while showing the create form.
+**Validation:**
+- ✅ `npm run build`
+- ✅ `npm run test:e2e`
+**Decision:** ✅ **DECISION RECORDED** — Create-mode collapse now active.
+
+---
+
+### 2026-05-25: Catalog Selector Managed Filter Summary Scope
+**By:** Dallas (Frontend Dev)  
+**What:** Added a dedicated Catalog managed/unmanaged toggle to `CatalogSelector.tsx` and aligned its collapsed badge summary/count with the actual catalog filter state.
+**Why:** Root catalog availability is directly affected by the catalog managed-state toggle, so it should surface as an active filter badge. The Solution managed-state toggle still only scopes the solution picker, so it remains contextual and does not count as its own active filter.
+**Scope:**
+- `showCatalogs` state initialized to `'all'` (type: `ManagedStateFilter`)
+- Filter logic: `filteredCatalogs = rootCatalogs?.filter(c => showCatalogs === 'all' || (c.ismanaged && showCatalogs === 'managed') || (!c.ismanaged && showCatalogs === 'unmanaged'))`
+- Active filter count: `(selectedSolutionId ? 1 : 0) + (showSolutions !== 'all' ? 1 : 0) + (showCatalogs !== 'all' ? 1 : 0)`
+- Badge display: "Managed Catalogs" or "Unmanaged Catalogs" with lock icons
+**Files Modified:**
+- `src/components/CatalogSelector.tsx`
+- `tests/e2e/specs/catalog-selector.spec.ts`
+**Validation:**
+- ✅ `npm run build`
+- ✅ Focused Playwright: `npm run test:e2e -- tests/e2e/specs/catalog-selector.spec.ts`
+**Decision:** ✅ **DECISION RECORDED** — Catalog filter now counts as standalone active filter, distinct from contextual Solution filter.
+
+---
+
+### 2026-05-25: Catalog Filter UX Specification (Test Document)
+**By:** Lambert (Tester)  
+**What:** Produced detailed UX specification for Catalog Filters section in CatalogSelector, covering structure, state management, active filter counting, collapsed summary display, empty state messaging, and integration points.
+**Scope (171 lines):**
+- Catalog Filters section placement below "Selected Solution" subsection
+- ManagedStateToggle with three states: All (default), Unmanaged (lock-open icon), Managed (lock-closed icon)
+- Filter logic applied to `filteredCatalogs` selection
+- Active filter count increment when `showCatalogs !== 'all'`
+- Collapsed filter summary badges with outline appearance and lock icons
+- Empty state messaging: "No Catalogs match your filters."
+- Edge cases: filter interactions, reset scenarios, collapse/expand behavior, managed-state icons, data integrity
+**Test Checklist:** 31 manual verification steps covering expansion, toggle states, catalog updates, filter counting, badge display, solution integration, edge cases, and accessibility.
+**Acceptance Criteria:**
+- ✅ All regression points pass manual verification
+- ✅ Filter behavior mirrors CustomApiSelector pattern exactly
+- ✅ Icon and badge styling consistent with existing design
+- ✅ No visual UI state corruption during rapid interactions
+- ✅ Empty state messaging displays appropriately
+- ✅ Collapsed summary accurately reflects active filters
+**Decision:** ✅ **TEST SPECIFICATION APPROVED** — Ready for QA reference.
+
+---
+
+### 2026-05-25: Catalog Filters Regression Checklist (Comprehensive)
+**By:** Lambert (Tester)  
+**What:** Documented comprehensive regression checklist for catalog managed-state filters and collapsed summary behavior, covering 16+ test cases organized by priority.
+**Coverage Areas:**
+- Expansion/Collapse Behavior (3 tests)
+- Filter Toggle States (4 tests)
+- Catalog Picker Updates (4 tests)
+- Active Filter Count (4 tests)
+- Collapsed Summary Badges (5 tests)
+- Integration with Solution Filter (2 tests)
+- Edge Cases (4 tests)
+- Accessibility & UX (2 tests)
+**Key Test Scenarios:**
+- All filters combined (Solution + Managed Catalog)
+- Reset scenario (filter applied → no matches → reset to all)
+- Empty state messaging (hint text appears/disappears appropriately)
+- Filters expanded/collapsed state persistence
+- Multiple active filters shown in correct order
+- Managed/unmanaged icon display accuracy
+- Data integrity: selection preservation when filter includes current choice
+- Manual verification checklist: 31 steps with acceptance criteria
+**Files Examined:**
+- `src/components/CatalogSelector.tsx` — New `showCatalogs` state and filter logic
+- `tests/e2e/specs/catalog-selector.spec.ts` — E2E test coverage
+**Pattern Reference:** Mirrors CustomApiSelector managed-state filter pattern from established SKILL: `collapsed-filter-summary-parity`
+**Decision:** ✅ **REGRESSION CHECKLIST RECORDED** — Available for QA validation and future regressions.
+
+---
+
+### 2026-05-25: Custom API Selector Filter Collapse Flow (Regression Checklist)
+**By:** Lambert (Tester)  
+**What:** Documented regression checklist for "Filter Collapse on Custom API Selection" feature, providing 16 test cases with detailed trace analysis and design decisions.
+**Scope (144 lines):**
+- Current state analysis of CustomApiSelector collapse logic
+- Expected selection-to-collapse flow documentation
+- 16 regression test cases (Critical, High, Medium, Low priority)
+- Design decisions to clarify: clear selection behavior, filter change during collapse, managed toggle behavior
+- Implementation guidance for Dallas
+- E2E file references and known patterns
+**Design Decisions Clarified:**
+1. **Clear Selection Behavior:** Keep filters collapsed (Option B) — user's manual toggle choice preserved
+2. **Filter Change During Collapse:** Stay collapsed (Option B) — filter summary badges update, avoid UI thrashing
+3. **Managed Toggle During Selection:** Stay collapsed (Option B) — consistent with filter-change behavior
+**Test Case Categories:**
+- Critical (1): Selecting Custom API auto-collapses filter section
+- High (6): Filter summary, manual expand, changing selection, filter changes, solution selection, managed toggle
+- Medium (7): Clear selection, initial state, no-API scenarios, rapid toggles, editing lock
+- Low (2): Selection logs, empty list stability
+**Files to Test:**
+- `tests/e2e/specs/custom-api.spec.ts` — Add test suite "Custom API Selector Collapse"
+- `tests/e2e/pages/app.page.ts` — Add helpers
+**Decision:** ✅ **REGRESSION CHECKLIST RECORDED** — Ready for implementation and validation.
+
+---
+
+### 2026-05-25: QA Report — New Custom API Filter Collapse Behavior
+**By:** Lambert (Tester)  
+**What:** Traced expected behavior for clicking "New Custom API" in the Custom API Details header and identified gap in filter collapse behavior.
+**Findings:**
+- Clicking "New Custom API" → `handleCreate()` calls `setSelectedCustomApiId(null)` → Should trigger filter collapse
+- Current collapse useEffect only triggers when `selectedCustomApiId` is truthy
+- When "New Custom API" is clicked, `selectedCustomApiId` becomes null → collapse does not trigger
+- Related paths also affected: Delete operation, Manual selection clear
+**Code Path Traced:**
+1. Button Click → `CustomApiDetails.tsx:401`
+2. handleCreate() → Sets `selectedCustomApiId(null)`, `setCreateData()`, `setMode('create')`, `setEditingComponent('customapi')`
+3. Collapse useEffect only checks if `selectedCustomApiId` is truthy → Misses null transition
+**Regression Checklist (8 test cases):**
+- ✅ Core: Selecting existing API collapses filter (passing)
+- ⚠️ Feature Gap: New API button collapse (not tested)
+- ⚠️ Related: Delete operation collapse (not tested)
+- ✅ Inverse: Filters remain expanded on unrelated actions
+- 🔄 State Consistency: Multiple selections/clears, create cancel
+- 🔍 Edge Cases: Filter state during edit, no re-expand on cancel
+**Recommendations:**
+1. **High Priority:** Add E2E test for "New Custom API button collapses filter section"
+2. **Medium Priority:** Test delete operation and manual clear collapse
+3. **Low Priority:** Verify filter state persistence intuitive
+**Implementation Fix Required:**
+- Collapse trigger should account for `editingComponent === 'customapi'` in addition to truthy `selectedCustomApiId`
+**Decision:** ✅ **QA REPORT RECORDED** — Implementation gap identified, fix guidance provided.

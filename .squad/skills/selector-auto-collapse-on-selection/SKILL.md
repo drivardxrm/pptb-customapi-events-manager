@@ -29,6 +29,19 @@ useEffect(() => {
 }, [selectedCustomApiId])
 ```
 
+### Create-Mode Entry Can Reuse Shared Store Signals
+If the same selector card also supports a sibling "create new" flow, collapse on the shared UI state that represents entering that flow (for example `editingComponent === 'customapi'`). This keeps the selector behavior consistent whether the user picked an existing record or started authoring a new one.
+
+```tsx
+const { selectedCustomApiId, editingComponent } = useAppStore()
+
+useEffect(() => {
+  if (selectedCustomApiId || editingComponent === 'customapi') {
+    setFiltersExpanded(false)
+  }
+}, [selectedCustomApiId, editingComponent])
+```
+
 ### Manual Override Preserved
 Even after auto-collapse, the user can manually re-expand the filters via the existing toggle button. The auto-collapse should NOT prevent manual interaction—it should be a default convenience, not a lock.
 
@@ -155,10 +168,11 @@ useEffect(() => {
 
 ### E2E Regression Tests
 1. **Selection triggers collapse:** Select API → verify `filtersExpanded = false`
-2. **Filter summary displays:** Select API with active filters → verify badges shown
-3. **Manual override works:** Select API (collapsed) → click Filters → verify `filtersExpanded = true`
-4. **Filter changes preserve collapse:** Select API, collapse, toggle filter → verify stays collapsed, summary updates
-5. **Clear selection state preserved:** Select API, collapse, clear selection → verify collapse state unchanged (or auto-expand per design decision)
+2. **Create entry also collapses:** Click `New Custom API` → verify filters collapse and create form appears
+3. **Filter summary displays:** Select API with active filters → verify badges shown
+4. **Manual override works:** Select API (collapsed) → click Filters → verify `filtersExpanded = true`
+5. **Filter changes preserve collapse:** Select API, collapse, toggle filter → verify stays collapsed, summary updates
+6. **Clear selection state preserved:** Select API, collapse, clear selection → verify collapse state unchanged (or auto-expand per design decision)
 
 ### Regression Against Auto-Collapse
 - ✅ Component still mounts/renders without auto-collapse logic (graceful fallback)
