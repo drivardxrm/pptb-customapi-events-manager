@@ -563,39 +563,6 @@ export const useStyles = makeStyles({
     },
 
     // ===========================================
-    // ABOUT PAGE
-    // ===========================================
-    aboutContainer: {
-        padding: tokens.spacingVerticalL,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: tokens.spacingVerticalM,
-    },
-    aboutHeading: {
-        margin: `0 0 ${tokens.spacingVerticalS} 0`,
-        color: tokens.colorBrandForeground1,
-    },
-    aboutText: {
-        margin: 0,
-    },
-    aboutTextSpaced: {
-        margin: `0 0 ${tokens.spacingVerticalM} 0`,
-    },
-    aboutLinksContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: tokens.spacingVerticalS,
-    },
-    aboutFooter: {
-        marginTop: tokens.spacingVerticalL,
-        padding: tokens.spacingVerticalM,
-        backgroundColor: tokens.colorNeutralBackground3,
-        borderRadius: tokens.borderRadiusMedium,
-        fontSize: tokens.fontSizeBase200,
-        color: tokens.colorNeutralForeground3,
-    },
-
-    // ===========================================
     // BUTTONS
     // ===========================================
     deleteButton: {

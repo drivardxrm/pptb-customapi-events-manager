@@ -75,6 +75,23 @@ test.describe('Smoke Tests', () => {
     await expect(appPage.root).toBeVisible();
   });
 
+  test('app nav does not render removed About section', async ({ page }) => {
+    await page.addInitScript((conn) => {
+      const waitForMocks = () => {
+        if (window.toolboxAPI?.connections) {
+          (window.toolboxAPI as unknown as { __setConnection: (c: unknown) => void }).__setConnection(conn);
+        } else {
+          setTimeout(waitForMocks, 10);
+        }
+      };
+      waitForMocks();
+    }, mockConnection);
+
+    await appPage.goto();
+
+    await expect(page.getByRole('button', { name: 'About', exact: true })).toHaveCount(0);
+  });
+
   test('FluentUI provider is active', async ({ page }) => {
     await page.addInitScript((conn) => {
       const waitForMocks = () => {
