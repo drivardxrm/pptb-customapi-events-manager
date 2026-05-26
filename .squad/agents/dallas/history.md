@@ -83,7 +83,22 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Validation for this behavior used the existing `npm run build` command successfully after the frontend-only changes.
 
 ## Team Updates (Session: 2026-05-26)
-
+ 
 **Orchestration Log:** 2026-05-26T03-51-58Z-dallas.md  
 **Scope:** Button-driven managed filter preservation sprint  
 **Status:** ✅ Complete — Filter handoff implementation delivered; build passed; awaiting QA validation from Lambert (21 test cases)
+
+## Learnings (Recent Session: 2026-05-26)
+
+### Business Event Root Catalog Create Flow
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx` keeps the Business Events root-create entry in the card header, using the same secondary `AddCircleColor` action-button styling pattern as Custom API create actions.
+- `src/components/BusinessEventDetails/CatalogModal.tsx` is the shared create/edit modal for both root catalogs and child categories; root creation should stay in `create-root` mode instead of spawning a separate dialog.
+- Root catalog creation must explicitly clear `_parentcatalogid_value` and suppress parent context UI, while `create-category` continues showing the selected parent catalog.
+- Validation for this frontend-only change used the existing `npm run build` command successfully.
+
+## Learnings (Recent Session: 2026-06-02)
+
+### Root Catalog Button Visibility
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx` renders the `New Root Catalog` header action only when `selectedSolutionId` is truthy, so the button is hidden whenever no solution is selected.
+- `src/components/CatalogSelector.tsx` owns the Business Events solution picker; the root catalog tree can still render from `selectedCatalogId`, which makes it possible to be on the page with a selected catalog but no visible root-create button.
+- `src/store/useAppStore.ts` initializes `selectedSolutionId` to `null` and resets it on connection changes, so solution context must be reselected before the root-create action appears.

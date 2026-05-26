@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     Dialog,
     DialogSurface,
@@ -20,6 +20,7 @@ import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
 import { Catalog, CatalogCreateable, CatalogUpdateable, DEFAULT_CATALOG_CREATE_TEMPLATE } from '../../models/Catalog';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
+import { useAppSettings } from '../../hooks/useAppSettings';
 
 export type CatalogModalMode = 'create-root' | 'create-category' | 'edit';
 
@@ -45,9 +46,12 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     const { publishers, isFetching: isFetchingPublishers } = usePublishers();
     const { solutions } = useSolutions();
     const { selectedSolutionId, selectedPublisherId, setSelectedPublisherId } = useAppStore();
+    const { appsettings } = useAppSettings();
 
     const isEdit = mode === 'edit';
-    const isCategory = mode === 'create-category';
+    const isCreateCategory = mode === 'create-category';
+    const isCreateRoot = mode === 'create-root';
+    const previousOpenRef = useRef(false);
 
     // Form state
     const [formData, setFormData] = useState<CatalogCreateable>(DEFAULT_CATALOG_CREATE_TEMPLATE);
@@ -55,25 +59,48 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
 
     // Get selected solution for adding to solution
     const selectedSolution = solutions.find(s => s.solutionid === selectedSolutionId);
+    const initialPublisherId = appsettings?.defaultPublisherId ?? selectedPublisherId ?? '';
 
     // Reset form when modal opens
     useEffect(() => {
-        if (open) {
-            if (isEdit && catalog) {
-                setEditData({
-                    name: catalog.name || '',
-                    displayname: catalog.displayname || '',
-                    description: catalog.description || '',
-                });
-            } else {
-                setFormData({
-                    ...DEFAULT_CATALOG_CREATE_TEMPLATE,
-                    _parentcatalogid_value: parentCatalog?.catalogid || '',
-                    _publisherid_value: selectedPublisherId || '',
-                });
-            }
+        if (!open) {
+            previousOpenRef.current = false;
+            return;
         }
-    }, [open, isEdit, catalog, parentCatalog, selectedPublisherId]);
+
+        if (previousOpenRef.current) {
+            return;
+        }
+
+        previousOpenRef.current = true;
+
+        if (isEdit && catalog) {
+            setEditData({
+                name: catalog.name || '',
+                displayname: catalog.displayname || '',
+                description: catalog.description || '',
+            });
+            return;
+        }
+
+        setFormData({
+            ...DEFAULT_CATALOG_CREATE_TEMPLATE,
+            _parentcatalogid_value: isCreateCategory ? parentCatalog?.catalogid || '' : '',
+            _publisherid_value: initialPublisherId,
+        });
+    }, [open, isEdit, isCreateCategory, catalog, parentCatalog, initialPublisherId]);
+
+    useEffect(() => {
+        if (!open || isEdit || !appsettings?.defaultPublisherId) {
+            return;
+        }
+
+        setFormData((current) =>
+            current._publisherid_value
+                ? current
+                : { ...current, _publisherid_value: appsettings.defaultPublisherId! }
+        );
+    }, [appsettings?.defaultPublisherId, isEdit, open]);
 
     // Validation
     const validation = useMemo(() => {
@@ -122,8 +149,8 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
 
     const getTitle = () => {
         if (isEdit) return 'Edit Catalog';
-        if (isCategory) return 'Create Category';
-        return 'Create Root Catalog';
+        if (isCreateRoot) return 'Create Root Catalog';
+        return 'Create Category';
     };
 
     const isSaving = createCatalog.isPending || updateCatalog.isPending;
@@ -135,7 +162,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                     <DialogTitle>{getTitle()}</DialogTitle>
                     <DialogContent className={styles.dialogContentColumn}>
                         {/* Parent info for categories */}
-                        {isCategory && parentCatalog && (
+                        {isCreateCategory && parentCatalog && (
                             <div className={styles.dialogSection}>
                                 <Text size={200} weight="semibold">Parent Catalog</Text>
                                 <Text>{parentCatalog.displayname || parentCatalog.name}</Text>
@@ -167,7 +194,30 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                 <Input
                                     appearance="filled-darker"
                                     value={formData.uniquename}
-                                    onChange={(_, data) => setFormData(prev => ({ ...prev, uniquename: data.value }))}
+                                    onChange={(_, data) => {
+                                        const nextUniqueName = data.value;
+
+                                        setFormData((current) => {
+                                            const previousUniqueName = current.uniquename;
+
+                                            return {
+                                                ...current,
+                                                uniquename: nextUniqueName,
+                                                name:
+                                                    current.name.trim() === '' || current.name === previousUniqueName
+                                                        ? nextUniqueName
+                                                        : current.name,
+                                                displayname:
+                                                    current.displayname.trim() === '' || current.displayname === previousUniqueName
+                                                        ? nextUniqueName
+                                                        : current.displayname,
+                                                description:
+                                                    current.description.trim() === '' || current.description === previousUniqueName
+                                                        ? nextUniqueName
+                                                        : current.description,
+                                            };
+                                        });
+                                    }}
                                     placeholder="e.g., contoso_mybusinessevent"
                                 />
                             </Field>

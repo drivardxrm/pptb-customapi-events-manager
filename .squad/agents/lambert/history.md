@@ -116,3 +116,40 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 **Orchestration Log:** 2026-05-26T03-51-58Z-lambert.md  
 **Scope:** Filter handoff QA specification sprint  
 **Status:** ✅ Complete — 21-test-case QA spec delivered; build passed; ready for validation execution
+
+## Learnings (Session: 2026-06-XX)
+
+### New Root Catalog Button QA Checklist
+
+**Feature Request:** Add a "New Root Catalog Button" in Business Events form, matching "New Custom API" button style; reuse CatalogModal with mode='create-root'; no parent catalog display for root creation.
+
+**Implementation Status:** ✅ Already implemented in BusinessEventDetails.tsx (lines 189-196)
+- Button exists with correct icon (`AddCircleColor`), appearance (`secondary`), and conditional visibility
+- Handler `handleCreateRoot()` correctly sets mode to 'create-root' and passes null for parentCatalog
+- CatalogModal already supports 'create-root' mode with correct title and conditional parent info display
+
+**Key Observations:**
+1. **Button Styling Parity:** BusinessEventDetails button matches CustomApiDetails "New Custom API" pattern—secondary appearance, AddCircleColor icon, headerActionButton class
+2. **Modal Mode System:** CatalogModal uses discriminated union type `CatalogModalMode = 'create-root' | 'create-category' | 'edit'` with conditional rendering branches
+3. **Parent Catalog Handling:** Parent info block renders only when `isCategory && parentCatalog` both true—ensuring no parent display for root creation mode
+4. **Form Field Visibility:** Publisher and Unique Name fields are only shown for create modes (`!isEdit`), matching Dataverse root catalog requirements
+5. **Handler Isolation:** Three separate handlers (`handleCreateRoot`, `handleCreateCategory`, `handleEditCatalog`) keep state transitions explicit and testable
+
+**QA Checklist Delivered:**
+- **Button Visibility:** Conditional on solution selection, correct styling parity
+- **Modal Behavior:** Title, labels, and parent display for create-root vs. create-category modes
+- **Form Fields:** Publisher, Unique Name visibility; required field validation
+- **Unchanged Behaviors:** Category creation, edit flows, tree view integration
+- **Integration:** State lifecycle, query cache refresh, user journeys
+- **Regression Coverage:** Custom API button, CatalogSelector, tree view, assignments
+- **Total: 85+ test cases** across visibility, styling, modal behavior, form validation, user flows, edge cases, accessibility, and regressions
+
+**Pattern Identified for Future Use:**
+Modal mode discrimination with conditional field visibility is a reusable pattern. When different create/edit modes share a modal, use:
+1. Type-safe mode discriminator (CatalogModalMode)
+2. Mode-specific handlers that set all required state atoms
+3. Conditional rendering blocks keyed on `isEdit`, `isCategory` flags
+4. Form reset effects that respect mode and passed context (parent, catalog)
+
+**Document Location:** `.squad/decisions/inbox/lambert-root-catalog-button-qa.md`  
+**Status:** ✅ QA specification complete—85+ test cases covering button visibility, modal behavior, form validation, unchanged features, user journeys, edge cases, accessibility, and regressions; ready for implementation validation

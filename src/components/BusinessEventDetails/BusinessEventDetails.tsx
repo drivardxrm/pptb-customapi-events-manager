@@ -40,7 +40,6 @@ export const BusinessEventDetails: React.FC = () => {
     const localStyles = useLocalStyles();
     const {
         selectedCatalogId,
-        selectedSolutionId,
         selectedNavItem,
         pendingBusinessEventAssignmentId,
         setPendingBusinessEventAssignmentId,
@@ -184,18 +183,14 @@ export const BusinessEventDetails: React.FC = () => {
 
     const headerAction = (
         <div className={styles.headerActionGroup}>
-            {selectedSolutionId && (
-                <>
-                    <Button
-                        appearance="secondary"
-                        icon={<AddCircleColor />}
-                        onClick={handleCreateRoot}
-                        className={styles.headerActionButton}
-                    >
-                        New Root Catalog
-                    </Button>
-                </>
-            )}
+            <Button
+                appearance="secondary"
+                icon={<AddCircleColor />}
+                onClick={handleCreateRoot}
+                className={styles.headerActionButton}
+            >
+                New Root Catalog
+            </Button>
         </div>
     );
 
