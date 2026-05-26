@@ -713,3 +713,114 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 - ✅ Regression scenarios cover happy path and edge cases
 **Decision:** ✅ **QA CHECKLIST COMPLETE** — Ready for Kane implementation validation + manual execution
 
+---
+
+### 2026-06-02: Preserve Managed Filter Across Button Navigation
+**By:** Dallas (Frontend Dev)  
+**Scope:** Custom API ↔ Business Event cross-navigation
+
+**Decision:** Use a short-lived Zustand handoff to carry the active All/Unmanaged/Managed selector state only for button-driven navigation, while leaving nav-menu navigation on the existing settings-driven remount path.
+
+**Why:**
+- Button navigation is an in-flow drill-in/drill-out action, so users expect the destination selector to respect the filter context they are already working in.
+- Nav-menu switching is a fresh section entry and should continue to enforce `customApiSelectionInit` / `businessEventSelectionInit`.
+- Keeping the handoff transient avoids leaking button intent into later nav-driven visits.
+
+**Implementation Notes:**
+- Added mirrored live selector values in `src/store/useAppStore.ts` so cross-nav buttons can read the current managed filter from the active screen.
+- Added `pendingManagedFilterHandoff` in the store; it is preserved only when navigating to its matching destination and cleared once the destination selector applies it.
+- `src/components/CustomApiSelector.tsx` and `src/components/CatalogSelector.tsx` mark consumed handoffs as user-owned state (`*FilterWasChangedRef.current = true`) before applying them so late settings hydration does not overwrite the transferred value.
+- Button entry points:
+  - `src/components/generic/CustomApiBusinessEventButton.tsx`
+  - `src/components/BusinessEventDetails/TreeItemDetailsPanel.tsx`
+
+**Validation:**
+- ✅ `npm run build`
+
+**Decision:** ✅ **IMPLEMENTED** — Ready for QA validation from Lambert
+
+---
+
+### 2026-06-03: Filter State Handoff QA Checklist — Cross-View Navigation Behavior
+**By:** Lambert (Tester)  
+**Feature:** Cross-view navigation with ephemeral filter preservation  
+
+**Scope:** **Button-driven navigation** (Custom API Details → Business Event, Tester → Business Event, Business Event → Custom API, Business Event → Tester) preserves the current filter state (all/managed/unmanaged). **Nav menu switching** enforces app settings defaults, ignoring any transient filter changes made in-session. **Stale transient state** must not leak into subsequent nav menu switches—each menu switch resets cleanly.
+
+**Key Behavior Rules Established:**
+1. **Button-driven navigation** preserves the current filter state (all/managed/unmanaged)
+2. **Nav menu switching** enforces app settings defaults, ignoring transient in-session changes
+3. **Stale transient state** must not leak across nav menu boundaries
+
+**Ambiguity Notes:**
+- **"Main" filter definition:** The three-state toggle (all/managed/unmanaged) on each selector:
+  - `showCustomApis` in CustomApiSelector (persisted via `customApiFilterWasChangedRef`)
+  - `showCatalogs` in CatalogSelector (persisted via `catalogFilterWasChangedRef`)
+- **Solution toggle is NOT part of "main" filter** (per 2026-05-21 decision; remains contextual)
+
+**QA Coverage Delivered: 21 Test Cases**
+
+**Scenario 1: Button Navigation from Custom API Details → Business Events**
+- TC1.1: Managed Filter Carries Over
+- TC1.2: Filter Ref Tracked Correctly
+- TC1.3: Stale State Not Persisted
+
+**Scenario 2: Button Navigation from Tester View → Business Events**
+- TC2.1: Tester Filter State Handed Off
+- TC2.2: Tester Inherits Custom API State
+
+**Scenario 3: Button Navigation from Business Events → Custom API Details**
+- TC3.1: Business Event Filter Carries to Custom API
+- TC3.2: No Settings Default Override
+
+**Scenario 4: Button Navigation from Business Events → Tester**
+- TC4.1: Filter State Preserved in Tester
+- TC4.2: Tester Back to Business Event
+
+**Scenario 5: Nav Menu Switches Reset to App Settings**
+- TC5.1: Nav to Business Event Resets to Settings
+- TC5.2: Nav Back to Custom API Resets to Settings
+- TC5.3: Nav Menu Switch Clears Ref Tracking
+- TC5.4: Settings Persistence Across Nav Menu Switches
+
+**Scenario 6: Stale Transient State Does Not Leak**
+- TC6.1: No Cross-Contamination After Nav Menu
+- TC6.2: Long Chain: Button → Nav → Button → Nav
+- TC6.3: Ref State Reset on Mount
+- TC6.4: Rapid Nav Menu Switches
+
+**Scenario 7: Edge Cases**
+- TC7.1: Filter State with Empty Custom API/Catalog Lists
+- TC7.2: Filter State with Null/Missing App Settings
+- TC7.3: Solution Change During Transient Filter State
+- TC7.4: Button Nav After Settings Form Update
+
+**Acceptance Criteria:**
+- ✅ All 21 test cases pass on first run
+- ✅ No console errors or warnings related to filter state
+- ✅ Button-driven navigation preserves transient filter state
+- ✅ Nav menu navigation enforces app settings defaults
+- ✅ Stale refs do not leak across nav menu boundaries
+- ✅ Rapid transitions and edge cases handled gracefully
+- ✅ Existing custom API and business event CRUD flows unaffected
+
+**Regression Boundary:**
+- ✅ Test existing Custom API selector collapse/expand (2026-05-25 spec)
+- ✅ Test existing Business Event selector init settings (2026-05-29 spec)
+- ✅ Verify no breakage of solution selection context
+- ✅ Verify no breakage of edit/lock state during transitions
+
+**Implementation Notes:**
+- **CustomApiSelector.tsx:** Lines 34–49, 59–62 (filter state + ref tracking)
+- **CatalogSelector.tsx:** Lines 30–66 (filter state + ref tracking)
+- **CustomApiBusinessEventButton.tsx:** Lines 36–44 (navigation action)
+- **useAppStore.ts:** Lines 198–200 (nav item setter; should not reset filters)
+- Key Refs: `customApiFilterWasChangedRef` (CustomApiSelector), `catalogFilterWasChangedRef` (CatalogSelector)
+
+**Test Execution Environment:**
+- Manual testing via UI or automated E2E tests (Playwright)
+- Test data: Custom API + Business Event pairs with mixed managed/unmanaged states
+- App settings form configured with specific init defaults
+
+**Decision:** ✅ **QA SPECIFICATION COMPLETE** — 21 test cases ready for implementation validation; ready for execution
+

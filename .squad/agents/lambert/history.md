@@ -153,3 +153,85 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 **Document Location:** `.squad/decisions/inbox/lambert-catalog-assignment-regression-qa.md`  
 **Status:** ✅ 36-test-case regression checklist complete; 8 pre-fix assumptions validated; ready for Kane implementation + manual QA execution
 
+## Learnings (Session: 2026-06-03)
+
+### Filter State Handoff QA Checklist — Cross-View Navigation Behavior
+
+**Feature Request:** Clarify and test how filter states (all/managed/unmanaged) transfer when switching between Custom API and Business Event views via **button navigation** vs. **nav menu**.
+
+**Architecture Insights:**
+- CustomApiSelector & CatalogSelector maintain independent `useState` for filter state + `useRef` tracking manual changes
+- `customApiFilterWasChangedRef` & `catalogFilterWasChangedRef` control whether app settings override transient state on mount
+- Nav menu click should reset refs and apply settings defaults; button-driven navigation should preserve transient state
+- Zustand store (`setSelectedNavItem`) does NOT reset filter state—selectors handle it independently via effects
+
+**Behavior Model Clarified:**
+1. **Button-driven navigation** (CustomApiBusinessEventButton, Tester shortcuts) → preserve transient filter state across view boundary
+2. **Nav menu navigation** → enforce app settings defaults; reset refs; ignore in-session changes
+3. **Stale state isolation** → nav menu switch fully clears transient state; no cross-view contamination
+
+**QA Coverage Delivered:**
+- **Scenario 1:** Button nav Custom API → Business Event (preserves managed/unmanaged)
+- **Scenario 2:** Button nav Tester → Business Event (same state handoff)
+- **Scenario 3:** Button nav Business Event → Custom API (reverse handoff)
+- **Scenario 4:** Button nav Business Event → Tester (bidirectional flow)
+- **Scenario 5:** Nav menu switches reset to app settings defaults (4 test cases)
+- **Scenario 6:** Stale transient state isolation (4 test cases for long chains + rapid transitions)
+- **Scenario 7:** Edge cases—empty lists, missing settings, solution changes, settings form updates (4 test cases)
+- **Total: 21 test cases** covering full state handoff matrix
+
+**Critical Ambiguity Resolved:**
+- "Main filter" = the three-state managed/unmanaged toggle (NOT solution toggle; solution remains contextual per 2026-05-21 decision)
+
+**Ref Tracking Insight:**
+- Both selectors use a pattern: `filterWasChangedRef = false` on mount/connection-change; set `true` on manual toggle
+- Effect logic: `if (filterWasChangedRef.current) return;` prevents app-settings override after manual change
+- **Key Risk:** Refs persist across nav menu switches unless explicitly reset—need to verify cleanup in mount effects
+
+**Document Location:** `.squad/decisions/inbox/lambert-filter-handoff-qa.md`  
+**Status:** ✅ QA specification complete—21 test cases covering button navigation preservation + nav menu reset + stale state isolation; ready for implementation validation
+
+**Skill Extraction Candidate:** `filter-state-handoff` pattern (useRef tracking + menu vs. button navigation distinction) — **recommend creating .squad/skills/filter-state-handoff/SKILL.md** once QA is validated. Pattern applicable to any React selector with ephemeral state that must preserve on button navigation but reset on menu navigation.
+
+## Learnings (Session: 2026-06-03)
+
+### Filter State Handoff QA Checklist — Cross-View Navigation Behavior
+
+**Feature Request:** Clarify and test how filter states (all/managed/unmanaged) transfer when switching between Custom API and Business Event views via **button navigation** vs. **nav menu**.
+
+**Architecture Insights:**
+- CustomApiSelector & CatalogSelector maintain independent `useState` for filter state + `useRef` tracking manual changes
+- `customApiFilterWasChangedRef` & `catalogFilterWasChangedRef` control whether app settings override transient state on mount
+- Nav menu click should reset refs and apply settings defaults; button-driven navigation should preserve transient state
+- Zustand store (`setSelectedNavItem`) does NOT reset filter state—selectors handle it independently via effects
+
+**Behavior Model Clarified:**
+1. **Button-driven navigation** (CustomApiBusinessEventButton, Tester shortcuts) → preserve transient filter state across view boundary
+2. **Nav menu navigation** → enforce app settings defaults; reset refs; ignore in-session changes
+3. **Stale state isolation** → nav menu switch fully clears transient state; no cross-view contamination
+
+**QA Coverage Delivered:**
+- **Scenario 1:** Button nav Custom API → Business Event (preserves managed/unmanaged)
+- **Scenario 2:** Button nav Tester → Business Event (same state handoff)
+- **Scenario 3:** Button nav Business Event → Custom API (reverse handoff)
+- **Scenario 4:** Button nav Business Event → Tester (bidirectional flow)
+- **Scenario 5:** Nav menu switches reset to app settings defaults (4 test cases)
+- **Scenario 6:** Stale transient state isolation (4 test cases for long chains + rapid transitions)
+- **Scenario 7:** Edge cases—empty lists, missing settings, solution changes, settings form updates (4 test cases)
+- **Total: 21 test cases** covering full state handoff matrix
+
+**Critical Ambiguity Resolved:**
+- "Main filter" = the three-state managed/unmanaged toggle (NOT solution toggle; solution remains contextual per 2026-05-21 decision)
+
+**Ref Tracking Insight:**
+- Both selectors use a pattern: `filterWasChangedRef = false` on mount/connection-change; set `true` on manual toggle
+- Effect logic: `if (filterWasChangedRef.current) return;` prevents app-settings override after manual change
+- **Key Risk:** Refs persist across nav menu switches unless explicitly reset—need to verify cleanup in mount effects
+
+**Status:** ✅ QA specification complete—21 test cases covering button navigation preservation + nav menu reset + stale state isolation; ready for implementation validation
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 2026-05-26T03-51-58Z-lambert.md  
+**Scope:** Filter handoff QA specification sprint  
+**Status:** ✅ Complete — 21-test-case QA spec delivered; build passed; ready for validation execution

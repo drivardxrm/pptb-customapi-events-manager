@@ -72,4 +72,18 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 **Orchestration Log:** 2026-05-26T01-53-57Z-Dallas.md  
 **Scope:** Custom API to Business Event navigation feature implementation  
 **Status:** ✅ Implementation complete — `OpenBusinessEventAction` utility component delivered; Zustand handoff mechanism working; awaiting QA validation from Lambert
+ 
+## Learnings (Recent Session: 2026-06-02)
 
+### Managed Filter Cross-Navigation Handoff
+- Button-driven cross-navigation now carries the current managed filter through Zustand instead of letting the destination selector fall back to app settings on mount.
+- `src/store/useAppStore.ts` owns two pieces of selector state for this flow: mirrored live filter values (`currentCustomApiSelectionInit`, `currentBusinessEventSelectionInit`) and a short-lived `pendingManagedFilterHandoff` override that is cleared after the destination selector consumes it.
+- `src/components\CustomApiSelector.tsx` and `src/components\CatalogSelector.tsx` should treat a consumed handoff like a manual choice by flipping their `*FilterWasChangedRef` guard before applying the override, so async settings hydration cannot immediately overwrite the transferred state.
+- Cross-nav buttons live in `src/components/generic/CustomApiBusinessEventButton.tsx` and `src/components/BusinessEventDetails/TreeItemDetailsPanel.tsx`; nav-menu switching still relies on selector remount + settings initialization because no pending handoff is created on nav clicks.
+- Validation for this behavior used the existing `npm run build` command successfully after the frontend-only changes.
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 2026-05-26T03-51-58Z-dallas.md  
+**Scope:** Button-driven managed filter preservation sprint  
+**Status:** ✅ Complete — Filter handoff implementation delivered; build passed; awaiting QA validation from Lambert (21 test cases)
