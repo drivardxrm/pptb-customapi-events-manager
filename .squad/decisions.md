@@ -824,3 +824,110 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 
 **Decision:** ✅ **QA SPECIFICATION COMPLETE** — 21 test cases ready for implementation validation; ready for execution
 
+---
+
+### 2026-05-26: Business Event Root Catalog Button + Shared Modal Guard
+**By:** Dallas (Frontend Dev)  
+**Requested by:** David Rivard
+
+**What:**
+- Kept the Business Events header action as the root-catalog entry point, using the same secondary `AddCircleColor` button pattern as the Custom API create action.
+- Reused `src/components/BusinessEventDetails/CatalogModal.tsx` for root creation instead of introducing a second dialog.
+- Tightened modal mode handling so `create-root` always shows **Create Root Catalog** and always clears parent catalog context, while `create-category` preserves the existing parent-aware behavior.
+
+**Why:** 
+Root catalog creation and category creation share the same fields, so a separate modal would duplicate UI and drift over time. An explicit mode guard is safer because it prevents a stale parent catalog from leaking into the root-create payload or UI.
+
+**Files Changed:**
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx`
+- `src/components/BusinessEventDetails/CatalogModal.tsx`
+
+**Validation:**
+- ✅ `npm run build` passed
+
+**Decision:** ✅ **IMPLEMENTED** — Ready for QA validation
+
+---
+
+### 2026-05-26: Catalog Creation Form UX Improvements
+**By:** Dallas (Frontend Dev)  
+**Status:** ✅ Implemented
+
+**What:**
+The catalog creation form received UX improvements to streamline the user experience and improve usability:
+
+1. **Removed Placeholders from Empty Fields**
+   - Removed placeholder text from Name, Display Name, Unique Name suffix, and Description fields
+   - Rationale: Placeholders can be confusing when they look like actual values. Field labels already indicate purpose. Cleaner, more professional form appearance.
+
+2. **Reordered Form Fields**
+   - Moved "Add to Solution" selector to be the last field in the create form
+   - New field order:
+     1. Publisher (collapsible)
+     2. Unique Name
+     3. Name
+     4. Display Name
+     5. Description
+     6. Add to Solution
+   - Rationale: Optional metadata fields should follow core entity properties.
+
+3. **Added Auto-Focus to Unique Name**
+   - Set focus to the Unique Name input field when the create form opens
+   - Implemented using a ref (`uniqueNameInputRef`) with a 100ms setTimeout to ensure DOM is ready
+   - Rationale: Unique Name is the first user-editable field. Auto-focus improves keyboard accessibility and reduces clicks needed to start data entry.
+
+4. **Preserved Publisher-Prefix Behavior**
+   - The existing logic for automatically prefixing unique name with publisher prefix remains intact
+   - Auto-population of Name, Display Name, and Description from unique name suffix continues to work
+   - Rationale: Recent enhancement improving productivity; must be preserved.
+
+**Technical Implementation:**
+- Added `uniqueNameInputRef` using React's `useRef<HTMLInputElement>`
+- Modified useEffect handling form reset to include auto-focus logic for create mode
+- Reordered JSX elements to move "Add to Solution" section after Description field
+- Removed all `placeholder` props from Input and Textarea components
+
+**Files Modified:**
+- `src/components/BusinessEventDetails/CatalogModal.tsx`
+
+**Validation:**
+- ✅ Create form renders correctly with new field order
+- ✅ Auto-focus functional on create open (root and category modes)
+- ✅ Publisher-prefix auto-population working
+- ✅ Name/Display Name/Description auto-population working
+- ✅ Form validation still working correctly
+- ✅ `npm run build` passed
+
+**Decision:** ✅ **IMPLEMENTED** — Ready for QA validation
+
+---
+
+### 2026-05-26: QA Checklist: New Root Catalog Button
+**Feature:** Add a New Root Catalog Button in the Business Events form  
+**Requested By:** David Rivard  
+**Tester:** Lambert 🧪  
+
+**Scope:**
+This QA checklist covers the feature to add a "New Root Catalog Button" in the Business Events Details form, reusing the existing `CatalogModal` component while:
+- Matching the visual style and behavior of the "New Custom API" button
+- Setting the modal to "Create Root Catalog" mode (not "Create Category")
+- Ensuring no parent catalog is displayed for root creation
+- Preserving existing create-category and edit behaviors
+
+**Key Test Coverage Areas:**
+- Button visibility & styling (solution-scoped, icon parity)
+- Modal behavior in "create-root" mode (title, parent display, form fields)
+- Unchanged category creation and edit behaviors
+- Integration & state management (modal lifecycle, form reset, cache refresh)
+- User flows (create root, create category)
+- Error & edge cases (validation, API errors)
+- Accessibility & UX (keyboard navigation, focus management, theme consistency)
+- Regression coverage (no impact to Custom API button, CatalogSelector, CatalogTreeView, assignments)
+
+**Test Environment Setup:**
+- Prerequisites: Application deployed, Dataverse connection available, solution selected, Fluent UI theme loaded
+- Browser: Chromium (Playwright compatibility)
+- Viewport: Desktop (1920x1080 minimum)
+
+**Decision:** ✅ **QA SPECIFICATION COMPLETE** — Ready for implementation validation
+

@@ -102,3 +102,20 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - `src/components/BusinessEventDetails/BusinessEventDetails.tsx` renders the `New Root Catalog` header action only when `selectedSolutionId` is truthy, so the button is hidden whenever no solution is selected.
 - `src/components/CatalogSelector.tsx` owns the Business Events solution picker; the root catalog tree can still render from `selectedCatalogId`, which makes it possible to be on the page with a selected catalog but no visible root-create button.
 - `src/store/useAppStore.ts` initializes `selectedSolutionId` to `null` and resets it on connection changes, so solution context must be reselected before the root-create action appears.
+
+## Learnings (Recent Session: 2026-05-26)
+
+### Catalog Create Form UX Tightening
+- Removed placeholder text from empty-field inputs (Name, Display Name, Unique Name suffix, Description) because labels already communicate field purpose; placeholders added visual noise without improving usability.
+- Reordered create form to move "Add to Solution" to the last position after Description, following the principle that optional metadata fields should trail core entity properties.
+- Auto-focus implementation via `useRef<HTMLInputElement>` on Unique Name field when create mode opens (100ms setTimeout to ensure DOM mount): improves keyboard accessibility and reduces initial clicks; Unique Name is the first user-editable field after Publisher (which often pre-populated from settings).
+- Preserved publisher-prefix auto-population behavior and Name/Display Name/Description auto-population from suffix to keep existing productivity enhancements intact; these behaviors must be maintained during UX refactors.
+- Validation: `npm run build` passed; create form renders with new field order, auto-focus works on both root and category create modes, publisher-prefix behavior working.
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 2026-05-26T175909-dallas.md  
+**Scope:** Catalog create form UX tightening sprint  
+**Status:** ✅ Complete — Form UX improvements delivered (placeholder removal, field reordering, auto-focus); build passed; awaiting QA validation
+
+

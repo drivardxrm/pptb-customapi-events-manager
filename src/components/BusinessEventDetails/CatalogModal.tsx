@@ -12,6 +12,9 @@ import {
     Textarea,
     Spinner,
     Text,
+    Divider,
+    Label,
+    mergeClasses,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
 import { useCreateCatalog, useUpdateCatalog, useCatalogs } from '../../hooks/useCatalogs';
@@ -21,6 +24,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { Catalog, CatalogCreateable, CatalogUpdateable, DEFAULT_CATALOG_CREATE_TEMPLATE } from '../../models/Catalog';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { ChevronDown16Regular, ChevronRight16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 
 export type CatalogModalMode = 'create-root' | 'create-category' | 'edit';
 
@@ -44,7 +48,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     const updateCatalog = useUpdateCatalog();
     const { catalogs } = useCatalogs();
     const { publishers, isFetching: isFetchingPublishers } = usePublishers();
-    const { solutions } = useSolutions();
+    const { solutions, isFetching: isFetchingSolutions } = useSolutions();
     const { selectedSolutionId, selectedPublisherId, setSelectedPublisherId } = useAppStore();
     const { appsettings } = useAppSettings();
 
@@ -52,14 +56,51 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     const isCreateCategory = mode === 'create-category';
     const isCreateRoot = mode === 'create-root';
     const previousOpenRef = useRef(false);
+    const uniqueNameInputRef = useRef<HTMLInputElement>(null);
 
     // Form state
     const [formData, setFormData] = useState<CatalogCreateable>(DEFAULT_CATALOG_CREATE_TEMPLATE);
     const [editData, setEditData] = useState<CatalogUpdateable>({ name: '', displayname: '', description: '' });
+    const [selectedSolutionForCreate, setSelectedSolutionForCreate] = useState<string | null>(null);
 
     // Get selected solution for adding to solution
-    const selectedSolution = solutions.find(s => s.solutionid === selectedSolutionId);
     const initialPublisherId = appsettings?.defaultPublisherId ?? selectedPublisherId ?? '';
+    const [isPublisherExpanded, setIsPublisherExpanded] = useState(!initialPublisherId);
+    const unmanagedSolutions = useMemo(() => solutions.filter((solution) => !solution.ismanaged), [solutions]);
+    const solutionItems: SelectableItem[] = useMemo(() =>
+        unmanagedSolutions
+            .map((solution) => ({
+                id: solution.solutionid,
+                displayText: `${solution.friendlyname} (${solution.uniquename})`,
+                image: <LockOpen16Regular />,
+            } as SelectableItem))
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || '')),
+    [unmanagedSolutions]);
+    const selectedSolutionForCreateRecord = unmanagedSolutions.find(
+        (solution) => solution.solutionid === selectedSolutionForCreate
+    );
+    const getPublisherPrefix = (publisherId: string) =>
+        publishers.find((publisher) => publisher.publisherid === publisherId)?.customizationprefix || '';
+    const selectedPublisherPrefix = useMemo(
+        () => getPublisherPrefix(formData._publisherid_value),
+        [formData._publisherid_value, publishers]
+    );
+    const selectedPublisherDisplay = useMemo(() => {
+        const publisher = publishers.find((item) => item.publisherid === formData._publisherid_value);
+        return publisher ? `${publisher.friendlyname} (${publisher.customizationprefix})` : '';
+    }, [formData._publisherid_value, publishers]);
+    const uniqueNameSuffix = useMemo(() => {
+        if (!formData.uniquename) {
+            return '';
+        }
+
+        if (selectedPublisherPrefix && formData.uniquename.startsWith(`${selectedPublisherPrefix}_`)) {
+            return formData.uniquename.slice(selectedPublisherPrefix.length + 1);
+        }
+
+        const parts = formData.uniquename.split('_');
+        return parts.length > 1 ? parts.slice(1).join('_') : parts[0] ?? '';
+    }, [formData.uniquename, selectedPublisherPrefix]);
 
     // Reset form when modal opens
     useEffect(() => {
@@ -88,7 +129,27 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
             _parentcatalogid_value: isCreateCategory ? parentCatalog?.catalogid || '' : '',
             _publisherid_value: initialPublisherId,
         });
-    }, [open, isEdit, isCreateCategory, catalog, parentCatalog, initialPublisherId]);
+
+        const isInUnmanagedList = unmanagedSolutions.some(
+            (solution) => solution.solutionid === selectedSolutionId
+        );
+        setSelectedSolutionForCreate(isInUnmanagedList ? selectedSolutionId : null);
+
+        // Focus unique name input when create form opens
+        if (!isEdit) {
+            setTimeout(() => {
+                uniqueNameInputRef.current?.focus();
+            }, 100);
+        }
+    }, [open, isEdit, isCreateCategory, catalog, parentCatalog, initialPublisherId, unmanagedSolutions, selectedSolutionId]);
+
+    useEffect(() => {
+        if (!open || isEdit) {
+            return;
+        }
+
+        setIsPublisherExpanded(!formData._publisherid_value);
+    }, [formData._publisherid_value, isEdit, open]);
 
     useEffect(() => {
         if (!open || isEdit || !appsettings?.defaultPublisherId) {
@@ -109,11 +170,11 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                 return { isValid: false, message: 'Name and Display Name are required.' };
             }
         } else {
-            if (!formData.uniquename?.trim() || !formData.name?.trim() || !formData.displayname?.trim()) {
-                return { isValid: false, message: 'Unique Name, Name, and Display Name are required.' };
-            }
             if (!formData._publisherid_value) {
                 return { isValid: false, message: 'Publisher is required.' };
+            }
+            if (!formData.uniquename?.trim() || !formData.name?.trim() || !formData.displayname?.trim()) {
+                return { isValid: false, message: 'Unique Name, Name, and Display Name are required.' };
             }
             // Check for duplicate unique name
             if (catalogs.some(c => c.uniquename.toLowerCase() === formData.uniquename.toLowerCase())) {
@@ -133,12 +194,8 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
             } else {
                 await createCatalog.mutateAsync({
                     next: formData,
-                    solutionUniqueName: selectedSolution?.uniquename,
+                    solutionUniqueName: selectedSolutionForCreateRecord?.uniquename,
                 });
-                // Remember publisher selection
-                if (formData._publisherid_value) {
-                    setSelectedPublisherId(formData._publisherid_value);
-                }
             }
             onClose();
         } catch (error) {
@@ -169,56 +226,123 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                             </div>
                         )}
 
-                        {/* Publisher Selector (create only) */}
                         {!isEdit && (
-                            <Field label={<span className={styles.semiBoldLabel}>Publisher <span className={styles.required}>*</span></span>}>
-                                {isFetchingPublishers ? (
-                                    <Input value="Loading publishers..." readOnly appearance="filled-darker" />
-                                ) : (
-                                    <GenericTagPicker
-                                        items={publishers.map(p => ({
-                                            id: p.publisherid,
-                                            displayText: `${p.friendlyname} (${p.customizationprefix})`,
-                                            image: null,
-                                        } as SelectableItem))}
-                                        initialValue={formData._publisherid_value}
-                                        onSelect={(id) => setFormData(prev => ({ ...prev, _publisherid_value: id || '' }))}
-                                    />
+                            <div className={styles.formGrid}>
+                                {!isPublisherExpanded && formData._publisherid_value && (
+                                    <div
+                                        className={styles.formSection}
+                                        onClick={() => setIsPublisherExpanded(true)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <span className={styles.fieldLabelClickable}>
+                                            <ChevronRight16Regular />
+                                            <span className={styles.semiBoldLabel}>Publisher:</span>
+                                            <Text>{selectedPublisherDisplay}</Text>
+                                        </span>
+                                    </div>
                                 )}
-                            </Field>
+
+                                {(isPublisherExpanded || !formData._publisherid_value) && (
+                                    <div className={mergeClasses(styles.formSection, styles.twoColumn)}>
+                                        <Field
+                                            label={
+                                                formData._publisherid_value ? (
+                                                    <span
+                                                        className={styles.fieldLabelClickable}
+                                                        onClick={() => setIsPublisherExpanded(false)}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        <ChevronDown16Regular />
+                                                        <span className={styles.semiBoldLabel}>Publisher</span>
+                                                    </span>
+                                                ) : 'Publisher'
+                                            }
+                                            required
+                                        >
+                                            {isFetchingPublishers ? (
+                                                <Input value="Loading publishers..." readOnly appearance="filled-darker" />
+                                            ) : (
+                                                <GenericTagPicker
+                                                    items={publishers
+                                                        .map((publisher) => ({
+                                                            id: publisher.publisherid,
+                                                            displayText: `${publisher.friendlyname} (${publisher.customizationprefix})`,
+                                                        } as SelectableItem))
+                                                        .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                                    initialValue={formData._publisherid_value || ''}
+                                                    onSelect={(id) => {
+                                                        const nextPublisherId = id || '';
+                                                        const nextPublisherPrefix = nextPublisherId ? getPublisherPrefix(nextPublisherId) : '';
+
+                                                        setSelectedPublisherId(nextPublisherId);
+                                                        setFormData((current) => {
+                                                            const currentPrefix = getPublisherPrefix(current._publisherid_value);
+                                                            const currentSuffix =
+                                                                currentPrefix && current.uniquename.startsWith(`${currentPrefix}_`)
+                                                                    ? current.uniquename.slice(currentPrefix.length + 1)
+                                                                    : current.uniquename;
+
+                                                            return {
+                                                                ...current,
+                                                                _publisherid_value: nextPublisherId,
+                                                                uniquename:
+                                                                    nextPublisherPrefix && currentSuffix
+                                                                        ? `${nextPublisherPrefix}_${currentSuffix}`
+                                                                        : '',
+                                                            };
+                                                        });
+
+                                                        if (nextPublisherId) {
+                                                            setIsPublisherExpanded(false);
+                                                        }
+                                                    }}
+                                                />
+                                            )}
+                                        </Field>
+                                    </div>
+                                )}
+                            </div>
                         )}
 
-                        {/* Unique Name (create only) */}
-                        {!isEdit && (
+                        {!isEdit && selectedPublisherPrefix !== '' && (
                             <Field label={<span className={styles.semiBoldLabel}>Unique Name <span className={styles.required}>*</span></span>}>
                                 <Input
+                                    ref={uniqueNameInputRef}
                                     appearance="filled-darker"
-                                    value={formData.uniquename}
+                                    contentBefore={<Text size={400}>{`${selectedPublisherPrefix}_`}</Text>}
+                                    value={uniqueNameSuffix}
                                     onChange={(_, data) => {
-                                        const nextUniqueName = data.value;
+                                        const suffix = data.value;
 
                                         setFormData((current) => {
-                                            const previousUniqueName = current.uniquename;
+                                            const currentPrefix = getPublisherPrefix(current._publisherid_value);
+                                            const currentSuffix =
+                                                currentPrefix && current.uniquename.startsWith(`${currentPrefix}_`)
+                                                    ? current.uniquename.slice(currentPrefix.length + 1)
+                                                    : current.uniquename;
+
+                                            if (suffix === currentSuffix) {
+                                                return current;
+                                            }
 
                                             return {
                                                 ...current,
-                                                uniquename: nextUniqueName,
+                                                uniquename: `${selectedPublisherPrefix}_${suffix}`,
                                                 name:
-                                                    current.name.trim() === '' || current.name === previousUniqueName
-                                                        ? nextUniqueName
+                                                    current.name.trim() === '' || current.name === currentSuffix
+                                                        ? suffix
                                                         : current.name,
                                                 displayname:
-                                                    current.displayname.trim() === '' || current.displayname === previousUniqueName
-                                                        ? nextUniqueName
+                                                    current.displayname.trim() === '' || current.displayname === currentSuffix
+                                                        ? suffix
                                                         : current.displayname,
                                                 description:
-                                                    current.description.trim() === '' || current.description === previousUniqueName
-                                                        ? nextUniqueName
+                                                    current.description.trim() === '' || current.description === currentSuffix
+                                                        ? suffix
                                                         : current.description,
                                             };
                                         });
                                     }}
-                                    placeholder="e.g., contoso_mybusinessevent"
                                 />
                             </Field>
                         )}
@@ -235,7 +359,6 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                         setFormData(prev => ({ ...prev, name: data.value }));
                                     }
                                 }}
-                                placeholder="Name"
                             />
                         </Field>
 
@@ -251,7 +374,6 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                         setFormData(prev => ({ ...prev, displayname: data.value }));
                                     }
                                 }}
-                                placeholder="Display Name"
                             />
                         </Field>
 
@@ -267,10 +389,28 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                         setFormData(prev => ({ ...prev, description: data.value }));
                                     }
                                 }}
-                                placeholder="Description"
                                 rows={3}
                             />
                         </Field>
+
+                        {!isEdit && (
+                            <div className={styles.dialogSection}>
+                                <Label weight="semibold" size="large">Add to Solution (Optional)</Label>
+                                <Text className={styles.hintText}>
+                                    Select an unmanaged solution to add the Business Event to. If no solution is selected, it will be created in the default solution.
+                                </Text>
+                                <Divider />
+                                {isFetchingSolutions ? (
+                                    <Spinner size="small" label="Loading solutions..." />
+                                ) : (
+                                    <GenericTagPicker
+                                        items={solutionItems}
+                                        initialValue={selectedSolutionForCreate ?? undefined}
+                                        onSelect={(id) => setSelectedSolutionForCreate(id)}
+                                    />
+                                )}
+                            </div>
+                        )}
 
                         {/* Validation message */}
                         {!validation.isValid && (
