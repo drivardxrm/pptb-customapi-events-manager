@@ -6,7 +6,40 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 
 ---
 
-### 2026-05-21: Solution Filter Count Scope — Selection-Scoped Toggle
+### 2026-06-01: Catalog Assignment Polymorphic Object Binding — QA Analysis
+**By:** Lambert (Tester)  
+**What:** Reviewed polymorphic object binding bug in `createCatalogAssignment()` method. Prepared comprehensive regression QA checklist with 36 test cases and 8 pre-fix implementation assumptions.  
+**Root Issue:** `_object_value` must bind to entity-specific collection names (customapis/workflows/entities) based on assignment type. Wrong collection name → binding fails; missing objectidtype population → data integrity loss.  
+**QA Coverage Delivered:**
+- Custom API assignment creation: 5 tests
+- Workflow assignment creation: 4 tests
+- Entity assignment creation: 3 tests
+- Collection name binding validation: 5 tests
+- GUID validation & failure modes: 5 tests
+- OData annotation metadata: 5 tests
+- Payload structure: 4 tests
+- Modal/UI state preservation: 5 tests
+
+**Critical Pre-Fix Assumptions (For Kane):**
+1. Collection names must be exact: 'customapi'→'customapis', 'workflow'→'workflows', 'entity'→'entities'
+2. OData binding field: `Object@odata.bind` (not `_object_value@odata.bind`)
+3. Binding format: `collection(guid)` with lowercase collection names
+4. objectidtype auto-population: Assuming Dataverse sets automatically
+5. Modal validation sufficient: Service doesn't re-validate GUID
+6. Solution assignment optional: Missing `solutionUniqueName` doesn't fail record create
+7. Type ↔ GUID mismatch: Data integrity risk if not validated end-to-end
+8. Fallback behavior: Unknown entity types could mask errors (recommend throwing error)
+
+**Implementation Risks Identified:**
+- Collection name typos → silent binding failures
+- Type mismatch between selectedObjectType and actual object entity
+- Orphaned assignments if solution context add fails
+- Unknown entity type fallback masking issues
+
+**Document Location:** `.squad/decisions/inbox/lambert-catalog-assignment-regression-qa.md`  
+**Status:** ✅ 36-test-case regression checklist complete; ready for Kane implementation + manual QA execution  
+
+---
 **By:** Dallas (Frontend Dev)  
 **What:** Revised `CustomApiSelector.tsx` so the Solution managed/unmanaged toggle (`showSolutions`) no longer counts as a standalone active filter.
 **Why:** The toggle scopes the solution picker context, not applied record filters. Users read active-filter badges as filters that materially change the displayed record set. Collapsed badges should only show solution-related context when a solution is actually selected.
@@ -625,4 +658,58 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 **Impact:** Answers drive QA test case refinement and implementation adjustments  
 **Next Steps:** Once clarifications received, Lambert will refine QA checklist and execute 12-scenario validation suite.
 **Decision:** ⏸️ **CLARIFICATIONS REQUIRED** — Dallas implementation pending David's design decision answers.
+
+---
+
+### 2026-06-01: Catalog Assignment Polymorphic Payload Fix
+**By:** Kane (Backend Dev)  
+**What:** Fixed `src/services/CatalogAssignmentService.ts` to bind `_object_value` through concrete Dataverse single-valued navigation properties instead of generic `Object@odata.bind`.  
+**Root Cause:** `Object@odata.bind` is not a declared navigation property on the polymorphic lookup, so Dataverse rejects the payload.  
+**Applied Mapping:**
+- `customapi` → `object_customapi@odata.bind` + `customapis(<guid>)`
+- `workflow` → `object_workflow@odata.bind` + `workflows(<guid>)`
+- `entity` → `object_entity@odata.bind` + `entities(<guid>)`
+**Why:** The left-hand property must match metadata naming for the concrete relationship target. Wrong binding property → silent payload rejection.  
+**Guardrail:** `CatalogAssignmentService` now normalizes and validates `objectEntityName` before building the bind so unsupported or blank target types fail fast instead of generating malformed payload keys.  
+**Validation:**
+- ✅ `npm run build` passed  
+- ✅ No regressions detected  
+**Decision:** ✅ **FIX IMPLEMENTED** — Ready for Lambert's manual regression QA validation (36 test cases)  
+
+---
+
+### 2026-06-01: Catalog Assignment Polymorphic Object Binding — QA Analysis
+**By:** Lambert (Tester)  
+**What:** Reviewed polymorphic object binding bug in `createCatalogAssignment()` method. Produced comprehensive regression QA checklist with 36 test cases and 8 pre-fix implementation assumptions.  
+**Root Issue:** `_object_value` must bind to entity-specific collection names (customapis/workflows/entities) based on assignment type. Wrong collection name → binding fails; missing objectidtype population → data integrity loss.  
+**QA Coverage Delivered:**
+- Custom API assignment creation: 5 tests
+- Workflow assignment creation: 4 tests
+- Entity assignment creation: 3 tests
+- Collection name binding validation: 5 tests
+- GUID validation & failure modes: 5 tests
+- OData annotation metadata: 5 tests
+- Payload structure: 4 tests
+- Modal/UI state preservation: 5 tests
+**Critical Pre-Fix Assumptions (For Kane):**
+1. Collection names must be exact: 'customapi'→'customapis', 'workflow'→'workflows', 'entity'→'entities'
+2. OData binding field: `Object@odata.bind` (not `_object_value@odata.bind`)
+3. Binding format: `collection(guid)` with lowercase collection names
+4. objectidtype auto-population: Assuming Dataverse sets automatically
+5. Modal validation sufficient: Service doesn't re-validate GUID
+6. Solution assignment optional: Missing `solutionUniqueName` doesn't fail record create
+7. Type ↔ GUID mismatch: Data integrity risk if not validated end-to-end
+8. Fallback behavior: Unknown entity types could mask errors (recommend throwing error)
+**Implementation Risks Identified:**
+- Collection name typos → silent binding failures
+- Type mismatch between selectedObjectType and actual object entity
+- Orphaned assignments if solution context add fails
+- Unknown entity type fallback masking issues
+**Acceptance Criteria:**
+- ✅ All 36 test cases have clear, executable specifications
+- ✅ Pre-fix assumptions documented for Kane review
+- ✅ Critical and medium-priority tests identified
+- ✅ Test data requirements specified
+- ✅ Regression scenarios cover happy path and edge cases
+**Decision:** ✅ **QA CHECKLIST COMPLETE** — Ready for Kane implementation validation + manual execution
 

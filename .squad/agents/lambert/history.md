@@ -122,3 +122,34 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 **Scope:** Custom API to Business Event navigation feature QA specification  
 **Status:** ✅ QA specification complete — 12-scenario coverage plan delivered; 5 design clarifications submitted to David; ready to execute validation once answers received
 
+## Learnings (Session: 2026-06-01)
+
+### Catalog Assignment Polymorphic Object Binding — Regression QA Checklist
+
+**Issue:** Catalog Assignment create flow uses polymorphic `_object_value` field that must bind to different entity collection names (customapis/workflows/entities) based on assignment type. Risk: wrong collection name → binding fails; objectidtype not auto-populated → data integrity loss.
+
+**QA Coverage Delivered:**
+- **Scenario 1 (Custom API):** 5 test cases covering payload, objectidtype, solution assignment
+- **Scenario 2 (Workflow):** 4 test cases covering type dropdown persistence, binding format
+- **Scenario 3 (Entity):** 3 test cases covering table assignment + logical name display
+- **Scenario 4 (Binding Validation):** 5 test cases covering getCollectionName() mapping exactness + fallback behavior
+- **Scenario 5 (Failure Modes):** 5 test cases covering GUID validation, type mismatch detection
+- **Scenario 6 (Metadata Annotations):** 5 test cases covering OData annotation fetch + helper functions
+- **Scenario 7 (Payload Structure):** 4 test cases covering skipKeys, Object@odata.bind format, required field presence
+- **Scenario 8 (Modal/UI State):** 5 test cases covering type selection persistence, object picker reset on type change
+
+**Implementation Assumptions Identified (Critical for Kane):**
+- Collection names: 'customapi'→'customapis', 'workflow'→'workflows', 'entity'→'entities' (hardcoded, no fallback for unknown types recommended)
+- OData binding field: **Object@odata.bind** (not _object_value@odata.bind) — binding format: `collection(guid)`
+- objectidtype auto-population: Assuming Dataverse sets automatically; if not, fix must set explicitly
+- Modal validation sufficient: Service doesn't re-validate GUID; assumes modal ensures non-empty _object_value
+- Solution assignment optional: Missing solutionUniqueName doesn't fail record create; potential for orphaned assignments
+
+**Risk Areas:**
+- Type ↔ Object GUID mismatch (data integrity risk if not validated end-to-end)
+- Collection name fallback masking errors (recommendation: throw error for unknown types)
+- Solution context orphan if addToSolution() fails (consider rollback pattern)
+
+**Document Location:** `.squad/decisions/inbox/lambert-catalog-assignment-regression-qa.md`  
+**Status:** ✅ 36-test-case regression checklist complete; 8 pre-fix assumptions validated; ready for Kane implementation + manual QA execution
+

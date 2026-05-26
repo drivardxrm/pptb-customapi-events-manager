@@ -11,6 +11,7 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Query keys in `src/utils/queryKeys.ts` with solution-scoped caching (instanceId + connectionId + solutionId)
 - TanStack Query with staleTime: Infinity (no auto-refetch)
 - Catalog assignment create payloads must use the exact Dataverse polymorphic navigation property for `_object_value` (from `associatednavigationproperty` / metadata), not a generic `Object@odata.bind`; see `src/services/CatalogAssignmentService.ts` and `src/models/CatalogAssignment.ts`.
+- CatalogAssignment creation currently binds supported `_object_value` targets with concrete nav properties `object_customapi`, `object_workflow`, and `object_entity`; `CatalogAssignmentService` normalizes and validates the target logical name before building the Dataverse payload.
 
 ### 2026-05-24: TreeView Return Flag Leak Revision
 - Re-entering tree view must clear request/response tree-origin return flags and any pending create/edit handoff state, or a later non-tree child action can inherit stale return-to-tree behavior.
@@ -43,6 +44,13 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 **Review Outcome:** ✅ Approved by Ripley — flag-lifecycle gap resolved cleanly, no new material issues, ready for merge
 
 **Pattern Established:** Tree-origin return intent is transient, scoped per action, not durable state.
+
+### 2026-06-01: Catalog Assignment Polymorphic Object Binding Fix
+- Fixed `CatalogAssignmentService.ts` to bind `_object_value` through concrete Dataverse single-valued navigation properties
+- Applied mapping: `customapi` → `object_customapi@odata.bind`, `workflow` → `object_workflow@odata.bind`, `entity` → `object_entity@odata.bind`
+- Root cause: `Object@odata.bind` not a declared navigation property on polymorphic lookup
+- Added normalization and validation of `objectEntityName` before building payload
+- ✅ Build passed; Lambert's 36-test-case regression QA checklist ready for validation
 
 ### 2026-03-01: Cross-Agent Update from Ripley Review
 - Service pattern validated across CustomApi, RequestParameter, ResponseProperty, Catalog

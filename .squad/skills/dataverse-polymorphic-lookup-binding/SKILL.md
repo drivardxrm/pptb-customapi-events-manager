@@ -20,6 +20,15 @@ If the app already reads `@Microsoft.Dynamics.CRM.associatednavigationproperty`,
 ### Polymorphic lookups still need the correct entity set
 The right-hand side of the bind must target the correct Dataverse entity set, e.g. `/customapis(<guid>)`. Even if the GUID is correct, Dataverse will reject the payload if the left-hand navigation property name is not declared in metadata.
 
+### In this repo: catalogassignment `_object_value`
+`src/services/CatalogAssignmentService.ts` handles the `catalogassignment` polymorphic lookup by skipping `_object_value` in `buildCreatePayload()` and then binding one of these concrete navigation properties:
+
+- `object_customapi@odata.bind` → `customapis(<guid>)`
+- `object_workflow@odata.bind` → `workflows(<guid>)`
+- `object_entity@odata.bind` → `entities(<guid>)`
+
+Normalize and validate the target logical name before building the payload so unsupported or blank types fail fast instead of emitting malformed fallback keys.
+
 ## Examples
 
 ```ts
@@ -27,9 +36,10 @@ The right-hand side of the bind must target the correct Dataverse entity set, e.
 payload['Object@odata.bind'] = `customapis(${id})`;
 
 // Right pattern: use the actual navigation property name from metadata
-payload['objectid_customapi@odata.bind'] = `customapis(${id})`;
+payload['object_customapi@odata.bind'] = `customapis(${id})`;
 ```
 
 ## Anti-Patterns
 - **Using friendly labels as OData property names** — names like `Object@odata.bind` can trigger `An undeclared property ... only has property annotations`.
 - **Assuming the lookup property name equals the navigation property name** — that only reliably holds for non-polymorphic lookups.
+- **Falling back for unknown target types** — emitting `object_${entityName}` or `${entityName}s` without validation can hide caller bugs and still produce invalid Dataverse payloads.

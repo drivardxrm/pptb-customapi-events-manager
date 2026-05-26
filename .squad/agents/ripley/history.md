@@ -21,12 +21,14 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Business Event selector filter expand/collapse behavior (implementation approved, regression validation in progress)
 - Selector init settings (feature approved; AppSettings-driven initialization; 80+ regression checkpoints documented)
 - About section removal (full end-to-end removal approved; stale nav fallback handled)
+- Catalog Assignment Polymorphic Object Binding Fix by Kane (2026-06-01) — concrete navigation property mapping replaces generic Object@odata.bind; build passed; Lambert's 36-test regression QA pending execution
 
-## Session Updates (2026-05-29)
+## Session Updates (2026-06-01)
 
-**Orchestration Log:** 2026-05-25T23-40-24Z  
-**Scope:** About section removal sprint  
+**Orchestration Log:** 2026-05-26T02-23-18Z  
+**Scope:** Catalog Assignment polymorphic binding fix sprint  
 **Team Status:**
-- Dallas: About removal + selector init settings implementation complete
-- Lambert: Regression checklists (About 12 tests + Selector init 80+ checkpoints) ready for QA
-- Decisions: 4 inbox items merged to decisions.md; all tests and no material regressions reported
+- David Rivard: Reported catalog assignment creation error; delegated fix to Kane
+- Kane: Implemented fix in CatalogAssignmentService.ts; build passed
+- Lambert: Produced 36-test-case regression QA checklist with 8 pre-fix assumptions; ready for validation
+- Decisions: Kane fix decision + Lambert QA analysis merged to decisions.md; inbox files deleted
