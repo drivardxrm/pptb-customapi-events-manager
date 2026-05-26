@@ -68,7 +68,12 @@ export class CatalogAssignmentService extends EntityService {
         if (newAssignment._object_value) {
             // Determine the collection name for the object entity
             const objectCollectionName = this.getCollectionName(objectEntityName);
-            payload['Object@odata.bind'] = `${objectCollectionName}(${newAssignment._object_value})`;
+            const odataKey = this.getPolymorphicOdata(objectEntityName);
+            // customapi = CustomAPIId@odata.bind
+            // workflow = "WorkflowId@odata.bind"
+            // entity = "EntityId@odata.bind"
+
+            payload[`${odataKey}@odata.bind`] = `${objectCollectionName}(${newAssignment._object_value})`;
         }
 
         let result = await window.dataverseAPI.create(this.entityName, payload);
@@ -103,6 +108,17 @@ export class CatalogAssignmentService extends EntityService {
             'entity': 'entities',
         };
         return collectionMap[entityName] || `${entityName}s`;
+    }
+
+    // Helper to get collection name for polymorphic object binding
+    private getPolymorphicOdata(entityName: string): string {
+        // Standard pluralization for known entities
+        const collectionMap: Record<string, string> = {
+            'customapi': 'CustomAPIId',
+            'workflow': 'WorkflowId',
+            'entity': 'EntityId',
+        };
+        return collectionMap[entityName];
     }
 }
 
