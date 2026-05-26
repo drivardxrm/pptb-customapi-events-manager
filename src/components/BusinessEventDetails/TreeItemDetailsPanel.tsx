@@ -245,7 +245,12 @@ interface AssignmentDetailsProps {
 const AssignmentDetails: React.FC<AssignmentDetailsProps> = ({ assignment }) => {
     const styles = useStyles();
     const panelStyles = usePanelStyles();
-    const { setSelectedNavItem, setSelectedCustomApiId } = useAppStore();
+    const {
+        currentBusinessEventSelectionInit,
+        setPendingManagedFilterHandoff,
+        setSelectedNavItem,
+        setSelectedCustomApiId,
+    } = useAppStore();
     
     const typeIcon = getObjectTypeIcon(assignment);
     const typeName = getObjectTypeLabel(assignment);
@@ -254,6 +259,10 @@ const AssignmentDetails: React.FC<AssignmentDetailsProps> = ({ assignment }) => 
 
     const handleViewCustomApi = () => {
         if (assignment._object_value) {
+            setPendingManagedFilterHandoff({
+                target: 'customapi',
+                value: currentBusinessEventSelectionInit,
+            });
             setSelectedCustomApiId(assignment._object_value);
             setSelectedNavItem('customapi');
         }
@@ -261,6 +270,10 @@ const AssignmentDetails: React.FC<AssignmentDetailsProps> = ({ assignment }) => 
 
     const handleTestCustomApi = () => {
         if (assignment._object_value) {
+            setPendingManagedFilterHandoff({
+                target: 'customapi',
+                value: currentBusinessEventSelectionInit,
+            });
             setSelectedCustomApiId(assignment._object_value);
             setSelectedNavItem('customapitester');
         }

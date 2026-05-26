@@ -23,7 +23,19 @@ import { DEFAULT_SETTINGS } from '../models/AppSettings'
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { connection, addLog, setSelectedSolutionId, setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
+    const {
+        connection,
+        addLog,
+        setSelectedSolutionId,
+        setSelectedCustomApiId,
+        selectedSolutionId,
+        selectedCustomApiId,
+        editingComponent,
+        selectedNavItem,
+        pendingManagedFilterHandoff,
+        setPendingManagedFilterHandoff,
+        setCurrentCustomApiSelectionInit,
+    } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     const catalogAssignmentsQuery = useCatalogAssignements()
@@ -55,6 +67,24 @@ export const CustomApiSelector: React.FC = () => {
 
         setShowCustomApis(appsettings?.customApiSelectionInit ?? DEFAULT_SETTINGS.customApiSelectionInit)
     }, [appsettings?.customApiSelectionInit, connection?.id])
+
+    useEffect(() => {
+        if (!pendingManagedFilterHandoff || pendingManagedFilterHandoff.target !== 'customapi') {
+            return
+        }
+
+        if (selectedNavItem !== 'customapi' && selectedNavItem !== 'customapitester') {
+            return
+        }
+
+        customApiFilterWasChangedRef.current = true
+        setShowCustomApis(pendingManagedFilterHandoff.value)
+        setPendingManagedFilterHandoff(null)
+    }, [pendingManagedFilterHandoff, selectedNavItem, setPendingManagedFilterHandoff])
+
+    useEffect(() => {
+        setCurrentCustomApiSelectionInit(showCustomApis)
+    }, [showCustomApis, setCurrentCustomApiSelectionInit])
 
     const handleShowCustomApisChange = (value: ManagedStateFilter) => {
         customApiFilterWasChangedRef.current = true

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { produce } from 'immer';
 import type { ReactElement } from 'react';
+import { DEFAULT_SETTINGS, type SelectionInitSetting } from '../models/AppSettings';
 
 
 export interface LogEntry  {
@@ -25,6 +26,17 @@ export interface GlobalMessage {
 };
 
 export type EditingComponent = 'none' | 'customapi' | 'requestparameter' | 'responseproperty';
+export type ManagedFilterHandoffTarget = 'customapi' | 'businessevent';
+
+interface PendingManagedFilterHandoff {
+    target: ManagedFilterHandoffTarget;
+    value: SelectionInitSetting;
+}
+
+const navMatchesManagedFilterTarget = (navItem: string, target: ManagedFilterHandoffTarget) =>
+    target === 'customapi'
+        ? navItem === 'customapi' || navItem === 'customapitester'
+        : navItem === 'businessevent';
 
 interface AppState {
     // Connection state
@@ -42,6 +54,9 @@ interface AppState {
     selectedResponsePropertyId: string | null;
     selectedPublisherId: string | null;
     pendingBusinessEventAssignmentId: string | null;
+    currentCustomApiSelectionInit: SelectionInitSetting;
+    currentBusinessEventSelectionInit: SelectionInitSetting;
+    pendingManagedFilterHandoff: PendingManagedFilterHandoff | null;
     selectedNavItem: string;
 
     theme : 'light' | 'dark';
@@ -67,6 +82,9 @@ interface AppState {
     setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
     setSelectedPublisherId: (publisherId: string | null) => void;
     setPendingBusinessEventAssignmentId: (assignmentId: string | null) => void;
+    setCurrentCustomApiSelectionInit: (value: SelectionInitSetting) => void;
+    setCurrentBusinessEventSelectionInit: (value: SelectionInitSetting) => void;
+    setPendingManagedFilterHandoff: (handoff: PendingManagedFilterHandoff | null) => void;
     setSelectedNavItem: (navItem: string) => void;
 
     // Editing lock actions
@@ -99,6 +117,9 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
         pendingBusinessEventAssignmentId: null,
+        currentCustomApiSelectionInit: DEFAULT_SETTINGS.customApiSelectionInit,
+        currentBusinessEventSelectionInit: DEFAULT_SETTINGS.businessEventSelectionInit,
+        pendingManagedFilterHandoff: null,
         selectedNavItem: 'customapi',
 
         editingComponent: 'none',
@@ -131,6 +152,9 @@ export const useAppStore = create<AppState>((set, _get) => ({
                     selectedResponsePropertyId: null,
                     selectedPublisherId: null,
                     pendingBusinessEventAssignmentId: null,
+                    currentCustomApiSelectionInit: DEFAULT_SETTINGS.customApiSelectionInit,
+                    currentBusinessEventSelectionInit: DEFAULT_SETTINGS.businessEventSelectionInit,
+                    pendingManagedFilterHandoff: null,
                 });
                 
                 // Log connection change
@@ -195,11 +219,32 @@ export const useAppStore = create<AppState>((set, _get) => ({
                 ? state
                 : { pendingBusinessEventAssignmentId: assignmentId }
         ),
+        setCurrentCustomApiSelectionInit: (value) => set((state) =>
+            state.currentCustomApiSelectionInit === value
+                ? state
+                : { currentCustomApiSelectionInit: value }
+        ),
+        setCurrentBusinessEventSelectionInit: (value) => set((state) =>
+            state.currentBusinessEventSelectionInit === value
+                ? state
+                : { currentBusinessEventSelectionInit: value }
+        ),
+        setPendingManagedFilterHandoff: (handoff) => set((state) =>
+            state.pendingManagedFilterHandoff?.target === handoff?.target &&
+            state.pendingManagedFilterHandoff?.value === handoff?.value
+                ? state
+                : { pendingManagedFilterHandoff: handoff }
+        ),
         setSelectedNavItem: (navItem) => set((state) => ({
             selectedNavItem: navItem,
             editingComponent: 'none',
             pendingBusinessEventAssignmentId:
                 navItem === 'businessevent' ? state.pendingBusinessEventAssignmentId : null,
+            pendingManagedFilterHandoff:
+                state.pendingManagedFilterHandoff &&
+                navMatchesManagedFilterTarget(navItem, state.pendingManagedFilterHandoff.target)
+                    ? state.pendingManagedFilterHandoff
+                    : null,
         })),
 
         setEditingComponent: (component) => set((state) =>

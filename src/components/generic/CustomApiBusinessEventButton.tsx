@@ -23,7 +23,9 @@ export const CustomApiBusinessEventButton: React.FC<CustomApiBusinessEventButton
     const { businessEventAssignments, isFetching } = useCustomApiCatalogAssignments(customApiId);
     const {
         addLog,
+        currentCustomApiSelectionInit,
         setPendingBusinessEventAssignmentId,
+        setPendingManagedFilterHandoff,
         setSelectedCatalogId,
         setSelectedNavItem,
     } = useAppStore();
@@ -37,6 +39,10 @@ export const CustomApiBusinessEventButton: React.FC<CustomApiBusinessEventButton
         const targetCatalogId = target.rootCatalog?.catalogid || target.category?.catalogid || target.assignment._catalogid_value;
 
         setPendingBusinessEventAssignmentId(target.assignment.catalogassignmentid);
+        setPendingManagedFilterHandoff({
+            target: 'businessevent',
+            value: currentCustomApiSelectionInit,
+        });
         setSelectedCatalogId(targetCatalogId);
         setSelectedNavItem('businessevent');
         addLog(`Opened Business Event '${target.pathLabel}' for Custom API`, 'info');

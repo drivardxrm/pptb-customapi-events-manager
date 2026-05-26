@@ -22,7 +22,19 @@ import { DEFAULT_SETTINGS } from '../models/AppSettings'
 
 export const CatalogSelector: React.FC = () => {
     const styles = useStyles()
-    const { connection, isLoadingConnection, addLog, setSelectedSolutionId, setSelectedCatalogId, selectedSolutionId, selectedCatalogId, selectedNavItem } = useAppStore()
+    const {
+        connection,
+        isLoadingConnection,
+        addLog,
+        setSelectedSolutionId,
+        setSelectedCatalogId,
+        selectedSolutionId,
+        selectedCatalogId,
+        selectedNavItem,
+        pendingManagedFilterHandoff,
+        setPendingManagedFilterHandoff,
+        setCurrentBusinessEventSelectionInit,
+    } = useAppStore()
     const solutionsQuery = useSolutions()
     const catalogsQuery = useRootCatalogs()
     const { appsettings } = useAppSettings()
@@ -59,6 +71,24 @@ export const CatalogSelector: React.FC = () => {
 
         setShowCatalogs(appsettings?.businessEventSelectionInit ?? DEFAULT_SETTINGS.businessEventSelectionInit)
     }, [appsettings?.businessEventSelectionInit, connection?.id])
+
+    useEffect(() => {
+        if (!pendingManagedFilterHandoff || pendingManagedFilterHandoff.target !== 'businessevent') {
+            return
+        }
+
+        if (selectedNavItem !== 'businessevent') {
+            return
+        }
+
+        catalogFilterWasChangedRef.current = true
+        setShowCatalogs(pendingManagedFilterHandoff.value)
+        setPendingManagedFilterHandoff(null)
+    }, [pendingManagedFilterHandoff, selectedNavItem, setPendingManagedFilterHandoff])
+
+    useEffect(() => {
+        setCurrentBusinessEventSelectionInit(showCatalogs)
+    }, [showCatalogs, setCurrentBusinessEventSelectionInit])
 
     const handleShowCatalogsChange = (value: ManagedStateFilter) => {
         catalogFilterWasChangedRef.current = true
