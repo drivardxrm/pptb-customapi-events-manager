@@ -551,3 +551,78 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 - ✅ Manual session changes reset on reload
 **Decision:** ✅ **REGRESSION CHECKLIST RECORDED** — 80+ checkpoints ready for implementation validation.
 
+---
+
+### 2026-05-30: Custom API to Business Event Navigation — Implementation Pattern
+**By:** Dallas (Frontend Dev)  
+**What:** Implemented a shared `OpenBusinessEventAction` utility component that enables navigation from Custom API Details/Tester to Business Event view with the corresponding catalog assignment selected.
+**Why:** Feature request from David Rivard. Need smart routing: direct jump for single assignment, chooser dialog for multiple assignments. Zustand handoff mechanism avoids fragile URL/local state encoding.
+**Pattern Established:**
+1. Query catalog assignments filtered by `_object_value@Microsoft.Dynamics.CRM.lookuplogicalname === 'customapi'`
+2. Single assignment (1): Set `pendingBusinessEventAssignmentId` + navigate to Business Event directly
+3. Multiple assignments (2+): Show chooser dialog; user selects one to navigate
+4. In `BusinessEventDetails`: Wait for catalogs + assignments to load, derive root catalog from assignment category, select in tree, clear pending ID on unmount
+5. Cleanup: Clear pending ID when leaving Business Event view to prevent abandoned handoff replay
+**Integration Points:**
+- `CustomApiDetailsRead` component: Add button to action area
+- `CustomApiTester` nav: Add button to header (if applicable)
+- `BusinessEventDetails` component: Add pending ID resolution + cleanup logic
+- `useAppStore`: Add `pendingBusinessEventAssignmentId` state
+- Generic action component: `src/components/generic/OpenBusinessEventAction.tsx`
+**Implementation Notes:**
+- Zustand handoff is ephemeral; cleared on nav away
+- Tree selection reconstructed from assignment metadata (category → root catalog mapping)
+- No changes to existing Custom API/Business Event workflows
+**Build Status:** ✅ TypeScript compilation passed, Vite build passed
+**Decision:** ✅ **IMPLEMENTATION COMPLETE** — Ready for QA validation from Lambert.
+
+---
+
+### 2026-05-30: QA Specification — Custom API to Business Event Jump Feature
+**By:** Lambert (Tester)  
+**What:** Produced comprehensive QA specification with 12 end-to-end test scenarios covering all usage patterns, edge cases, and accessibility requirements.
+**Coverage Areas:**
+1. **Scenario 1: No Assignment** — Button hidden when Custom API has zero catalog assignments
+2. **Scenario 2: Single Assignment** — Direct navigation without dialog; button label, icon, placement verified
+3. **Scenario 3: Multiple Assignments** — Dialog/modal presents all assigned catalogs with names, hierarchy, managed state; user selects one to jump
+4. **Scenario 4: Mixed Managed/Unmanaged** — Lock icons and state indicators distinguish managed vs unmanaged catalogs in dialog
+5. **Scenario 5: State Preservation** — Custom API selection persists when user returns to Custom API view after jump
+6. **Scenario 6: Tester Integration** — Jump button behavior mirrors Details view (if button appears in Tester nav)
+7. **Scenario 7: Solution Context** — Button shows only assignments relevant to currently selected solution
+8. **Scenario 8: Object Type Awareness** — Assignments filtered correctly by `objectname='customapi'` (exclude other object types)
+9. **Scenario 9: Loading & Error States** — Async queries handled gracefully; button shows loading state or disables until assignments load; errors logged
+10. **Scenario 10: Accessibility** — Fluent UI v9 conventions, keyboard navigation (Tab, Enter/Space), ARIA labels for screen readers, theme compliance
+11. **Scenario 11: Multi-Assignment Dialog UX** — Dialog title, scrollable list, clickable items with hover/focus states, Cancel button, Escape key support, correct z-index
+12. **Scenario 12: Regression Testing** — No impact on existing Custom API CRUD, Details fields, Tester execution, Business Event tree view, CatalogAssignment operations, solution selector, or E2E test suite
+**Test Data Requirements:**
+- Custom API with 0 assignments
+- Custom API with 1 assignment
+- Custom API with 2+ assignments (ideally mixed managed/unmanaged)
+- Catalog hierarchy with Root > Category structure
+**Acceptance Criteria:**
+- ✅ All 12 scenarios have clear, executable test cases
+- ✅ Design clarifications from David received
+- ✅ Button placement, label, dialog UX approved
+- ✅ No console errors across all scenarios
+- ✅ Keyboard navigation and accessibility verified
+- ✅ Light/dark theme rendering tested
+- ✅ All E2E regression tests pass
+**Decision:** ✅ **QA SPECIFICATION COMPLETE** — Awaiting design clarifications from David before validation execution.
+
+---
+
+### 2026-05-30: Design Clarifications Needed — Custom API Business Event Jump Feature
+**By:** Lambert (Tester)  
+**To:** David Rivard (Requestor)  
+**What:** Identified 5 critical design ambiguities that must be clarified before QA can fully validate Dallas's implementation.
+**Clarifications Requested:**
+1. **Button Placement & Visibility** — Where should button appear? (inline in form, action button in card header, or separate section?) Should it appear in Tester view? What label and icon?
+2. **Multiple Assignment UX** — When 2+ assignments exist, use: (A) modal dialog with catalog list, (B) dropdown menu, or (C) auto-jump to first? Should dialog show hierarchy context (Root > Category)? Include solution name?
+3. **State Preservation** — After navigating to Business Event, should Custom API selection remain preserved for back-jump, or clear on nav away?
+4. **Managed vs Unmanaged Handling** — Should managed/unmanaged state conflict disable the button? Any special handling needed?
+5. **Cross-Solution Assignments** — Show only assignments from current solution, or show all regardless? Disable if no assignments in current solution?
+**Status:** ⏸️ Awaiting answers to proceed with validation  
+**Impact:** Answers drive QA test case refinement and implementation adjustments  
+**Next Steps:** Once clarifications received, Lambert will refine QA checklist and execute 12-scenario validation suite.
+**Decision:** ⏸️ **CLARIFICATIONS REQUIRED** — Dallas implementation pending David's design decision answers.
+

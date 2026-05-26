@@ -73,3 +73,52 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 **Orchestration Log:** 2026-05-25T23-40-24Z-lambert.md  
 **Scope:** About section removal sprint + selector init settings test planning  
 **Status:** ✅ Complete — Regression checklists delivered for both About removal (12 test cases) and selector init settings (80+ checkpoints)
+
+## Learnings (Session: 2026-05-30)
+
+### Business Event Jump Feature — QA Specification & Ambiguity Analysis
+
+**Feature Request:** Add a button near Custom API name in Details (and optionally Tester) that navigates to the Business Event (Catalog) when the Custom API is registered as a business event via CatalogAssignment.
+
+**Architecture Insights:**
+- CatalogAssignment model with polymorphic object binding: `_object_value` stores target entity GUID; `_object_value@Microsoft.Dynamics.CRM.lookuplogicalname` indicates entity type (e.g., 'customapi')
+- useCatalogAssignments() hook fetches all assignments; filtering by object type required in button logic
+- Navigation: `setSelectedCatalogId()` + `setSelectedNavItem('businessevent')` triggers Business Event view; both actions stored in Zustand
+- CatalogSelector has auto-expand behavior on Business Event nav entry (per 2026-05-25 decision); auto-collapse on catalog selection
+- Custom API selection persists via `selectedCustomApiId` across view navigation if not explicitly cleared
+
+**QA Coverage Designed:**
+- **Scenario 1:** No assignment — button hidden ✓
+- **Scenario 2:** Single assignment — direct jump (no dialog) ✓
+- **Scenario 3:** Multiple assignments — dialog picker for catalog selection ✓
+- **Scenario 4:** Managed/Unmanaged mix — visual distinction in picker ✓
+- **Scenario 5:** Selection preservation — Custom API remains selected after jump + return ✓
+- **Scenario 6:** Tester integration — button consistency if present in Tester nav ✓
+- **Scenario 7:** Solution context — assignments scoped to selected solution ✓
+- **Scenario 8:** Object type awareness — only 'customapi' assignments trigger button ✓
+- **Scenario 9:** Loading/error states — graceful async handling ✓
+- **Scenario 10:** Accessibility — Fluent UI v9 conventions, keyboard nav, theme support ✓
+- **Scenario 11:** Dialog UX (detailed) — title, scrolling, hover states, escape key ✓
+- **Scenario 12:** Regression — no breakage of existing Custom API/Business Event flows ✓
+
+**Critical Ambiguities Identified (5 Questions for David):**
+1. Button placement: Details card header, inline near name, or separate action? Tester too?
+2. Multiple assignment UX: Dialog picker, dropdown menu, or auto-select first?
+3. State preservation: One-way jump acceptable, or restore Custom API selection on return?
+4. Managed/Unmanaged: Show lock icons in picker? Disable jump if managed/unmanaged mismatch?
+5. Edge cases: Cross-solution assignments? Unsaved edit prevention?
+
+**Test Data Needed:**
+- Custom API with 0, 1, and 2+ assignments
+- Mixed managed/unmanaged catalogs
+- Solution-scoped isolation (if applicable)
+
+**Document Location:** `.squad/decisions/inbox/lambert-business-event-jump-qa-checklist.md`  
+**Status:** ✅ QA specification complete; awaiting design clarification from David before implementation validation
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 2026-05-26T01-53-57Z-Lambert.md  
+**Scope:** Custom API to Business Event navigation feature QA specification  
+**Status:** ✅ QA specification complete — 12-scenario coverage plan delivered; 5 design clarifications submitted to David; ready to execute validation once answers received
+

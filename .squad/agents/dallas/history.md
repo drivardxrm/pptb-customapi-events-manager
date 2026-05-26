@@ -56,3 +56,20 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 **Orchestration Log:** 2026-05-25T23-40-24Z-dallas.md  
 **Scope:** About section removal sprint  
 **Status:** ✅ Complete — All about-section removal work delivered, validated with build and E2E
+
+## Learnings (Recent Session: 2026-05-26)
+
+### Custom API → Business Event Reverse Navigation
+- Reused the existing Business Event → Custom API jump as the model for reverse navigation, but added a parent-level cross-nav handoff in Zustand so Business Events can land on the correct assignment after navigation.
+- `pendingBusinessEventAssignmentId` in `src/store/useAppStore.ts` is a short-lived selection intent; it should be cleared after the Business Events page consumes it and also cleared automatically when navigating away from `businessevent`.
+- `src/hooks/useCatalogAssignments.tsx` now exposes `useCustomApiCatalogAssignments()` to map a Custom API to one or more catalog assignments plus root/category path labels for chooser UIs.
+- `src/components/generic/CustomApiBusinessEventButton.tsx` is the shared entry point for both `src/components/customApiDetails/CustomApiDetails.tsx` and `src/components/customApiTester/CustomApiTester.tsx`.
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx` should guard pending-selection replay until both catalogs and assignments are loaded, otherwise category IDs can be mistaken for root catalog IDs during handoff.
+- Validation: baseline `npm run build` passed before changes, and post-change builds passed after implementation and after Ripley-driven follow-up fixes.
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 2026-05-26T01-53-57Z-Dallas.md  
+**Scope:** Custom API to Business Event navigation feature implementation  
+**Status:** ✅ Implementation complete — `OpenBusinessEventAction` utility component delivered; Zustand handoff mechanism working; awaiting QA validation from Lambert
+
