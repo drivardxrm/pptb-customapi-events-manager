@@ -1,7 +1,7 @@
 {
-  "name": "@drivardxrm/pptb-customapi-studio",
+  "name": "@drivardxrm/pptb-customapi-manager",
   "version": "0.0.1",
-  "displayName": "Custom API Studio",
+  "displayName": "Custom API Manager",
   "description": "All‑in‑one workspace for creating, managing, and extending Dataverse Custom APIs and Business events (Catalogs)",
   "main": "index.html",
   "author": "David Rivard",

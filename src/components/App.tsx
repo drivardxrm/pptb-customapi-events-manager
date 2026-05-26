@@ -191,10 +191,10 @@ function App() {
                             </NavDrawerHeader>
                             <NavDrawerBody>
                                 <AppItem
-                                    icon={<Image alt="Custom API Studio" src={logoImage} height={40} width={40} />}
+                                    icon={<Image alt="Custom API Manager" src={logoImage} height={40} width={40} />}
                                     as="a"
                                 >
-                                    {!navCollapsed ? "Custom API Studio" : null}
+                                    {!navCollapsed ? "Custom API Manager" : null}
                                 </AppItem>
                                 {navItems.filter(i => !i.hidden).map(item => {
                                     const isSelected = selectedNavItem === item.value;
