@@ -1,8 +1,8 @@
 {
-  "name": "@drivardxrm/pptb-customapi-manager",
+  "name": "@drivardxrm/pptb-customapi-events-manager",
   "version": "0.0.1",
-  "displayName": "Custom API Manager",
-  "description": "All‑in‑one workspace for creating, managing, and extending Dataverse Custom APIs and Business events (Catalogs)",
+  "displayName": "Custom API & Events Manager",
+  "description": "All‑in‑one workspace for creating, managing, and testing Dataverse Custom APIs and Business events (Catalogs)",
   "main": "index.html",
   "author": "David Rivard",
   "license": "MIT",
@@ -17,12 +17,6 @@
     "xrm",
     "microsoft"
   ],
-  "cspExceptions": {
-    "connect-src": [
-      "https://*.dynamics.com",
-      "https://*.crm*.dynamics.com"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/drivardxrm/PPTB-Dataverse-Custom-API-Manager"

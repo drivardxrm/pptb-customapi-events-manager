@@ -19,6 +19,7 @@ import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
 import { ModeBadge } from '../generic/ModeBadge';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
+import { CustomApiBusinessEventButton } from '../generic/CustomApiBusinessEventButton';
 import { PowerFxDetails } from '../powerfxDetails/PowerFxDetails';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
@@ -379,7 +380,10 @@ export const CustomApiDetails: React.FC = () => {
         </div>
     ) : (
         <div className={styles.flexColumn}>
-            <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+            <div className={styles.headingActionRow}>
+                <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+                <CustomApiBusinessEventButton customApiId={selectedCustomApi?.customapiid} />
+            </div>
             <div className={styles.hintTextItalic}>
                 <LockClosed16Regular />
                 <span>Fields that cannot be modified after creation</span>

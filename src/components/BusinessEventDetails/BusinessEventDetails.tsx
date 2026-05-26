@@ -9,6 +9,7 @@ import { CatalogModal, CatalogModalMode } from './CatalogModal';
 import { CatalogAssignmentModal } from './CatalogAssignmentModal';
 import { TreeItemDetailsPanel, SelectedTreeItem } from './TreeItemDetailsPanel';
 import { useCatalogs } from '../../hooks/useCatalogs';
+import { useCatalogAssignements } from '../../hooks/useCatalogAssignments';
 import { Catalog } from '../../models/Catalog';
 import { CatalogAssignment } from '../../models/CatalogAssignment';
 
@@ -37,8 +38,17 @@ const useLocalStyles = makeStyles({
 export const BusinessEventDetails: React.FC = () => {
     const styles = useStyles();
     const localStyles = useLocalStyles();
-    const { selectedCatalogId, selectedSolutionId, clearGlobalMessage } = useAppStore();
-    const { catalogs } = useCatalogs();
+    const {
+        selectedCatalogId,
+        selectedSolutionId,
+        selectedNavItem,
+        pendingBusinessEventAssignmentId,
+        setPendingBusinessEventAssignmentId,
+        setSelectedCatalogId,
+        clearGlobalMessage,
+    } = useAppStore();
+    const { catalogs, isFetching: isFetchingCatalogs } = useCatalogs();
+    const { catalogAssignments, isFetching: isFetchingAssignments } = useCatalogAssignements();
 
     // Selection state for tree items
     const [selectedTreeItem, setSelectedTreeItem] = useState<SelectedTreeItem>(null);
@@ -73,6 +83,50 @@ export const BusinessEventDetails: React.FC = () => {
             }
         }
     }, [catalogs, selectedTreeItem]);
+
+    useEffect(() => {
+        if (selectedNavItem !== 'businessevent' || !pendingBusinessEventAssignmentId) {
+            return;
+        }
+
+        if (isFetchingCatalogs || isFetchingAssignments) {
+            return;
+        }
+
+        const pendingAssignment = catalogAssignments.find(
+            assignment => assignment.catalogassignmentid === pendingBusinessEventAssignmentId
+        );
+
+        if (!pendingAssignment) {
+            return;
+        }
+
+        const category = catalogs.find(catalog => catalog.catalogid === pendingAssignment._catalogid_value);
+
+        if (!category) {
+            return;
+        }
+
+        const rootCatalogId = category._parentcatalogid_value || category.catalogid;
+
+        if (selectedCatalogId !== rootCatalogId) {
+            setSelectedCatalogId(rootCatalogId);
+            return;
+        }
+
+        setSelectedTreeItem({ type: 'assignment', item: pendingAssignment });
+        setPendingBusinessEventAssignmentId(null);
+    }, [
+        catalogAssignments,
+        catalogs,
+        isFetchingAssignments,
+        isFetchingCatalogs,
+        pendingBusinessEventAssignmentId,
+        selectedCatalogId,
+        selectedNavItem,
+        setPendingBusinessEventAssignmentId,
+        setSelectedCatalogId,
+    ]);
 
     // Clear message when component unmounts
     useEffect(() => {

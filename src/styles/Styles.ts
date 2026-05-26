@@ -326,6 +326,12 @@ export const useStyles = makeStyles({
     headingNoMargin: {
         margin: 0,
     },
+    headingActionRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalS,
+        flexWrap: 'wrap',
+    },
     required: {
         color: tokens.colorPaletteRedForeground1,
     },
@@ -489,6 +495,39 @@ export const useStyles = makeStyles({
     },
     summaryValue: {
         wordBreak: 'break-word',
+    },
+    dialogChoiceList: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: tokens.spacingVerticalS,
+    },
+    dialogChoiceButton: {
+        width: '100%',
+        justifyContent: 'flex-start',
+        height: 'auto',
+        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
+    },
+    dialogChoiceContent: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: tokens.spacingVerticalXXS,
+        textAlign: 'left',
+    },
+    dialogChoiceTitle: {
+        fontWeight: tokens.fontWeightSemibold,
+    },
+    dialogChoiceMeta: {
+        fontSize: tokens.fontSizeBase200,
+        color: tokens.colorNeutralForeground2,
+    },
+    dialogChoicePath: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalXS,
+        flexWrap: 'wrap',
+        fontSize: tokens.fontSizeBase200,
+        color: tokens.colorNeutralForeground3,
     },
 
     // ===========================================

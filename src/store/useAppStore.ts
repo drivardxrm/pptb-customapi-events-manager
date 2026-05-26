@@ -41,6 +41,7 @@ interface AppState {
     selectedRequestParameterId: string | null;
     selectedResponsePropertyId: string | null;
     selectedPublisherId: string | null;
+    pendingBusinessEventAssignmentId: string | null;
     selectedNavItem: string;
 
     theme : 'light' | 'dark';
@@ -65,6 +66,7 @@ interface AppState {
     setSelectedRequestParameterId: (requestParameterId: string | null) => void;
     setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
     setSelectedPublisherId: (publisherId: string | null) => void;
+    setPendingBusinessEventAssignmentId: (assignmentId: string | null) => void;
     setSelectedNavItem: (navItem: string) => void;
 
     // Editing lock actions
@@ -96,6 +98,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedRequestParameterId: null,
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
+        pendingBusinessEventAssignmentId: null,
         selectedNavItem: 'customapi',
 
         editingComponent: 'none',
@@ -127,6 +130,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
                     selectedRequestParameterId: null,
                     selectedResponsePropertyId: null,
                     selectedPublisherId: null,
+                    pendingBusinessEventAssignmentId: null,
                 });
                 
                 // Log connection change
@@ -186,9 +190,17 @@ export const useAppStore = create<AppState>((set, _get) => ({
         setSelectedPublisherId: (publisherId) => set(
             { selectedPublisherId: publisherId }
         ),
-        setSelectedNavItem: (navItem) => set(
-            { selectedNavItem: navItem, editingComponent: 'none' }
+        setPendingBusinessEventAssignmentId: (assignmentId) => set((state) =>
+            state.pendingBusinessEventAssignmentId === assignmentId
+                ? state
+                : { pendingBusinessEventAssignmentId: assignmentId }
         ),
+        setSelectedNavItem: (navItem) => set((state) => ({
+            selectedNavItem: navItem,
+            editingComponent: 'none',
+            pendingBusinessEventAssignmentId:
+                navItem === 'businessevent' ? state.pendingBusinessEventAssignmentId : null,
+        })),
 
         setEditingComponent: (component) => set((state) =>
             state.editingComponent === component

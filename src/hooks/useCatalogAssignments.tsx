@@ -1,8 +1,11 @@
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { queryKeys } from '../utils/queryKeys';
 
-import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable } from '../models/CatalogAssignment';
+import { Catalog } from '../models/Catalog';
+import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable, getObjectType } from '../models/CatalogAssignment';
+import { useCatalogs } from './useCatalogs';
 import { catalogAssignmentService } from '../services/CatalogAssignmentService';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
@@ -54,6 +57,67 @@ export const useCatalogAssignmentsByCatalog = (catalogId: string | null) => {
   return {
     assignments: data || [],
     status, error, isFetching, refetch
+  };
+};
+
+export interface CustomApiCatalogAssignmentTarget {
+  assignment: CatalogAssignment;
+  category: Catalog | null;
+  rootCatalog: Catalog | null;
+  assignmentLabel: string;
+  pathLabel: string;
+}
+
+const getCatalogDisplayName = (catalog: Catalog | null | undefined) =>
+  catalog?.displayname || catalog?.name || 'Unknown Catalog';
+
+const buildCatalogPathLabel = (rootCatalog: Catalog | null, category: Catalog | null) => {
+  if (rootCatalog && category && rootCatalog.catalogid !== category.catalogid) {
+    return `${getCatalogDisplayName(rootCatalog)} → ${getCatalogDisplayName(category)}`;
+  }
+
+  return getCatalogDisplayName(category ?? rootCatalog);
+};
+
+export const useCustomApiCatalogAssignments = (customApiId: string | null | undefined) => {
+  const { catalogAssignments, status, error, isFetching } = useCatalogAssignements();
+  const { catalogs, isFetching: isFetchingCatalogs } = useCatalogs();
+
+  const businessEventAssignments = useMemo<CustomApiCatalogAssignmentTarget[]>(() => {
+    if (!customApiId) {
+      return [];
+    }
+
+    return catalogAssignments
+      .filter(assignment => assignment._object_value === customApiId && getObjectType(assignment) === 'customapi')
+      .map((assignment) => {
+        const category = catalogs.find(catalog => catalog.catalogid === assignment._catalogid_value) ?? null;
+        const rootCatalog = category
+          ? catalogs.find(catalog => catalog.catalogid === category._parentcatalogid_value) ?? category
+          : null;
+
+        return {
+          assignment,
+          category,
+          rootCatalog,
+          assignmentLabel:
+            assignment.name ||
+            assignment['_object_value@OData.Community.Display.V1.FormattedValue'] ||
+            'Unnamed Assignment',
+          pathLabel: buildCatalogPathLabel(rootCatalog, category),
+        };
+      })
+      .sort((left, right) => {
+        const pathCompare = left.pathLabel.localeCompare(right.pathLabel);
+        return pathCompare !== 0 ? pathCompare : left.assignmentLabel.localeCompare(right.assignmentLabel);
+      });
+  }, [catalogAssignments, catalogs, customApiId]);
+
+  return {
+    businessEventAssignments,
+    status,
+    error,
+    isFetching: isFetching || isFetchingCatalogs,
   };
 };
 

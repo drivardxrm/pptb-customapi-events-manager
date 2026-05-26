@@ -10,6 +10,7 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Diff utilities: buildCreatePayload() / buildUpdatePayload() handle OData binding automatically
 - Query keys in `src/utils/queryKeys.ts` with solution-scoped caching (instanceId + connectionId + solutionId)
 - TanStack Query with staleTime: Infinity (no auto-refetch)
+- Catalog assignment create payloads must use the exact Dataverse polymorphic navigation property for `_object_value` (from `associatednavigationproperty` / metadata), not a generic `Object@odata.bind`; see `src/services/CatalogAssignmentService.ts` and `src/models/CatalogAssignment.ts`.
 
 ### 2026-05-24: TreeView Return Flag Leak Revision
 - Re-entering tree view must clear request/response tree-origin return flags and any pending create/edit handoff state, or a later non-tree child action can inherit stale return-to-tree behavior.
