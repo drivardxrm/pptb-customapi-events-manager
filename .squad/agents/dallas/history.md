@@ -311,3 +311,21 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Deferred .squad/ removal — critical to active session team memory and routing; handle in post-session cleanup batch
 - Confirmed 	est-logic.ts and ZUSTAND.md already absent (previously decided removals)
 - Rationale: cleanup in batches minimizes mid-flight disruption while making incremental progress toward public-release readiness
+
+## Team Updates (Session: 2026-05-27)
+
+**README Marketplace Refresh Sprint**
+
+**Orchestration Logs:** 2026-05-27T03-13-23Z-dallas.md  
+**Session Log:** 2026-05-27T03-13-23Z-readme-marketplace-refresh.md  
+
+**Sprint Summary:** Multi-agent iterative README refinement to marketplace-ready state.
+
+**Dallas Role:** Authored initial marketplace-facing README revision with user value proposition, separate concern sections (What It Does, For Developers, Installation), expanded tech stack rationale, and removed GitHub-repo noise.
+
+**Team Participation:**
+- Lambert: Comprehensive marketplace readiness review; identified 8 critical gaps (feature overview, user persona, use cases, requirements clarity, tech context, support paths, installation clarity)
+- Ripley: Finalized README addressing all gaps; added feature list, persona clarity, explicit requirements, live support paths; removed dead links and placeholders; improved from ⭐⭐ to ⭐⭐⭐⭐ marketplace readiness
+- Ripley: Post-fix removed unsupported GitHub Discussions link per David Rivard's feedback
+
+**Status:** ✅ Complete — README now marketplace-ready; all inbox decisions merged to decisions.md; orchestration and session logs written; Scribe tasks complete

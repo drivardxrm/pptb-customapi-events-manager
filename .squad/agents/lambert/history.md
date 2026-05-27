@@ -380,3 +380,24 @@ Modal mode discrimination with conditional field visibility is a reusable patter
 - Decision: keep .squad/ during active session — team memory, routing, inbox, and history are critical to ongoing work
 - Post-session cleanup: schedule dedicated batch to remove Squad-specific items and update stale documentation
 - Updated .gitignore rules will be needed after Squad removal to prevent accidental re-commits if team continues local usage
+
+## Team Updates (Session: 2026-05-27)
+
+**README Marketplace Refresh Sprint**
+
+**Orchestration Log:** 2026-05-27T03-13-23Z-lambert.md  
+**Session Log:** 2026-05-27T03-13-23Z-readme-marketplace-refresh.md  
+
+**Lambert Role:** Conducted comprehensive marketplace readiness review of Dallas's initial README revision.
+
+**Review Findings:**
+- Identified 8 critical gaps: feature overview, user persona, use cases, requirements clarity, tech stack context, support paths, installation clarity, feedback mechanisms
+- Assessed current README readiness at ⭐⭐ (clarity ✅, completeness ❌, accuracy ✅✅✅✅✅, marketplace readiness ❌)
+- Recommended feature bullets, persona line, requirements section, verified GitHub links
+- Provided structured suggestions for Dallas (team contributor) and Ripley (lead) to finalize
+
+**QA Validation:**
+- Ripley addressed all 8 gaps; README now marketplace-ready (⭐⭐⭐⭐)
+- All GitHub support links verified: Issues ✅, Discussions removed ✅ (disabled), Bug reports ✅
+
+**Status:** ✅ Complete — Review deliverables merged to decisions.md; orchestration and session logs written; Scribe tasks complete

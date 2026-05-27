@@ -32,3 +32,30 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Kane: Implemented fix in CatalogAssignmentService.ts; build passed
 - Lambert: Produced 36-test-case regression QA checklist with 8 pre-fix assumptions; ready for validation
 - Decisions: Kane fix decision + Lambert QA analysis merged to decisions.md; inbox files deleted
+
+## Team Updates (Session: 2026-05-27)
+
+**README Marketplace Refresh Sprint**
+
+**Orchestration Logs:** 2026-05-27T03-13-23Z-ripley-finalize.md, 2026-05-27T03-13-23Z-ripley-link-fix.md  
+**Session Log:** 2026-05-27T03-13-23Z-readme-marketplace-refresh.md  
+
+**Ripley Role:** Lead review and finalization of marketplace README revision.
+
+**Finalization Decisions:**
+1. Addressed all 8 Lambert marketplace-readiness gaps: feature bullets, persona, requirements, support paths, tech context, installation clarity, no placeholders
+2. Aligned README title with package.json displayName: "Custom API & Events Manager"
+3. Moved readiness from ⭐⭐ to ⭐⭐⭐⭐
+4. Removed GitHub Discussions link per David Rivard (feature disabled on repository)
+5. Kept all live support paths verified (Issues ✅, Bug Reports ✅)
+
+**Decision Trail:**
+- README Finalization Decision: Addressed 8 gaps; marketplace-ready ⭐⭐⭐⭐
+- Remove GitHub Discussions Link: Verified disabled; consolidated to Issues
+
+**Inbox Cleanup:**
+- Merged all README decisions to decisions.md (dallas-readme-refresh, lambert-readme-review, ripley-readme-finalize, ripley-readme-link-fix, copilot-directive)
+- Deleted all inbox decision files
+- Scribe wrote orchestration logs, session log, appended team updates, staged git commit
+
+**Status:** ✅ Complete — README finalized and marketplace-ready; all orchestration complete; decisions merged; squad logs written

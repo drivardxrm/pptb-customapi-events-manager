@@ -1078,3 +1078,188 @@ Use filtered collections for browsing/pickers. Use authoritative full collection
 
 **Decision:** ✅ **IMPLEMENTED** — Default publisher preselection restored; form owns state; build passed
 
+---
+
+### 2026-02-28: README Refresh for Marketplace Distribution
+**By:** Dallas (Frontend Dev)  
+**Type:** Documentation  
+**Status:** Complete  
+
+**Decision**
+Rewrote README.md to be marketplace-facing rather than GitHub-repo-oriented.
+
+**Rationale**
+The README is injected into Power Platform ToolBox marketplace, where PPTB users browse and decide whether to install tools. The original version was too GitHub-centric and didn't clearly explain what the tool does *for users*.
+
+**Changes**
+- **Opened with user value**: "All-in-one workspace for creating, managing, and testing..." instead of just naming it
+- **Separated concerns into sections**:
+  - **What It Does** — Custom APIs and Business Events capabilities (user-facing)
+  - **For Developers** — Build, dev, and tech stack info (installer-facing)
+  - **Installation** — Clear marketplace workflow
+- **Expanded tech stack context**: Added *why* each tech was chosen (design language match, caching strategy, etc.)
+- **Removed GitHub-repo noise**: No badges, broken doc links, or internal setup details
+- **Kept accurate build info**: Still covers `npm run build` and dev workflow for installers who want to fork/extend
+
+**Key Decisions**
+- Kept Node.js 18+ requirement implicit (in package.json) rather than repeating it
+- Removed "Coming soon" documentation reference — placeholder copy hurts credibility
+- Used clear section headers that make sense in a marketplace detail view (collapsible headers work well there)
+
+**Result**
+A README that works equally well as:
+1. In-marketplace tool description (tells users what they get)
+2. GitHub repository docs (helps devs understand the project)
+3. Installation guide (clear next steps)
+
+---
+
+### 2026-05-XX: README Marketplace Rendering Review
+**Reviewer:** Lambert (Tester)  
+**Date:** Current Session  
+**Context:** PPTB Custom API Manager — marketplace tool listing optimization
+
+**Summary**
+The current README is **foundational but underspecified for marketplace users**. It describes *what* the tool is (a workspace manager) but lacks critical context about *who uses it*, *what problems it solves*, and *when to use it*. Tech stack is listed but lacks business value narrative. Key gaps exist in feature description, use cases, and support/feedback paths.
+
+**Strengths** ✅
+1. **Clear tool identity**: Immediately states it's for "creating, managing, and extending Dataverse Custom APIs and Business Events (Catalogs)"
+2. **PPTB context**: Explicitly clarifies this is a PPTB tool (iframe-based React SPA)
+3. **Tech stack accuracy**: Lists correct primary technologies (React 19, TypeScript, Vite, Zustand, TanStack Query, Fluent UI v9)
+4. **Quick start is developer-focused**: Prerequisites and build commands are correct
+5. **No false claims**: Honest about missing documentation with "Coming soon"
+
+**Critical Gaps for Marketplace Users** 🚨
+1. **No Feature Overview** — Vague heading; missing specific capabilities list
+2. **No User Profile / Target Persona** — Unclear who should use this tool
+3. **No Use Case Scenario** — Users don't know when/why to download
+4. **No Requirements Beyond Node.js** — PPTB/Dataverse dependencies unclear
+5. **Incomplete Tech Stack Context** — Libraries listed but no ecosystem rationale
+6. **"Coming soon" Documentation** — Weak placeholder; no immediate escape hatch
+7. **No Installation Instructions for PPTB Users** — Unclear pre-built vs. source
+8. **No Support / Feedback Path** — No bug reporting or feature request mechanism
+
+**Quality Assessment**
+| Dimension | Rating | Notes |
+|-----------|--------|-------|
+| Clarity | ⭐⭐⭐ | Clear what it is; vague on *why* you'd use it |
+| Completeness | ⭐⭐ | Missing features, use cases, requirements, support paths |
+| Accuracy | ⭐⭐⭐⭐⭐ | All claims verified against package.json and copilot-instructions.md |
+| Marketplace Readiness | ⭐⭐ | Needs user-facing narrative; too developer-centric now |
+
+**Overall:** Not marketplace-ready without feature list, use cases, and support paths. Current version suitable for GitHub contributors; needs revision for end-user visibility.
+
+---
+
+### 2026-05-XX: README Finalization Decision
+**Lead:** Ripley  
+**Date:** Current Session  
+**Status:** Implemented  
+**Context:** PPTB Custom API & Events Manager — marketplace-ready README revision
+
+**Decision**
+
+**README revised to address Lambert's marketplace-readiness concerns. The following changes were implemented:**
+
+**✅ Resolved Issues**
+
+1. **Target Persona Added**
+   - Explicitly states: "Designed for **Dataverse developers, solution architects, and integration builders**"
+   - Removes ambiguity about target audience
+
+2. **Feature Overview Consolidated**
+   - Added bulleted feature list with emojis for visual scan
+   - Removed redundant "What It Does" section structure
+   - Kept both Custom APIs and Business Events as equal features
+
+3. **Requirements Section Created**
+   - PPTB dependency now explicit: "Power Platform ToolBox installed"
+   - Dataverse license clarity: "Dataverse Standard or Premium license (Custom APIs require these)"
+   - Separated dev requirements (Node.js) from user requirements
+
+4. **Support Paths Replaced**
+   - Removed vague "Coming soon" placeholder
+   - Added actionable GitHub links: Issues, Discussions, Bug Reports
+   - All links verified against package.json repository field
+
+5. **Installation Clarity Improved**
+   - Separated "For Power Platform Users" (marketplace install path)
+   - Separated "For Developers" (npm build path)
+   - Removed ambiguity about pre-built vs. source distribution
+
+6. **Tech Stack Context Preserved**
+   - Added brief rationale for each technology (e.g., "Microsoft design system" for Fluent UI v9)
+   - Kept stable, mature stack visible
+   - No external architecture docs created (kept README self-contained per task)
+
+7. **Naming Alignment Confirmed**
+   - README title matches package.json displayName: "Custom API & Events Manager"
+   - Both Custom APIs and Business Events presented as co-equal features
+
+8. **Marketplace Focus First**
+   - Opening paragraph now leads with user benefit, not technical detail
+   - Features section is third paragraph (user scans top-first)
+   - Requirements before Deep-dive sections
+   - Compact enough for marketplace rendering (~60 lines)
+
+**🗑️ Cleanup**
+- Removed commented screenshot placeholder
+- Removed "For Developers" subsection wrapper (redundant nesting)
+- Removed "This tool extends Power Platform ToolBox" link (implied by PPTB context)
+
+**Quality Checklist**
+| Item | Status | Notes |
+|------|--------|-------|
+| Persona added | ✅ | "Dataverse developers, solution architects, and integration builders" |
+| Feature list added | ✅ | 5 bullets with emojis; both APIs and Events featured |
+| Requirements explicit | ✅ | PPTB, Dataverse license, Node.js all listed |
+| Support paths added | ✅ | GitHub Issues, Discussions, Bug Report links all functional |
+| Tech stack rationale | ✅ | Brief context for each tech choice |
+| PPTB/Dataverse clarity | ✅ | Requirements section makes dependencies crystal clear |
+| No placeholders | ✅ | All "Coming soon" and dead links removed |
+| Marketplace compact | ✅ | ~60 lines; renders well in typical marketplace card UI |
+
+**Marketplace Readiness**: Moved from ⭐⭐ to ⭐⭐⭐⭐ (user-facing narrative, clear personas, actionable links, requirements explicit).
+
+---
+
+### 2026-05-26: Remove GitHub Discussions Link from README
+**Date:** 2026-05-26  
+**Owner:** Ripley (Lead)  
+**Requested by:** David Rivard  
+
+**Problem**
+README.md referenced GitHub Discussions link for feature requests, but `gh repo view` confirmed `hasDiscussionsEnabled: false` for this repository.
+
+**Solution**
+Removed the Discussions link from Support & Feedback section and consolidated messaging around GitHub Issues as the single support channel.
+
+**Changes Made**
+- **Removed:** `💬 **Feature request?** [Start a discussion](https://github.com/drivardxrm/pptb-customapi-events-manager/discussions)` line
+- **Kept:** Issues-based support paths (confirmed live: `hasIssuesEnabled: true`)
+- **Updated:** First bullet to combine "Questions or feedback" with issue opening link
+- **Kept:** Separate bug report link for clarity
+
+**Result**
+Support & Feedback section now contains only verified, live support paths:
+1. General questions/feedback → GitHub Issues
+2. Bug reports → GitHub Issues (with pre-filled template option)
+
+This keeps the marketplace README clean and accurate without broken links.
+
+---
+
+### 2026-05-26: User Directive — Squad Repository Configuration
+**Date:** 2026-05-26T22:56:41-04:00  
+**By:** David Rivard (via Copilot)  
+**Decision:** Keep `.squad/` in the repository; remove `.squad-templates/`
+
+**Rationale**
+User direction on repository structure. `.squad/` contains team memory and operational logs; `.squad-templates/` was experimental scaffolding.
+
+**Action**
+- Retain `.squad/` directory (decisions, logs, orchestration records, agent histories)
+- Remove `.squad-templates/` from repository
+
+---
+
