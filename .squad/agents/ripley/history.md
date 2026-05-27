@@ -59,3 +59,27 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Scribe wrote orchestration logs, session log, appended team updates, staged git commit
 
 **Status:** ✅ Complete — README finalized and marketplace-ready; all orchestration complete; decisions merged; squad logs written
+
+## Team Updates (Session: 2026-05-26)
+
+**README Example Tuning Sprint**
+
+**Orchestration Log:** 2026-05-26T23-18-48Z-ripley.md  
+**Session Log:** 2026-05-26T23-18-48Z-readme-example-tuning.md  
+
+**Ripley Role:** Polish README example-inspired improvements for marketplace presentation.
+
+**Tuning Applied:**
+1. Tech-stack badges (React 19, TypeScript, Fluent UI v9) — visual + scannable
+2. Feature bullets grouped with sub-headers (Create & Configure / Test & Manage / Developer-Friendly)
+3. Refined emoji usage for consistency
+
+**Decision Trail:**
+- README Style Tune: Example-Inspired Improvements (3 targeted edits; marketplace-compact maintained; ~65 lines; visual scannability improved)
+
+**Inbox Cleanup:**
+- Merged ripley-readme-example-tune decision to decisions.md
+- Deleted inbox file
+- Scribe wrote logs and prepared commit
+
+**Status:** ✅ Complete — README example tuning applied; polish pass approved; decisions merged

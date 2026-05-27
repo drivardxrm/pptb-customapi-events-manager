@@ -1263,3 +1263,8 @@ User direction on repository structure. `.squad/` contains team memory and opera
 
 ---
 
+
+
+---
+
+
