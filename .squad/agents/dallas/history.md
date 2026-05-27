@@ -16,6 +16,15 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 
 **Key Pattern:** React max-depth errors in tree-view remounts prevent pre-selection during transitions. Safe pattern: exit tree → store pending ID → child mounts → detects pending → selects → enters edit.
 
+**Consolidated Learnings Summary (Historical):**
+- Tree-view handoff: Two-phase transitions with explicit cache invalidation and idempotent store setters required
+- GenericTagPicker stability: Memoized arrays essential; stale selection resets must be dependency-tracked
+- Dialog/modal state: Reset on entry/exit; memoization of option arrays prevents cascading re-renders
+- Filter state preservation: Button-nav preserves transient filters; menu-nav applies settings defaults
+- Selector auto-behavior: Expand on nav-entry (invite browsing), collapse on selection (reduce clutter); manual toggles always honored
+- About section removal: End-to-end cleanup includes nav item, render branch, component file, page styles, settings fallback
+- Unique Name focus: Must be in create-form components, not confirmation dialogs; async-safe via useEffect watching form readiness
+
 **Recent Work (2026-05-24 to 2026-05-25):**
 - Hardened response-property tree-view create flow (React #185 fix): Cleared stale selections, memoized picker arrays, reset dialog state, made store setters idempotent
 - Implemented tree-view edit actions for request parameters and response properties

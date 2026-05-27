@@ -16,6 +16,15 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 
 **React Lifecycle Insight:** Tree-view remounts combined with shared conditional render blocks + stale TanStack Query cache + validation cascades create React max-depth issues. Fix required: explicit cache invalidation, state reset on transition, idempotent store setters.
 
+**QA Consolidation Summary (Historical Sessions):**
+- React #185 debugging: Root cause is simultaneous mount/unmount in shared render blocks; stale query cache + validation dependencies escalate to max-depth
+- GenericTagPicker patterns: Arrays must be memoized; stale-state resets need explicit dependency tracking; picker stability critical to tree-view operations
+- Tree-view-to-form handoff: Two-phase pattern is essential; pending-state via Zustand ID avoids pre-selection timing issues
+- Regression checklist patterns: 50+ test scenarios documented for tree-view, edit actions, filter-state transitions, modal operations
+- Solution-context behavior: Either cross-solution data is hidden everywhere or openable everywhere; mixed behavior causes "Unknown" label cascades
+- Filter handoff parity: Button-nav preserves transient state; menu-nav applies settings defaults; manual toggles always respected
+- Catalog path resolution: Use unfiltered catalog collection for ancestry lookup to avoid missing parent records in solution-filtered views
+
 **Recent Discovery (2026-05-22 to 2026-05-25):**
 - React #185 root causes: Simultaneous mount/unmount via shared conditional block; stale query cache; validation dependent on query state
 - GenericTagPicker stability: Unstable picker arrays + stale-selection reset effects trigger max-depth loops. Fix: memoized picker items
