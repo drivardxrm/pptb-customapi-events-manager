@@ -41,6 +41,31 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 
 ---
 
+### 2026-05-26: Assignment Solution Selector Pattern — Implemented
+**By:** Dallas (Frontend Dev)  
+**What:** Added unmanaged solution selector to `CatalogAssignmentModal` create mode.  
+**Why:** Catalog assignments need to be added to unmanaged solutions for portability. The solution context should be explicit at create time rather than assumed or deferred.  
+**Pattern Applied:** Reused the existing create-dialog pattern: only unmanaged solutions are shown in the picker.  
+**Implementation:**
+- Modified `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx` 
+- Unmanaged solution picker displayed in create mode only
+- Currently active unmanaged solution auto-preselected when modal opens in create mode
+- Selected solution unique name passed through create mutation path
+- Edit mode behavior unchanged
+**QA Coverage (Lambert):**
+- ✅ Unmanaged-only selection: Only unmanaged solutions appear in picker
+- ✅ Unmanaged preselection: Current unmanaged solution auto-selected when available
+- ✅ Clear-to-default: Selection can be cleared and returns to default
+- ✅ Stable in-modal selection: Selection persists correctly within modal
+- ⚠️ Post-save visibility/selection consistency noted as watch item
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ No regression in existing assignment creation/edit flows
+- ✅ Create mutation correctly passes solution unique name to Dataverse
+**Decision:** ✅ **IMPLEMENTED** — Unmanaged-only picker; preselection on open; mutation integration complete
+
+---
+
 ### 2026-05-26: Queue Created Catalog Selection via App State — Implemented
 **By:** Dallas (Frontend Dev)  
 **What:** Implemented cross-component catalog selection handoff so newly created Business Event catalogs (root and child) automatically select and display in the tree/details view after creation.  

@@ -198,3 +198,57 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Catalog create submission in `CatalogModal.tsx` must emit `PublisherId@odata.bind` so the selected publisher reaches Dataverse even though the shared catalog create path does not add that lookup binding itself.
 - Preserved create-flow UX baselines in `CatalogModal.tsx`: collapsed publisher summary, publisher-prefix unique-name regeneration on publisher change, unique-name autofocus, Add to Solution last, and no placeholders.
 - Validation: baseline `npm run build` passed before the fix, and post-fix `npm run build` passed again after implementation and Ripley re-review.
+
+## Learnings (Recent Session: 2026-05-26)
+
+### Assignment Solution Selector Pattern
+- Catalog assignments can now be assigned to an unmanaged solution at create time via the `CatalogAssignmentModal`.
+- Reused the existing create-dialog pattern: unmanaged solutions only appear in the picker (managed solutions filtered out).
+- The assignment modal preselects the currently active unmanaged solution when opened in create mode.
+- Selected solution unique name is passed through the create mutation path via `solutionUniqueName` field.
+- Edit mode behavior remains unchanged — solution selection only applies on creation, not on edit.
+- Pattern consistency: mirrors the existing create-time solution context pattern used for Custom API and Catalog creation.
+- Validation: ✅ `npm run build` passed; unmanaged-only filtering works; preselection and clear-to-default behavior stable; create mutation passes solution unique name correctly; edit flows unaffected.
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 20260526-201420-dallas.md  
+**Session Log:** 20260526-201420-assignment-solution-selector.md  
+**Scope:** Add unmanaged solution selector to CatalogAssignmentModal create mode  
+**Requested by:** David Rivard  
+**QA Validated by:** Lambert (Confirmed unmanaged-only selection, unmanaged preselection, clear-to-default behavior, stable in-modal selection; noted post-save visibility/selection consistency as watch item)  
+**Status:** ✅ Complete — Unmanaged solution picker added to create mode; preselection on open; mutation integration; edit mode unchanged; build passed; decision merged
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Business Event Empty State Action Parity
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx` should mirror `src/components/customApiDetails/CustomApiDetails.tsx` for no-selection guidance by using a top-level `setGlobalMessage(...)` info message with an inline CTA, not just the card-body info box.
+- Exact copy requested for the Business Event empty state: `No Root Catalog selected. Select a Root Catalog below or create a new one.` with CTA label `New Root Catalog` and `AddCircleColor`.
+- Keep the existing Business Event header action/button behavior intact; the empty-state message is additive guidance and should not change the tree/details selection flow.
+- Validation: `npm run build` passed after the frontend-only update.
+
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Catalog Edit Modal Context Parity
+- `src/components/BusinessEventDetails/CatalogModal.tsx` should keep immutable catalog identity/context visible in edit mode: always show `uniquename` as a readonly filled-darker input, and show the Parent Catalog section whenever the edited catalog is a category.
+- When edit mode does not receive the parent catalog as a prop, resolve it from `useAllCatalogs()` with `_parentcatalogid_value`, then fall back to Dataverse's formatted lookup annotation `_parentcatalogid_value@OData.Community.Display.V1.FormattedValue` for display-only context.
+- Preserve existing create-root and create-category behavior; this change is edit-mode parity, not a create-flow redesign.
+- Validation: `npm run build` passed after the frontend-only update.
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Managed Custom API Tree Action Parity
+- `src/components/customApiDetails/CustomApiTreeView.tsx` should hide the root Custom API Edit action when `api.ismanaged`, matching the existing managed restrictions already applied to delete and child create actions in tree view.
+- `src/components/customApiDetails/CustomApiDetails.tsx` should keep a defensive `handleEdit` guard for `selectedCustomApi.ismanaged` so tree/form callbacks cannot enter edit mode for managed records if a future caller bypasses button visibility.
+- Preserve unmanaged edit entry and all other tree actions unchanged; this is a parity fix for managed-record restrictions, not a broader tree interaction redesign.
+- Validation: baseline and post-change `npm run build` passed, and Ripley reviewed the diff with no issues.
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Catalog Assignment Custom API Picker Scope
+- `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx` must source Custom API create-mode options from `useAllCustomApis()` instead of `useCustomApis()` so a selected solution does not hide assignable APIs outside that solution.
+- Keep solution context split by responsibility: the Custom API picker chooses from the full assignable collection, while the modal's unmanaged solution picker still decides where the new assignment record is added.
+- Preserve existing unmanaged-only assignment behavior for Custom API options; this fix is about removing solution scoping from the source picker, not changing create permissions or mutation contracts.
+- Stabilizing the picker data with `useMemo` keeps the option array aligned with the GenericTagPicker stability guidance while making the scope change.
+- Validation: baseline and post-change `npm run build` passed, and Ripley code review found no material issues.

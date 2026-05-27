@@ -6,6 +6,7 @@
   "main": "index.html",
   "author": "David Rivard",
   "license": "MIT",
+  "icon": "icons/logo.svg",
   "keywords": [
     "powerplatform",
     "power-apps",

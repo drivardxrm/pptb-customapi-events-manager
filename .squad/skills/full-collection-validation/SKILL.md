@@ -23,6 +23,7 @@
 - `src/components/customApiDetails/CustomApiDetailsCreate.tsx` and `src/components/BusinessEventDetails/CatalogModal.tsx` now validate against `useAllCustomApis()` / `useAllCatalogs()` while still rendering filtered selector state elsewhere.
 - `src/hooks/useCustomApiRequestParameters.ts` and `src/hooks/useCustomApiResponseProperties.ts` are keyed by `selectedCustomApiId`, so they remain appropriate for per-Custom-API duplicate validation.
 - `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx` validates duplicates against the all-assignment query using catalog id + object id + object type, because assignments do not have a standalone unique name.
+- `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx` also sources the Custom API create-picker from `useAllCustomApis()` because the selected solution controls where the new assignment is added, not which referenced Custom APIs are eligible to be assigned.
 
 ## Why it helps
 - Prevents false negatives when a selected solution hides an existing duplicate.

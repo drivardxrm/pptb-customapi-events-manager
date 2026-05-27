@@ -43,6 +43,7 @@ export const BusinessEventDetails: React.FC = () => {
         selectedNavItem,
         pendingBusinessEventAssignmentId,
         pendingBusinessEventCatalogId,
+        setGlobalMessage,
         setPendingBusinessEventAssignmentId,
         setPendingBusinessEventCatalogId,
         setSelectedCatalogId,
@@ -169,13 +170,6 @@ export const BusinessEventDetails: React.FC = () => {
         setSelectedCatalogId,
     ]);
 
-    // Clear message when component unmounts
-    useEffect(() => {
-        return () => {
-            clearGlobalMessage('businessevent-coming-soon');
-        };
-    }, [clearGlobalMessage]);
-
     // Handlers for catalog operations
     const handleCreateRoot = () => {
         setCatalogModalMode('create-root');
@@ -222,6 +216,31 @@ export const BusinessEventDetails: React.FC = () => {
         setEditingAssignment(null);
         setParentCatalogForAssignment(null);
     };
+
+    useEffect(() => {
+        if (selectedNavItem === 'businessevent' && !selectedCatalogId) {
+            setGlobalMessage('no-root-catalog-selected', {
+                intent: 'info',
+                title: 'No Root Catalog selected. Select a Root Catalog below or create a new one.',
+                dismissable: false,
+                action: {
+                    label: 'New Root Catalog',
+                    icon: <AddCircleColor />,
+                    onClick: handleCreateRoot,
+                },
+            });
+        } else {
+            clearGlobalMessage('no-root-catalog-selected');
+        }
+    }, [selectedCatalogId, selectedNavItem, setGlobalMessage, clearGlobalMessage]);
+
+    // Clear messages when component unmounts
+    useEffect(() => {
+        return () => {
+            clearGlobalMessage('businessevent-coming-soon');
+            clearGlobalMessage('no-root-catalog-selected');
+        };
+    }, [clearGlobalMessage]);
 
     const headerAction = (
         <div className={styles.headerActionGroup}>
@@ -274,8 +293,8 @@ export const BusinessEventDetails: React.FC = () => {
 
                 {!selectedCatalogId ? (
                     <div className={styles.infoBox}>
-                        <p>No Catalog selected</p>
-                        <p>Select a Catalog above to view its hierarchy</p>
+                        <p>No Root Catalog selected</p>
+                        <p>Select a Root Catalog below or create a new one.</p>
                     </div>
                 ) : (
                     <div className={localStyles.contentLayout}>

@@ -131,15 +131,17 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                         }
                         actions={
                             <>
-                                <Button
-                                    aria-label="Edit"
-                                    appearance="subtle"
-                                    icon={<Edit20Regular />}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        onEdit?.();
-                                    }}
-                                />
+                                {!api.ismanaged && (
+                                    <Button
+                                        aria-label="Edit"
+                                        appearance="subtle"
+                                        icon={<Edit20Regular />}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            onEdit?.();
+                                        }}
+                                    />
+                                )}
                                 {!api.ismanaged && !api._fxexpressionid_value  && 
                                     <Button
                                         aria-label="Delete"

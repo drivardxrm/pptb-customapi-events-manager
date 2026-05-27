@@ -24,7 +24,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { Catalog, CatalogCreateable, CatalogUpdateable, DEFAULT_CATALOG_CREATE_TEMPLATE } from '../../models/Catalog';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useAppSettings } from '../../hooks/useAppSettings';
-import { ChevronDown16Regular, ChevronRight16Regular, LockOpen16Regular } from '@fluentui/react-icons';
+import { ChevronDown16Regular, ChevronRight16Regular, LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { hasCaseInsensitiveMatch } from '../../utils/validation';
 
 export type CatalogModalMode = 'create-root' | 'create-category' | 'edit';
@@ -100,6 +100,13 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     const activePublisherId = formData._publisherid_value;
     const getPublisherPrefix = (publisherId: string) =>
         publishersQuery.publishers?.find((publisher) => publisher.publisherid === publisherId)?.customizationprefix || '';
+    const editParentCatalog = useMemo(() => {
+        if (!isEdit || !catalog?._parentcatalogid_value) {
+            return null;
+        }
+
+        return allCatalogs.find((existingCatalog) => existingCatalog.catalogid === catalog._parentcatalogid_value) ?? null;
+    }, [allCatalogs, catalog, isEdit]);
    
     // useMemo to get the prefix of the selected publisher
     const selectedPublisherPrefix = useMemo(() => {
@@ -132,6 +139,27 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
         const parts = formData.uniquename.split('_');
         return parts.length > 1 ? parts.slice(1).join('_') : parts[0] ?? '';
     }, [formData.uniquename, selectedPublisherPrefix]);
+
+    const parentCatalogDisplayName = useMemo(() => {
+        if (isCreateCategory && parentCatalog) {
+            return parentCatalog.displayname || parentCatalog.name;
+        }
+
+        if (isEdit && catalog?._parentcatalogid_value) {
+            return (
+                editParentCatalog?.displayname ||
+                editParentCatalog?.name ||
+                catalog['_parentcatalogid_value@OData.Community.Display.V1.FormattedValue'] ||
+                ''
+            );
+        }
+
+        return '';
+    }, [catalog, editParentCatalog, isCreateCategory, isEdit, parentCatalog]);
+
+    const showParentCatalogSection = Boolean(
+        parentCatalogDisplayName && (isCreateCategory || (isEdit && catalog?._parentcatalogid_value))
+    );
 
     // Reset form when modal opens
     useEffect(() => {
@@ -274,10 +302,10 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                     <DialogTitle>{getTitle()}</DialogTitle>
                     <DialogContent className={styles.dialogContentColumn}>
                         {/* Parent info for categories */}
-                        {isCreateCategory && parentCatalog && (
+                        {showParentCatalogSection && (
                             <div className={styles.dialogSection}>
                                 <Text size={200} weight="semibold">Parent Catalog</Text>
-                                <Text>{parentCatalog.displayname || parentCatalog.name}</Text>
+                                <Text>{parentCatalogDisplayName}</Text>
                             </div>
                         )}
 
@@ -400,6 +428,28 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                     }}
                                 />
                             </Field>
+                        )}
+
+                        {isEdit && catalog && (
+                            <div className={styles.formGrid}>
+                                <div className={styles.formSection}>
+                                    <Field
+                                        label={
+                                            <span className={styles.fieldLabelStandard}>
+                                                <span className={styles.semiBoldLabel}>Unique Name</span>
+                                                <LockClosed16Regular />
+                                            </span>
+                                        }
+                                    >
+                                        <Input
+                                            appearance="filled-darker"
+                                            value={catalog.uniquename || ''}
+                                            readOnly
+                                            className={styles.disabledInput}
+                                        />
+                                    </Field>
+                                </div>
+                            </div>
                         )}
 
                         {/* Name */}

@@ -190,7 +190,7 @@ export const CustomApiDetails: React.FC = () => {
     }, [selectedCustomApi]);
 
     const handleEdit = (returnToTreeViewOnExit = false) => {
-        if (!selectedCustomApi) {
+        if (!selectedCustomApi || selectedCustomApi.ismanaged) {
             return;
         }
         setEditedData(toEditable(selectedCustomApi));

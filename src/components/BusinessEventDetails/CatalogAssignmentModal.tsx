@@ -7,18 +7,20 @@ import {
     DialogContent,
     DialogActions,
     Button,
+    Divider,
     Field,
     Input,
+    Label,
     Dropdown,
     Option,
     Spinner,
     Text,
 } from '@fluentui/react-components';
-import { LockClosedRegular, LockOpenRegular, FolderRegular, FolderOpenRegular, ChevronRightRegular } from '@fluentui/react-icons';
+import { LockOpenRegular, LockOpen16Regular, FolderRegular, FolderOpenRegular, ChevronRightRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { useCatalogAssignements, useCreateCatalogAssignment, useUpdateCatalogAssignment } from '../../hooks/useCatalogAssignments';
 import { useCatalogs } from '../../hooks/useCatalogs';
-import { useCustomApis } from '../../hooks/useCustomApis';
+import { useAllCustomApis } from '../../hooks/useCustomApis';
 import { useEntities } from '../../hooks/useEntities';
 import { useWorflows } from '../../hooks/useWorkflows';
 import { useSolutions } from '../../hooks/useSolutions';
@@ -45,10 +47,10 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     const updateAssignment = useUpdateCatalogAssignment();
     const { allCatalogAssignments } = useCatalogAssignements();
     const { catalogs } = useCatalogs();
-    const { customapis, isFetching: isFetchingCustomApis } = useCustomApis();
+    const { customapis: allCustomApis, isFetching: isFetchingCustomApis } = useAllCustomApis();
     const { entities, isFetching: isFetchingEntities } = useEntities();
     const { entities: workflows, isFetching: isFetchingWorkflows } = useWorflows();
-    const { solutions } = useSolutions();
+    const { solutions, isFetching: isFetchingSolutions } = useSolutions();
     const { selectedSolutionId } = useAppStore();
 
     // Find root catalog (parent of the category)
@@ -62,9 +64,25 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     const [formData, setFormData] = useState<CatalogAssignmentCreateable>(DEFAULT_ASSIGNMENT_CREATE_TEMPLATE);
     const [editData, setEditData] = useState<CatalogAssignmentUpdateable>({ name: '' });
     const [selectedObjectType, setSelectedObjectType] = useState<string>('customapi'); // Entity logical name
+    const [selectedSolutionForCreate, setSelectedSolutionForCreate] = useState<string | null>(null);
 
-    // Get selected solution
-    const selectedSolution = solutions.find(s => s.solutionid === selectedSolutionId);
+    const unmanagedSolutions = useMemo(
+        () => solutions.filter((solution) => !solution.ismanaged),
+        [solutions]
+    );
+    const solutionItems: SelectableItem[] = useMemo(
+        () => unmanagedSolutions
+            .map((solution) => ({
+                id: solution.solutionid,
+                displayText: `${solution.friendlyname} (${solution.uniquename})`,
+                image: <LockOpen16Regular />,
+            }))
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || '')),
+        [unmanagedSolutions]
+    );
+    const selectedSolutionForCreateRecord = unmanagedSolutions.find(
+        (solution) => solution.solutionid === selectedSolutionForCreate
+    );
 
     // Reset form when modal opens
     useEffect(() => {
@@ -81,9 +99,14 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                     _catalogid_value: parentCatalog?.catalogid || '',
                 });
                 setSelectedObjectType('customapi'); // Default to Custom API
+
+                const isInUnmanagedList = unmanagedSolutions.some(
+                    (solution) => solution.solutionid === selectedSolutionId
+                );
+                setSelectedSolutionForCreate(isInUnmanagedList ? selectedSolutionId : null);
             }
         }
-    }, [open, isEdit, assignment, parentCatalog]);
+    }, [open, isEdit, assignment, parentCatalog, unmanagedSolutions, selectedSolutionId]);
 
     // Validation
     const validation = useMemo(() => {
@@ -130,7 +153,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                 await createAssignment.mutateAsync({
                     next: formData,
                     objectEntityName: selectedObjectType,
-                    solutionUniqueName: selectedSolution?.uniquename,
+                    solutionUniqueName: selectedSolutionForCreateRecord?.uniquename,
                 });
             }
             onClose();
@@ -149,20 +172,18 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     };
 
     // Get selectable items based on type
-    const getObjectItems = (): SelectableItem[] => {
+    const objectItems = useMemo<SelectableItem[]>(() => {
         if (selectedObjectType === 'customapi') {
-            // Custom APIs
-            return customapis
-                .filter(api => !api.ismanaged) // Only unmanaged for assignment
+            return allCustomApis
+                .filter(api => !api.ismanaged)
                 .map(api => ({
                     id: api.customapiid,
                     displayText: `${api.displayname || api.name} (${api.uniquename})`,
-                    image: api.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />,
+                    image: <LockOpenRegular />,
                 }))
                 .sort((a, b) => a.displayText.localeCompare(b.displayText));
         }
         if (selectedObjectType === 'entity') {
-            // Tables/Entities
             return entities
                 .map(entity => ({
                     id: entity.entityid,
@@ -171,7 +192,6 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
         }
         if (selectedObjectType === 'workflow') {
-            // Custom Process Actions (Workflows)
             return workflows
                 .map(workflow => ({
                     id: workflow.workflowid,
@@ -180,10 +200,9 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                 .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
         }
         return [];
-    };
+    }, [allCustomApis, entities, selectedObjectType, workflows]);
 
     const isSaving = createAssignment.isPending || updateAssignment.isPending;
-    const objectItems = getObjectItems();
 
     // Handle object selection - also auto-fill name if empty
     const handleObjectSelect = (id: string | null) => {
@@ -194,7 +213,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
 
         let objectName = '';
         if (selectedObjectType === 'customapi') {
-            const api = customapis.find(a => a.customapiid === id);
+            const api = allCustomApis.find(a => a.customapiid === id);
             objectName = api?.displayname || api?.name || '';
         } else if (selectedObjectType === 'entity') {
             const entity = entities.find(e => e.entityid === id);
@@ -318,6 +337,25 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
                                     )
                                 ) : null}
                             </Field>
+                        )}
+
+                        {!isEdit && (
+                            <div className={styles.dialogSection}>
+                                <Label weight="semibold" size="large">Add to Solution (Optional)</Label>
+                                <Text className={styles.hintText}>
+                                    Select an unmanaged solution to add the assignment to. If no solution is selected, it will be created in the default solution.
+                                </Text>
+                                <Divider />
+                                {isFetchingSolutions ? (
+                                    <Spinner size="small" label="Loading solutions..." />
+                                ) : (
+                                    <GenericTagPicker
+                                        items={solutionItems}
+                                        initialValue={selectedSolutionForCreate ?? undefined}
+                                        onSelect={(id) => setSelectedSolutionForCreate(id)}
+                                    />
+                                )}
+                            </div>
                         )}
 
                         {/* Show current object for edit mode */}
