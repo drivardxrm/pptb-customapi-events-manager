@@ -1268,3 +1268,39 @@ User direction on repository structure. `.squad/` contains team memory and opera
 ---
 
 
+---
+
+### 2026-05-28: README Features Section Reorganization
+**Date:** 2026-05-28  
+**By:** Dallas (Frontend Dev)  
+**Decision:** Reorganize README.md Features section to align with main navigation structure
+
+**Rationale**
+- **Navigation Alignment:** Users navigate via four main sections (Custom API Manager, Custom API Tester, Business Event Manager, and Debug) plus Settings. The original flat feature list didn't reflect this mental model.
+- **Scannability:** Emojis and subsection headers help users quickly find the feature they're looking for.
+- **Completeness:** Added Debug Mode section (was missing from original docs) and Settings & Configuration section documenting all 7 app settings.
+- **Template Documentation:** Parameter/response naming settings now show actual template syntax for user reference.
+
+**Changes Made**
+1. **Custom API Manager** (7 features)
+   - Create/Edit, Request Parameters, Response Properties, Entity Binding, Privilege Config, Solution Organization, Tree View Display
+2. **Custom API Tester** (6 features)
+   - Execute/Test, Dynamic Parameters, Response Inspection, Entity Record Selection, OData Details, Performance Metrics
+3. **Business Event Manager** (5 features)
+   - Browse Catalog, Create Subscriptions, Catalog Tree Navigation, Manage Assignments, Event Triggering
+4. **Debug Mode** (4 features)
+   - Store Inspector, State Inspection, Collapsible Tree View, Theme-Aware Display
+5. **Settings & Configuration** (6 features)
+   - Default Publisher (with connection-scope note), Parameter Templates, Response Templates, Selection Filters, Debug Toggle, View Preferences
+
+**Extracted Patterns** (for Future Reference)
+- **Template Syntax:** `{customapiname}-In-{uniquename}` and `{customapiname}-Out-{uniquename}` patterns are user-configurable
+- **Connection Scoping:** Default Publisher is connection-scoped; other settings are global
+- **Feature Discovery:** Settings page is a key documentation portal for feature toggles (Debug Mode, Tree View Display)
+
+**Impact**
+- **Documentation:** README now reflects actual product capabilities end-to-end
+- **User Onboarding:** New users can quickly map UI sections to feature documentation
+- **Team:** No code changes; documentation only
+
+**Status:** ✅ Complete — README updated; build passed

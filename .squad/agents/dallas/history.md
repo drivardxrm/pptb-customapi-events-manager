@@ -250,6 +250,16 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 
 ### Business Event Empty State Action Parity
 - `src/components/BusinessEventDetails/BusinessEventDetails.tsx` should mirror `src/components/customApiDetails/CustomApiDetails.tsx` for no-selection guidance by using a top-level `setGlobalMessage(...)` info message with an inline CTA, not just the card-body info box.
+
+## Learnings (Recent Session: 2026-05-28)
+
+### README Feature Documentation Strategy
+- README should organize Features by main navigation sections (Custom API Manager, Custom API Tester, Business Event Manager) to match the actual UI navigation.
+- Feature extraction scanned: `App.tsx` (nav structure), `CustomApiDetails.tsx` (CRUD, tree view, entity binding), `CustomApiTester.tsx` (execution, dynamic params, performance), `BusinessEventDetails.tsx` (catalog browsing, event subscriptions, tree nav), `DebugView.tsx` (store inspection), `SettingsForm.tsx` (all 7 settings with descriptions).
+- Included actionable emojis for visual scanning; template syntax documented for parameter/response naming settings.
+- Added explicit Debug Mode section with 4 capabilities (store inspector, state inspection, collapsible view, theme support).
+- Added Settings & Configuration section documenting all 7 current settings with templates and scope (connection-scoped for defaultPublisherId).
+- Design decision: Subsections promote discoverability and help users understand feature scope without searching code.
 - Exact copy requested for the Business Event empty state: `No Root Catalog selected. Select a Root Catalog below or create a new one.` with CTA label `New Root Catalog` and `AddCircleColor`.
 - Keep the existing Business Event header action/button behavior intact; the empty-state message is additive guidance and should not change the tree/details selection flow.
 - Validation: `npm run build` passed after the frontend-only update.
@@ -329,3 +339,12 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Ripley: Post-fix removed unsupported GitHub Discussions link per David Rivard's feedback
 
 **Status:** ✅ Complete — README now marketplace-ready; all inbox decisions merged to decisions.md; orchestration and session logs written; Scribe tasks complete
+
+## Team Updates (Session: 2026-05-27)
+
+**Spawn:** Update README Features section to match main navigation structure
+
+**Orchestration Log:** 2026-05-27T22-03-44Z-dallas.md  
+**Session Log:** 2026-05-27T22-03-44Z-readme-features.md  
+**Scope:** README Features documentation reorganization  
+**Status:** ✅ Complete — README Features section reorganized with nav-aligned subsections, emojis, template documentation, debug mode section, and settings reference; decision merged to decisions.md
