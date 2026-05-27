@@ -23,6 +23,8 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const styles = useStyles();
     const isOptionalLabelRef = useRef<HTMLSpanElement | null>(null);
     const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
+    const uniqueNameInputRef = useRef<HTMLInputElement | null>(null);
+    const hasFocusedUniqueNameRef = useRef(false);
     const columnRefGroups = useMemo(
         () => [
             [isOptionalLabelRef, customizableLabelRef]
@@ -86,6 +88,23 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
         onValidationChange?.(validation);
     }, [validation.isValid, validation.message, onValidationChange]);
 
+    useEffect(() => {
+        if (
+            hasFocusedUniqueNameRef.current ||
+            !settingsQuery.appsettings ||
+            !customApiQuery.customapis
+        ) {
+            return;
+        }
+
+        const focusTimeout = window.setTimeout(() => {
+            uniqueNameInputRef.current?.focus();
+            hasFocusedUniqueNameRef.current = true;
+        }, 0);
+
+        return () => window.clearTimeout(focusTimeout);
+    }, [settingsQuery.appsettings, customApiQuery.customapis]);
+
 
      // Helper to update fields, can change multiple fields at once
     const updateFields = (updater: (draft: CustomApiRequestParameterCreateable) => void) => {
@@ -128,6 +147,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     required
                 >
                     <Input
+                        ref={uniqueNameInputRef}
                         appearance='filled-darker'
                         value={createData.uniquename ?? ''}
                         required

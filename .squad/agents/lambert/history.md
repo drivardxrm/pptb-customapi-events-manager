@@ -192,6 +192,39 @@ Modal mode discrimination with conditional field visibility is a reusable patter
 **Related Agent Work:** Dallas (Frontend Dev) — `2026-06-04T10-00-00Z-dallas.md`  
 **Status:** ✅ Complete — Confirmed hook-order violation in CatalogTreeView as root cause; provided regression check scenarios for root/category create under solution/filter/refetch combinations; flagged watch item: `pendingBusinessEventCatalogId` may linger if created data never appears; Dallas implemented fix (unconditional hook execution); build passed; decision merged; ready for implementation validation
 
+## Learnings (Session: 2026-05-27)
+
+### Unique Name Focus Review — Request Parameter / Response Property Create Mode
+
+**Feature Request Under Review:** When entering create mode for a Request Parameter or Response Property, focus should land in the corresponding **Unique Name** field.
+
+**Architecture / Pattern Findings:**
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx` and `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx` each enter create mode in two ways: direct header-button create and tree-view handoff via `creationRequestToken`.
+- The actual editable Unique Name inputs live in `RequestParameterCreate.tsx` and `ResponsePropertyCreate.tsx`; the `*CreateDialog.tsx` files are confirmation dialogs shown later on save and are not the requested create-entry surface.
+- Both create components can initially render `Loading...` until app settings / Custom API data are ready, so a one-time `autoFocus` attached to the first mount path may miss the case where the input appears after async data resolves.
+- Existing focus precedent already exists in `src/components/BusinessEventDetails/CatalogModal.tsx`, where create-mode focus is applied after the create UI opens rather than on a later confirmation step.
+
+**Primary QA Risk / Likely Missed Surface:**
+- If Dallas adds autofocus in only one place, the most likely miss is covering direct button create but not the tree-view `creationRequestToken` handoff, or adding focus to the confirmation dialog instead of the form input that appears when mode becomes `create`.
+- A second likely miss is relying on simple `autoFocus` while the component first renders a loading placeholder; focus would then fail when the Unique Name input mounts after data becomes available.
+
+**Regression Focus Areas:**
+- Direct **New Request Parameter** entry focuses Request Parameter **Unique Name** immediately.
+- Direct **New Response Property** entry focuses Response Property **Unique Name** immediately.
+- Tree-view create handoff for both child types still lands focus in **Unique Name** after the form remounts.
+- Re-enter create after cancel / save / tree-view return still refocuses correctly with no stale selection side effects.
+- Edit mode and save confirmation dialogs do not steal this create-entry focus behavior.
+
+**Key File Paths:**
+- `src/components/requestParameterDetails/RequestParameterDetails.tsx`
+- `src/components/requestParameterDetails/RequestParameterCreate.tsx`
+- `src/components/requestParameterDetails/RequestParameterCreateDialog.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyDetails.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx`
+- `src/components/responsePropertyDetails/ResponsePropertyCreateDialog.tsx`
+- `src/components/customApiDetails/CustomApiDetails.tsx`
+- `src/components/BusinessEventDetails/CatalogModal.tsx`
+
 ## Learnings (Session: 2026-06-04)
 
 ### Business Event Empty-State Parity Review

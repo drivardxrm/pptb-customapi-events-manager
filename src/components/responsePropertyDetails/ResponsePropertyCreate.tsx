@@ -1,4 +1,4 @@
-import React, {  useCallback, useEffect, useMemo } from 'react';
+import React, {  useCallback, useEffect, useMemo, useRef } from 'react';
 import { Field, Input, Textarea } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
@@ -21,6 +21,8 @@ interface ResponsePropertyCreateProps {
 
 export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ createData, onChange, onValidationChange }) => {
     const styles = useStyles();   
+    const uniqueNameInputRef = useRef<HTMLInputElement | null>(null);
+    const hasFocusedUniqueNameRef = useRef(false);
     const customApiQuery = useCustomApis();
     const { responseProperties } = useCustomApiResponseProperties();
     const settingsQuery = useAppSettings();
@@ -67,6 +69,23 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
         onValidationChange?.(validation);
     }, [validation.isValid, validation.message, onValidationChange]);
 
+    useEffect(() => {
+        if (
+            hasFocusedUniqueNameRef.current ||
+            !settingsQuery.appsettings ||
+            !customApiQuery.customapis
+        ) {
+            return;
+        }
+
+        const focusTimeout = window.setTimeout(() => {
+            uniqueNameInputRef.current?.focus();
+            hasFocusedUniqueNameRef.current = true;
+        }, 0);
+
+        return () => window.clearTimeout(focusTimeout);
+    }, [settingsQuery.appsettings, customApiQuery.customapis]);
+
 
     // Helper to update fields, can change multiple fields at once
     const updateFields = (updater: (draft: CustomApiResponsePropertyCreateable) => void) => {
@@ -109,6 +128,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     required
                 >
                     <Input
+                        ref={uniqueNameInputRef}
                         value={createData.uniquename ?? ''}
                         appearance='filled-darker'
                         onChange={(event) => {

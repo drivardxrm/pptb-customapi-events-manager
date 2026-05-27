@@ -252,3 +252,12 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Preserve existing unmanaged-only assignment behavior for Custom API options; this fix is about removing solution scoping from the source picker, not changing create permissions or mutation contracts.
 - Stabilizing the picker data with `useMemo` keeps the option array aligned with the GenericTagPicker stability guidance while making the scope change.
 - Validation: baseline and post-change `npm run build` passed, and Ripley code review found no material issues.
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Request/Response Create Unique Name Focus
+- `src/components\requestParameterDetails\RequestParameterCreate.tsx` and `src/components\responsePropertyDetails\ResponsePropertyCreate.tsx` should own create-entry focus by attaching a ref to the Unique Name `Input` and focusing it once when required async data (`appsettings`, `customapis`) is ready.
+- These create forms can mount through both the normal header-button path and the treeview handoff path, so the focus behavior must live in the create component itself rather than the later confirmation dialog.
+- Guard the focus effect with a one-time ref so React Query updates do not steal focus again after the user starts typing.
+- Preserve existing create/edit mode behavior and treeview return flow; this is a create-form usability improvement only.
+- Validation: `npm run build` passed after the change, and Ripley reviewed the final diff with no material issues.
