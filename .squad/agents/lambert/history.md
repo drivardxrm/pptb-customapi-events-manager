@@ -364,3 +364,10 @@ Modal mode discrimination with conditional field visibility is a reusable patter
 - `src/hooks/useCatalogAssignments.tsx`
 - `src/hooks/useCatalogs.tsx`
 - `src/components/BusinessEventDetails/BusinessEventDetails.tsx`
+
+### Public Release Cleanup Audit (2026-05-27)
+- Audited Dallas cleanup batch; verified removed items are correct and complete
+- Catalogued remaining public-release items: .squad/, .squad-templates/, .github/agents/squad.agent.md, Squad workflows, .gitattributes rules
+- Decision: keep .squad/ during active session — team memory, routing, inbox, and history are critical to ongoing work
+- Post-session cleanup: schedule dedicated batch to remove Squad-specific items and update stale documentation
+- Updated .gitignore rules will be needed after Squad removal to prevent accidental re-commits if team continues local usage

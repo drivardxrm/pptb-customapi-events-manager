@@ -833,3 +833,102 @@ const icon = getObjectTypeIcon(assignment.objectidtype);   // Icon element
 - Type information correctly sourced from polymorphic `objectidtype` field
 - UI components have clean, type-safe API for type display and selection
 - Build passes cleanly with no errors
+
+---
+
+## Decision: Public Release Cleanup Batch
+
+**Date:** 2026-05-27  
+**By:** Dallas (Frontend Dev)  
+**Status:** Completed  
+**Batch:** First public-release cleanup pass
+
+### Context
+
+Executed first batch of public-release cleanup to remove local development artifacts and build outputs from the repository before public release.
+
+### Removed
+- `.vscode/` — IDE configuration (local-only)
+- `.copilot/` — Copilot session artifacts  
+- `.work-folder-info` — Local development metadata
+- `.vfsmeta/` — Virtual filesystem metadata
+- `playwright-report/` — E2E test report outputs
+- `test-results/` — Test execution result directories
+
+### Confirmed Already Absent
+- `test-logic.ts` — Previously identified for removal, already gone
+- `ZUSTAND.md` — Previously decided removal, already gone
+
+### Gitignore Updated
+- Added `.copilot/` and `.work-folder-info` ignore rules
+- Kept existing rules for `.vscode/`, `.vfsmeta/`, `playwright-report/`, `test-results/`
+
+### Deferred to Post-Session Cleanup
+- `.squad/` directory — Remains a public-release concern; deferred during active Squad session to preserve team memory, routing, decision inbox, and history tracking. To be removed in a dedicated cleanup batch after this session ends.
+
+### Validation
+- ✅ Build passed before cleanup
+- ✅ Build passed after cleanup
+- ✅ No code changes required
+
+### Next Steps
+- Post-session cleanup batch to handle `.squad/`, `.squad-templates/`, Squad workflows, and stale GitHub configuration
+
+---
+
+## Audit: Public Release Cleanup Batch
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Completed  
+**Related:** Decision: Public Release Cleanup Batch
+
+### Audit Scope
+
+Reviewed Dallas's cleanup batch and assessed remaining public-release items for future phases.
+
+### Dallas's Current Batch — Verified ✅
+- `.copilot/` and `.work-folder-info` removed and ignored
+- `.gitignore` properly updated with new rules
+- Local-only artifacts confirmed absent
+- Build verified before and after cleanup
+- No regressions
+
+### Remaining Public-Release Cleanup Items (Catalogued for Post-Session)
+
+**Directory/File Removals:**
+- `.squad/` — Team Squad configuration and state
+- `.squad-templates/` — Squad template definitions
+- `.github/agents/squad.agent.md` — Squad agent documentation
+- `.github/workflows/squad-*.yml` — Squad-specific workflow automations
+- `.github/workflows/sync-squad-labels.yml` — Squad-specific GitHub automation
+- `.gitattributes` entries for `.squad/*` — Union-merge rules tied to Squad
+
+**Configuration & Documentation Issues:**
+- `.github/copilot-instructions.md` — Mismatch: claims no test framework; project has E2E structure
+- Stale workflow references in documentation
+- README potentially stale references to removed directories
+
+### Decision Rationale
+
+**Keep `.squad/` During Active Session:** The Squad directory is critical to active session operations:
+- **decisions.md** — Decision history and audit trail
+- **orchestration-log/** — Agent execution records
+- **agents/{name}/history.md** — Team member learnings and context
+- **routing.md** — Navigation and dispatch logic
+- **backlog.md** — Project priorities
+
+Removing these mid-flight would disrupt active workflows and lose session context.
+
+**Future Ignore Rules:** Once `.squad/` and `.squad-templates/` are removed from git in the post-session batch, add corresponding `.gitignore` rules if the team continues to use Squad locally. This prevents accidental re-commits.
+
+### Validation
+- ✅ Current batch targets are clean and correct
+- ✅ All removed items verified as local/temporary
+- ✅ Remaining items identified and categorized
+- ✅ Risk assessment: no blockers to current session
+
+### Next Steps
+1. Schedule dedicated post-session cleanup batch
+2. Coordinate with Ripley for public-repo readiness verification
+3. Update documentation stale references (if applicable) during post-session pass

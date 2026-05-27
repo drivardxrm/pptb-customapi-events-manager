@@ -295,3 +295,10 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - When removing a standalone reference doc, update the surviving architecture entry point immediately so future contributors do not inherit dead links or split guidance.
 - For this repo, the key durable Zustand note worth keeping close to the architecture overview is selector-based `useAppStore(...)` subscriptions in components, while imperative access stays available through `useAppStore.getState()`.
 - Validation: baseline and post-change `npm run build` passed, and Ripley code review found no material issues.
+
+### Public Release Cleanup (2026-05-27)
+- Executed first batch: removed .vscode/, .copilot/, .work-folder-info, .vfsmeta/, playwright-report/, 	est-results/
+- Updated .gitignore with /.copilot/ and /.work-folder-info/ rules
+- Deferred .squad/ removal — critical to active session team memory and routing; handle in post-session cleanup batch
+- Confirmed 	est-logic.ts and ZUSTAND.md already absent (previously decided removals)
+- Rationale: cleanup in batches minimizes mid-flight disruption while making incremental progress toward public-release readiness
