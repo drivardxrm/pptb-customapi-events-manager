@@ -33,6 +33,8 @@ dist/
 *.swp
 *.swo
 *~
+.copilot/
+.work-folder-info
 
 # Playwright test artifacts
 playwright-report/
