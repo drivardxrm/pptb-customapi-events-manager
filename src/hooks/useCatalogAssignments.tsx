@@ -5,7 +5,7 @@ import { queryKeys } from '../utils/queryKeys';
 
 import { Catalog } from '../models/Catalog';
 import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable, getObjectType } from '../models/CatalogAssignment';
-import { useCatalogs } from './useCatalogs';
+import { useAllCatalogs } from './useCatalogs';
 import { catalogAssignmentService } from '../services/CatalogAssignmentService';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
@@ -72,6 +72,40 @@ export interface CustomApiCatalogAssignmentTarget {
 const getCatalogDisplayName = (catalog: Catalog | null | undefined) =>
   catalog?.displayname || catalog?.name || 'Unknown Catalog';
 
+const resolveCatalogPath = (
+  catalogId: string,
+  catalogsById: Map<string, Catalog>,
+) => {
+  const category = catalogsById.get(catalogId) ?? null;
+
+  if (!category) {
+    return {
+      category: null,
+      rootCatalog: null,
+    };
+  }
+
+  let rootCatalog = category;
+  let currentCatalog = category;
+  const visitedCatalogIds = new Set<string>([category.catalogid]);
+
+  while (currentCatalog._parentcatalogid_value) {
+    const parentCatalog = catalogsById.get(currentCatalog._parentcatalogid_value);
+    if (!parentCatalog || visitedCatalogIds.has(parentCatalog.catalogid)) {
+      break;
+    }
+
+    rootCatalog = parentCatalog;
+    currentCatalog = parentCatalog;
+    visitedCatalogIds.add(parentCatalog.catalogid);
+  }
+
+  return {
+    category,
+    rootCatalog,
+  };
+};
+
 const buildCatalogPathLabel = (rootCatalog: Catalog | null, category: Catalog | null) => {
   if (rootCatalog && category && rootCatalog.catalogid !== category.catalogid) {
     return `${getCatalogDisplayName(rootCatalog)} → ${getCatalogDisplayName(category)}`;
@@ -82,7 +116,11 @@ const buildCatalogPathLabel = (rootCatalog: Catalog | null, category: Catalog | 
 
 export const useCustomApiCatalogAssignments = (customApiId: string | null | undefined) => {
   const { catalogAssignments, status, error, isFetching } = useCatalogAssignements();
-  const { catalogs, isFetching: isFetchingCatalogs } = useCatalogs();
+  const { catalogs: allCatalogs, isFetching: isFetchingCatalogs } = useAllCatalogs();
+  const catalogsById = useMemo(
+    () => new Map(allCatalogs.map((catalog) => [catalog.catalogid, catalog])),
+    [allCatalogs],
+  );
 
   const businessEventAssignments = useMemo<CustomApiCatalogAssignmentTarget[]>(() => {
     if (!customApiId) {
@@ -92,10 +130,7 @@ export const useCustomApiCatalogAssignments = (customApiId: string | null | unde
     return catalogAssignments
       .filter(assignment => assignment._object_value === customApiId && getObjectType(assignment) === 'customapi')
       .map((assignment) => {
-        const category = catalogs.find(catalog => catalog.catalogid === assignment._catalogid_value) ?? null;
-        const rootCatalog = category
-          ? catalogs.find(catalog => catalog.catalogid === category._parentcatalogid_value) ?? category
-          : null;
+        const { category, rootCatalog } = resolveCatalogPath(assignment._catalogid_value, catalogsById);
 
         return {
           assignment,
@@ -112,7 +147,7 @@ export const useCustomApiCatalogAssignments = (customApiId: string | null | unde
         const pathCompare = left.pathLabel.localeCompare(right.pathLabel);
         return pathCompare !== 0 ? pathCompare : left.assignmentLabel.localeCompare(right.assignmentLabel);
       });
-  }, [catalogAssignments, catalogs, customApiId]);
+  }, [catalogAssignments, catalogsById, customApiId]);
 
   return {
     businessEventAssignments,

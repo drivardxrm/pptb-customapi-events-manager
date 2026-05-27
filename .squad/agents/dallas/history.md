@@ -261,3 +261,11 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Guard the focus effect with a one-time ref so React Query updates do not steal focus again after the user starts typing.
 - Preserve existing create/edit mode behavior and treeview return flow; this is a create-form usability improvement only.
 - Validation: `npm run build` passed after the change, and Ripley reviewed the final diff with no material issues.
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Business Event Chooser Catalog Path Resolution
+- `src/hooks/useCatalogAssignments.tsx` should resolve Custom API chooser catalog paths from `useAllCatalogs()` rather than solution-filtered `useCatalogs()`, because assignment rows are global and filtered catalog collections can degrade valid rows to `Unknown Catalog`.
+- Build a `Map` by `catalogid` and walk `_parentcatalogid_value` upward until the top ancestor so the chooser can consistently reconstruct the root/category path from any assigned category.
+- Keep `src/components/generic/CustomApiBusinessEventButton.tsx` as a pure consumer of the hook output so the existing open-business-event pending-selection handoff stays intact.
+- Validation: baseline `npm run build` passed, post-change `npm run build` passed, and Ripley code review found no material issues.

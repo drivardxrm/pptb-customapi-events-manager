@@ -334,3 +334,33 @@ Modal mode discrimination with conditional field visibility is a reusable patter
 - `src/hooks/useCustomApis.tsx`
 - `src/hooks/useCatalogAssignments.tsx`
 - `src/models/CustomApi.ts`
+
+## Learnings (Session: 2026-05-27)
+
+### Business Event Chooser Catalog Path Review
+
+**Feature Under Review:** In the **Choose Business Event** modal, when a Custom API is assigned to multiple catalogs, every choice should show the correct Business Event/catalog path instead of degrading to **Unknown Catalog** for some assignments.
+
+**Architecture / QA Findings:**
+- `src/components/generic/CustomApiBusinessEventButton.tsx` renders chooser rows from `useCustomApiCatalogAssignments()` and expects each target to resolve both a category catalog and its root catalog for display.
+- `src/hooks/useCatalogAssignments.tsx` currently resolves those labels through `useCatalogs()`, which is solution-scoped, while the assignment list itself is still built from the full catalog-assignment collection.
+- The same root/category lookup pattern is replayed again in `src/components/BusinessEventDetails/BusinessEventDetails.tsx` when `pendingBusinessEventAssignmentId` is consumed after navigation.
+- That means a chooser row can exist even when its catalog path cannot be resolved from the currently loaded catalog collection, producing the exact split seen in the report: count says three assignments, but only one row gets a real root/category path.
+
+**QA Expectation / Risk Callout:**
+- **Required behavior:** the chooser must be internally consistent. Either all visible assignments resolve to real catalog paths, or the feature intentionally scopes the chooser/count/navigation to the same filtered catalog set.
+- **Likely missed surface if Dallas only patches modal rendering:** clicking one of the rows that still depends on unresolved catalog metadata can continue to fail or mis-route in the Business Event destination, because `BusinessEventDetails.tsx` also derives the root catalog from the same category lookup path before selecting the tree item.
+
+**Regression Focus:**
+- Multi-assignment chooser shows the correct root → category path for every visible assignment.
+- The button count matches the number of assignments the chooser can actually resolve/open.
+- Selecting any chooser row lands on the correct root catalog and highlights the intended assignment in Business Events.
+- Single-assignment direct navigation still works for assignments whose category is outside the currently filtered catalog collection.
+- Sorting/logging remains stable once path labels stop collapsing to `Unknown Catalog`.
+- Solution-context behavior is explicit and consistent: either cross-solution assignments are hidden everywhere, or they remain openable everywhere.
+
+**Key File Paths:**
+- `src/components/generic/CustomApiBusinessEventButton.tsx`
+- `src/hooks/useCatalogAssignments.tsx`
+- `src/hooks/useCatalogs.tsx`
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx`
