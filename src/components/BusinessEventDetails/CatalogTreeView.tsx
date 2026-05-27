@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Tree,
     TreeItem,
@@ -146,6 +146,13 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
         setItemToDelete(null);
     };
 
+    const categoryIds = catalogs
+        .filter(c => c._parentcatalogid_value === selectedCatalogId)
+        .map(c => c.catalogid);
+
+    // All items that should be open - root + all categories
+    const allOpenItems = selectedCatalog ? [selectedCatalog.catalogid, ...categoryIds] : [];
+
     if (isFetchingCatalogs) {
         return (
             <div className={styles.loadingContainer}>
@@ -163,17 +170,6 @@ export const CatalogTreeView: React.FC<CatalogTreeViewProps> = ({
             </div>
         );
     }
-
-    // Get category IDs for auto-expansion (children of selected catalog)
-    const categoryIds = catalogs
-        .filter(c => c._parentcatalogid_value === selectedCatalogId)
-        .map(c => c.catalogid);
-
-    // All items that should be open - root + all categories
-    const allOpenItems = useMemo(() => 
-        [selectedCatalog.catalogid, ...categoryIds],
-        [selectedCatalog.catalogid, categoryIds]
-    );
 
     // Prevent collapsing by always keeping all items open
     const handleOpenChange = (_event: TreeOpenChangeEvent, _data: TreeOpenChangeData) => {

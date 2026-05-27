@@ -10,10 +10,10 @@ export interface Catalog  {
   '_parentcatalogid_value@Microsoft.Dynamics.CRM.associatednavigationproperty': string;
   '_parentcatalogid_value@Microsoft.Dynamics.CRM.lookuplogicalname': string;
   '_parentcatalogid_value@OData.Community.Display.V1.FormattedValue': string;
-  _publisherid_value: string;
-  '_publisherid_value@Microsoft.Dynamics.CRM.associatednavigationproperty': string;
-  '_publisherid_value@Microsoft.Dynamics.CRM.lookuplogicalname': string;
-  '_publisherid_value@OData.Community.Display.V1.FormattedValue': string;
+  // _publisherid_value: string;
+  // '_publisherid_value@Microsoft.Dynamics.CRM.associatednavigationproperty': string;
+  // '_publisherid_value@Microsoft.Dynamics.CRM.lookuplogicalname': string;
+  // '_publisherid_value@OData.Community.Display.V1.FormattedValue': string;
   solutionid: string;
   statecode: Catalogstatecode;
   statuscode: Catalogstatuscode;
@@ -27,8 +27,7 @@ export interface CatalogCreateable  extends
   'name' |   
   'displayname' | 
   'description' |
-  '_parentcatalogid_value' |
-  '_publisherid_value'
+  '_parentcatalogid_value'
   > {}
 
 
@@ -62,6 +61,5 @@ export const DEFAULT_CATALOG_CREATE_TEMPLATE: CatalogCreateable = {
   name: '',
   displayname: '',
   description: '',
-  _parentcatalogid_value: '',
-  _publisherid_value: '',
+  _parentcatalogid_value: ''
 };

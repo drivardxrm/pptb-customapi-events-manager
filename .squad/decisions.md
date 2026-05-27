@@ -40,6 +40,28 @@ For archived decisions (older than 30 days), see `decisions-archive.md`.
 **Status:** ✅ 36-test-case regression checklist complete; ready for Kane implementation + manual QA execution  
 
 ---
+
+### 2026-05-26: Queue Created Catalog Selection via App State — Implemented
+**By:** Dallas (Frontend Dev)  
+**What:** Implemented cross-component catalog selection handoff so newly created Business Event catalogs (root and child) automatically select and display in the tree/details view after creation.  
+**Context:** Catalog creation happens inside `CatalogModal`, but the tree/details selection state lives in `BusinessEventDetails`. After create, the new catalog was saved and the modal closed, but nothing promoted the new record into the Business Event selection flow.  
+**Decision:** Use a small app-store handoff, `pendingBusinessEventCatalogId`, to mirror the existing pending assignment navigation pattern:
+- `CatalogModal` stores the created catalog id and switches the selected root catalog as needed
+- `BusinessEventDetails` waits for refreshed catalog data, then selects the created root/category in the tree and details panel
+**Why:** Keeps the change surgical, avoids threading tree-selection callbacks through modal layers, and matches the existing cross-component navigation pattern already used for pending Business Event assignments.  
+**Implementation:**
+- Added `pendingBusinessEventCatalogId` field to app store (`useAppStore.ts`)
+- `CatalogModal.tsx` detects successful creation and stores the created catalog ID
+- `BusinessEventDetails.tsx` watches pending state, triggers catalog data refresh, auto-selects new catalog
+- Query invalidation aligned with pending state lifecycle
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Root create → select → display flow works end-to-end
+- ✅ Child create preserves root selection and selects category
+- ✅ Pending state properly clears after use
+**Status:** ✅ IMPLEMENTED AND VALIDATED  
+
+---
 **By:** Dallas (Frontend Dev)  
 **What:** Revised `CustomApiSelector.tsx` so the Solution managed/unmanaged toggle (`showSolutions`) no longer counts as a standalone active filter.
 **Why:** The toggle scopes the solution picker context, not applied record filters. Users read active-filter badges as filters that materially change the displayed record set. Collapsed badges should only show solution-related context when a solution is actually selected.
@@ -930,4 +952,104 @@ This QA checklist covers the feature to add a "New Root Catalog Button" in the B
 - Viewport: Desktop (1920x1080 minimum)
 
 **Decision:** ✅ **QA SPECIFICATION COMPLETE** — Ready for implementation validation
+
+---
+
+### 2026-06-03: Duplicate Validation Scope — QA Analysis
+**By:** Lambert (Tester)  
+**What:** Comprehensive review of duplicate validation scope across create flows. Identified that Custom API and Catalog creation use solution-filtered hooks for validation, allowing duplicates to slip through when they exist outside the selected solution. Also flagged missing duplicate validation for Catalog Assignment (catalog + object-id + object-type uniqueness).  
+**Root Issue:** Validation hooks read from `useCustomApis()` and `useCatalogs()`, which internally switch between full collection and solution-filtered queries based on `selectedSolutionId`. This couples data integrity checks to UI browsing scope, creating false-negative validation.  
+**Confirmed Impacted Flows:**
+1. Custom API create — Current validation reads solution-filtered subset; duplicate outside selected solution bypasses check
+2. Catalog create-root — Current validation reads solution-filtered subset; duplicate outside selected solution bypasses check
+3. Catalog create-category — Same broken path as create-root
+
+**Non-Broken Flows (Regression Coverage Required):**
+- Request Parameter create — Uses `useCustomApiRequestParameters()` scoped by CustomApiId (not solution)
+- Response Property create — Uses `useCustomApiResponseProperties()` scoped by CustomApiId (not solution)
+
+**Missing Implementation:**
+- Catalog Assignment create — No duplicate validation exists today; requires guard on (catalog + object-id + object-type) uniqueness
+
+**QA Rule of Thumb Established:**
+Use filtered collections for browsing/pickers. Use authoritative full collections for uniqueness validation. Solution filtering is a browsing aid, not a data-integrity boundary.
+
+**Document Location:** `.squad/decisions/inbox/lambert-validation-review.md`  
+**Status:** ✅ Scope confirmed; ready for Dallas implementation
+
+---
+
+### 2026-06-03: Validation Scope by Entity Ownership — Implementation
+**By:** Dallas (Frontend Dev)  
+**What:** Fixed duplicate validation scope across Custom API, Catalog, and Catalog Assignment create flows. Implemented entity-ownership-based scoping: global entities (Custom API, Catalog) validate against full collections; parent-scoped children (Request Parameter, Response Property) validate within parent scope; Catalog Assignment enforces triple uniqueness (catalog + object + type).
+
+**Decision:**
+- Keep selector/list browsing filtered by active solution (UX improvement)
+- Validate duplicate creation against the authoritative collection that owns uniqueness:
+  - Custom API uniquename → all Custom APIs (global scope)
+  - Catalog uniquename → all Catalogs (global scope)
+  - Request Parameter uniquename → parameters under selected Custom API (parent scope)
+  - Response Property uniquename → response properties under selected Custom API (parent scope)
+  - Catalog Assignment duplicate → (selected catalog + object-id + object-type) uniqueness (parent scope)
+
+**Why:** Solution filtering is a browsing aid, not a data-integrity boundary. Parent-scoped children should not be promoted to global uniqueness checks during the fix.
+
+**Implementation Details:**
+- Added `useAllCustomApis()` hook in `src/hooks/useCustomApis.tsx` — Full collection fetch (no solution filter)
+- Added `useAllCatalogs()` hook in `src/hooks/useCatalogs.tsx` — Full collection fetch (no solution filter)
+- Centralized case-insensitive duplicate checks in `src/utils/validation.ts`
+- Modified `CustomApiCreate` modal — Switched validation from `useCustomApis().customapis` to `useAllCustomApis().allCustomApis`
+- Modified `CatalogCreate` modal — Switched validation from `useCatalogs().catalogs` to `useAllCatalogs().allCatalogs`
+- Modified `CatalogAssignmentModal` — Added duplicate guard: blocks if (selectedCatalog, objectId, objectType) already exists in assignments
+
+**Files Changed:**
+- `src/hooks/useCustomApis.tsx`
+- `src/hooks/useCatalogs.tsx`
+- `src/utils/validation.ts`
+- `src/components/customApiDetails/CustomApiCreate.tsx`
+- `src/components/catalogDetails/CatalogCreate.tsx`
+- `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx`
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Request Parameter / Response Property validation remain parent-scoped (no regression)
+- ✅ Case-insensitive comparison works for all entity unique names
+- ✅ Catalog Assignment duplicate guard functional
+
+**Decision:** ✅ **IMPLEMENTED** — All three scopes corrected; regressions verified
+
+---
+
+### 2026-05-26: Catalog Create Default Publisher Recovery
+**By:** Dallas (Frontend Dev)  
+**Requested by:** David Rivard  
+**What:** Restored default publisher preselection in catalog create modal after recent UI refactors moved publisher picker to Zustand-backed `selectedPublisherId`. The create form stopped carrying its own publisher value, creating two regressions: (1) default publisher from app settings no longer rehydrated reliably when modal opened before settings finished loading, and (2) submitted create payload could diverge from the publisher shown in the UI.
+
+**Decision:** Treat the catalog create modal's publisher as **form-owned payload state first** and mirror it to Zustand only as a convenience for later create flows:
+- Initialize the publisher from `defaultPublisherId` once per modal open behind a ref guard
+- Stop auto-applying settings after first hydration so manual changes remain respected inside the active dialog
+- Translate selected publisher to `PublisherId@odata.bind` at submit time for Dataverse payload
+
+**Why:** The create form needs one authoritative value for both UX and payload correctness. Store-only selection is not enough when settings arrive asynchronously and the submitted payload depends on a lookup binding that can be dropped during UI refactors.
+
+**Implementation Details:**
+- Modified `src/components/BusinessEventDetails/CatalogModal.tsx` to maintain internal `_publisherid_value` state alongside store mirror
+- Added ref-guarded `useEffect` in modal component to hydrate from `defaultPublisherId` once per open
+- Prevented repeated settings-driven overwrites by checking if settings have already been applied this session
+- Emit `PublisherId@odata.bind` in create payload even though shared catalog service doesn't add this binding itself
+- Preserved all recent create UX: collapsed publisher summary, publisher-prefix unique-name regeneration on change, unique-name auto-focus, Add to Solution as last field, no placeholders
+
+**Files Changed:**
+- `src/components/BusinessEventDetails/CatalogModal.tsx`
+- `src/hooks/useAppSettings.ts`
+- `src/models/AppSettings.ts`
+
+**Validation:**
+- ✅ `npm run build` passed
+- ✅ Modal hydrates publisher from settings on open
+- ✅ Late settings arrival does not overwrite user changes inside active dialog
+- ✅ Create payload carries `PublisherId@odata.bind` binding correctly
+- ✅ Recent create form UX preserved (field order, auto-focus, prefix behavior)
+
+**Decision:** ✅ **IMPLEMENTED** — Default publisher preselection restored; form owns state; build passed
 

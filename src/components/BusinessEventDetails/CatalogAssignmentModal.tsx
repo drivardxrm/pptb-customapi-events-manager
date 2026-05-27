@@ -16,7 +16,7 @@ import {
 } from '@fluentui/react-components';
 import { LockClosedRegular, LockOpenRegular, FolderRegular, FolderOpenRegular, ChevronRightRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { useCreateCatalogAssignment, useUpdateCatalogAssignment } from '../../hooks/useCatalogAssignments';
+import { useCatalogAssignements, useCreateCatalogAssignment, useUpdateCatalogAssignment } from '../../hooks/useCatalogAssignments';
 import { useCatalogs } from '../../hooks/useCatalogs';
 import { useCustomApis } from '../../hooks/useCustomApis';
 import { useEntities } from '../../hooks/useEntities';
@@ -43,6 +43,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     const styles = useStyles();
     const createAssignment = useCreateCatalogAssignment();
     const updateAssignment = useUpdateCatalogAssignment();
+    const { allCatalogAssignments } = useCatalogAssignements();
     const { catalogs } = useCatalogs();
     const { customapis, isFetching: isFetchingCustomApis } = useCustomApis();
     const { entities, isFetching: isFetchingEntities } = useEntities();
@@ -100,9 +101,21 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
             if (!formData._object_value) {
                 return { isValid: false, message: 'Please select an object to assign.' };
             }
+            if (
+                allCatalogAssignments.some((existingAssignment) =>
+                    existingAssignment._catalogid_value === formData._catalogid_value &&
+                    existingAssignment._object_value === formData._object_value &&
+                    getObjectType(existingAssignment) === selectedObjectType
+                )
+            ) {
+                return {
+                    isValid: false,
+                    message: `This ${ObjectIdTypeLabels[selectedObjectType] ?? 'object'} is already assigned to the selected catalog.`,
+                };
+            }
         }
         return { isValid: true, message: '' };
-    }, [isEdit, formData, editData, selectedObjectType]);
+    }, [allCatalogAssignments, isEdit, formData, editData, selectedObjectType]);
 
     const handleSave = async () => {
         try {

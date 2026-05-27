@@ -54,6 +54,7 @@ interface AppState {
     selectedResponsePropertyId: string | null;
     selectedPublisherId: string | null;
     pendingBusinessEventAssignmentId: string | null;
+    pendingBusinessEventCatalogId: string | null;
     currentCustomApiSelectionInit: SelectionInitSetting;
     currentBusinessEventSelectionInit: SelectionInitSetting;
     pendingManagedFilterHandoff: PendingManagedFilterHandoff | null;
@@ -82,6 +83,7 @@ interface AppState {
     setSelectedResponsePropertyId: (responsePropertyId: string | null) => void;
     setSelectedPublisherId: (publisherId: string | null) => void;
     setPendingBusinessEventAssignmentId: (assignmentId: string | null) => void;
+    setPendingBusinessEventCatalogId: (catalogId: string | null) => void;
     setCurrentCustomApiSelectionInit: (value: SelectionInitSetting) => void;
     setCurrentBusinessEventSelectionInit: (value: SelectionInitSetting) => void;
     setPendingManagedFilterHandoff: (handoff: PendingManagedFilterHandoff | null) => void;
@@ -117,6 +119,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
         selectedResponsePropertyId: null,
         selectedPublisherId: null,
         pendingBusinessEventAssignmentId: null,
+        pendingBusinessEventCatalogId: null,
         currentCustomApiSelectionInit: DEFAULT_SETTINGS.customApiSelectionInit,
         currentBusinessEventSelectionInit: DEFAULT_SETTINGS.businessEventSelectionInit,
         pendingManagedFilterHandoff: null,
@@ -152,6 +155,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
                     selectedResponsePropertyId: null,
                     selectedPublisherId: null,
                     pendingBusinessEventAssignmentId: null,
+                    pendingBusinessEventCatalogId: null,
                     currentCustomApiSelectionInit: DEFAULT_SETTINGS.customApiSelectionInit,
                     currentBusinessEventSelectionInit: DEFAULT_SETTINGS.businessEventSelectionInit,
                     pendingManagedFilterHandoff: null,
@@ -219,6 +223,11 @@ export const useAppStore = create<AppState>((set, _get) => ({
                 ? state
                 : { pendingBusinessEventAssignmentId: assignmentId }
         ),
+        setPendingBusinessEventCatalogId: (catalogId) => set((state) =>
+            state.pendingBusinessEventCatalogId === catalogId
+                ? state
+                : { pendingBusinessEventCatalogId: catalogId }
+        ),
         setCurrentCustomApiSelectionInit: (value) => set((state) =>
             state.currentCustomApiSelectionInit === value
                 ? state
@@ -240,6 +249,8 @@ export const useAppStore = create<AppState>((set, _get) => ({
             editingComponent: 'none',
             pendingBusinessEventAssignmentId:
                 navItem === 'businessevent' ? state.pendingBusinessEventAssignmentId : null,
+            pendingBusinessEventCatalogId:
+                navItem === 'businessevent' ? state.pendingBusinessEventCatalogId : null,
             pendingManagedFilterHandoff:
                 state.pendingManagedFilterHandoff &&
                 navMatchesManagedFilterTarget(navItem, state.pendingManagedFilterHandoff.target)

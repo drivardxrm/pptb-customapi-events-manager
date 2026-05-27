@@ -7,34 +7,38 @@ import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityServ
 import { notify } from '../utils/notify';
 
 
-export const useCatalogs = () => {
+const useCatalogCollection = (solutionId: string | null | undefined) => {
+  const { connection, isLoadingConnection, instanceId }  = useAppStore();
 
-  // Get connection and instanceId from Zustand store
-  const { connection, isLoadingConnection, instanceId, selectedSolutionId }  = useAppStore();
-
-  
-
+  const normalizedSolutionId = solutionId ?? '';
   const { data, status, error, isFetching } =
     useQuery<Catalog[], Error>(
       {
-        queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId , selectedSolutionId ?? ''), // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId , normalizedSolutionId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          const result = selectedSolutionId == null || selectedSolutionId == '' ? 
-            await catalogService.fetchAllCatalogs() :
-            await catalogService.fetchSolutionCatalogs(selectedSolutionId);
-          //console.log('Fetched customapis:', result);
+          const result = normalizedSolutionId === ''
+            ? await catalogService.fetchAllCatalogs()
+            : await catalogService.fetchSolutionCatalogs(normalizedSolutionId);
           return result;
         },
         enabled: !!connection && !isLoadingConnection,
         staleTime: Infinity
       }
-    )
+    );
 
   return {
     catalogs: data || [],
     status, error, isFetching
-  }
+  };
+};
+
+export const useCatalogs = () => {
+  const { selectedSolutionId } = useAppStore();
+  return useCatalogCollection(selectedSolutionId);
 }
+
+export const useAllCatalogs = () => useCatalogCollection(null);
+
 
 // Hook for fetching root catalogs (those without a parent)
 export const useRootCatalogs = () => {
@@ -70,6 +74,7 @@ export const useCatalogChildren = (parentCatalogId: string | null) => {
 
 type CreateCatalogInput = {
   next: CatalogCreateable;
+  solutionId?: string | null;
   solutionUniqueName?: string;
 };
 
@@ -97,6 +102,12 @@ export const useCreateCatalog = () => {
     onSuccess: (result, variables) => {
       if (result.created) {
         queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+        if (selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, '') });
+        }
+        if (variables.solutionId !== undefined && variables.solutionId !== selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, variables.solutionId ?? '') });
+        }
         // Also invalidate children query if this was a category (has parent)
         if (variables.next._parentcatalogid_value) {
           queryClient.invalidateQueries({ queryKey: queryKeys.catalogChildren(variables.next._parentcatalogid_value, connection?.id ?? '', instanceId) });
@@ -141,6 +152,9 @@ export const useUpdateCatalog = () => {
     onSuccess: (result, variables) => {
       if (result.updated) {
         queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+        if (selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, '') });
+        }
         // Invalidate children if this catalog has a parent
         if (variables.current._parentcatalogid_value) {
           queryClient.invalidateQueries({ queryKey: queryKeys.catalogChildren(variables.current._parentcatalogid_value, connection?.id ?? '', instanceId) });
@@ -177,6 +191,9 @@ export const useDeleteCatalog = () => {
     onSuccess: (result, variables) => {
       if (result.deleted) {
         queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+        if (selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.catalogs(connection?.id ?? '', instanceId, '') });
+        }
         // Invalidate children query if this was a category
         if (variables.catalog._parentcatalogid_value) {
           queryClient.invalidateQueries({ queryKey: queryKeys.catalogChildren(variables.catalog._parentcatalogid_value, connection?.id ?? '', instanceId) });
@@ -187,4 +204,3 @@ export const useDeleteCatalog = () => {
     },
   });
 };
-

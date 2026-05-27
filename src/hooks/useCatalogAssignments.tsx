@@ -34,6 +34,7 @@ export const useCatalogAssignements = () => {
 
   return {
     catalogAssignments: data || [],
+    allCatalogAssignments: data || [],
     status, error, isFetching
   }
 }

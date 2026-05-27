@@ -356,6 +356,82 @@ Uses Fluent UI Tree component with nested structure:
 
 ---
 
+## Decision: React 310 Crash Fix in Catalog Save
+
+**Date:** 2026-06-04  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Issue:** React error 310 when saving a new catalog  
+
+### Context
+
+Saving a newly created catalog triggered React error 310 (max renders / hook mismatch) in production. Error occurred when the `CatalogTreeView` component transitioned from initial render to rendering a newly created catalog.
+
+### Root Cause
+
+`CatalogTreeView.tsx` had a conditional hook usage pattern:
+- Component had early return statements (`if (!catalogs) return null;`)
+- `useMemo` for `allOpenItems` was called AFTER these early returns
+- When tree selected a newly created catalog, the component execution path changed
+- Different paths executed different hook counts, violating React's hook rules
+
+### Problem
+
+React requires hooks to execute in the same order and number every render. Conditional hook execution breaks this invariant.
+
+### Decision
+
+**Move `useMemo` to execute unconditionally before any early returns.**
+
+```typescript
+// Calculate open items BEFORE early returns
+const allOpenItems = useMemo(() => {
+  // open item calculation
+}, [catalogs, selectedCatalogId, selectedTreeItemId]);
+
+// Now safe to early return
+if (!catalogs || catalogs.length === 0) return null;
+```
+
+### Alternatives Considered
+
+1. **Refactor to conditional memoization**: Add multiple useMemo calls with different conditions → Still violates hook rules
+2. **Move early return to parent**: Would require parent-level filtering → Adds complexity, breaks component encapsulation
+3. **Unroll memoization**: Calculate inline instead → Loses optimization benefits
+
+### Implementation
+
+**File Modified:** `src/components/BusinessEventDetails/CatalogTreeView.tsx`
+- Moved `allOpenItems` useMemo before early return guards
+- No logic changes, only execution order
+- Preserves all optimization benefits and behavior
+
+### Validation
+
+- ✅ Build: `npm run build` passed
+- ✅ UX: New catalog create → select → display works end-to-end
+- ✅ Selection: Post-create auto-selection behavior preserved
+- ✅ Regressions: Tree navigation and filtering remain functional
+
+### QA Context
+
+**Lambert (Tester) Provided:**
+- Confirmed hook order was the likely root cause
+- Regression check scenarios: root/category create under solution/filter/refetch combinations
+- Watch item: `pendingBusinessEventCatalogId` may linger if created data never appears (monitor for stale state)
+
+### Related Changes
+
+This fix complements the earlier "Created Catalog Selection Handoff" decision (2026-05-26) which implemented post-create auto-selection. Hook order fix ensures the selection transition doesn't crash the component.
+
+### Impact
+
+- **Frontend:** Unblocks new catalog save workflow in Business Events
+- **Production:** Resolves React 310 crash for users creating catalogs
+- **QA:** Ready for end-to-end regression validation
+
+---
+
 ## Issue: Compact Tree View Feature
 
 **Date:** 2026-03-XX  

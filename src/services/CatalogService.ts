@@ -1,7 +1,6 @@
 import { Catalog, CatalogCreateable, CatalogUpdateable } from "../models/Catalog";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { UpdateResult, CreateResult, EntityService } from "./EntityService";
-import { PublisherService } from "./PublisherService";
 
 
 
@@ -13,8 +12,7 @@ export class CatalogService extends EntityService {
     // Define lookups here to avoid circular dependency with Catalog model
     private static get CatalogLookups(): Partial<Record<keyof CatalogCreateable, [string, EntityService]>> {
         return {
-            _parentcatalogid_value: ['ParentCatalogId', new CatalogService()],
-            _publisherid_value: ['PublisherId', new PublisherService()],
+            _parentcatalogid_value: ['ParentCatalogId', new CatalogService()]
         };
     }
 

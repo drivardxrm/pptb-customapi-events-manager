@@ -10,7 +10,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
-import { ValidationStatus } from '../../utils/validation';
+import { ValidationStatus, hasCaseInsensitiveMatch } from '../../utils/validation';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 
 interface RequestParameterCreateProps {
@@ -33,7 +33,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const [ column1Width ] = useDynamicColumnWidths(columnRefGroups);
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
     const customApiQuery = useCustomApis();
-    const requestParameterQuery = useCustomApiRequestParameters();
+    const { requestParameters } = useCustomApiRequestParameters();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
@@ -75,12 +75,12 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
             return { isValid: false, message: 'Please fill all required fields.' };
         }
 
-        if (requestParameterQuery.requestParameters && requestParameterQuery.requestParameters.some(param => param.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+        if (hasCaseInsensitiveMatch(requestParameters, createData.uniquename, param => param.uniquename)) {
             return { isValid: false, message: `Request Parameter named '${createData.uniquename}' already exist.` };
         }
 
         return { isValid: true };
-    }, [createData, requestParameterQuery.requestParameters]);
+    }, [createData, requestParameters]);
 
     useEffect(() => {
         onValidationChange?.(validation);

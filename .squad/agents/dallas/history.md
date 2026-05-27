@@ -112,10 +112,89 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Preserved publisher-prefix auto-population behavior and Name/Display Name/Description auto-population from suffix to keep existing productivity enhancements intact; these behaviors must be maintained during UX refactors.
 - Validation: `npm run build` passed; create form renders with new field order, auto-focus works on both root and category create modes, publisher-prefix behavior working.
 
+## Learnings (Recent Session: 2026-05-26)
+
+### Catalog Create Default Publisher Recovery
+- `src/components/BusinessEventDetails/CatalogModal.tsx` now keeps publisher selection in form-owned create state (`_publisherid_value`) and mirrors it to Zustand only for cross-create convenience.
+- Async defaults from `src/hooks/useAppSettings.ts` should hydrate once per modal open behind a ref guard; otherwise late settings loads can fight manual publisher changes or clears.
+- Catalog create submission in `CatalogModal.tsx` must emit `PublisherId@odata.bind` so the selected publisher reaches Dataverse even though the shared catalog create path does not add that lookup binding itself.
+- Preserved create-flow UX baselines in `CatalogModal.tsx`: collapsed publisher summary, publisher-prefix unique-name regeneration on publisher change, unique-name autofocus, Add to Solution last, and no placeholders.
+- Validation: baseline `npm run build` passed before the fix, and post-fix `npm run build` passed again after implementation and Ripley re-review.
+
+### Catalog Create Payload Simplification
+- `src/components/BusinessEventDetails/CatalogModal.tsx` handleSave method uses explicit field-by-field construction of `CatalogCreateable` payload rather than pass-through spread, preventing accidental inclusion of form-internal state like `_publisherid_value`.
+- Explicit payload construction on lines 227-233 includes only the 5 fields actually sent on create: uniquename, name, displayname, description, _parentcatalogid_value.
+- Publisher handling remains form-scoped; publisher field does not leak into create request.
+- Type safety enforced by `CatalogCreateable` interface to ensure only permitted fields are used.
+- Validation: `npm run build` passed; create root/category flows validated; publisher auto-population and unique-name auto-focus preserved.
+
 ## Team Updates (Session: 2026-05-26)
 
-**Orchestration Log:** 2026-05-26T175909-dallas.md  
-**Scope:** Catalog create form UX tightening sprint  
-**Status:** ✅ Complete — Form UX improvements delivered (placeholder removal, field reordering, auto-focus); build passed; awaiting QA validation
+**Orchestration Log:** 2026-05-26T19-33-50Z-dallas.md  
+**Session Log:** 2026-05-26T19-33-50Z-catalog-payload-cleanup.md  
+**Scope:** Catalog create payload construction simplification  
+**Requested by:** David Rivard  
+**Status:** ✅ Complete — Explicit payload construction delivered; publisher handling and create UX preserved; build passed
 
+## Team Updates (Session: 2026-05-26)
 
+**Orchestration Log:** 20260526-192419-dallas.md  
+**Session Log:** 20260526-192419-catalog-publisher-default.md  
+**Scope:** Catalog create default publisher recovery sprint  
+**Requested by:** David Rivard  
+**Status:** ✅ Complete — Default publisher preselection restored; form owns state; build passed; decision merged
+
+## Learnings (Recent Session: 2026-06-03)
+
+### Validation Scope Should Follow Entity Uniqueness Ownership
+- Solution-filtered hooks such as `src/hooks/useCustomApis.tsx` and `src/hooks/useCatalogs.tsx` need a companion unfiltered query when create-form validation must enforce globally unique `uniquename` values across Dataverse.
+- The clean frontend pattern is to keep display collections filtered for selector UX, but validate against the full authoritative collection via `useAllCustomApis()` / `useAllCatalogs()` plus shared case-insensitive helpers in `src/utils/validation.ts`.
+- Request Parameters and Response Properties remain parent-scoped uniqueness checks, so `src/components/requestParameterDetails/RequestParameterCreate.tsx` and `src/components/responsePropertyDetails/ResponsePropertyCreate.tsx` should continue validating against the selected Custom API's own collections rather than a global alias.
+- Catalog Assignment duplicate validation now lives in `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx` and treats the `(catalog, object id, object type)` tuple as the uniqueness boundary.
+- User preference: duplicate checks must ignore solution-filtered browsing state; selecting a solution should never allow creation of an entity whose duplicate already exists outside the visible subset.
+
+## Team Updates (Session: 2026-06-03)
+**Orchestration Log:** 2026-06-03T120000Z-dallas.md  
+**Session Log:** 2026-06-03T120000Z-validation-scope.md  
+**Scope:** Duplicate validation scope fixes — Custom API, Catalog, Catalog Assignment  
+**Requested by:** David Rivard  
+**QA Sign-off:** Lambert (Confirmed Custom API and Catalog were broken; Request Parameter/Response Property were already parent-scoped; flagged missing Catalog Assignment duplicate validation)  
+**Status:** ✅ Complete — All three scopes corrected; build passed; decisions merged and inbox cleared
+
+## Team Updates (Session: 2026-06-04)
+
+**Orchestration Log:** 2026-06-04T10-00-00Z-dallas.md  
+**Session Log:** 2026-06-04T10-00-00Z-catalog-save-react310.md  
+**Scope:** React 310 crash fix in CatalogTreeView  
+**Requested by:** David Rivard  
+**QA Input:** Lambert confirmed hook order was the likely root cause, provided regression checks for root/category create under solution/filter/refetch scenarios, noted watch item around pendingBusinessEventCatalogId lingering if created data never appears  
+**Status:** ✅ Complete — Root cause identified and fixed (unconditional hook execution); recent catalog create UX and post-create auto-selection preserved; build succeeded; decision merged and inbox cleared
+
+## Learnings (Recent Session: 2026-05-26)
+
+### Created Catalog Selection Handoff
+- New catalogs (root and child) created inside `CatalogModal` need post-create selection so they appear in the Business Event tree/details view.
+- Implemented app-state handoff using `pendingBusinessEventCatalogId` to mirror the existing `pendingBusinessEventAssignmentId` pattern for cross-component navigation.
+- `CatalogModal.tsx` detects successful catalog creation, stores the created catalog ID, and adjusts `selectedRootCatalogId` if a root was created.
+- `BusinessEventDetails.tsx` watches the pending catalog ID, invalidates the catalogs query to refresh data, then auto-selects the new catalog in the tree and details panel.
+- Pending state lifecycle: Set on create success → consumed by listening component → cleared after selection completes, preventing stale replay.
+- This surgical change avoids threading tree-selection callbacks through modal layers and reuses the proven pending-ID pattern from Business Event assignments.
+- Validation: ✅ `npm run build` passed; root create → select → display flow works end-to-end; child create preserves root and selects category; pending state properly cleared.
+
+## Team Updates (Session: 2026-05-26)
+
+**Orchestration Log:** 2026-05-26T18-00-00Z-dallas.md  
+**Session Log:** 2026-05-26-created-catalog-selection.md  
+**Scope:** Select and display newly created catalogs in Business Event treeview  
+**Requested by:** David Rivard  
+**QA Input:** Lambert confirmed the missing post-create selection handoff and called out BusinessEventDetails + CatalogSelector/useAppStore as the key surfaces  
+**Status:** ✅ Complete — Root catalog create now selects and opens the new root in the tree/details view; child catalog create keeps the correct root selected and selects the new category; added pending catalog handoff in app state to match the existing pending assignment pattern; aligned refresh/selection so the new catalog remains visible after create; build succeeded
+
+## Learnings (Recent Session: 2026-05-26)
+
+### Catalog Create Default Publisher Recovery
+- `src/components/BusinessEventDetails/CatalogModal.tsx` now keeps publisher selection in form-owned create state (`_publisherid_value`) and mirrors it to Zustand only for cross-create convenience.
+- Async defaults from `src/hooks/useAppSettings.ts` should hydrate once per modal open behind a ref guard; otherwise late settings loads can fight manual publisher changes or clears.
+- Catalog create submission in `CatalogModal.tsx` must emit `PublisherId@odata.bind` so the selected publisher reaches Dataverse even though the shared catalog create path does not add that lookup binding itself.
+- Preserved create-flow UX baselines in `CatalogModal.tsx`: collapsed publisher summary, publisher-prefix unique-name regeneration on publisher change, unique-name autofocus, Add to Solution last, and no placeholders.
+- Validation: baseline `npm run build` passed before the fix, and post-fix `npm run build` passed again after implementation and Ripley re-review.

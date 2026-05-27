@@ -17,7 +17,7 @@ import {
     mergeClasses,
 } from '@fluentui/react-components';
 import { useStyles } from '../../styles/Styles';
-import { useCreateCatalog, useUpdateCatalog, useCatalogs } from '../../hooks/useCatalogs';
+import { useCreateCatalog, useUpdateCatalog, useAllCatalogs } from '../../hooks/useCatalogs';
 import { usePublishers } from '../../hooks/usePublishers';
 import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
@@ -25,8 +25,18 @@ import { Catalog, CatalogCreateable, CatalogUpdateable, DEFAULT_CATALOG_CREATE_T
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { ChevronDown16Regular, ChevronRight16Regular, LockOpen16Regular } from '@fluentui/react-icons';
+import { hasCaseInsensitiveMatch } from '../../utils/validation';
 
 export type CatalogModalMode = 'create-root' | 'create-category' | 'edit';
+
+type CatalogCreateFormData = CatalogCreateable & {
+    _publisherid_value: string;
+};
+
+const DEFAULT_CATALOG_CREATE_FORM: CatalogCreateFormData = {
+    ...DEFAULT_CATALOG_CREATE_TEMPLATE,
+    _publisherid_value: '',
+};
 
 interface CatalogModalProps {
     open: boolean;
@@ -46,26 +56,34 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     const styles = useStyles();
     const createCatalog = useCreateCatalog();
     const updateCatalog = useUpdateCatalog();
-    const { catalogs } = useCatalogs();
-    const { publishers, isFetching: isFetchingPublishers } = usePublishers();
+    const { catalogs: allCatalogs } = useAllCatalogs();
+    const publishersQuery = usePublishers();
     const { solutions, isFetching: isFetchingSolutions } = useSolutions();
-    const { selectedSolutionId, selectedPublisherId, setSelectedPublisherId } = useAppStore();
+    const {
+        selectedSolutionId,
+        selectedPublisherId,
+        setSelectedSolutionId,
+        setSelectedCatalogId,
+        setPendingBusinessEventCatalogId,
+        setSelectedPublisherId,
+    } = useAppStore();
     const { appsettings } = useAppSettings();
 
     const isEdit = mode === 'edit';
     const isCreateCategory = mode === 'create-category';
     const isCreateRoot = mode === 'create-root';
     const previousOpenRef = useRef(false);
+    const defaultPublisherAppliedRef = useRef(false);
     const uniqueNameInputRef = useRef<HTMLInputElement>(null);
 
     // Form state
-    const [formData, setFormData] = useState<CatalogCreateable>(DEFAULT_CATALOG_CREATE_TEMPLATE);
+    const [formData, setFormData] = useState<CatalogCreateFormData>(DEFAULT_CATALOG_CREATE_FORM);
     const [editData, setEditData] = useState<CatalogUpdateable>({ name: '', displayname: '', description: '' });
     const [selectedSolutionForCreate, setSelectedSolutionForCreate] = useState<string | null>(null);
 
     // Get selected solution for adding to solution
-    const initialPublisherId = appsettings?.defaultPublisherId ?? selectedPublisherId ?? '';
-    const [isPublisherExpanded, setIsPublisherExpanded] = useState(!initialPublisherId);
+    const defaultPublisherId = appsettings?.defaultPublisherId ?? '';
+    const [isPublisherExpanded, setIsPublisherExpanded] = useState(!(defaultPublisherId || selectedPublisherId));
     const unmanagedSolutions = useMemo(() => solutions.filter((solution) => !solution.ismanaged), [solutions]);
     const solutionItems: SelectableItem[] = useMemo(() =>
         unmanagedSolutions
@@ -79,16 +97,29 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     const selectedSolutionForCreateRecord = unmanagedSolutions.find(
         (solution) => solution.solutionid === selectedSolutionForCreate
     );
+    const activePublisherId = formData._publisherid_value;
     const getPublisherPrefix = (publisherId: string) =>
-        publishers.find((publisher) => publisher.publisherid === publisherId)?.customizationprefix || '';
-    const selectedPublisherPrefix = useMemo(
-        () => getPublisherPrefix(formData._publisherid_value),
-        [formData._publisherid_value, publishers]
-    );
+        publishersQuery.publishers?.find((publisher) => publisher.publisherid === publisherId)?.customizationprefix || '';
+   
+    // useMemo to get the prefix of the selected publisher
+    const selectedPublisherPrefix = useMemo(() => {
+        if (!activePublisherId || !publishersQuery.publishers) {
+            return '';
+        }
+        const publisher = publishersQuery.publishers.find(p => p.publisherid === activePublisherId);
+        return publisher?.customizationprefix || '';
+    }, [activePublisherId, publishersQuery.publishers]);
+
+    // useMemo to get the display text of the selected publisher
     const selectedPublisherDisplay = useMemo(() => {
-        const publisher = publishers.find((item) => item.publisherid === formData._publisherid_value);
+        if (!activePublisherId || !publishersQuery.publishers) {
+            return '';
+        }
+        const publisher = publishersQuery.publishers.find(p => p.publisherid === activePublisherId);
         return publisher ? `${publisher.friendlyname} (${publisher.customizationprefix})` : '';
-    }, [formData._publisherid_value, publishers]);
+    }, [activePublisherId, publishersQuery.publishers]);
+
+
     const uniqueNameSuffix = useMemo(() => {
         if (!formData.uniquename) {
             return '';
@@ -106,6 +137,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
     useEffect(() => {
         if (!open) {
             previousOpenRef.current = false;
+            defaultPublisherAppliedRef.current = false;
             return;
         }
 
@@ -124,11 +156,15 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
             return;
         }
 
+        const initialPublisherId = defaultPublisherId || selectedPublisherId || '';
+
         setFormData({
-            ...DEFAULT_CATALOG_CREATE_TEMPLATE,
+            ...DEFAULT_CATALOG_CREATE_FORM,
             _parentcatalogid_value: isCreateCategory ? parentCatalog?.catalogid || '' : '',
             _publisherid_value: initialPublisherId,
         });
+        defaultPublisherAppliedRef.current = Boolean(defaultPublisherId);
+        setSelectedPublisherId(initialPublisherId || null);
 
         const isInUnmanagedList = unmanagedSolutions.some(
             (solution) => solution.solutionid === selectedSolutionId
@@ -141,27 +177,31 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                 uniqueNameInputRef.current?.focus();
             }, 100);
         }
-    }, [open, isEdit, isCreateCategory, catalog, parentCatalog, initialPublisherId, unmanagedSolutions, selectedSolutionId]);
+    }, [open, isEdit, isCreateCategory, catalog, parentCatalog, defaultPublisherId, unmanagedSolutions, selectedPublisherId, selectedSolutionId, setSelectedPublisherId]);
+
+    useEffect(() => {
+        if (!open || isEdit || defaultPublisherAppliedRef.current || !defaultPublisherId) {
+            return;
+        }
+
+        defaultPublisherAppliedRef.current = true;
+        setSelectedPublisherId(defaultPublisherId);
+        setFormData((current) => (
+            current._publisherid_value
+                ? current
+                : { ...current, _publisherid_value: defaultPublisherId }
+        ));
+    }, [defaultPublisherId, isEdit, open, setSelectedPublisherId]);
 
     useEffect(() => {
         if (!open || isEdit) {
             return;
         }
 
-        setIsPublisherExpanded(!formData._publisherid_value);
-    }, [formData._publisherid_value, isEdit, open]);
+        setIsPublisherExpanded(!activePublisherId);
+    }, [activePublisherId, isEdit, open]);
 
-    useEffect(() => {
-        if (!open || isEdit || !appsettings?.defaultPublisherId) {
-            return;
-        }
-
-        setFormData((current) =>
-            current._publisherid_value
-                ? current
-                : { ...current, _publisherid_value: appsettings.defaultPublisherId! }
-        );
-    }, [appsettings?.defaultPublisherId, isEdit, open]);
+    
 
     // Validation
     const validation = useMemo(() => {
@@ -170,19 +210,18 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                 return { isValid: false, message: 'Name and Display Name are required.' };
             }
         } else {
-            if (!formData._publisherid_value) {
+            if (!activePublisherId) {
                 return { isValid: false, message: 'Publisher is required.' };
             }
             if (!formData.uniquename?.trim() || !formData.name?.trim() || !formData.displayname?.trim()) {
                 return { isValid: false, message: 'Unique Name, Name, and Display Name are required.' };
             }
-            // Check for duplicate unique name
-            if (catalogs.some(c => c.uniquename.toLowerCase() === formData.uniquename.toLowerCase())) {
+            if (hasCaseInsensitiveMatch(allCatalogs, formData.uniquename, c => c.uniquename)) {
                 return { isValid: false, message: `Catalog with unique name '${formData.uniquename}' already exists.` };
             }
         }
         return { isValid: true, message: '' };
-    }, [isEdit, formData, editData, catalogs]);
+    }, [activePublisherId, allCatalogs, isEdit, formData, editData]);
 
     const handleSave = async () => {
         try {
@@ -192,10 +231,26 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                     next: editData,
                 });
             } else {
-                await createCatalog.mutateAsync({
-                    next: formData,
+                const catalogPayload: CatalogCreateable = {
+                    uniquename: formData.uniquename,
+                    name: formData.name,
+                    displayname: formData.displayname,
+                    description: formData.description,
+                    _parentcatalogid_value: formData._parentcatalogid_value,
+                };
+
+                const result = await createCatalog.mutateAsync({
+                    next: catalogPayload,
+                    solutionId: selectedSolutionForCreate,
                     solutionUniqueName: selectedSolutionForCreateRecord?.uniquename,
                 });
+
+                if (result.created && result.id) {
+                    const rootCatalogId = parentCatalog?._parentcatalogid_value || parentCatalog?.catalogid || result.id;
+                    setSelectedSolutionId(selectedSolutionForCreate);
+                    setSelectedCatalogId(rootCatalogId);
+                    setPendingBusinessEventCatalogId(result.id);
+                }
             }
             onClose();
         } catch (error) {
@@ -228,7 +283,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
 
                         {!isEdit && (
                             <div className={styles.formGrid}>
-                                {!isPublisherExpanded && formData._publisherid_value && (
+                                {!isPublisherExpanded && activePublisherId && (
                                     <div
                                         className={styles.formSection}
                                         onClick={() => setIsPublisherExpanded(true)}
@@ -242,11 +297,11 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                     </div>
                                 )}
 
-                                {(isPublisherExpanded || !formData._publisherid_value) && (
+                                {(isPublisherExpanded || !activePublisherId) && (
                                     <div className={mergeClasses(styles.formSection, styles.twoColumn)}>
                                         <Field
                                             label={
-                                                formData._publisherid_value ? (
+                                                activePublisherId ? (
                                                     <span
                                                         className={styles.fieldLabelClickable}
                                                         onClick={() => setIsPublisherExpanded(false)}
@@ -259,22 +314,22 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                             }
                                             required
                                         >
-                                            {isFetchingPublishers ? (
+                                            {publishersQuery.isFetching ? (
                                                 <Input value="Loading publishers..." readOnly appearance="filled-darker" />
                                             ) : (
                                                 <GenericTagPicker
-                                                    items={publishers
+                                                    items={publishersQuery.publishers
                                                         .map((publisher) => ({
                                                             id: publisher.publisherid,
                                                             displayText: `${publisher.friendlyname} (${publisher.customizationprefix})`,
                                                         } as SelectableItem))
                                                         .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
-                                                    initialValue={formData._publisherid_value || ''}
+                                                    initialValue={activePublisherId || ''}
                                                     onSelect={(id) => {
                                                         const nextPublisherId = id || '';
-                                                        const nextPublisherPrefix = nextPublisherId ? getPublisherPrefix(nextPublisherId) : '';
+                                                        const nextPublisherPrefix = getPublisherPrefix(nextPublisherId);
 
-                                                        setSelectedPublisherId(nextPublisherId);
+                                                        setSelectedPublisherId(nextPublisherId || null);
                                                         setFormData((current) => {
                                                             const currentPrefix = getPublisherPrefix(current._publisherid_value);
                                                             const currentSuffix =
@@ -285,16 +340,16 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                                             return {
                                                                 ...current,
                                                                 _publisherid_value: nextPublisherId,
-                                                                uniquename:
-                                                                    nextPublisherPrefix && currentSuffix
-                                                                        ? `${nextPublisherPrefix}_${currentSuffix}`
-                                                                        : '',
+                                                                uniquename: nextPublisherPrefix
+                                                                    ? (currentSuffix ? `${nextPublisherPrefix}_${currentSuffix}` : '')
+                                                                    : currentSuffix,
                                                             };
                                                         });
 
                                                         if (nextPublisherId) {
-                                                            setIsPublisherExpanded(false);
+                                                            setIsPublisherExpanded(false); // auto-collapse on selection
                                                         }
+
                                                     }}
                                                 />
                                             )}
@@ -315,10 +370,10 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                                         const suffix = data.value;
 
                                         setFormData((current) => {
-                                            const currentPrefix = getPublisherPrefix(current._publisherid_value);
+                                           
                                             const currentSuffix =
-                                                currentPrefix && current.uniquename.startsWith(`${currentPrefix}_`)
-                                                    ? current.uniquename.slice(currentPrefix.length + 1)
+                                                selectedPublisherPrefix && current.uniquename.startsWith(`${selectedPublisherPrefix}_`)
+                                                    ? current.uniquename.slice(selectedPublisherPrefix.length + 1)
                                                     : current.uniquename;
 
                                             if (suffix === currentSuffix) {

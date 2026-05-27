@@ -153,3 +153,41 @@ Modal mode discrimination with conditional field visibility is a reusable patter
 
 **Document Location:** `.squad/decisions/inbox/lambert-root-catalog-button-qa.md`  
 **Status:** ✅ QA specification complete—85+ test cases covering button visibility, modal behavior, form validation, unchanged features, user journeys, edge cases, accessibility, and regressions; ready for implementation validation
+
+## Learnings (Session: 2026-06-03)
+
+### Full-Collection Duplicate Validation Review
+
+**User Preference / QA Expectation:** When a solution is selected, duplicate checks for globally unique records must still validate against the full entity collection, not the solution-filtered subset.
+
+**Architecture Findings:**
+- `src/hooks/useCustomApis.tsx` and `src/hooks/useCatalogs.tsx` are solution-scoped via `selectedSolutionId`, so any uniqueness check that reads their returned arrays is filter-sensitive.
+- `src/components/customApiDetails/CustomApiDetailsCreate.tsx` currently validates `createData.uniquename` against `useCustomApis().customapis`, so Custom API create is vulnerable when a duplicate exists outside the selected solution.
+- `src/components/BusinessEventDetails/CatalogModal.tsx` currently validates `formData.uniquename` against `useCatalogs().catalogs`, so both root-catalog and category create flows are vulnerable when a duplicate exists outside the selected solution.
+- `src/hooks/useCustomApiRequestParameters.ts` and `src/hooks/useCustomApiResponseProperties.ts` are scoped by `selectedCustomApiId`, not `selectedSolutionId`; request/response duplicate checks are already using full per-parent collections for the selected Custom API.
+- `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx` has required-field validation only; no duplicate-prevention logic exists there yet, so assignment validation is a missed surface if David expects parity.
+
+**Create/Edit Flow Impact:**
+- **Must validate against full collection:** Custom API create; Catalog create-root; Catalog create-category.
+- **Already safe for this specific solution-filter issue:** Request Parameter create; Response Property create.
+- **Not currently applicable because unique key is read-only in edit:** Custom API edit; Request Parameter edit; Response Property edit; Catalog edit.
+- **Missed surface to confirm with implementation owner:** Catalog Assignment create/edit if duplicate rules are expected for name/object combinations.
+
+**Key File Paths:**
+- `src/hooks/useCustomApis.tsx`
+- `src/hooks/useCatalogs.tsx`
+- `src/components/customApiDetails/CustomApiDetailsCreate.tsx`
+- `src/components/BusinessEventDetails/CatalogModal.tsx`
+- `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx`
+- `src/hooks/useCustomApiRequestParameters.ts`
+- `src/hooks/useCustomApiResponseProperties.ts`
+
+## Team Updates (Session: 2026-06-03)
+**Scope:** Duplicate validation scope — QA review and implementation sign-off  
+**Status:** ✅ Complete — Confirmed Custom API and Catalog create were broken (solution-filter vulnerability); Request Parameter/Response Property were already parent-scoped (no fix needed); flagged missing Catalog Assignment duplicate guard (catalog + object-id + object-type tuple); Dallas implemented all three scopes; build passed; decisions merged into main decisions.md
+
+## Team Updates (Session: 2026-06-04)
+
+**Scope:** React 310 crash root cause identification and QA regression checklist  
+**Related Agent Work:** Dallas (Frontend Dev) — `2026-06-04T10-00-00Z-dallas.md`  
+**Status:** ✅ Complete — Confirmed hook-order violation in CatalogTreeView as root cause; provided regression check scenarios for root/category create under solution/filter/refetch combinations; flagged watch item: `pendingBusinessEventCatalogId` may linger if created data never appears; Dallas implemented fix (unconditional hook execution); build passed; decision merged; ready for implementation validation

@@ -9,7 +9,7 @@ import { CustomApiResponsePropertyCreateable, getCustomApiResponsePropertiesType
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
-import { ValidationStatus } from '../../utils/validation';
+import { ValidationStatus, hasCaseInsensitiveMatch } from '../../utils/validation';
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 
 
@@ -22,7 +22,7 @@ interface ResponsePropertyCreateProps {
 export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ createData, onChange, onValidationChange }) => {
     const styles = useStyles();   
     const customApiQuery = useCustomApis();
-    const responsePropertyQuery = useCustomApiResponseProperties();
+    const { responseProperties } = useCustomApiResponseProperties();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
@@ -56,12 +56,12 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
             return { isValid: false, message: 'Please fill all required fields.' };
         }
 
-        if (responsePropertyQuery.responseProperties && responsePropertyQuery.responseProperties.some(prop => prop.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+        if (hasCaseInsensitiveMatch(responseProperties, createData.uniquename, prop => prop.uniquename)) {
             return { isValid: false, message: `Response Property named '${createData.uniquename}' already exist.` };
         }
 
         return { isValid: true };
-    }, [createData, responsePropertyQuery.responseProperties]);
+    }, [createData, responseProperties]);
 
     useEffect(() => {
         onValidationChange?.(validation);

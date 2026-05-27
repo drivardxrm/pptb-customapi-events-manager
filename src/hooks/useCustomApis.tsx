@@ -7,34 +7,38 @@ import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityServ
 import { notify } from '../utils/notify';
 
 
-export const useCustomApis = () => {
+const useCustomApiCollection = (solutionId: string | null | undefined) => {
+  const { connection, isLoadingConnection, instanceId }  = useAppStore();
 
-  // Get connection and instanceId from Zustand store
-  const { connection, isLoadingConnection, instanceId, selectedSolutionId }  = useAppStore();
-
-  
-
+  const normalizedSolutionId = solutionId ?? '';
   const { data, status, error, isFetching } =
     useQuery<CustomApi[], Error>(
       {
-        queryKey: queryKeys.customapis(connection?.id ?? '', instanceId , selectedSolutionId ?? ''), // Include instanceId and connection id for proper cache management
+        queryKey: queryKeys.customapis(connection?.id ?? '', instanceId , normalizedSolutionId), // Include instanceId and connection id for proper cache management
         queryFn: async () => {
-          const result = selectedSolutionId == null || selectedSolutionId == '' ? 
-            await customApiService.fetchAllCustomApi() :
-            await customApiService.fetchSolutionCustomApi(selectedSolutionId);
-          //console.log('Fetched customapis:', result);
+          const result = normalizedSolutionId === ''
+            ? await customApiService.fetchAllCustomApi()
+            : await customApiService.fetchSolutionCustomApi(normalizedSolutionId);
           return result;
         },
         enabled: !!connection && !isLoadingConnection,
         staleTime: Infinity
       }
-    )
+    );
 
   return {
     customapis: data || [],
     status, error, isFetching
-  }
+  };
+};
+
+export const useCustomApis = () => {
+  const { selectedSolutionId } = useAppStore();
+  return useCustomApiCollection(selectedSolutionId);
 }
+
+export const useAllCustomApis = () => useCustomApiCollection(null);
+
 
 type CreateCustomApiInput = {
   next: CustomApiCreateable;
@@ -65,6 +69,9 @@ export const useCreateCustomApi = () => {
     onSuccess: () => {
       
         queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+        if (selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, '') });
+        }
       
     },
   });
@@ -105,6 +112,9 @@ export const useUpdateCustomApi = () => {
     onSuccess: () => {
       
         queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+        if (selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, '') });
+        }
       
     },
   });
@@ -137,8 +147,10 @@ export const useDeleteCustomApi = () => {
     onSuccess: () => {
       
         queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, selectedSolutionId ?? '') });
+        if (selectedSolutionId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.customapis(connection?.id ?? '', instanceId, '') });
+        }
       
     },
   });
 };
-

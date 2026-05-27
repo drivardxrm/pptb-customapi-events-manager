@@ -42,7 +42,9 @@ export const BusinessEventDetails: React.FC = () => {
         selectedCatalogId,
         selectedNavItem,
         pendingBusinessEventAssignmentId,
+        pendingBusinessEventCatalogId,
         setPendingBusinessEventAssignmentId,
+        setPendingBusinessEventCatalogId,
         setSelectedCatalogId,
         clearGlobalMessage,
     } = useAppStore();
@@ -82,6 +84,46 @@ export const BusinessEventDetails: React.FC = () => {
             }
         }
     }, [catalogs, selectedTreeItem]);
+
+    useEffect(() => {
+        if (selectedNavItem !== 'businessevent' || !pendingBusinessEventCatalogId) {
+            return;
+        }
+
+        if (isFetchingCatalogs) {
+            return;
+        }
+
+        const pendingCatalog = catalogs.find(
+            catalog => catalog.catalogid === pendingBusinessEventCatalogId
+        );
+
+        if (!pendingCatalog) {
+            return;
+        }
+
+        const rootCatalogId = pendingCatalog._parentcatalogid_value || pendingCatalog.catalogid;
+
+        if (selectedCatalogId !== rootCatalogId) {
+            setSelectedCatalogId(rootCatalogId);
+            return;
+        }
+
+        setSelectedTreeItem({
+            type: 'catalog',
+            item: pendingCatalog,
+            isCategory: Boolean(pendingCatalog._parentcatalogid_value),
+        });
+        setPendingBusinessEventCatalogId(null);
+    }, [
+        catalogs,
+        isFetchingCatalogs,
+        pendingBusinessEventCatalogId,
+        selectedCatalogId,
+        selectedNavItem,
+        setPendingBusinessEventCatalogId,
+        setSelectedCatalogId,
+    ]);
 
     useEffect(() => {
         if (selectedNavItem !== 'businessevent' || !pendingBusinessEventAssignmentId) {
