@@ -18,6 +18,7 @@ import { PowerFxBadge } from '../generic/PowerFxBadge';
 import { RequestPanel, ParameterValues } from './RequestPanel';
 import { ResponsePanel } from './ResponsePanel';
 import { ODataCard } from './ODataCard';
+import { CustomApiBusinessEventButton } from '../generic/CustomApiBusinessEventButton';
 import { notify } from '../../utils/notify';
 import { EntityReferenceValue } from '../../models/Entity';
 
@@ -386,7 +387,10 @@ export const CustomApiTester: React.FC = () => {
                             }
                             description={
                                 <div className={styles.flexColumn}>
-                                    <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+                                    <div className={styles.headingActionRow}>
+                                        <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+                                        <CustomApiBusinessEventButton customApiId={selectedCustomApi?.customapiid} />
+                                    </div>
                                     {selectedCustomApi?.description && (
                                         <p >{selectedCustomApi.description}</p>
                                     )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Activity } from 'react';
+import React, { useState, useEffect, useCallback, Activity } from 'react';
 import { Button, Card, CardHeader, Divider, Spinner, Switch, Tooltip } from '@fluentui/react-components';
 import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, AddCircleColor, DismissCircleColor, TextBulletListTreeRegular, FormRegular } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
@@ -19,6 +19,7 @@ import { CustomApiDeleteDialog } from './CustomApiDeleteDialog';
 import { ModeBadge } from '../generic/ModeBadge';
 import { ComponentStateBadge } from '../generic/ComponentStateBadge';
 import { PowerFxBadge } from '../generic/PowerFxBadge';
+import { CustomApiBusinessEventButton } from '../generic/CustomApiBusinessEventButton';
 import { PowerFxDetails } from '../powerfxDetails/PowerFxDetails';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
@@ -41,7 +42,17 @@ const toEditable = (api: CustomApi): CustomApiUpdateable => ({
 
 export const CustomApiDetails: React.FC = () => {
     const styles = useStyles();
-    const {selectedCustomApiId, setSelectedCustomApiId, setGlobalMessage, clearGlobalMessage, selectedNavItem, editingComponent, setEditingComponent } = useAppStore();
+    const {
+        selectedCustomApiId,
+        setSelectedCustomApiId,
+        setSelectedRequestParameterId,
+        setSelectedResponsePropertyId,
+        setGlobalMessage,
+        clearGlobalMessage,
+        selectedNavItem,
+        editingComponent,
+        setEditingComponent,
+    } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'customapi';
     const { customapis } = useCustomApis();
     const updateCustomApi = useUpdateCustomApi();
@@ -57,6 +68,13 @@ export const CustomApiDetails: React.FC = () => {
 
     const [mode, setMode] = useState<CustomApiDetailsMode>('read');
     const [showTreeView, setShowTreeView] = useState(appsettings?.showCustomApiDetailsTreeView ?? false);
+    const [requestParameterCreateTrigger, setRequestParameterCreateTrigger] = useState(0);
+    const [responsePropertyCreateTrigger, setResponsePropertyCreateTrigger] = useState(0);
+    const [requestParameterEditId, setRequestParameterEditId] = useState<string | null>(null);
+    const [responsePropertyEditId, setResponsePropertyEditId] = useState<string | null>(null);
+    const [returnToTreeViewAfterCustomApiAction, setReturnToTreeViewAfterCustomApiAction] = useState(false);
+    const [returnToTreeViewAfterRequestParameterAction, setReturnToTreeViewAfterRequestParameterAction] = useState(false);
+    const [returnToTreeViewAfterResponsePropertyAction, setReturnToTreeViewAfterResponsePropertyAction] = useState(false);
     const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
     const [createData, setCreateData] = useState<CustomApiCreateable>(DEFAULT_CREATE_TEMPLATE);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({
@@ -71,6 +89,30 @@ export const CustomApiDetails: React.FC = () => {
             setShowTreeView(appsettings.showCustomApiDetailsTreeView);
         }
     }, [appsettings?.showCustomApiDetailsTreeView]);
+
+    const clearTreeViewChildActionState = useCallback(() => {
+        setRequestParameterCreateTrigger(0);
+        setResponsePropertyCreateTrigger(0);
+        setRequestParameterEditId(null);
+        setResponsePropertyEditId(null);
+        setReturnToTreeViewAfterRequestParameterAction(false);
+        setReturnToTreeViewAfterResponsePropertyAction(false);
+    }, []);
+
+    useEffect(() => {
+        if (!showTreeView) {
+            return;
+        }
+
+        clearTreeViewChildActionState();
+        setSelectedRequestParameterId(null);
+        setSelectedResponsePropertyId(null);
+    }, [
+        clearTreeViewChildActionState,
+        showTreeView,
+        setSelectedRequestParameterId,
+        setSelectedResponsePropertyId,
+    ]);
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -102,11 +144,7 @@ export const CustomApiDetails: React.FC = () => {
                 action: {
                     label: 'New Custom API',
                     icon: <AddCircleColor />,
-                    onClick: () => {
-                        setSelectedCustomApiId(null);
-                        setCreateData(DEFAULT_CREATE_TEMPLATE);
-                        setMode('create');
-                    },
+                    onClick: handleCreate,
                 },
             });
         } else {
@@ -151,11 +189,12 @@ export const CustomApiDetails: React.FC = () => {
         }
     }, [selectedCustomApi]);
 
-    const handleEdit = () => {
-        if (!selectedCustomApi) {
+    const handleEdit = (returnToTreeViewOnExit = false) => {
+        if (!selectedCustomApi || selectedCustomApi.ismanaged) {
             return;
         }
         setEditedData(toEditable(selectedCustomApi));
+        setReturnToTreeViewAfterCustomApiAction(returnToTreeViewOnExit);
         setMode('edit');
         setEditingComponent('customapi');
     };
@@ -163,6 +202,7 @@ export const CustomApiDetails: React.FC = () => {
     const handleCreate = () => {
         setSelectedCustomApiId(null);
         setCreateData(DEFAULT_CREATE_TEMPLATE);
+        setReturnToTreeViewAfterCustomApiAction(false);
         setMode('create');
         setEditingComponent('customapi');
     };
@@ -175,6 +215,10 @@ export const CustomApiDetails: React.FC = () => {
         }
         setMode('read');
         setEditingComponent('none');
+        if (returnToTreeViewAfterCustomApiAction) {
+            setReturnToTreeViewAfterCustomApiAction(false);
+            setShowTreeView(true);
+        }
     };
 
     const handleSave = async () => {
@@ -224,6 +268,10 @@ export const CustomApiDetails: React.FC = () => {
 
             setMode('read');
             setEditingComponent('none');
+            if (returnToTreeViewAfterCustomApiAction) {
+                setReturnToTreeViewAfterCustomApiAction(false);
+                setShowTreeView(true);
+            }
         } catch (error) {
             console.error('Error saving Custom API', error);
         }
@@ -255,6 +303,58 @@ export const CustomApiDetails: React.FC = () => {
         setShowDeleteConfirmation(false);
     };
 
+    const handleCreateRequestParameterFromTree = useCallback(() => {
+        setReturnToTreeViewAfterRequestParameterAction(true);
+        setShowTreeView(false);
+        setRequestParameterCreateTrigger((current) => current + 1);
+    }, []);
+
+    const handleCreateResponsePropertyFromTree = useCallback(() => {
+        setReturnToTreeViewAfterResponsePropertyAction(true);
+        setShowTreeView(false);
+        setResponsePropertyCreateTrigger((current) => current + 1);
+    }, []);
+
+    const handleRequestParameterCreationRequestHandled = useCallback(() => {
+        setRequestParameterCreateTrigger(0);
+    }, []);
+
+    const handleResponsePropertyCreationRequestHandled = useCallback(() => {
+        setResponsePropertyCreateTrigger(0);
+    }, []);
+
+    const handleEditRequestParameterFromTree = useCallback((requestParameterId: string) => {
+        setSelectedResponsePropertyId(null);
+        setReturnToTreeViewAfterRequestParameterAction(true);
+        setRequestParameterEditId(requestParameterId);
+        setShowTreeView(false);
+    }, [setSelectedResponsePropertyId]);
+
+    const handleEditResponsePropertyFromTree = useCallback((responsePropertyId: string) => {
+        setSelectedRequestParameterId(null);
+        setReturnToTreeViewAfterResponsePropertyAction(true);
+        setResponsePropertyEditId(responsePropertyId);
+        setShowTreeView(false);
+    }, [setSelectedRequestParameterId]);
+
+    const handleRequestParameterEditRequestHandled = useCallback(() => {
+        setRequestParameterEditId(null);
+    }, []);
+
+    const handleResponsePropertyEditRequestHandled = useCallback(() => {
+        setResponsePropertyEditId(null);
+    }, []);
+
+    const handleRequestParameterTreeActionFinished = useCallback(() => {
+        setReturnToTreeViewAfterRequestParameterAction(false);
+        setShowTreeView(true);
+    }, []);
+
+    const handleResponsePropertyTreeActionFinished = useCallback(() => {
+        setReturnToTreeViewAfterResponsePropertyAction(false);
+        setShowTreeView(true);
+    }, []);
+
     
 
 
@@ -280,7 +380,10 @@ export const CustomApiDetails: React.FC = () => {
         </div>
     ) : (
         <div className={styles.flexColumn}>
-            <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+            <div className={styles.headingActionRow}>
+                <h2 className={styles.headingNoMargin}>{selectedCustomApi?.displayname || selectedCustomApi?.uniquename}</h2>
+                <CustomApiBusinessEventButton customApiId={selectedCustomApi?.customapiid} />
+            </div>
             <div className={styles.hintTextItalic}>
                 <LockClosed16Regular />
                 <span>Fields that cannot be modified after creation</span>
@@ -307,7 +410,7 @@ export const CustomApiDetails: React.FC = () => {
                 <Button
                     appearance='secondary'
                     icon={<Edit24Regular />}
-                    onClick={handleEdit}
+                    onClick={() => handleEdit()}
                     className={styles.headerActionButton}
                 >
                     Edit
@@ -378,9 +481,13 @@ export const CustomApiDetails: React.FC = () => {
                 api={selectedCustomApi} 
                 requestParameters={requestParameters} 
                 responseProperties={responseProperties}
+                onCreateRequestParameter={handleCreateRequestParameterFromTree}
+                onCreateResponseProperty={handleCreateResponsePropertyFromTree}
+                onEditRequestParameter={handleEditRequestParameterFromTree}
+                onEditResponseProperty={handleEditResponsePropertyFromTree}
                 onEdit={() => {
                     setShowTreeView(false);
-                    handleEdit();
+                    handleEdit(true);
                 }}
                 onDelete={ 
                     () => {
@@ -420,7 +527,14 @@ export const CustomApiDetails: React.FC = () => {
                                                 <Tooltip content='Toggle compact tree view' relationship='label'>
                                                     <Switch
                                                         checked={showTreeView}
-                                                        onChange={(_, data) => setShowTreeView(data.checked)}
+                                                        onChange={(_, data) => {
+                                                            setShowTreeView(data.checked);
+                                                            // Reset the editing lock when switching to tree view, since
+                                                            // child components unmount without getting a chance to reset it.
+                                                            if (data.checked && (editingComponent === 'requestparameter' || editingComponent === 'responseproperty')) {
+                                                                setEditingComponent('none');
+                                                            }
+                                                        }}
                                                         label={showTreeView ? 
                                                             <div className={styles.flexRowCentered}><TextBulletListTreeRegular /><span>Tree View</span></div> : 
                                                             <div className={styles.flexRowCentered}><FormRegular /><span>Form View</span></div>  }
@@ -443,9 +557,21 @@ export const CustomApiDetails: React.FC = () => {
                 {/* Hide request/response sections when in tree view mode */}
                 {selectedCustomApi && !showTreeView && (
                     <>
-                        <RequestParameterDetails/>
-            
-                        <ResponsePropertyDetails/>
+                        <RequestParameterDetails
+                            creationRequestToken={requestParameterCreateTrigger}
+                            onCreationRequestHandled={handleRequestParameterCreationRequestHandled}
+                            editRequestParameterId={requestParameterEditId}
+                            onEditRequestHandled={handleRequestParameterEditRequestHandled}
+                            onActionFinished={returnToTreeViewAfterRequestParameterAction ? handleRequestParameterTreeActionFinished : undefined}
+                        />
+               
+                        <ResponsePropertyDetails
+                            creationRequestToken={responsePropertyCreateTrigger}
+                            onCreationRequestHandled={handleResponsePropertyCreationRequestHandled}
+                            editRequestPropertyId={responsePropertyEditId}
+                            onEditRequestHandled={handleResponsePropertyEditRequestHandled}
+                            onActionFinished={returnToTreeViewAfterResponsePropertyAction ? handleResponsePropertyTreeActionFinished : undefined}
+                        />
 
                         {selectedCustomApi._fxexpressionid_value && (
                             <PowerFxDetails fxexpressionid={selectedCustomApi._fxexpressionid_value} />

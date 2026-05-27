@@ -16,6 +16,7 @@ import { usePublishers } from '../hooks/usePublishers';
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker';
 import { AppSettings } from '../models/AppSettings';
 import { useAppSettings, useUpdateAppSettings } from '../hooks/useAppSettings';
+import { ManagedStateToggle } from './generic/ManagedStateToggle';
 
 export const SettingsForm: React.FC = () => {
     const styles = useStyles();
@@ -42,6 +43,8 @@ export const SettingsForm: React.FC = () => {
             (localSettings.defaultPublisherId !== settingsQuery.appsettings.defaultPublisherId ||
             localSettings.requestParameterDefaultName !== settingsQuery.appsettings.requestParameterDefaultName ||
             localSettings.responsePropertyDefaultName !== settingsQuery.appsettings.responsePropertyDefaultName ||
+            localSettings.customApiSelectionInit !== settingsQuery.appsettings.customApiSelectionInit ||
+            localSettings.businessEventSelectionInit !== settingsQuery.appsettings.businessEventSelectionInit ||
             localSettings.showDebug !== settingsQuery.appsettings.showDebug ||
             localSettings.showCustomApiDetailsTreeView !== settingsQuery.appsettings.showCustomApiDetailsTreeView)
         );
@@ -197,6 +200,40 @@ export const SettingsForm: React.FC = () => {
 
                     <div className={styles.formSection}>
                         <Field 
+                            label="Custom API Selection Init"
+                            hint="Initial managed-state filter for the Custom API selector"
+                        >
+                            <ManagedStateToggle
+                                value={localSettings.customApiSelectionInit}
+                                onChange={(value) =>
+                                    setLocalSettings({
+                                        ...localSettings,
+                                        customApiSelectionInit: value,
+                                    })
+                                }
+                            />
+                        </Field>
+                    </div>
+
+                    <div className={styles.formSection}>
+                        <Field
+                            label="Business Event Selection Init"
+                            hint="Initial managed-state filter for the Business Event selector"
+                        >
+                            <ManagedStateToggle
+                                value={localSettings.businessEventSelectionInit}
+                                onChange={(value) =>
+                                    setLocalSettings({
+                                        ...localSettings,
+                                        businessEventSelectionInit: value,
+                                    })
+                                }
+                            />
+                        </Field>
+                    </div>
+
+                    <div className={styles.formSection}>
+                        <Field
                             label="Show Debug Tools"
                             hint="Toggle visibility of debug features within the app"
                         >

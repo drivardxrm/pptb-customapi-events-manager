@@ -37,7 +37,13 @@ export const RequestParametersList: React.FC<RequestParametersListProps> = ({req
     );
 
     const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
-        setSelectedRows(data.selectedItems);
+        setSelectedRows((prev) => {
+            if (prev.size === data.selectedItems.size && Array.from(prev).every((item) => data.selectedItems.has(item))) {
+                return prev;
+            }
+
+            return data.selectedItems;
+        });
     };
 
     useEffect(() => {

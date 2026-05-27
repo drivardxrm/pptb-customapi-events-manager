@@ -12,18 +12,17 @@ export class CatalogService extends EntityService {
     // Define lookups here to avoid circular dependency with Catalog model
     private static get CatalogLookups(): Partial<Record<keyof CatalogCreateable, [string, EntityService]>> {
         return {
-            _parentcatalogid_value: ['ParentCatalogId', new CatalogService()],
+            _parentcatalogid_value: ['ParentCatalogId', new CatalogService()]
         };
     }
 
     async fetchAllCatalogs(): Promise<Catalog[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
-        //console.log('CustomApiService.fetchAll result:', result);
         const typed = result as unknown as { value: Catalog[] };
         return typed.value;
     }
     
-    async fetchSolutionCatalogs(solutionid:string): Promise<Catalog[]> {
+    async fetchSolutionCatalogs(solutionid: string): Promise<Catalog[]> {
         const result = await window.dataverseAPI.fetchXmlQuery(`
             <fetch>
                 <entity name='${this.entityName}'>
@@ -35,7 +34,21 @@ export class CatalogService extends EntityService {
                 </entity>
             </fetch>
         `);
-        //console.log('CustomApiService.fetchAll result:', result);
+        const typed = result as unknown as { value: Catalog[] };
+        return typed.value;
+    }
+
+   
+    async fetchCategoryChildren(parentCatalogId: string): Promise<Catalog[]> {
+        const result = await window.dataverseAPI.fetchXmlQuery(`
+            <fetch>
+                <entity name='${this.entityName}'>
+                    <filter>
+                        <condition attribute='parentcatalogid' operator='eq' value='${parentCatalogId}' />
+                    </filter>
+                </entity>
+            </fetch>
+        `);
         const typed = result as unknown as { value: Catalog[] };
         return typed.value;
     }
@@ -48,7 +61,7 @@ export class CatalogService extends EntityService {
 
         let result = await window.dataverseAPI.create(this.entityName, payload);
         
-        // If a solution is specified, add the custom API to that solution
+        // If a solution is specified, add the catalog to that solution
         if (solutionUniqueName && result.id) {
             await this.addToSolution(result.id, solutionUniqueName);
         }

@@ -8,7 +8,9 @@ export const queryKeys = defineQueryKeys("keys", {
   appsettings: key((connectionId: string, instanceId: string) => ['appsettings', instanceId, connectionId]),
   customapis: key((connectionId: string, instanceId: string, solutionId: string) => ['customapis', instanceId, connectionId, solutionId]),
   catalogs: key((connectionId: string, instanceId: string, solutionId: string) => ['catalogs', instanceId, connectionId, solutionId]),
+  catalogChildren: key((parentCatalogId: string, connectionId: string, instanceId: string) => ['catalogchildren', instanceId, connectionId, parentCatalogId]),
   catalogassignments: key((connectionId: string, instanceId: string, solutionId: string) => ['catalogassignments', instanceId, connectionId, solutionId]),
+  catalogassignmentsByCatalog: key((catalogId: string, connectionId: string, instanceId: string) => ['catalogassignmentsbycatalog', instanceId, connectionId, catalogId]),
   requestparameters: key((customApiId: string, connectionId: string, instanceId: string) => ['customapirequestparameters', instanceId, connectionId, customApiId]),
   responseproperties: key((customApiId: string, connectionId: string, instanceId: string) => ['customapiresponseproperties', instanceId, connectionId, customApiId]),
   plugintypes: key((connectionId: string, instanceId: string) => ['plugintypes', instanceId, connectionId]),
@@ -17,6 +19,7 @@ export const queryKeys = defineQueryKeys("keys", {
   solutions: key((connectionId: string, instanceId: string) => ['solutions', instanceId, connectionId]),
   solutioncomponents: key((connectionId: string, instanceId: string) => ['solutioncomponents', instanceId, connectionId]),
   entities: key((connectionId: string, instanceId: string) => ['entities', instanceId, connectionId]),
+  workflows: key((connectionId: string, instanceId: string) => ['workflows', instanceId, connectionId]),
   fxexpressions: key((connectionId: string, instanceId: string) => ['fxexpressions', instanceId, connectionId]),
   
   // Entity-specific queries

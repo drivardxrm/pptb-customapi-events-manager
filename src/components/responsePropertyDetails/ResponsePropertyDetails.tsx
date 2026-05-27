@@ -1,4 +1,4 @@
-import React, { Activity, useCallback, useEffect, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { 
     Image, 
     Button,
@@ -40,7 +40,21 @@ import { useCustomApis } from '../../hooks/useCustomApis';
 export type ResponsePropertiesMode = 'read' | 'edit' | 'create';
 
 
-export const ResponsePropertyDetails: React.FC = () => {
+interface ResponsePropertyDetailsProps {
+    creationRequestToken?: number;
+    onCreationRequestHandled?: () => void;
+    editRequestPropertyId?: string | null;
+    onEditRequestHandled?: () => void;
+    onActionFinished?: () => void;
+}
+
+export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = ({
+    creationRequestToken,
+    onCreationRequestHandled,
+    editRequestPropertyId,
+    onEditRequestHandled,
+    onActionFinished,
+}) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage, editingComponent, setEditingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'responseproperty';
@@ -56,9 +70,15 @@ export const ResponsePropertyDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+    const lastHandledCreationRequestToken = useRef<number | undefined>(undefined);
+    const lastHandledEditRequestId = useRef<string | null>(null);
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
+    const responsePropertiesForList = useMemo(
+        () => responseProperties.slice(),
+        [responseProperties]
+    );
 
     // Sync validation state with global messages
     useEffect(() => {
@@ -95,11 +115,65 @@ export const ResponsePropertyDetails: React.FC = () => {
 
     const handleCreate = () => {
         setSelectedResponsePropertyId(null);
+        setShowCreateConfirmation(false);
+        setCreateValidation({ isValid: true });
         setCreateData(getResponsePropertyCreateTemplate(selectedCustomApiId!));
         setMode('create');
         setEditingComponent('responseproperty');
     };
 
+    useEffect(() => {
+        if (!creationRequestToken || !selectedCustomApiId || creationRequestToken === lastHandledCreationRequestToken.current) {
+            return;
+        }
+
+        lastHandledCreationRequestToken.current = creationRequestToken;
+        handleCreate();
+        onCreationRequestHandled?.();
+    }, [creationRequestToken, selectedCustomApiId, onCreationRequestHandled]);
+
+    useEffect(() => {
+        if (
+            !editRequestPropertyId ||
+            !selectedCustomApiId ||
+            editRequestPropertyId === lastHandledEditRequestId.current ||
+            selectedResponsePropertyId === editRequestPropertyId
+        ) {
+            return;
+        }
+
+        setSelectedResponsePropertyId(editRequestPropertyId);
+    }, [
+        editRequestPropertyId,
+        selectedCustomApiId,
+        selectedResponsePropertyId,
+        setSelectedResponsePropertyId,
+    ]);
+
+    useEffect(() => {
+        if (
+            !editRequestPropertyId ||
+            !selectedCustomApiId ||
+            editRequestPropertyId === lastHandledEditRequestId.current ||
+            selectedResponseProperty?.customapiresponsepropertyid !== editRequestPropertyId
+        ) {
+            return;
+        }
+
+        lastHandledEditRequestId.current = editRequestPropertyId;
+        setSelectedResponsePropertyId(editRequestPropertyId);
+        setEditedData(selectedResponseProperty);
+        setMode('edit');
+        setEditingComponent('responseproperty');
+        onEditRequestHandled?.();
+    }, [
+        editRequestPropertyId,
+        onEditRequestHandled,
+        selectedCustomApiId,
+        selectedResponseProperty,
+        setEditingComponent,
+        setSelectedResponsePropertyId,
+    ]);
 
     const handleEdit = () => {
         if (!selectedResponseProperty) {
@@ -116,6 +190,7 @@ export const ResponsePropertyDetails: React.FC = () => {
         }
         setMode('read');
         setEditingComponent('none');
+        onActionFinished?.();
     };
 
     const handleSave = async () => {
@@ -126,12 +201,18 @@ export const ResponsePropertyDetails: React.FC = () => {
         }
 
         // For edit mode, save directly
-        await performSave(null);
+        const saved = await performSave(null);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
 
     const handleCreateConfirm = async (solutionUniqueName: string | null) => {
-        await performSave(solutionUniqueName);
+        const saved = await performSave(solutionUniqueName);
         setShowCreateConfirmation(false);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
 
     const handleCreateCancel = () => {
@@ -143,7 +224,7 @@ export const ResponsePropertyDetails: React.FC = () => {
             if (mode === 'create') {
                 // Creating new Response Property
                 if (selectedResponseProperty || !createData) {
-                    return;
+                    return false;
                 }
                 let result = await createCustomApiResponseProperty.mutateAsync({
                     next: createData,
@@ -159,7 +240,7 @@ export const ResponsePropertyDetails: React.FC = () => {
             else if(mode === 'edit') {
                 
                 if (!selectedResponseProperty || !editedData) {
-                    return;
+                    return false;
                 }
                 await updateCustomApiResponseProperty.mutateAsync({
                     current: selectedResponseProperty,
@@ -169,8 +250,10 @@ export const ResponsePropertyDetails: React.FC = () => {
 
             setMode('read');
             setEditingComponent('none');
+            return true;
         } catch (error) {
             console.error('Error saving Response Property', error);
+            return false;
         }
     };
 
@@ -328,7 +411,7 @@ export const ResponsePropertyDetails: React.FC = () => {
             <div className={styles.cardBody}>
                     <div className={styles.splitContainer} >
                         <div className={styles.splitPaneContent}>
-                            <ResponsePropertyList responseProperties={responseProperties} />
+                            <ResponsePropertyList responseProperties={responsePropertiesForList} />
                         </div>
                         <Divider inset vertical/>
                         <div className={styles.splitPaneContent}>

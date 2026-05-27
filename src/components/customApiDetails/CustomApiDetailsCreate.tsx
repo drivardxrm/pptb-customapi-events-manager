@@ -11,8 +11,8 @@ import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 import { usePublishers } from '../../hooks/usePublishers';
 import { useAppStore } from '../../store/useAppStore';
 import { useAppSettings } from '../../hooks/useAppSettings';
-import { ValidationStatus } from '../../utils/validation';
-import { useCustomApis } from '../../hooks/useCustomApis';
+import { ValidationStatus, hasCaseInsensitiveMatch } from '../../utils/validation';
+import { useAllCustomApis } from '../../hooks/useCustomApis';
 import { produce } from 'immer';
 import { useEntities } from '../../hooks/useEntities';
 
@@ -27,7 +27,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     const privilegesQuery = usePrivileges();
     const pluginTypesQuery = usePluginTypes();
     const publishersQuery = usePublishers()
-    const customApiQuery = useCustomApis()
+    const { customapis: allCustomApis } = useAllCustomApis()
     const { selectedPublisherId, setSelectedPublisherId } = useAppStore();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
@@ -69,12 +69,12 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
             return { isValid: false, message: 'Please fill all required fields.' };
         }
 
-        if (customApiQuery.customapis && customApiQuery.customapis.some(api => api.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+        if (hasCaseInsensitiveMatch(allCustomApis, createData.uniquename, api => api.uniquename)) {
             return { isValid: false, message: `Custom API named '${createData.uniquename}' already exist.` };
         }
 
         return { isValid: true };
-    }, [createData, selectedPublisherId, customApiQuery.customapis]);
+    }, [allCustomApis, createData, selectedPublisherId]);
 
 
     useEffect(() => {
@@ -315,7 +315,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
                             <GenericTagPicker
                                 items={
                                     getAllowedCustomProcessingStepTypeOptions()
-                                        .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                        .sort((a, b) => (a.id || '').localeCompare(b.id || ''))}
                                 initialValue={createData.allowedcustomprocessingsteptype?.toString()}
                                 isDisabled={false}
                                 onSelect={(id) => {

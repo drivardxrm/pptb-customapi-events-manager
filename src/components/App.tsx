@@ -15,8 +15,6 @@ import {
     DeveloperBoardLightningFilled,
     ClipboardBulletListRegular, 
     ClipboardBulletListFilled, 
-    Info24Regular,
-    Info24Filled,
     Settings24Regular,
     Settings24Filled,
     BugRegular,
@@ -30,9 +28,9 @@ import { EventLog } from "./EventLog";
 import { useAppStore } from "../store/useAppStore";
 import { useConnectionSync } from "../hooks/useConnectionSync";
 import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
-import { About } from "./About";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { CustomApiTester } from "./customApiTester/CustomApiTester";
+import { BusinessEventDetails } from "./BusinessEventDetails/BusinessEventDetails";
 import { useStyles } from '../styles/Styles';
 import logoImage from '../assets/logo_customapi.png';
 import { SettingsForm } from "./SettingsForm";
@@ -45,13 +43,13 @@ import { AppMessages } from "./AppMessages";
 
 
 
-type NavSection = 'customapi' | 'customapitester' | 'businessevent' | 'logs' | 'settings' | 'about' | 'debug';
+type NavSection = 'customapi' | 'customapitester' | 'businessevent' | 'logs' | 'settings' | 'debug';
 
 
 function App() {
     
     const styles = useStyles();
-    const {instanceId, addLog, selectedNavItem, setSelectedNavItem, setGlobalMessage, clearGlobalMessage} = useAppStore();
+    const {instanceId, addLog, selectedNavItem, setSelectedNavItem, clearGlobalMessage} = useAppStore();
     const { appsettings } = useAppSettings();
 
 
@@ -71,31 +69,27 @@ function App() {
         { value: 'settings', icon: <Settings24Regular className={styles.navIcon}/>, iconSelected: <Settings24Filled className={styles.navIconSelected}/>, label: 'Settings' },
         // { value: 'connection', icon: <PlugConnected24Regular className={styles.navIcon}/>, iconSelected: <PlugConnected24Filled className={styles.navIconSelected}/>, label: 'Connection' },
         { value: 'logs', icon: <ClipboardBulletListRegular className={styles.navIcon}/>, iconSelected: <ClipboardBulletListFilled className={styles.navIconSelected}/>, label: 'Logs' },
-        { value: 'about', icon: <Info24Regular className={styles.navIcon}/>, iconSelected: <Info24Filled className={styles.navIconSelected}/>, label: 'About' },
         { value: 'debug', icon: <BugRegular className={styles.navIcon}/>, iconSelected: <BugFilled className={styles.navIconSelected}/>, label: 'Debug', hidden: !appsettings?.showDebug },
     ];
 
 
 
     useEffect(() => {
+        if (selectedNavItem === 'about') {
+            setSelectedNavItem('customapi');
+            return;
+        }
+
         if (!appsettings?.showDebug && selectedNavItem === 'debug') {
             setSelectedNavItem('customapi');
         }
-    }, [appsettings?.showDebug, selectedNavItem]);
+    }, [appsettings?.showDebug, selectedNavItem, setSelectedNavItem]);
 
     // Show coming soon message for business events
     useEffect(() => {
-        if (selectedNavItem === 'businessevent') {
-            setGlobalMessage('businessevent-coming-soon', {
-                intent: 'info',
-                title: 'Business Events - Coming Soon!',
-                body: 'This feature is currently under development.',
-                dismissable: false,
-            });
-        } else {
-            clearGlobalMessage('businessevent-coming-soon');
-        }
-    }, [selectedNavItem, setGlobalMessage, clearGlobalMessage]);
+        // Clear the old coming soon message - now implemented!
+        clearGlobalMessage('businessevent-coming-soon');
+    }, [selectedNavItem, clearGlobalMessage]);
 
    
 
@@ -139,19 +133,11 @@ function App() {
             case 'customapitester':
                 return <CustomApiTester />;
             case 'businessevent':
-                return (
-                    <>
-                        
-
-                         {/* <CatalogSelector /> */}
-                    </>
-                );
+                return <BusinessEventDetails />;
             case 'logs':
                 return <EventLog/>;
             case 'settings':
                 return <SettingsForm />;
-            case 'about':
-                return <About />;
             case 'debug':
                 return appsettings?.showDebug ? <DebugView /> : null;
             default:
@@ -205,10 +191,10 @@ function App() {
                             </NavDrawerHeader>
                             <NavDrawerBody>
                                 <AppItem
-                                    icon={<Image alt="Custom API Studio" src={logoImage} height={40} width={40} />}
+                                    icon={<Image alt="Custom API & Events Manager" src={logoImage} height={40} width={40} />}
                                     as="a"
                                 >
-                                    {!navCollapsed ? "Custom API Studio" : null}
+                                    {!navCollapsed ? "Custom API & Events Manager" : null}
                                 </AppItem>
                                 {navItems.filter(i => !i.hidden).map(item => {
                                     const isSelected = selectedNavItem === item.value;

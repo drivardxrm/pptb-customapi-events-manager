@@ -1,4 +1,4 @@
-import React, {  useCallback, useEffect, useMemo } from 'react';
+import React, {  useCallback, useEffect, useMemo, useRef } from 'react';
 import { Field, Input, Textarea } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
@@ -9,7 +9,7 @@ import { CustomApiResponsePropertyCreateable, getCustomApiResponsePropertiesType
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
-import { ValidationStatus } from '../../utils/validation';
+import { ValidationStatus, hasCaseInsensitiveMatch } from '../../utils/validation';
 import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponseProperties';
 
 
@@ -21,11 +21,33 @@ interface ResponsePropertyCreateProps {
 
 export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ createData, onChange, onValidationChange }) => {
     const styles = useStyles();   
+    const uniqueNameInputRef = useRef<HTMLInputElement | null>(null);
+    const hasFocusedUniqueNameRef = useRef(false);
     const customApiQuery = useCustomApis();
-    const responsePropertyQuery = useCustomApiResponseProperties();
+    const { responseProperties } = useCustomApiResponseProperties();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
+
+    // Memoize items to keep the array reference stable across re-renders.
+    // Unstable references cause GenericTagPicker's items effect to run every render,
+    // which can contribute to React Error #185 (Maximum update depth exceeded).
+    const typeItems = useMemo(
+        () => getCustomApiResponsePropertiesTypeOptions()
+            .slice()
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || '')),
+        []
+    );
+
+    const entityItems = useMemo(() => (
+        entityQuery.entities
+            .map((entity) => ({
+                id: entity.entityid,
+                displayText: entity.logicalname || '',
+                image: null,
+            } as SelectableItem))
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))
+    ), [entityQuery.entities]);
 
     // Validation logic
     const validation: ValidationStatus = useMemo(() => {
@@ -36,16 +58,33 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
             return { isValid: false, message: 'Please fill all required fields.' };
         }
 
-        if (responsePropertyQuery.responseProperties && responsePropertyQuery.responseProperties.some(prop => prop.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+        if (hasCaseInsensitiveMatch(responseProperties, createData.uniquename, prop => prop.uniquename)) {
             return { isValid: false, message: `Response Property named '${createData.uniquename}' already exist.` };
         }
 
         return { isValid: true };
-    }, [createData, responsePropertyQuery.responseProperties]);
+    }, [createData, responseProperties]);
 
     useEffect(() => {
         onValidationChange?.(validation);
     }, [validation.isValid, validation.message, onValidationChange]);
+
+    useEffect(() => {
+        if (
+            hasFocusedUniqueNameRef.current ||
+            !settingsQuery.appsettings ||
+            !customApiQuery.customapis
+        ) {
+            return;
+        }
+
+        const focusTimeout = window.setTimeout(() => {
+            uniqueNameInputRef.current?.focus();
+            hasFocusedUniqueNameRef.current = true;
+        }, 0);
+
+        return () => window.clearTimeout(focusTimeout);
+    }, [settingsQuery.appsettings, customApiQuery.customapis]);
 
 
     // Helper to update fields, can change multiple fields at once
@@ -89,6 +128,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     required
                 >
                     <Input
+                        ref={uniqueNameInputRef}
                         value={createData.uniquename ?? ''}
                         appearance='filled-darker'
                         onChange={(event) => {
@@ -166,8 +206,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                     required
                 >
                     <GenericTagPicker
-                        items={getCustomApiResponsePropertiesTypeOptions()
-                            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                        items={typeItems}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
                         onSelect={(id) => {
@@ -214,12 +253,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
                         )}
                         {!entityQuery.isFetching && entityQuery.entities && (
                             <GenericTagPicker
-                                items={entityQuery.entities
-                                    .map((entity) => ({
-                                        id: entity.entityid,
-                                        displayText: entity.logicalname || '',
-                                    } as SelectableItem))
-                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                items={entityItems}
                                 isDisabled={false}
                                 onSelect={(id) => {
                                     const selected = entityQuery.entities?.find((entity) => entity.entityid === id);

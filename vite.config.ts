@@ -47,6 +47,7 @@ export default defineConfig(({ mode }: ConfigEnv) => {
     const isTestMode = mode === 'test';
 
     return {
+        publicDir: 'public',
         plugins: [
             react(),
             // In test mode, transform index.html to load test-main.tsx instead of main.tsx

@@ -10,7 +10,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
-import { ValidationStatus } from '../../utils/validation';
+import { ValidationStatus, hasCaseInsensitiveMatch } from '../../utils/validation';
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 
 interface RequestParameterCreateProps {
@@ -23,6 +23,8 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const styles = useStyles();
     const isOptionalLabelRef = useRef<HTMLSpanElement | null>(null);
     const customizableLabelRef = useRef<HTMLSpanElement | null>(null);
+    const uniqueNameInputRef = useRef<HTMLInputElement | null>(null);
+    const hasFocusedUniqueNameRef = useRef(false);
     const columnRefGroups = useMemo(
         () => [
             [isOptionalLabelRef, customizableLabelRef]
@@ -33,10 +35,38 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
     const [ column1Width ] = useDynamicColumnWidths(columnRefGroups);
     const column1Style = column1Width ? { minWidth: `${column1Width}px` } : undefined;
     const customApiQuery = useCustomApis();
-    const requestParameterQuery = useCustomApiRequestParameters();
+    const { requestParameters } = useCustomApiRequestParameters();
     const settingsQuery = useAppSettings();
     const entityQuery = useEntities();
     const { selectedCustomApiId } = useAppStore();
+
+    // Memoize items to keep the array reference stable across re-renders.
+    // Unstable references cause GenericTagPicker's items effect to run every render,
+    // which can contribute to React Error #185 (Maximum update depth exceeded).
+    const typeItems = useMemo(() => {
+        return getCustomApiRequestParametersTypeOptions()
+            .filter(option => {
+                const selectedCustomApi = customApiQuery.customapis?.find(api => api.customapiid === selectedCustomApiId);
+                if (selectedCustomApi?.isfunction) {
+                    return option.displayText !== "Entity" &&
+                        option.displayText !== "EntityReference" &&
+                        option.displayText !== "EntityCollection";
+                }
+                return true;
+            })
+            .slice()
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''));
+    }, [selectedCustomApiId, customApiQuery.customapis]);
+
+    const entityItems = useMemo(() => (
+        entityQuery.entities
+            .map((entity) => ({
+                id: entity.entityid,
+                displayText: entity.logicalname || '',
+                image: null,
+            } as SelectableItem))
+            .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))
+    ), [entityQuery.entities]);
 
     // Validation logic
     const validation: ValidationStatus = useMemo(() => {
@@ -47,16 +77,33 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
             return { isValid: false, message: 'Please fill all required fields.' };
         }
 
-        if (requestParameterQuery.requestParameters && requestParameterQuery.requestParameters.some(param => param.uniquename.toLowerCase() === createData.uniquename.toLowerCase())) {
+        if (hasCaseInsensitiveMatch(requestParameters, createData.uniquename, param => param.uniquename)) {
             return { isValid: false, message: `Request Parameter named '${createData.uniquename}' already exist.` };
         }
 
         return { isValid: true };
-    }, [createData, requestParameterQuery.requestParameters]);
+    }, [createData, requestParameters]);
 
     useEffect(() => {
         onValidationChange?.(validation);
     }, [validation.isValid, validation.message, onValidationChange]);
+
+    useEffect(() => {
+        if (
+            hasFocusedUniqueNameRef.current ||
+            !settingsQuery.appsettings ||
+            !customApiQuery.customapis
+        ) {
+            return;
+        }
+
+        const focusTimeout = window.setTimeout(() => {
+            uniqueNameInputRef.current?.focus();
+            hasFocusedUniqueNameRef.current = true;
+        }, 0);
+
+        return () => window.clearTimeout(focusTimeout);
+    }, [settingsQuery.appsettings, customApiQuery.customapis]);
 
 
      // Helper to update fields, can change multiple fields at once
@@ -100,6 +147,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     required
                 >
                     <Input
+                        ref={uniqueNameInputRef}
                         appearance='filled-darker'
                         value={createData.uniquename ?? ''}
                         required
@@ -184,19 +232,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                     required
                 >
                     <GenericTagPicker
-                        items={
-                            getCustomApiRequestParametersTypeOptions()
-                                // add a filter , if customapi is a function, remove Entity, EntityReference, EntityCollection options
-                                .filter(option => {
-                                    const selectedCustomApi = customApiQuery.customapis?.find(api => api.customapiid === selectedCustomApiId);
-                                    if (selectedCustomApi?.isfunction) {
-                                        return option.displayText !== "Entity" && 
-                                        option.displayText !== "EntityReference" &&
-                                        option.displayText !== "EntityCollection";
-                                    }
-                                    return true;
-                                })
-                                .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                        items={typeItems}
                         initialValue={createData.type.toString()}
                         isDisabled={false}
                         onSelect={(id) => {
@@ -244,12 +280,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
                         )}
                         {!entityQuery.isFetching && entityQuery.entities && (
                             <GenericTagPicker
-                                items={entityQuery.entities
-                                    .map((entity) => ({
-                                        id: entity.entityid,
-                                        displayText: entity.logicalname || '',
-                                    } as SelectableItem))
-                                    .sort((a, b) => (a.displayText || '').localeCompare(b.displayText || ''))}
+                                items={entityItems}
                                 isDisabled={false}
                                 onSelect={(id) => {
                                     const selected = entityQuery.entities?.find((entity) => entity.entityid === id);

@@ -1,4 +1,4 @@
-# Custom API Studio
+# Custom API Manager
 
 All-in-one workspace for creating, managing, and extending Dataverse Custom APIs and Business Events (Catalogs).
 

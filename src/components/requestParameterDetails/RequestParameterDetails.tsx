@@ -1,4 +1,4 @@
-import React, { Activity, useCallback, useEffect, useState } from 'react';
+import React, { Activity, useCallback, useEffect, useRef, useState } from 'react';
 import {  
     Button,
     Card,
@@ -40,7 +40,21 @@ import { ModeBadge } from '../generic/ModeBadge';
 export type RequestParametersMode = 'read' | 'edit' | 'create';
 
 
-export const RequestParameterDetails: React.FC = () => {
+interface RequestParameterDetailsProps {
+    creationRequestToken?: number;
+    onCreationRequestHandled?: () => void;
+    editRequestParameterId?: string | null;
+    onEditRequestHandled?: () => void;
+    onActionFinished?: () => void;
+}
+
+export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = ({
+    creationRequestToken,
+    onCreationRequestHandled,
+    editRequestParameterId,
+    onEditRequestHandled,
+    onActionFinished,
+}) => {
     const styles = useStyles();
     const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage, setEditingComponent, editingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'requestparameter';
@@ -56,6 +70,8 @@ export const RequestParameterDetails: React.FC = () => {
     const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({ isValid: true });
+    const lastHandledCreationRequestToken = useRef<number | undefined>(undefined);
+    const lastHandledEditRequestId = useRef<string | null>(null);
 
 
     const selectedCustomApi = customapis.find((api) => api.customapiid === selectedCustomApiId)
@@ -100,6 +116,58 @@ export const RequestParameterDetails: React.FC = () => {
         setEditingComponent('requestparameter');
     };
 
+    useEffect(() => {
+        if (!creationRequestToken || !selectedCustomApiId || creationRequestToken === lastHandledCreationRequestToken.current) {
+            return;
+        }
+
+        lastHandledCreationRequestToken.current = creationRequestToken;
+        handleCreate();
+        onCreationRequestHandled?.();
+    }, [creationRequestToken, selectedCustomApiId, onCreationRequestHandled]);
+
+    useEffect(() => {
+        if (
+            !editRequestParameterId ||
+            !selectedCustomApiId ||
+            editRequestParameterId === lastHandledEditRequestId.current ||
+            selectedRequestParameterId === editRequestParameterId
+        ) {
+            return;
+        }
+
+        setSelectedRequestParameterId(editRequestParameterId);
+    }, [
+        editRequestParameterId,
+        selectedCustomApiId,
+        selectedRequestParameterId,
+        setSelectedRequestParameterId,
+    ]);
+
+    useEffect(() => {
+        if (
+            !editRequestParameterId ||
+            !selectedCustomApiId ||
+            editRequestParameterId === lastHandledEditRequestId.current ||
+            selectedRequestParameter?.customapirequestparameterid !== editRequestParameterId
+        ) {
+            return;
+        }
+
+        lastHandledEditRequestId.current = editRequestParameterId;
+        setSelectedRequestParameterId(editRequestParameterId);
+        setEditedData(selectedRequestParameter);
+        setMode('edit');
+        setEditingComponent('requestparameter');
+        onEditRequestHandled?.();
+    }, [
+        editRequestParameterId,
+        onEditRequestHandled,
+        selectedCustomApiId,
+        selectedRequestParameter,
+        setEditingComponent,
+        setSelectedRequestParameterId,
+    ]);
 
     const handleEdit = () => {
         if (!selectedRequestParameter) {
@@ -129,6 +197,7 @@ export const RequestParameterDetails: React.FC = () => {
         }
         setMode('read');
         setEditingComponent('none');
+        onActionFinished?.();
     };
 
     const handleSave = async () => {
@@ -139,12 +208,18 @@ export const RequestParameterDetails: React.FC = () => {
         }
 
         // For edit mode, save directly
-        await performSave(null);
+        const saved = await performSave(null);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
 
     const handleCreateConfirm = async (solutionUniqueName: string | null) => {
-        await performSave(solutionUniqueName);
+        const saved = await performSave(solutionUniqueName);
         setShowCreateConfirmation(false);
+        if (saved) {
+            onActionFinished?.();
+        }
     };
     const handleCreateCancel = () => {
         setShowCreateConfirmation(false);
@@ -155,7 +230,7 @@ export const RequestParameterDetails: React.FC = () => {
             if (mode === 'create') {
                 // Creating new Request Param
                 if (selectedRequestParameter || !createData) {
-                    return;
+                    return false;
                 }
                 let result = await createCustomApiRequestParameter.mutateAsync({
                     next: createData,
@@ -171,7 +246,7 @@ export const RequestParameterDetails: React.FC = () => {
             else if(mode === 'edit') {
                 
                 if (!selectedRequestParameter || !editedData) {
-                    return;
+                    return false;
                 }
                 await updateCustomApiRequestParameter.mutateAsync({
                     current: selectedRequestParameter,
@@ -181,8 +256,10 @@ export const RequestParameterDetails: React.FC = () => {
 
             setMode('read');
             setEditingComponent('none');
+            return true;
         } catch (error) {
             console.error('Error saving Request Parameter', error);
+            return false;
         }
     };
 

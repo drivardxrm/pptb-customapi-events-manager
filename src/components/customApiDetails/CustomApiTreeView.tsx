@@ -15,7 +15,8 @@ import {
     DismissCircleFilled,
     LockClosedRegular,
     DeveloperBoardLightningFilled,
-    Edit20Regular
+    Edit20Regular,
+    AddRegular
 } from '@fluentui/react-icons';
 import { CustomApi, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { CustomApiRequestParameter, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
@@ -29,6 +30,10 @@ interface CustomApiTreeViewProps {
     responseProperties: CustomApiResponseProperty[];
     onEdit?: () => void;
     onDelete?: () => void;
+    onCreateRequestParameter?: () => void;
+    onCreateResponseProperty?: () => void;
+    onEditRequestParameter?: (requestParameterId: string) => void;
+    onEditResponseProperty?: (responsePropertyId: string) => void;
 }
 
 const useTreeStyles = makeStyles({
@@ -102,7 +107,11 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
     requestParameters,
     responseProperties,
     onEdit,
-    onDelete
+    onDelete,
+    onCreateRequestParameter,
+    onCreateResponseProperty,
+    onEditRequestParameter,
+    onEditResponseProperty
 }) => {
     const styles = useTreeStyles();
 
@@ -122,18 +131,26 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                         }
                         actions={
                             <>
-                                <Button
-                                    aria-label="Edit"
-                                    appearance="subtle"
-                                    icon={<Edit20Regular />}
-                                    onClick={onEdit}
-                                />
+                                {!api.ismanaged && (
+                                    <Button
+                                        aria-label="Edit"
+                                        appearance="subtle"
+                                        icon={<Edit20Regular />}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            onEdit?.();
+                                        }}
+                                    />
+                                )}
                                 {!api.ismanaged && !api._fxexpressionid_value  && 
                                     <Button
                                         aria-label="Delete"
                                         appearance="subtle"
                                         icon={<DismissCircleFilled />}
-                                        onClick={onDelete}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            onDelete?.();
+                                        }}
                                     />
                                 }
 
@@ -301,7 +318,23 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 
                         {/* Request Parameters Branch */}
                         <TreeItem itemType="branch" value="parameters-section">
-                            <TreeItemLayout iconBefore={<Image alt="Request Parameters" src={inputImage} height={24} width={24} />}>
+                            <TreeItemLayout
+                                iconBefore={<Image alt="Request Parameters" src={inputImage} height={24} width={24} />}
+                                actions={
+                                    !api.ismanaged && !api._fxexpressionid_value ? (
+                                        <Button
+                                            aria-label="Add Request Parameter"
+                                            appearance="subtle"
+                                            size="small"
+                                            icon={<AddRegular />}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                onCreateRequestParameter?.();
+                                            }}
+                                        />
+                                    ) : undefined
+                                }
+                            >
                                 <span className={styles.sectionHeader}>
                                     Request Parameters ({requestParameters.length})
                                 </span>
@@ -320,7 +353,22 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                             itemType="branch"
                                             value={`param-${param.customapirequestparameterid}`}
                                         >
-                                            <TreeItemLayout>
+                                            <TreeItemLayout
+                                                actions={
+                                                    !param.ismanaged ? (
+                                                        <Button
+                                                            aria-label={`Edit Request Parameter ${param.displayname || param.uniquename}`}
+                                                            appearance="subtle"
+                                                            size="small"
+                                                            icon={<Edit20Regular />}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                onEditRequestParameter?.(param.customapirequestparameterid);
+                                                            }}
+                                                        />
+                                                    ) : undefined
+                                                }
+                                            >
                                                 <span className={styles.parameterItem}>
                                                     <span>{param.displayname || param.uniquename}</span>
                                                     <span className={styles.typeLabel}>
@@ -424,7 +472,23 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
 
                         {/* Response Properties Branch */}
                         <TreeItem itemType="branch" value="properties-section">
-                            <TreeItemLayout iconBefore={<Image alt="Response Properties" src={outputImage} height={24} width={24} />}>
+                            <TreeItemLayout
+                                iconBefore={<Image alt="Response Properties" src={outputImage} height={24} width={24} />}
+                                actions={
+                                    !api.ismanaged && !api._fxexpressionid_value ? (
+                                        <Button
+                                            aria-label="Add Response Property"
+                                            appearance="subtle"
+                                            size="small"
+                                            icon={<AddRegular />}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                onCreateResponseProperty?.();
+                                            }}
+                                        />
+                                    ) : undefined
+                                }
+                            >
                                 <span className={styles.sectionHeader}>
                                     Response Properties ({responseProperties.length})
                                 </span>
@@ -443,7 +507,22 @@ export const CustomApiTreeView: React.FC<CustomApiTreeViewProps> = ({
                                             itemType="branch"
                                             value={`prop-${prop.customapiresponsepropertyid}`}
                                         >
-                                            <TreeItemLayout>
+                                            <TreeItemLayout
+                                                actions={
+                                                    !prop.ismanaged ? (
+                                                        <Button
+                                                            aria-label={`Edit Response Property ${prop.displayname || prop.uniquename}`}
+                                                            appearance="subtle"
+                                                            size="small"
+                                                            icon={<Edit20Regular />}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                onEditResponseProperty?.(prop.customapiresponsepropertyid);
+                                                            }}
+                                                        />
+                                                    ) : undefined
+                                                }
+                                            >
                                                 <span className={styles.parameterItem}>
                                                     <span>{prop.displayname || prop.uniquename}</span>
                                                     <span className={styles.typeLabel}>

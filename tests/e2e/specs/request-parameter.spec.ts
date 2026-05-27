@@ -92,6 +92,23 @@ async function setupTestData(
   );
 }
 
+async function setTreeViewToggle(page: import('@playwright/test').Page, checked: boolean) {
+  const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+  const isChecked = await treeViewToggle.isChecked();
+
+  if (isChecked !== checked) {
+    await treeViewToggle.focus();
+    await page.keyboard.press('Space');
+  }
+
+  if (checked) {
+    await expect(treeViewToggle).toBeChecked();
+    return;
+  }
+
+  await expect(treeViewToggle).not.toBeChecked();
+}
+
 test.describe('Custom API Request Parameters', () => {
   let appPage: AppPage;
 
@@ -195,6 +212,106 @@ test.describe('Custom API Request Parameters', () => {
       const cancelButton = requestParametersCard.getByRole('button', { name: /^cancel$/i });
       await expect(saveButton).toBeVisible({ timeout: 5000 });
       await expect(cancelButton).toBeVisible();
+    });
+
+    test('tree view Edit action opens selected request parameter in form edit mode', async ({ page }) => {
+      await setupTestData(page, {
+        requestParameters: mockRequestParametersForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      await page.getByText(mockStringParameter.displayname, { exact: true }).hover();
+      const treeEditButton = page.locator(`button[aria-label="Edit Request Parameter ${mockStringParameter.displayname}"]`);
+      await expect(treeEditButton).toHaveCount(1);
+      await treeEditButton.click({ force: true });
+
+      const requestParametersCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input)"))');
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await expect(requestParametersCard.getByRole('button', { name: /^cancel$/i })).toBeVisible();
+      await expect(requestParametersCard.getByLabel(/unique name/i)).toHaveValue(mockStringParameter.uniquename);
+    });
+
+    test('tree view create and edit return to tree view after cancel and save', async ({ page }) => {
+      await setupTestData(page, {
+        requestParameters: mockRequestParametersForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      const tree = page.getByRole('tree', { name: /custom api tree view/i });
+      await expect(tree).toBeVisible();
+
+      await page.getByText(/request parameters \(\d+\)/i).hover();
+      await page.locator('button[aria-label="Add Request Parameter"]').click({ force: true });
+
+      const requestParametersCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input)"))');
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+
+      await requestParametersCard.getByRole('button', { name: /^cancel$/i }).click();
+      await expect(tree).toBeVisible({ timeout: 5000 });
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeHidden();
+
+      await page.getByText(mockStringParameter.displayname, { exact: true }).hover();
+      const treeEditButton = page.locator(`button[aria-label="Edit Request Parameter ${mockStringParameter.displayname}"]`);
+      await treeEditButton.click({ force: true });
+
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      const descriptionField = requestParametersCard.getByLabel(/description/i);
+      await descriptionField.fill('Updated from tree view request parameter edit');
+      await requestParametersCard.getByRole('button', { name: /^save$/i }).click();
+
+      const updateCalls = await appPage.getMockCalls('update');
+      expect(updateCalls.length).toBeGreaterThan(0);
+      await expect(tree).toBeVisible({ timeout: 5000 });
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeHidden();
+    });
+
+    test('manual tree toggle clears request-parameter tree return intent before a normal form action', async ({ page }) => {
+      await setupTestData(page, {
+        requestParameters: mockRequestParametersForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const tree = page.getByRole('tree', { name: /custom api tree view/i });
+      const requestParametersCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Request Parameters (Input)"))');
+
+      await setTreeViewToggle(page, true);
+      await expect(tree).toBeVisible({ timeout: 5000 });
+
+      await page.getByText(/request parameters \(\d+\)/i).hover();
+      await page.locator('button[aria-label="Add Request Parameter"]').click({ force: true });
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+
+      await setTreeViewToggle(page, true);
+      await expect(tree).toBeVisible({ timeout: 5000 });
+
+      await setTreeViewToggle(page, false);
+      await expect(tree).toBeHidden({ timeout: 5000 });
+
+      await requestParametersCard.getByRole('button', { name: /new request parameter/i }).click();
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await requestParametersCard.getByRole('button', { name: /^cancel$/i }).click();
+
+      await expect(tree).toBeHidden({ timeout: 5000 });
+      await expect(requestParametersCard).toBeVisible();
+      await expect(requestParametersCard.getByRole('button', { name: /^save$/i })).toBeHidden();
     });
 
     test('delete parameter calls delete API', async ({ page }) => {

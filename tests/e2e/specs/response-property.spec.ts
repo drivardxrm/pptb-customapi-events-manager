@@ -92,6 +92,23 @@ async function setupTestData(
   );
 }
 
+async function setTreeViewToggle(page: import('@playwright/test').Page, checked: boolean) {
+  const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+  const isChecked = await treeViewToggle.isChecked();
+
+  if (isChecked !== checked) {
+    await treeViewToggle.focus();
+    await page.keyboard.press('Space');
+  }
+
+  if (checked) {
+    await expect(treeViewToggle).toBeChecked();
+    return;
+  }
+
+  await expect(treeViewToggle).not.toBeChecked();
+}
+
 test.describe('Custom API Response Properties', () => {
   let appPage: AppPage;
 
@@ -194,6 +211,152 @@ test.describe('Custom API Response Properties', () => {
       const cancelButton = responsePropertiesCard.getByRole('button', { name: /^cancel$/i });
       await expect(saveButton).toBeVisible({ timeout: 5000 });
       await expect(cancelButton).toBeVisible();
+    });
+
+    test('tree view Edit action opens selected response property in form edit mode', async ({ page }) => {
+      await setupTestData(page, {
+        responseProperties: mockResponsePropertiesForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      await page.getByText(mockStringResponseProperty.displayname, { exact: true }).hover();
+      const treeEditButton = page.locator(`button[aria-label="Edit Response Property ${mockStringResponseProperty.displayname}"]`);
+      await expect(treeEditButton).toHaveCount(1);
+      await treeEditButton.click({ force: true });
+
+      const responsePropertiesCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Response Properties (Output)"))');
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await expect(responsePropertiesCard.getByRole('button', { name: /^cancel$/i })).toBeVisible();
+      await expect(responsePropertiesCard.getByLabel(/unique name/i)).toHaveValue(mockStringResponseProperty.uniquename);
+    });
+
+    test('tree view create and edit return to tree view after save and cancel', async ({ page }) => {
+      await setupTestData(page, {
+        responseProperties: mockResponsePropertiesForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      const tree = page.getByRole('tree', { name: /custom api tree view/i });
+      await expect(tree).toBeVisible();
+
+      await page.getByText(/response properties \(\d+\)/i).hover();
+      await page.locator('button[aria-label="Add Response Property"]').click({ force: true });
+
+      const responsePropertiesCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Response Properties (Output)"))');
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+
+      await responsePropertiesCard.getByLabel(/unique name/i).fill('treeViewReturnProperty');
+      await responsePropertiesCard.getByRole('button', { name: /^save$/i }).click();
+
+      const createDialog = page.getByRole('dialog').filter({ hasText: /confirm response property creation/i });
+      await expect(createDialog).toBeVisible({ timeout: 5000 });
+      await createDialog.getByRole('button', { name: /^confirm$/i }).click();
+
+      const createCalls = await appPage.getMockCalls('create');
+      expect(createCalls.length).toBeGreaterThan(0);
+      await expect(tree).toBeVisible({ timeout: 5000 });
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeHidden();
+
+      await page.getByText(mockStringResponseProperty.displayname, { exact: true }).hover();
+      const treeEditButton = page.locator(`button[aria-label="Edit Response Property ${mockStringResponseProperty.displayname}"]`);
+      await treeEditButton.click({ force: true });
+
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await responsePropertiesCard.getByRole('button', { name: /^cancel$/i }).click();
+
+      await expect(tree).toBeVisible({ timeout: 5000 });
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeHidden();
+    });
+
+    test('manual tree toggle clears response-property tree return intent before a normal form action', async ({ page }) => {
+      await setupTestData(page, {
+        responseProperties: mockResponsePropertiesForGlobalApi,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const tree = page.getByRole('tree', { name: /custom api tree view/i });
+      const responsePropertiesCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Response Properties (Output)"))');
+
+      await setTreeViewToggle(page, true);
+      await expect(tree).toBeVisible({ timeout: 5000 });
+
+      await page.getByText(/response properties \(\d+\)/i).hover();
+      await page.locator('button[aria-label="Add Response Property"]').click({ force: true });
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+
+      await setTreeViewToggle(page, true);
+      await expect(tree).toBeVisible({ timeout: 5000 });
+
+      await setTreeViewToggle(page, false);
+      await expect(tree).toBeHidden({ timeout: 5000 });
+
+      await responsePropertiesCard.getByRole('button', { name: /new response property/i }).click();
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await responsePropertiesCard.getByRole('button', { name: /^cancel$/i }).click();
+
+      await expect(tree).toBeHidden({ timeout: 5000 });
+      await expect(responsePropertiesCard).toBeVisible();
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeHidden();
+    });
+
+    test('can create twice after tree view remounts without page errors', async ({ page }) => {
+      const pageErrors: string[] = [];
+      page.on('pageerror', error => {
+        pageErrors.push(error.message);
+      });
+
+      await setupTestData(page, {
+        responseProperties: emptyResponseProperties,
+      });
+      await appPage.goto();
+      await appPage.waitForCustomApiListLoad();
+
+      await appPage.selectCustomApiByUniqueName(mockGlobalCustomApi.uniquename);
+      await appPage.waitForCustomApiDetails();
+
+      const treeViewToggle = page.getByRole('switch', { name: /toggle compact tree view/i });
+      await treeViewToggle.click();
+
+      const responsePropertiesCard = page.locator('.fui-Card:has(> .fui-CardHeader h3:text("Response Properties (Output)"))');
+      await treeViewToggle.click();
+
+      const newButton = responsePropertiesCard.getByRole('button', { name: /new response property/i });
+      await expect(newButton).toBeVisible({ timeout: 5000 });
+      await newButton.click();
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+
+      await responsePropertiesCard.locator('input').first().fill('treeViewCreateOne');
+      await responsePropertiesCard.getByRole('button', { name: /^save$/i }).click();
+
+      const createDialog = page.getByRole('dialog').filter({ hasText: /confirm response property creation/i });
+      await expect(createDialog).toBeVisible({ timeout: 5000 });
+      await createDialog.getByRole('button', { name: /^confirm$/i }).click();
+
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toHaveCount(0, { timeout: 5000 });
+      await treeViewToggle.click();
+      await treeViewToggle.click();
+      await expect(newButton).toBeVisible({ timeout: 5000 });
+      await newButton.click();
+      await expect(responsePropertiesCard.getByRole('button', { name: /^save$/i })).toBeVisible({ timeout: 5000 });
+      await expect(pageErrors).toEqual([]);
     });
 
     test('delete property calls delete API', async ({ page }) => {

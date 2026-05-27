@@ -326,6 +326,12 @@ export const useStyles = makeStyles({
     headingNoMargin: {
         margin: 0,
     },
+    headingActionRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalS,
+        flexWrap: 'wrap',
+    },
     required: {
         color: tokens.colorPaletteRedForeground1,
     },
@@ -475,6 +481,11 @@ export const useStyles = makeStyles({
         flexDirection: 'column',
         gap: tokens.spacingVerticalS,
     },
+    catalogPathContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalS,
+    },
     summaryRow: {
         display: 'flex',
         gap: tokens.spacingHorizontalS,
@@ -484,6 +495,39 @@ export const useStyles = makeStyles({
     },
     summaryValue: {
         wordBreak: 'break-word',
+    },
+    dialogChoiceList: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: tokens.spacingVerticalS,
+    },
+    dialogChoiceButton: {
+        width: '100%',
+        justifyContent: 'flex-start',
+        height: 'auto',
+        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
+    },
+    dialogChoiceContent: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: tokens.spacingVerticalXXS,
+        textAlign: 'left',
+    },
+    dialogChoiceTitle: {
+        fontWeight: tokens.fontWeightSemibold,
+    },
+    dialogChoiceMeta: {
+        fontSize: tokens.fontSizeBase200,
+        color: tokens.colorNeutralForeground2,
+    },
+    dialogChoicePath: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: tokens.spacingHorizontalXS,
+        flexWrap: 'wrap',
+        fontSize: tokens.fontSizeBase200,
+        color: tokens.colorNeutralForeground3,
     },
 
     // ===========================================
@@ -555,39 +599,6 @@ export const useStyles = makeStyles({
     eventLogEmpty: {
         color: '#666',
         fontStyle: 'italic',
-    },
-
-    // ===========================================
-    // ABOUT PAGE
-    // ===========================================
-    aboutContainer: {
-        padding: tokens.spacingVerticalL,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: tokens.spacingVerticalM,
-    },
-    aboutHeading: {
-        margin: `0 0 ${tokens.spacingVerticalS} 0`,
-        color: tokens.colorBrandForeground1,
-    },
-    aboutText: {
-        margin: 0,
-    },
-    aboutTextSpaced: {
-        margin: `0 0 ${tokens.spacingVerticalM} 0`,
-    },
-    aboutLinksContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: tokens.spacingVerticalS,
-    },
-    aboutFooter: {
-        marginTop: tokens.spacingVerticalL,
-        padding: tokens.spacingVerticalM,
-        backgroundColor: tokens.colorNeutralBackground3,
-        borderRadius: tokens.borderRadiusMedium,
-        fontSize: tokens.fontSizeBase200,
-        color: tokens.colorNeutralForeground3,
     },
 
     // ===========================================

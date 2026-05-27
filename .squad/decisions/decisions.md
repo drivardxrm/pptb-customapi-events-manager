@@ -284,3 +284,228 @@ This backlog provides:
 - Actionable items with specific assignments
 - Balanced coverage across features, quality, and UX
 - Foundation for sprint planning and milestone tracking
+
+---
+
+## User Directive: Test Before Merge to Main
+
+**Date:** 2026-03-29  
+**By:** David Rivard (via Copilot)  
+**Type:** Process Guideline  
+
+Always ask before merging to main — user needs to test first.
+
+---
+
+## User Directive: Managed Records Are Read-Only
+
+**Date:** 2026-04-11  
+**By:** David Rivard (via Copilot)  
+**Type:** Business Rule  
+
+CRUD operations only available for unmanaged records (ismanaged = false). Managed records are read-only.
+
+---
+
+## Decision: Compact Tree View Toggle Pattern
+
+**Date:** 2026-03-12  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Issue:** #66  
+
+### Context
+
+Added a compact tree view toggle for Custom API Details to allow quick inspection of API structure including parameters and response properties in a collapsible tree format.
+
+### Decision
+
+#### Toggle Placement
+- Switch placed in the CardHeader badge group (next to ModeBadge, ComponentStateBadge, PowerFxBadge)
+- Only visible in read mode when a Custom API is selected
+- Uses `TreeDeciduousFilled` icon as the switch label
+
+#### Tree Structure
+Uses Fluent UI Tree component with nested structure:
+- Custom API root (expanded by default)
+  - Details branch (Unique Name, Binding, Plugin, Flags)
+  - Request Parameters branch (with count, shows each param's type and optional status)
+  - Response Properties branch (with count, shows each property's type)
+
+#### Component Architecture
+- Created new `CustomApiTreeView.tsx` with component-local `makeStyles` (following the pattern noted in history for component-level styles)
+- Tree view replaces the form view content when toggle is active
+- RequestParameterDetails and ResponsePropertyDetails cards are hidden when tree view is active (data already shown in tree)
+
+#### Icons Used
+- `ArrowDownloadFilled` for Request Parameters (input)
+- `ArrowUploadFilled` for Response Properties (output)
+- `CheckmarkCircleFilled` / `DismissCircleFilled` for boolean flags
+- Standard binding type icons (Globe, Square, SquareMultiple)
+
+### Rationale
+
+- Toggle in header badge group keeps UI clean and consistent with other status indicators
+- Hiding detail cards when in tree view prevents redundant information display
+- Component-local styles keep tree-specific styling isolated from main Styles.ts
+
+### Files Changed
+
+- `src/components/customApiDetails/CustomApiDetails.tsx` - Added toggle state, Switch component, conditional rendering
+- `src/components/customApiDetails/CustomApiTreeView.tsx` - New tree view component
+
+---
+
+## Decision: React 310 Crash Fix in Catalog Save
+
+**Date:** 2026-06-04  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Issue:** React error 310 when saving a new catalog  
+
+### Context
+
+Saving a newly created catalog triggered React error 310 (max renders / hook mismatch) in production. Error occurred when the `CatalogTreeView` component transitioned from initial render to rendering a newly created catalog.
+
+### Root Cause
+
+`CatalogTreeView.tsx` had a conditional hook usage pattern:
+- Component had early return statements (`if (!catalogs) return null;`)
+- `useMemo` for `allOpenItems` was called AFTER these early returns
+- When tree selected a newly created catalog, the component execution path changed
+- Different paths executed different hook counts, violating React's hook rules
+
+### Problem
+
+React requires hooks to execute in the same order and number every render. Conditional hook execution breaks this invariant.
+
+### Decision
+
+**Move `useMemo` to execute unconditionally before any early returns.**
+
+```typescript
+// Calculate open items BEFORE early returns
+const allOpenItems = useMemo(() => {
+  // open item calculation
+}, [catalogs, selectedCatalogId, selectedTreeItemId]);
+
+// Now safe to early return
+if (!catalogs || catalogs.length === 0) return null;
+```
+
+### Alternatives Considered
+
+1. **Refactor to conditional memoization**: Add multiple useMemo calls with different conditions → Still violates hook rules
+2. **Move early return to parent**: Would require parent-level filtering → Adds complexity, breaks component encapsulation
+3. **Unroll memoization**: Calculate inline instead → Loses optimization benefits
+
+### Implementation
+
+**File Modified:** `src/components/BusinessEventDetails/CatalogTreeView.tsx`
+- Moved `allOpenItems` useMemo before early return guards
+- No logic changes, only execution order
+- Preserves all optimization benefits and behavior
+
+### Validation
+
+- ✅ Build: `npm run build` passed
+- ✅ UX: New catalog create → select → display works end-to-end
+- ✅ Selection: Post-create auto-selection behavior preserved
+- ✅ Regressions: Tree navigation and filtering remain functional
+
+### QA Context
+
+**Lambert (Tester) Provided:**
+- Confirmed hook order was the likely root cause
+- Regression check scenarios: root/category create under solution/filter/refetch combinations
+- Watch item: `pendingBusinessEventCatalogId` may linger if created data never appears (monitor for stale state)
+
+### Related Changes
+
+This fix complements the earlier "Created Catalog Selection Handoff" decision (2026-05-26) which implemented post-create auto-selection. Hook order fix ensures the selection transition doesn't crash the component.
+
+### Impact
+
+- **Frontend:** Unblocks new catalog save workflow in Business Events
+- **Production:** Resolves React 310 crash for users creating catalogs
+- **QA:** Ready for end-to-end regression validation
+
+---
+
+## Issue: Compact Tree View Feature
+
+**Date:** 2026-03-XX  
+**By:** Ripley (Lead)  
+**Type:** Issue Created  
+**Issue:** #67  
+
+Created GitHub issue #67 for Compact Tree View feature in CustomApiDetails.
+
+### Key Choices
+
+- Assigned to Dallas (Frontend) via `squad:dallas` label — this is a UI component feature
+- Set `priority:medium` — useful enhancement but not blocking
+- Set `release:backlog` — not yet targeted for a specific release
+- Phase 1 is read-only; Phase 2 (inline editing) deferred to future scope
+
+### Rationale
+
+David requested this feature issue with detailed requirements. Dallas is the appropriate owner for a new UI component in the Custom API details section.
+
+---
+
+## Decision: CatalogAssignment Model Refactor
+
+**Date:** 2026-04-14  
+**By:** Kane (Backend Dev)  
+**Status:** Implemented  
+**Issue:** Model fix for catalogassignment entity
+
+### Context
+
+The `CatalogAssignment` model contained a fabricated `catalogassignmenttype` optionset field that does not exist in the actual Dataverse `catalogassignment` entity. This field needed to be removed and replaced with proper helpers for the actual `objectidtype` field.
+
+### Problem
+
+- Model defined a non-existent optionset field
+- UI components built around incorrect field structure
+- Type information is actually derived from `objectidtype` field (polymorphic lookup indicator)
+
+### Decision
+
+Removed `catalogassignmenttype` field and implemented type-safe helpers for `objectidtype`:
+
+**New Exports from `src/models/CatalogAssignment.ts`:**
+- `ObjectIdTypeLabels` — Maps entity logical names to display labels
+- `objectIdTypeIcons` — Maps entity logical names to icon components
+- `getObjectTypeLabel(objectidtype)` — Returns display label
+- `getObjectTypeIcon(objectidtype)` — Returns icon element
+
+### API Contract
+
+```typescript
+import { getObjectTypeLabel, getObjectTypeIcon } from '../../models/CatalogAssignment';
+
+const label = getObjectTypeLabel(assignment.objectidtype); // "Custom API"
+const icon = getObjectTypeIcon(assignment.objectidtype);   // Icon element
+```
+
+### Implementation
+
+**Backend (Kane):**
+- Removed `catalogassignmenttype` type, constants, and helpers from model
+- Added `objectIdTypeLabels`, `objectIdTypeIcons`, helper functions
+- Updated model interfaces to remove the fake field
+
+**Frontend (Dallas):**
+- Updated `CatalogTreeView.tsx` to use new objectidtype API
+- Updated `CatalogAssignmentModal.tsx` to use `ObjectIdTypeLabels` for type selection
+- Removed all references to `catalogassignmenttype`
+- Build passes with no errors
+
+### Impact
+
+- Models now accurately reflect Dataverse entity structure
+- Type information correctly sourced from polymorphic `objectidtype` field
+- UI components have clean, type-safe API for type display and selection
+- Build passes cleanly with no errors

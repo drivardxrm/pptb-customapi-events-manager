@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import {
     Dialog,
     DialogSurface,
@@ -38,6 +38,7 @@ export const ResponsePropertyCreateDialog: React.FC<ResponsePropertyCreateDialog
     const { selectedSolutionId } = useAppStore();
     
     const [selectedSolutionForCreate, setSelectedSolutionForCreate] = useState<string | null>(null);
+    const wasOpenRef = useRef(false);
 
     // Filter to only unmanaged solutions
     const unmanagedSolutions = useMemo(() => {
@@ -55,12 +56,16 @@ export const ResponsePropertyCreateDialog: React.FC<ResponsePropertyCreateDialog
 
     // Pre-select the current selectedSolutionId if it's in the unmanaged list
     useEffect(() => {
-        if (open) {
+        if (open && !wasOpenRef.current) {
             const isInUnmanagedList = unmanagedSolutions.some(
                 (s) => s.solutionid === selectedSolutionId
             );
             setSelectedSolutionForCreate(isInUnmanagedList ? selectedSolutionId : null);
+        } else if (!open && wasOpenRef.current) {
+            setSelectedSolutionForCreate(null);
         }
+
+        wasOpenRef.current = open;
     }, [open, selectedSolutionId, unmanagedSolutions]);
 
     const handleSolutionSelect = (id: string | null) => {

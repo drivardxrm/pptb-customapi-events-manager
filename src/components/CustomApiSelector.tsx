@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { 
     Field, 
     Card,
@@ -7,6 +7,7 @@ import {
     Text,
     mergeClasses,
     ToggleButton,
+    Badge,
 } from '@fluentui/react-components'
 import { useAppStore } from '../store/useAppStore'
 import { useStyles } from '../styles/Styles'
@@ -16,21 +17,79 @@ import { useCustomApis } from '../hooks/useCustomApis'
 import { LockClosedRegular, LockOpenRegular, ChevronRightRegular, FilterFilled, MathFormulaRegular, MathFormulaFilled, FlashFlowRegular, FlashFlowFilled } from '@fluentui/react-icons'
 import { useCatalogAssignements } from '../hooks/useCatalogAssignments'
 import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
+import { useAppSettings } from '../hooks/useAppSettings'
+import { DEFAULT_SETTINGS } from '../models/AppSettings'
 
 
 export const CustomApiSelector: React.FC = () => {
     const styles = useStyles()
-    const { addLog, setSelectedSolutionId, setSelectedCustomApiId, selectedSolutionId, selectedCustomApiId, editingComponent } = useAppStore()
+    const {
+        connection,
+        addLog,
+        setSelectedSolutionId,
+        setSelectedCustomApiId,
+        selectedSolutionId,
+        selectedCustomApiId,
+        editingComponent,
+        selectedNavItem,
+        pendingManagedFilterHandoff,
+        setPendingManagedFilterHandoff,
+        setCurrentCustomApiSelectionInit,
+    } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
     const catalogAssignmentsQuery = useCatalogAssignements()
+    const { appsettings } = useAppSettings()
     const isLocked = editingComponent !== 'none';
     
     const [filtersExpanded, setFiltersExpanded] = useState(true)
-    const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>('all')
+    const [showCustomApis, setShowCustomApis] = useState<ManagedStateFilter>(DEFAULT_SETTINGS.customApiSelectionInit)
     const [showSolutions, setShowSolutions] = useState<ManagedStateFilter>('all')
     const [showPowerFxOnly, setShowPowerFxOnly] = useState(false)
     const [showBusinessEventsOnly, setShowBusinessEventsOnly] = useState(false)
+    const customApiFilterWasChangedRef = useRef(false)
+
+    useEffect(() => {
+        if (selectedCustomApiId || editingComponent === 'customapi') {
+            setFiltersExpanded(false)
+        }
+    }, [selectedCustomApiId, editingComponent])
+
+    useEffect(() => {
+        customApiFilterWasChangedRef.current = false
+        setShowCustomApis(DEFAULT_SETTINGS.customApiSelectionInit)
+    }, [connection?.id])
+
+    useEffect(() => {
+        if (customApiFilterWasChangedRef.current) {
+            return
+        }
+
+        setShowCustomApis(appsettings?.customApiSelectionInit ?? DEFAULT_SETTINGS.customApiSelectionInit)
+    }, [appsettings?.customApiSelectionInit, connection?.id])
+
+    useEffect(() => {
+        if (!pendingManagedFilterHandoff || pendingManagedFilterHandoff.target !== 'customapi') {
+            return
+        }
+
+        if (selectedNavItem !== 'customapi' && selectedNavItem !== 'customapitester') {
+            return
+        }
+
+        customApiFilterWasChangedRef.current = true
+        setShowCustomApis(pendingManagedFilterHandoff.value)
+        setPendingManagedFilterHandoff(null)
+    }, [pendingManagedFilterHandoff, selectedNavItem, setPendingManagedFilterHandoff])
+
+    useEffect(() => {
+        setCurrentCustomApiSelectionInit(showCustomApis)
+    }, [showCustomApis, setCurrentCustomApiSelectionInit])
+
+    const handleShowCustomApisChange = (value: ManagedStateFilter) => {
+        customApiFilterWasChangedRef.current = true
+        setShowCustomApis(value)
+    }
 
     // Create Set of Custom API IDs that are Business Events (have a CatalogAssignment)
     const businessEventCustomApiIds = new Set(
@@ -52,6 +111,52 @@ export const CustomApiSelector: React.FC = () => {
         (s.ismanaged && showSolutions === 'managed') || 
         (!s.ismanaged && showSolutions === 'unmanaged')
     ) ?? []
+
+    // Build filter summary for collapsed state
+    const filterSummary = useMemo(() => {
+        const parts: React.ReactElement[] = []
+        
+        // Selected solution
+        if (selectedSolutionId) {
+            const solution = solutionsQuery.solutions?.find(s => s.solutionid === selectedSolutionId)
+            if (solution) {
+                parts.push(
+                    <Badge key="solution" appearance="outline" size="small">
+                        {solution.ismanaged ? <LockClosedRegular /> : <LockOpenRegular />} {solution.friendlyname}
+                    </Badge>
+                )
+            }
+        }
+
+        // Managed state filter for Custom APIs
+        if (showCustomApis !== 'all') {
+            parts.push(
+                <Badge key="customapi-managed" appearance="outline" size="small">
+                    {showCustomApis === 'managed' ? <LockClosedRegular /> : <LockOpenRegular />} {showCustomApis === 'managed' ? 'Managed' : 'Unmanaged'} APIs
+                </Badge>
+            )
+        }
+
+        // PowerFx filter
+        if (showPowerFxOnly) {
+            parts.push(
+                <Badge key="powerfx" appearance="filled" color="informative" size="small">
+                    <MathFormulaFilled /> PowerFx
+                </Badge>
+            )
+        }
+
+        // Business Event filter
+        if (showBusinessEventsOnly) {
+            parts.push(
+                <Badge key="businessevent" appearance="filled" color="informative" size="small">
+                    <FlashFlowFilled /> Business Event
+                </Badge>
+            )
+        }
+
+        return parts
+    }, [selectedSolutionId, showCustomApis, showPowerFxOnly, showBusinessEventsOnly, solutionsQuery.solutions])
 
     // Filter Custom APIs based on Custom API managed state filter, PowerFx filter, and Business Event filter
     const filteredCustomApis = customapisQuery.customapis?.filter(c => 
@@ -121,6 +226,12 @@ export const CustomApiSelector: React.FC = () => {
                     >
                         Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
                     </Button>
+
+                    {!filtersExpanded && filterSummary.length > 0 && (
+                        <div className={styles.badgeContainer}>
+                            {filterSummary}
+                        </div>
+                    )}
                     
                     {filtersExpanded && (
                         <div className={styles.flexColumnM}>
@@ -128,6 +239,9 @@ export const CustomApiSelector: React.FC = () => {
 
                             {/* Solutions Filter Section */}
                             <div className={styles.filterSubsection}>
+                                
+                                
+                                
                                 <Field label=
                                     {
                                         <div className={styles.fieldLabelWithToggle}>
@@ -180,7 +294,7 @@ export const CustomApiSelector: React.FC = () => {
                                     )}
 
                                 </Field>
-                                
+
                                 <Field label=
                                     {
                                         <div className={styles.fieldLabelWithToggle}>
@@ -191,7 +305,7 @@ export const CustomApiSelector: React.FC = () => {
                                     <div className={styles.flexColumn} style={{ alignItems: 'flex-start' }}>
                                         <ManagedStateToggle 
                                             value={showCustomApis} 
-                                            onChange={setShowCustomApis} 
+                                            onChange={handleShowCustomApisChange}
                                         />
                                         <div className={styles.flexRow} style={{ gap: '8px' }}>
                                             <ToggleButton
@@ -219,6 +333,8 @@ export const CustomApiSelector: React.FC = () => {
                                         </div>
                                     </div>
                                 </Field>
+                                
+                                
                                 
                             </div>
                         </div>
