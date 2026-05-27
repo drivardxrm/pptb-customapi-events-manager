@@ -38,8 +38,7 @@ The build outputs IIFE format (not ES modules) for iframe `srcdoc` compatibility
 - Theme (synced with PPTB host)
 
 Access outside React: `useAppStore.getState().someAction()`
-
-See `ZUSTAND.md` for detailed patterns.
+In components, prefer selector-based subscriptions (for example `useAppStore((state) => state.selectedCustomApiId)`) so rerenders stay scoped to the slice you actually need.
 
 ### Data Layer
 

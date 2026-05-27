@@ -20,10 +20,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/drivardxrm/PPTB-Dataverse-Custom-API-Manager"
+    "url": "https://github.com/drivardxrm/pptb-customapi-events-manager"
   },
   "bugs": {
-    "url": "https://github.com/drivardxrm/PPTB-Dataverse-Custom-API-Manager/issues"
+    "url": "https://github.com/drivardxrm/pptb-customapi-events-manager/issues"
   },
   "engines": {
     "node": ">=18.0.0"
