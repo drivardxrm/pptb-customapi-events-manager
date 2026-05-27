@@ -1,8 +1,8 @@
 # Custom API & Events Manager for Power Platform ToolBox
 
-**All-in-one workspace for creating, managing, and testing Dataverse Custom APIs and Business Events—directly in Power Platform ToolBox.**
+**All-in-one workspace for creating, managing, and testing Dataverse Custom APIs and Business Events**
 
-Designed for **Dataverse developers, solution architects, and integration builders** who need to configure and manage Custom APIs and Business Event subscriptions at scale—without leaving the Power Platform ecosystem.
+Designed for **Dataverse developers, solution architects, and integration builders** who need to configure and manage Custom APIs and Business Event assignments.
 
 
 ## ✨ Features
