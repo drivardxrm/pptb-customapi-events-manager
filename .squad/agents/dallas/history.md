@@ -48,6 +48,24 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Reused `ManagedStateToggle` in SettingsForm to keep UI consistent with live selector controls
 - Settings drive initial filter state on mount only; manual session changes are ephemeral and reset on reload
 - Added useEffect in CustomApiSelector and CatalogSelector to initialize from appSettings on component mount
+
+## Team Updates (Session: 2026-05-27)
+
+**Spawn:** Zustand doc removal + Catalog/Business Event UX polish
+
+**Completed Work:**
+- Removed standalone `ZUSTAND.md`; consolidated guidance into `.github/copilot-instructions.md`
+- Fixed Catalog Assignment Custom API picker scope (uses `useAllCustomApis()` for source, solution context controls destination)
+- Fixed Business Event chooser catalog resolution (uses `useAllCatalogs()` for path label resolution across solution boundaries)
+- Added Business Event empty state with global message + inline "New Root Catalog" action (mirrors Custom API pattern)
+- Brought Catalog edit modal to UX parity: Parent Catalog visible for categories, Unique Name always readonly
+- Enforced managed-record restriction in tree-view Edit action; added defensive guard in handler
+
+**QA Reviews:** 6 comprehensive regression checklists from Lambert covering all Dallas deliverables; all passed
+**Code Review:** Ripley approved all changes; no material issues
+**Build Status:** All changes validated with `npm run build` — passing
+
+**Decisions Merged:** 13 inbox entries consolidated into decisions.md (6 Dallas decisions + 6 Lambert QA reviews + 1 Ripley cleanup decision)
 - Business Event init uses semantic mapping: 'all' → `showBusinessEventsOnly=false`, 'managed'/'unmanaged' → `showBusinessEventsOnly=true`
 - Validation: build passed, E2E coverage for init behavior passed, settings persist across reload
 
@@ -269,3 +287,11 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 - Build a `Map` by `catalogid` and walk `_parentcatalogid_value` upward until the top ancestor so the chooser can consistently reconstruct the root/category path from any assigned category.
 - Keep `src/components/generic/CustomApiBusinessEventButton.tsx` as a pure consumer of the hook output so the existing open-business-event pending-selection handoff stays intact.
 - Validation: baseline `npm run build` passed, post-change `npm run build` passed, and Ripley code review found no material issues.
+
+## Learnings (Recent Session: 2026-05-27)
+
+### Zustand Guidance Consolidation
+- `ZUSTAND.md` was removable because the durable app-state guidance already belongs in `.github/copilot-instructions.md` beside the rest of the project architecture notes.
+- When removing a standalone reference doc, update the surviving architecture entry point immediately so future contributors do not inherit dead links or split guidance.
+- For this repo, the key durable Zustand note worth keeping close to the architecture overview is selector-based `useAppStore(...)` subscriptions in components, while imperative access stays available through `useAppStore.getState()`.
+- Validation: baseline and post-change `npm run build` passed, and Ripley code review found no material issues.

@@ -69,6 +69,330 @@ This pattern should be documented for future test authors. The key insight is th
 
 ---
 
+## Decision: Catalog Assignment Custom API Picker Must Ignore Selected Solution
+
+**Date:** 2026-05-27  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Files:** `src/components/BusinessEventDetails/CatalogAssignmentModal.tsx`
+
+### Context
+
+In the Business Event Catalog Assignment modal, the Custom API object picker was filtering results based on the selected solution scope. This prevented users from assigning Custom APIs from outside the selected solution, even though the solution context should only control where the new assignment record is added, not which Custom APIs are available.
+
+### Decision
+
+Keep responsibilities split:
+- **Source picker scope:** Full assignable Custom API collection (unmanaged-only filter remains)
+- **Destination scope:** Selected unmanaged solution controls where the created assignment is added
+
+### Implementation
+
+- Replaced `useCustomApis()` with `useAllCustomApis()`
+- Updated both picker items and selected-object name lookup to use the full collection
+- Memoized picker items to keep `GenericTagPicker` input stable
+
+### Validation
+
+- ✅ `npm run build` passed before and after
+- ✅ Ripley code review found no material issues
+
+---
+
+## Decision: Business Event Chooser Must Resolve Catalog Paths From Unfiltered Catalog Data
+
+**Date:** 2026-05-27  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Files:** `src/hooks/useCatalogAssignments.tsx`
+
+### Context
+
+The Business Event chooser builds assignment rows from the global catalog-assignment list. When using the solution-scoped catalog query for label resolution, valid assignments rendered as "Unknown Catalog" whenever the selected solution hid a referenced parent/category record.
+
+### Decision
+
+Keep responsibilities split:
+- **Chooser assignment scope:** Global assignment rows remain unchanged
+- **Catalog path resolution scope:** Use unfiltered catalog collection for root/category lookup
+- **UI consumer scope:** Components render without modal-specific hardcoding
+
+### Implementation
+
+- Replaced `useCatalogs()` with `useAllCatalogs()` inside `useCustomApiCatalogAssignments()`
+- Added memoized `Map` lookup by catalog ID
+- Walked `_parentcatalogid_value` upward with visited-set guard to resolve the top ancestor
+
+### Validation
+
+- ✅ `npm run build` passed before and after
+- ✅ Ripley code review found no material issues
+
+---
+
+## Decision: Business Event Empty State Should Mirror Custom API CTA Pattern
+
+**Date:** 2026-05-27  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Files:** `src/components/BusinessEventDetails/BusinessEventDetails.tsx`
+
+### Context
+
+User explicitly requested Business Event empty state to work "exactly like we do for custom apis" — a top-level global info message with inline action button rather than relying only on in-card placeholder text.
+
+### Decision
+
+Show empty state as top-of-page global info message with inline action when no root catalog selected. Reuse the established Custom API no-selection pattern for consistency.
+
+### Implementation
+
+- File: `src/components/BusinessEventDetails/BusinessEventDetails.tsx`
+- Message: `No Root Catalog selected. Select a Root Catalog below or create a new one.`
+- Action label: `New Root Catalog`
+- Action opens root-catalog create modal without changing other Business Event flows
+
+### Validation
+
+- ✅ `npm run build` passed
+
+---
+
+## Decision: Catalog Edit Modal Should Preserve Parent Context And Readonly Identity
+
+**Date:** 2026-05-27  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Files:** `src/components/BusinessEventDetails/CatalogModal.tsx`
+
+### Context
+
+Catalog edit mode lacked parity with create-category flow. Parent Catalog section and editable Unique Name field were missing, making edit mode feel inconsistent.
+
+### Decision
+
+Bring edit mode to parity by keeping Parent Catalog visible for child catalogs and always showing Unique Name as a readonly textbox.
+
+### Implementation
+
+- Edit mode resolves parent display from `useAllCatalogs()` via `_parentcatalogid_value`
+- Dataverse formatted-value used as fallback for display-only safety
+- Edit mode renders `catalog.uniquename` in readonly filled-darker input
+
+### Validation
+
+- ✅ `npm run build` passed
+
+---
+
+## Decision: Remove Managed Custom API Edit Action From Tree View
+
+**Date:** 2026-05-27  
+**By:** Dallas (Frontend Dev)  
+**Status:** Implemented  
+**Files:** `src/components/customApiDetails/CustomApiTreeView.tsx`, `src/components/customApiDetails/CustomApiDetails.tsx`
+
+### Context
+
+Tree view Edit action was visible and callable for managed Custom APIs, while the form/header view already treated managed Custom APIs as non-editable. This inconsistency created confusion.
+
+### Decision
+
+Enforce managed-record restriction consistently:
+- Tree-view root edit visibility follows `!api.ismanaged`
+- Edit handlers no-op for managed records as safety net
+- Unmanaged edit behavior and all other tree actions unchanged
+
+### Implementation
+
+- Removed Edit action from tree view when `ismanaged` is true
+- Added defensive guard in `handleEdit()` for managed records
+
+### Validation
+
+- ✅ Baseline `npm run build` passed before
+- ✅ Post-change `npm run build` passed
+- ✅ Ripley code review found no issues
+
+---
+
+## QA Review: Catalog Assignment Custom API Picker Scope
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Reviewed  
+**Related:** Catalog Assignment Custom API Picker Must Ignore Selected Solution
+
+### Expected Behavior
+
+1. Object picker scope: Custom API candidates stay global regardless of selected solution
+2. Solution picker scope: Selected unmanaged solution controls where new assignment is added
+3. Selection flow: Picking API outside selected solution hydrates assignment name correctly
+
+### Regression Checks
+
+- ✅ No solution selected: full expected Custom API set appears
+- ✅ Solution selected: same Custom API set still appears
+- ✅ Select API outside selected solution: name auto-fills and save succeeds
+- ✅ Change selected solution after choosing API: object selection remains stable
+- ✅ Duplicate assignment guard still blocks same catalog + object + type combination
+- ✅ Entity and workflow pickers unchanged
+- ✅ Edit mode unchanged
+
+---
+
+## QA Review: Business Event Chooser Catalog Resolution
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Reviewed  
+**Related:** Business Event Chooser Must Resolve Catalog Paths From Unfiltered Catalog Data
+
+### Expected Behavior
+
+1. Chooser consistency: Every visible assignment row resolves correctly; button count matches displayable assignments
+2. Navigation consistency: Selecting any chooser row opens correct Business Event hierarchy
+3. Cross-solution clarity: If assignments from outside selected solution are allowed, catalog metadata must be available
+
+### Regression Checks
+
+- ✅ Multi-assignment chooser: all visible rows show correct root → category path
+- ✅ Button count equals number of rows that can be opened
+- ✅ Clicking each row selects correct root catalog and assignment
+- ✅ Single-assignment direct-open works across solution boundaries
+- ✅ Unknown labels appear only for genuinely missing data
+- ✅ Sort/order stable once paths are fully resolved
+
+---
+
+## QA Review: Business Event Empty-State Parity
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Reviewed  
+**Related:** Business Event Empty State Should Mirror Custom API CTA Pattern
+
+### Expected UX
+
+Business Events should mirror Custom API empty-selection pattern:
+- Show top app message
+- Use exact Root Catalog wording
+- Provide `New Root Catalog` action wired to existing root-create flow
+
+### Regression Checks
+
+- ✅ No root catalog selected: global message + action appear
+- ✅ Message clears on root selection
+- ✅ Message clears on nav away from business event
+- ✅ Create flow still allows `pendingBusinessEventCatalogId` auto-select after save
+- ✅ In-card placeholder remains present (complementary, not replaced)
+
+---
+
+## QA Review: Catalog Edit Modal UX Parity
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Reviewed  
+**Related:** Catalog Edit Modal Should Preserve Parent Context And Readonly Identity
+
+### Expected UX
+
+**Edit Root Catalog:**
+- No Parent Catalog section
+- Unique Name visible, locked, read-only
+- Name / Display Name / Description remain editable
+
+**Edit Category:**
+- Parent Catalog section visible with correct parent display name
+- Unique Name visible, locked, read-only
+- Name / Display Name / Description remain editable
+
+### Regression Checks
+
+- ✅ Edit root does **not** show Parent Catalog
+- ✅ Edit category **does** show Parent Catalog with real parent name
+- ✅ Unique Name appears and is read-only for both
+- ✅ Saving edit with unchanged Unique Name succeeds
+- ✅ Create root still shows editable Unique Name entry
+- ✅ Create category still shows editable Unique Name + Parent Catalog
+- ✅ Edit does not incorrectly run duplicate validation
+
+---
+
+## QA Review: Managed Custom API Tree Edit
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Reviewed  
+**Related:** Remove Managed Custom API Edit Action From Tree View
+
+### Decision Position
+
+Tree-view edit for root Custom API must follow same managed-state restriction as header/form: **managed Custom APIs must not be editable**.
+
+### Findings
+
+1. `CustomApiTreeView.tsx` shows root Edit action unconditionally
+2. `CustomApiDetails.tsx` already hides header edit button when managed
+3. Tree callback calls `handleEdit()` with no managed-state guard
+
+### Regression Checks
+
+- ✅ Managed Custom API in tree view: no Edit button, no edit-mode transition
+- ✅ Unmanaged Custom API in tree view: Edit still works and preserves return-to-tree flow
+- ✅ Managed/unmanaged parity between header and tree actions
+- ✅ No regression to delete/add gating based on managed state
+
+---
+
+## QA Review: Unique Name Focus — Request Parameter / Response Property Create Mode
+
+**Date:** 2026-05-27  
+**By:** Lambert (Tester)  
+**Status:** Reviewed
+
+### Decision
+
+Create-entry focus must be owned by actual create-form components (`RequestParameterCreate.tsx`, `ResponsePropertyCreate.tsx`) or their immediate create-mode containers, not by later save confirmation dialogs.
+
+### Rationale
+
+- User request is about **entering create mode**, which happens before confirmation dialogs open
+- Each details panel has two create-entry paths: direct header-button create and tree-view handoff via `creationRequestToken`
+- Forms may render `Loading...` before input exists, so one-shot `autoFocus` can miss async-ready renders
+
+### QA Expectations
+
+1. Direct create for Request Parameter focuses **Unique Name**
+2. Direct create for Response Property focuses **Unique Name**
+3. Tree-view create handoff for both child types also focuses **Unique Name**
+4. Re-entering create after cancel/save still focuses correctly
+5. Edit mode and confirmation dialogs remain unchanged
+
+---
+
+## Decision: Remove Test-Logic.ts
+
+**Date:** 2026-05-27  
+**By:** Ripley (Code Review)  
+**Status:** Implemented
+
+### Context
+
+Stray root-level scratch file `test-logic.ts` had no imports, script entries, or build references.
+
+### Decision
+
+Surgical fix: delete only the orphaned file. Leave `package.json` unchanged.
+
+### Validation
+
+- ✅ Repository search confirmed no references
+- ✅ Build passes after removal
+
+---
+
 ## Decision: E2E Testing Architecture
 
 **Date:** 2026-03-01  
