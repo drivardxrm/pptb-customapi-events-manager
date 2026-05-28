@@ -348,3 +348,11 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 **Session Log:** 2026-05-27T22-03-44Z-readme-features.md  
 **Scope:** README Features documentation reorganization  
 **Status:** ✅ Complete — README Features section reorganized with nav-aligned subsections, emojis, template documentation, debug mode section, and settings reference; decision merged to decisions.md
+
+## Team Updates (Session: 2026-05-28)
+**Spawn:** Add immer in the tech stack  
+**Orchestration Log:** 2026-05-28T22-39-52Z-dallas.md  
+**Session Log:** 2026-05-28T22-39-52Z-immer-readme.md  
+**Request by:** David Rivard  
+**Scope:** README.md tech stack update  
+**Status:** ✅ Complete — Tech stack section updated to include Immer with purpose note describing immutable state management capability
