@@ -356,3 +356,12 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 **Request by:** David Rivard  
 **Scope:** README.md tech stack update  
 **Status:** ✅ Complete — Tech stack section updated to include Immer with purpose note describing immutable state management capability
+
+## Team Updates (Session: 2026-05-28)
+**Spawn:** Update TanStack Query tech stack description  
+**Orchestration Log:** 2026-05-28T22-41-40Z-Dallas.md  
+**Session Log:** 2026-05-28T22-41-40Z-tanstack-readme.md  
+**Requested by:** David Rivard  
+**Scope:** Clarify TanStack Query role in tech stack  
+**Change:** Updated README.md line 70 to include data fetching and async state management context while preserving solution-scoped caching information  
+**Status:** ✅ Complete — Tech stack description updated to emphasize data fetching and async state management alongside caching

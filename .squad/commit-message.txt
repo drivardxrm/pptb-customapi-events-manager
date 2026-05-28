@@ -1,0 +1,8 @@
+Scribe: Log Dallas immer tech stack update
+
+- Orchestration log: 2026-05-28T22-39-52Z-dallas.md
+- Session log: 2026-05-28T22-39-52Z-immer-readme.md
+- Updated Dallas history with team update entry
+- Decision inbox: No entries to merge
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
