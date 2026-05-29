@@ -1445,3 +1445,24 @@ User direction on repository structure. `.squad/` contains team memory and opera
 **Build Verification:** ✅ npm run build PASSED  
 **Risk Assessment:** All changes VERY LOW risk (naming/organization only; zero logic changes)  
 **Status:** ✅ Phase 1 complete and approved for merge; Phase 2 & 3 deferred for future consideration
+
+---
+
+### 2026-05-29: Fluent Icons Build Failure — Dependency Ownership Fix
+**By:** Dallas (Frontend Dev)  
+**What:** Resolved Vite build failure with `[UNRESOLVED_IMPORT]` error: "@fluentui/react-icons" missing chunk files (`./icons/chunk-0`, `./sizedIcons/chunk-*`).  
+**Root Issue:** 
+- App imports `@fluentui/react-icons` directly in many UI files, but the package was not declared as a direct dependency in `package.json`
+- Manifest only listed `@fluentui/react-components` as a dep; `@fluentui/react-icons` was assumed to come from peer dependency
+- Local npm install was corrupted: missing published `lib/icons/chunk-*.js` and `lib/sizedIcons/chunk-*.js` files
+**Decision:** Declare `@fluentui/react-icons` explicitly as a direct dependency with semver `^2.0.328`.  
+**Why:** 
+- Direct imports must be backed by direct manifest ownership for deterministic installs
+- Avoids coupling app stability to `@fluentui/react-components` internal re-export structure
+- Root problem was installation state, not a source-level import bug — repair via reinstall, not bundler workarounds
+- The npm tarball for `@fluentui/react-icons@2.0.328` contains the missing chunk files
+**Changes Made:**
+- Added `"@fluentui/react-icons": "^2.0.328"` to `package.json` dependencies
+- Ran `npm install` to repair local node_modules
+**Validation:** ✅ `npm run build` passes; no UI code changes required  
+**Status:** ✅ Dependency ownership claim implemented and verified

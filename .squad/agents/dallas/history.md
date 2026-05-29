@@ -388,3 +388,21 @@ Completed Phase 1 UI-layer readability cleanup focusing on Dialog terminology st
 - **Risk Assessment:** VERY LOW — pure renaming, no behavioral changes
 - **Branch:** refactor/pre-release-readability-pass
 - **Guardrails Established:** Use Dialog nomenclature exclusively for all new modular content overlays; Modal terminology deprecated
+
+## Learnings (Recent Session: 2026-05-29)
+
+### Fluent Icons Build Repair
+- This app imports `@fluentui/react-icons` directly across `src/components/` and `src/models/`, so the package must be declared explicitly in `package.json` instead of relying on it arriving transitively through `@fluentui/react-components`.
+- A broken local install can leave `node_modules\@fluentui\react-icons\lib\icons\chunk-*.js` and `lib\sizedIcons\chunk-*.js` missing even though the published tarball includes them; reinstalling the package restores the missing runtime files and clears Vite's `Could not resolve './icons/chunk-0'` failure.
+- Validation for this failure mode is `npm run build`; once the icon chunks are present again, the build completes and only the existing Vite bundle-size and `import.meta` warnings remain.
+
+## Team Updates (Session: 2026-05-29)
+
+**Spawn:** Resolve @fluentui/react-icons build failure  
+**Orchestration Log:** 2026-05-29T04-01-58Z-Dallas.md  
+**Session Log:** 2026-05-29T04-01-58Z-fluent-build-fix.md  
+**Issue:** Vite build failed with `[UNRESOLVED_IMPORT]` error: `./icons/chunk-0` not found  
+**Root Cause:** Package imported directly but not declared as manifest dependency; corrupted local install missing chunk files  
+**Solution:** Declared `@fluentui/react-icons@^2.0.328` explicitly in package.json and reinstalled  
+**Validation:** ✅ `npm run build` now passes  
+**Status:** ✅ Complete — Dependency ownership claim implemented; build restored
