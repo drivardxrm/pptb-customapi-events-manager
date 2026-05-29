@@ -52,7 +52,8 @@
     "test:e2e": "playwright test --config=tests/e2e/playwright.config.ts",
     "test:e2e:ui": "playwright test --config=tests/e2e/playwright.config.ts --ui",
     "test:e2e:report": "npx playwright show-report",
-    "validate": "pptb-validate"
+    "validate": "pptb-validate",
+    "finalize-package": "npm shrinkwrap"
   },
   "dependencies": {
     "@fluentui/react-components": "9.73.8",
@@ -80,6 +81,7 @@
     "vitepress": "^2.0.0-alpha.17"
   },
   "files": [
-    "dist"
+    "dist",
+    "npm-shrinkwrap.json"
   ]
 }
