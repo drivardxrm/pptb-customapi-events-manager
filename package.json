@@ -6,14 +6,14 @@
   "main": "index.html",
   "author": "David Rivard",
   "license": "MIT",
-  "icon": "icons/logo.svg",
+  "icon": "public/icons/logo.svg",
   "contributors": [
     { "name": "David Rivard", "url": "https://github.com/drivardxrm" }
   ],
   "configurations": {
     "repository": "https://github.com/drivardxrm/pptb-customapi-events-manager",
-    "website": "todo",
-    "readmeUrl": "https://raw.githubusercontent.com/drivardxrm/pptb-customapi-events-manager/blob/main/README.md"
+    "website": "https://drivardxrm.github.io/pptb-customapi-events-manager/",
+    "readmeUrl": "https://raw.githubusercontent.com/drivardxrm/pptb-customapi-events-manager/main/README.md"
   },
   "keywords": [
     "powerplatform",
@@ -41,6 +41,9 @@
     "build:watch": "tsc && vite build --watch",
     "dev": "vite",
     "dev:test": "vite --mode test",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "preview": "vite preview",
     "test:e2e": "playwright test --config=tests/e2e/playwright.config.ts",
     "test:e2e:ui": "playwright test --config=tests/e2e/playwright.config.ts --ui",
@@ -67,7 +70,8 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "typescript": "^6.0.3",
-    "vite": "^8.0.7"
+    "vite": "^8.0.7",
+    "vitepress": "^1.6.4"
   },
   "files": [
     "dist"

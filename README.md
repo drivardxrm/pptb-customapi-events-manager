@@ -4,6 +4,8 @@
 
 Designed for **Dataverse developers, solution architects, and integration builders** who need to configure, manage and explore Custom APIs and Business Event (Catalogs).
 
+📚 **Documentation site:** https://drivardxrm.github.io/pptb-customapi-events-manager/
+
 
 ## ✨ Features
 
@@ -59,6 +61,7 @@ The tool builds as a single-file bundle optimized for Power Platform ToolBox int
 ```bash
 npm run dev      # Local dev server with hot reload
 npm run preview  # Test the production build locally
+npm run docs:dev # Run the VitePress documentation site locally
 ```
 
 ## Tech Stack
