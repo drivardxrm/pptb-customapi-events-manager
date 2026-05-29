@@ -95,3 +95,23 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Ripley delegated revision to Kane, authorizing cross-ownership modification
 - Kane's changes restored completeness; Ripley re-reviewed and approved
 - Pattern established: Collapsed summaries must fully enumerate active filter set; count must sync with summary
+
+### 2026-05-29: Pre-release Readability Pass — Safe Data-Layer Batch
+- Standardized low-risk spelling fixes across exported data-layer types and hooks: `Createable` → `Creatable`, `Updateable` → `Updatable`, `useCatalogAssignements` → `useCatalogAssignments`, `useWorflows` → `useWorkflows`, `useToolBoxEvents` → `useToolboxEvents`.
+- Kept Dataverse-facing field names and payload semantics unchanged; only TypeScript/helper identifiers and obvious consumer imports were updated.
+- `src/utils/diff.ts` readability cleanup (`payloadKey`) was safe because it only renamed local helper variables, and `npm run build` passed after the batch.
+
+---
+
+## Pre-Release Readability Pass (2026-05-28)
+
+### Kane Data Layer Cleanup
+Completed Phase 1 data-layer readability cleanup focusing on type spelling and hook naming:
+- **Type Spelling Fixes:** Createable → Creatable, Updateable → Updatable (5 models: Catalog, CatalogAssignment, CustomApi, CustomApiRequestParameter, CustomApiResponseProperty)
+- **Hook Naming Corrections:** useCatalogAssignements → useCatalogAssignments, useWorflows → useWorkflows, useToolBoxEvents → useToolboxEvents
+- **Files Modified:** All model definitions (src/models/*.ts), all service implementations (src/services/*.ts), all hooks (src/hooks/*.ts), utility functions (src/utils/diff.ts)
+- **Scoping:** Excluded Dataverse logical names, collection names, OData binding keys; no behavioral refactors
+- **Validation:** npm run build ✅
+- **Risk Assessment:** VERY LOW — mechanical spelling/naming fixes only
+- **Branch:** refactor/pre-release-readability-pass
+- **Guardrails Established:** Hook naming standard (useToolboxEvents, useWorkflows, useCatalogAssignments); always include explicit types in data transformation callback chains

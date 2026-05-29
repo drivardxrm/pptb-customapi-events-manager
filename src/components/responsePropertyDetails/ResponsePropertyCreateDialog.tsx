@@ -16,11 +16,11 @@ import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useStyles } from '../../styles/Styles';
-import { CustomApiResponsePropertyCreateable, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
+import { CustomApiResponsePropertyCreateInput, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
 
 interface ResponsePropertyCreateDialogProps {
     open: boolean;
-    createData: CustomApiResponsePropertyCreateable;
+    createData: CustomApiResponsePropertyCreateInput;
     isSaving: boolean;
     onConfirm: (solutionUniqueName: string | null) => void;
     onCancel: () => void;

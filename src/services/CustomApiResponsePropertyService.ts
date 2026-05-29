@@ -1,4 +1,4 @@
-import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomApiResponsePropertyLookups, CustomApiResponsePropertyUpdateable } from "../models/CustomApiResponseProperty";
+import { CustomApiResponseProperty, CustomApiResponsePropertyCreateInput, CustomApiResponsePropertyLookups, CustomApiResponsePropertyUpdateInput } from "../models/CustomApiResponseProperty";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { EntityService, CreateResult, UpdateResult } from "./EntityService";
 
@@ -8,9 +8,9 @@ export class CustomApiResponsePropertyService extends EntityService {
     entityCollectionName = 'customapiresponseproperties';
     componenttype = 10022;
 
-    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateable, solutionUniqueName?: string): Promise<CreateResult> {
+    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
                 
-            const payload = buildCreatePayload<CustomApiResponsePropertyCreateable>(newCustomApiResponseProperty, {
+            const payload = buildCreatePayload<CustomApiResponsePropertyCreateInput>(newCustomApiResponseProperty, {
                 lookupKeys: CustomApiResponsePropertyLookups,
             });
     
@@ -25,9 +25,8 @@ export class CustomApiResponsePropertyService extends EntityService {
         }
     
     
-    async updateCustomApiResponseProperty(current: CustomApiResponseProperty, next: CustomApiResponsePropertyUpdateable): Promise<UpdateResult> {
-            
-        const payload = buildUpdatePayload<CustomApiResponsePropertyUpdateable>(current, next);
+    async updateCustomApiResponseProperty(current: CustomApiResponseProperty, next: CustomApiResponsePropertyUpdateInput): Promise<UpdateResult> {
+        const payload = buildUpdatePayload<CustomApiResponsePropertyUpdateInput>(current, next);
 
         if (Object.keys(payload).length === 0) {
             return { updated: false, payload };

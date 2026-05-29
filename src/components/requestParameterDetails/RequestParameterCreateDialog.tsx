@@ -16,11 +16,11 @@ import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useStyles } from '../../styles/Styles';
-import { CustomApiRequestParameterCreateable, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
+import { CustomApiRequestParameterCreateInput, Customapirequestparameterstype } from '../../models/CustomApiRequestParameter';
 
 interface RequestParameterCreateDialogProps {
     open: boolean;
-    createData: CustomApiRequestParameterCreateable;
+    createData: CustomApiRequestParameterCreateInput;
     isSaving: boolean;
     onConfirm: (solutionUniqueName: string | null) => void;
     onCancel: () => void;

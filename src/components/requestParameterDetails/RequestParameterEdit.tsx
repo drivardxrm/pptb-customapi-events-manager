@@ -2,14 +2,14 @@ import React, { useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, Tooltip } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { CustomApiRequestParameter, Customapirequestparameterstype, CustomApiRequestParameterUpdateable } from '../../models/CustomApiRequestParameter';
+import { CustomApiRequestParameter, Customapirequestparameterstype, CustomApiRequestParameterUpdateInput } from '../../models/CustomApiRequestParameter';
 import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 import { produce } from 'immer';
 
 interface RequestParameterEditProps {
     parameter: CustomApiRequestParameter;
-    editedData: CustomApiRequestParameterUpdateable;
-    onChange: (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => void;
+    editedData: CustomApiRequestParameterUpdateInput;
+    onChange: (updater: (current: CustomApiRequestParameterUpdateInput) => CustomApiRequestParameterUpdateInput) => void;
 }
 
 export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ parameter, editedData, onChange }) => {
@@ -28,7 +28,7 @@ export const RequestParameterEdit: React.FC<RequestParameterEditProps> = ({ para
 
 
     // Helper to update fields, can change multiple fields at once
-    const updateFields = (updater: (draft: CustomApiRequestParameterUpdateable) => void) => {
+    const updateFields = (updater: (draft: CustomApiRequestParameterUpdateInput) => void) => {
         onChange(current => produce(current, draft => updater(draft)));
     };
     

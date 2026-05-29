@@ -34,7 +34,7 @@ export const CustomApiRequestParameterLookups: Partial<Record<keyof CustomApiReq
 };
 
 // A subset of CustomApiRequestParameter properties that used at creation time
-export interface CustomApiRequestParameterCreateable extends 
+export interface CustomApiRequestParameterCreateInput extends 
   Pick<CustomApiRequestParameter,  
   'uniquename' |
   'name' |   
@@ -47,7 +47,7 @@ export interface CustomApiRequestParameterCreateable extends
   > {}
 
 // A subset of CustomApiRequestParameter properties that are updateable
-export interface CustomApiRequestParameterUpdateable extends 
+export interface CustomApiRequestParameterUpdateInput extends 
   Pick<CustomApiRequestParameter,  
   'name' |   
   'displayname' | 
@@ -85,7 +85,7 @@ export const getCustomApiRequestParametersTypeOptions = (): Array<SelectableItem
 
 
   // TEMPLATE FOR CREATING NEW CustomApi Request Parameter
-export const getRequestParameterCreateTemplate = (customApiId: string) : CustomApiRequestParameterCreateable => ({
+export const getRequestParameterCreateTemplate = (customApiId: string) : CustomApiRequestParameterCreateInput => ({
       uniquename: '',
       name: '',
       displayname: '',

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApiResponseProperty, CustomApiResponsePropertyCreateable, CustomApiResponsePropertyUpdateable } from '../models/CustomApiResponseProperty';
+import { CustomApiResponseProperty, CustomApiResponsePropertyCreateInput, CustomApiResponsePropertyUpdateInput } from '../models/CustomApiResponseProperty';
 import { queryKeys } from '../utils/queryKeys';
 import { customApiResponsePropertyService } from '../services/CustomApiResponsePropertyService';
 import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
@@ -33,7 +33,7 @@ export const useCustomApiResponseProperties = () => {
 }
 
 type CreateCustomApiResponsePropertyInput = {
-  next: CustomApiResponsePropertyCreateable;
+  next: CustomApiResponsePropertyCreateInput;
   solutionUniqueName?: string;
 };
 
@@ -67,7 +67,7 @@ export const useCreateCustomApiResponseProperty = () => {
 
 type UpdateCustomApiResponsePropertyInput = {
   current: CustomApiResponseProperty;
-  next: CustomApiResponsePropertyUpdateable;
+  next: CustomApiResponsePropertyUpdateInput;
 };
 
 export const useUpdateCustomApiResponseProperty = () => {
@@ -85,7 +85,7 @@ export const useUpdateCustomApiResponseProperty = () => {
           return result;
         }
 
-        addLog(`Custom API Response Property'${current.uniquename}' updated successfully`, 'success');
+        addLog(`Custom API Response Property '${current.uniquename}' updated successfully`, 'success');
         notify({ title: 'Response Property Updated', body: `'${current.uniquename}' updated successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {

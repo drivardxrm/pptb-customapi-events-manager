@@ -7,6 +7,14 @@
   "author": "David Rivard",
   "license": "MIT",
   "icon": "icons/logo.svg",
+  "contributors": [
+    { "name": "David Rivard", "url": "https://github.com/drivardxrm" }
+  ],
+  "configurations": {
+    "repository": "https://github.com/drivardxrm/pptb-customapi-events-manager",
+    "website": "todo",
+    "readmeUrl": "https://raw.githubusercontent.com/drivardxrm/pptb-customapi-events-manager/blob/main/README.md"
+  },
   "keywords": [
     "powerplatform",
     "power-apps",
@@ -39,17 +47,17 @@
     "test:e2e:report": "npx playwright show-report"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.73.7",
-    "@fluentui/react-datepicker-compat": "^0.6.30",
-    "@tanstack/react-query": "^5.96.2",
+    "@fluentui/react-components": "^9.74.1",
+    "@fluentui/react-datepicker-compat": "^0.6.32",
+    "@tanstack/react-query": "^5.100.14",
     "@tanstack/react-query-devtools": "^5.100.14",
-    "@uiw/react-json-view": "^2.0.0-alpha.41",
-    "immer": "^11.1.4",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "@uiw/react-json-view": "^2.0.0-alpha.43",
+    "immer": "^11.1.8",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "react-query-key-manager": "^0.0.2",
     "uuid": "^13.0.0",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

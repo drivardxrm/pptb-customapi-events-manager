@@ -2,20 +2,20 @@ import React from 'react';
 import { Field, Input, Textarea } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { Customapiresponsepropertiestype, CustomApiResponseProperty, CustomApiResponsePropertyUpdateable } from '../../models/CustomApiResponseProperty';
+import { Customapiresponsepropertiestype, CustomApiResponseProperty, CustomApiResponsePropertyUpdateInput } from '../../models/CustomApiResponseProperty';
 import { produce } from 'immer';
 
 interface ResponsePropertyEditProps {
     property: CustomApiResponseProperty;
-    editedData: CustomApiResponsePropertyUpdateable;
-    onChange: (updater: (current: CustomApiResponsePropertyUpdateable) => CustomApiResponsePropertyUpdateable) => void;
+    editedData: CustomApiResponsePropertyUpdateInput;
+    onChange: (updater: (current: CustomApiResponsePropertyUpdateInput) => CustomApiResponsePropertyUpdateInput) => void;
 }
 
 export const ResponsePropertyEdit: React.FC<ResponsePropertyEditProps> = ({ property, editedData, onChange }) => {
     const styles = useStyles();
     
     // Helper to update fields, can change multiple fields at once
-    const updateFields = (updater: (draft: CustomApiResponsePropertyUpdateable) => void) => {
+    const updateFields = (updater: (draft: CustomApiResponsePropertyUpdateInput) => void) => {
         onChange(current => produce(current, draft => updater(draft)));
     };
 

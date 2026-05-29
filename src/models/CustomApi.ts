@@ -34,7 +34,7 @@ export interface CustomApi  {
 
 
 // A subset of CustomApi properties that used at creation time
-export interface CustomApiCreateable  extends 
+export interface CustomApiCreateInput  extends 
   Pick<CustomApi,  
   'uniquename' |
   'name' |   
@@ -53,7 +53,7 @@ export interface CustomApiCreateable  extends
 
 
 // A subset of CustomApi properties that are updateable
-export interface CustomApiUpdateable extends 
+export interface CustomApiUpdateInput extends 
   Pick<CustomApi,  
   'name' |   
   'displayname' | 
@@ -64,7 +64,7 @@ export interface CustomApiUpdateable extends
   > {}
 
 // Record<keyof T, EntityService> for lookups
-export const CustomApiLookups: Partial<Record<keyof CustomApiUpdateable, [string, EntityService]>> = {
+export const CustomApiLookups: Partial<Record<keyof CustomApiUpdateInput, [string, EntityService]>> = {
   _plugintypeid_value: ['PluginTypeId', new PluginTypeService()],
 };
 
@@ -140,7 +140,7 @@ export type Customapisstatuscode = keyof typeof Customapisstatuscode;
 
 
 // TEMPLATE FOR CREATING NEW CustomApi
-export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
+export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateInput = {
     uniquename: '',
     name: '',
     displayname: '',
@@ -155,7 +155,7 @@ export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
     isprivate: false
 };
 
-// export const DEFAULT_CREATE_TEMPLATE_BUSINESSEVENT: CustomApiCreateable = {
+// export const DEFAULT_CREATE_TEMPLATE_BUSINESSEVENT: CustomApiCreateInput = {
 //     uniquename: '',
 //     name: '',
 //     displayname: '',
@@ -169,5 +169,4 @@ export const DEFAULT_CREATE_TEMPLATE: CustomApiCreateable = {
 //     _plugintypeid_value: '',
 //     isprivate: false
 // };
-
 

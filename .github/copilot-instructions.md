@@ -59,8 +59,8 @@ Entity services extend `EntityService` base class (`src/services/EntityService.t
 
 Models in `src/models/` define:
 - Full entity interface (e.g., `CustomApi`)
-- `*Createable` interface - properties allowed at creation
-- `*Updateable` interface - properties that can be modified
+- `*CreateInput` interface - properties allowed at creation
+- `*UpdateInput` interface - properties that can be modified
 - `*Lookups` - maps lookup fields to `[ODataPropertyName, EntityService]` for relationship binding
 - OptionSet constants with display labels and icons
 - `DEFAULT_CREATE_TEMPLATE` for new record defaults

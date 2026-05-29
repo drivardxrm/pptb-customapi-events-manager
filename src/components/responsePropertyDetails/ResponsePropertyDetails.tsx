@@ -18,7 +18,7 @@ import {
     Dismiss24Regular, 
 } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
-import { CustomApiResponsePropertyCreateable, CustomApiResponsePropertyUpdateable, getResponsePropertyCreateTemplate } from '../../models/CustomApiResponseProperty';
+import { CustomApiResponsePropertyCreateInput, CustomApiResponsePropertyUpdateInput, getResponsePropertyCreateTemplate } from '../../models/CustomApiResponseProperty';
 import { useCreateCustomApiResponseProperty, useCustomApiResponseProperties, useDeleteCustomApiResponseProperty, useUpdateCustomApiResponseProperty } from '../../hooks/useCustomApiResponseProperties';
 import { ResponsePropertyList } from './ResponsePropertyList';
 import { ResponsePropertyCreate } from './ResponsePropertyCreate';
@@ -59,8 +59,8 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
     const { selectedCustomApiId , selectedResponsePropertyId, setSelectedResponsePropertyId, setGlobalMessage, clearGlobalMessage, editingComponent, setEditingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'responseproperty';
     const [mode, setMode] = useState<ResponsePropertiesMode>('read');
-    const [editedData, setEditedData] = useState<CustomApiResponsePropertyUpdateable | null>(null);
-    const [createData, setCreateData] = useState<CustomApiResponsePropertyCreateable | null>(null);
+    const [editedData, setEditedData] = useState<CustomApiResponsePropertyUpdateInput | null>(null);
+    const [createData, setCreateData] = useState<CustomApiResponsePropertyCreateInput | null>(null);
     const { customapis } = useCustomApis();
     const {responseProperties } = useCustomApiResponseProperties();
     const updateCustomApiResponseProperty = useUpdateCustomApiResponseProperty();
@@ -281,7 +281,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
         setShowDeleteConfirmation(false);
     };
 
-    const handleCreateDataChange = (updater: (current: CustomApiResponsePropertyCreateable) => CustomApiResponsePropertyCreateable) => {
+    const handleCreateDataChange = (updater: (current: CustomApiResponsePropertyCreateInput) => CustomApiResponsePropertyCreateInput) => {
         setCreateData((current) => (current ? updater(current) : current));
     };
 
@@ -290,7 +290,7 @@ export const ResponsePropertyDetails: React.FC<ResponsePropertyDetailsProps> = (
     }, []);
 
 
-    const handleEditedDataChange = (updater: (current: CustomApiResponsePropertyUpdateable) => CustomApiResponsePropertyUpdateable) => {
+    const handleEditedDataChange = (updater: (current: CustomApiResponsePropertyUpdateInput) => CustomApiResponsePropertyUpdateInput) => {
         setEditedData((current) => (current ? updater(current) : current));
     };
 

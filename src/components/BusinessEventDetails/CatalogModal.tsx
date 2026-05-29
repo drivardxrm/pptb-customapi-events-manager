@@ -21,15 +21,15 @@ import { useCreateCatalog, useUpdateCatalog, useAllCatalogs } from '../../hooks/
 import { usePublishers } from '../../hooks/usePublishers';
 import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
-import { Catalog, CatalogCreateable, CatalogUpdateable, DEFAULT_CATALOG_CREATE_TEMPLATE } from '../../models/Catalog';
+import { Catalog, CatalogCreateInput, CatalogUpdateInput, DEFAULT_CATALOG_CREATE_TEMPLATE } from '../../models/Catalog';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { ChevronDown16Regular, ChevronRight16Regular, LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { hasCaseInsensitiveMatch } from '../../utils/validation';
 
-export type CatalogModalMode = 'create-root' | 'create-category' | 'edit';
+export type CatalogDialogMode = 'create-root' | 'create-category' | 'edit';
 
-type CatalogCreateFormData = CatalogCreateable & {
+type CatalogCreateFormData = CatalogCreateInput & {
     _publisherid_value: string;
 };
 
@@ -38,15 +38,15 @@ const DEFAULT_CATALOG_CREATE_FORM: CatalogCreateFormData = {
     _publisherid_value: '',
 };
 
-interface CatalogModalProps {
+interface CatalogDialogProps {
     open: boolean;
-    mode: CatalogModalMode;
+    mode: CatalogDialogMode;
     catalog: Catalog | null;
     parentCatalog: Catalog | null;
     onClose: () => void;
 }
 
-export const CatalogModal: React.FC<CatalogModalProps> = ({
+export const CatalogDialog: React.FC<CatalogDialogProps> = ({
     open,
     mode,
     catalog,
@@ -78,7 +78,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
 
     // Form state
     const [formData, setFormData] = useState<CatalogCreateFormData>(DEFAULT_CATALOG_CREATE_FORM);
-    const [editData, setEditData] = useState<CatalogUpdateable>({ name: '', displayname: '', description: '' });
+    const [editData, setEditData] = useState<CatalogUpdateInput>({ name: '', displayname: '', description: '' });
     const [selectedSolutionForCreate, setSelectedSolutionForCreate] = useState<string | null>(null);
 
     // Get selected solution for adding to solution
@@ -161,7 +161,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
         parentCatalogDisplayName && (isCreateCategory || (isEdit && catalog?._parentcatalogid_value))
     );
 
-    // Reset form when modal opens
+    // Reset form when dialog opens
     useEffect(() => {
         if (!open) {
             previousOpenRef.current = false;
@@ -259,7 +259,7 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
                     next: editData,
                 });
             } else {
-                const catalogPayload: CatalogCreateable = {
+                const catalogPayload: CatalogCreateInput = {
                     uniquename: formData.uniquename,
                     name: formData.name,
                     displayname: formData.displayname,
@@ -287,19 +287,18 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({
         }
     };
 
-    const getTitle = () => {
-        if (isEdit) return 'Edit Catalog';
-        if (isCreateRoot) return 'Create Root Catalog';
-        return 'Create Category';
-    };
-
     const isSaving = createCatalog.isPending || updateCatalog.isPending;
+    const dialogTitle = isEdit
+        ? 'Edit Catalog'
+        : isCreateRoot
+            ? 'Create Root Catalog'
+            : 'Create Category';
 
     return (
         <Dialog open={open} onOpenChange={(_, data) => !data.open && onClose()}>
             <DialogSurface className={styles.dialogSurface}>
                 <DialogBody>
-                    <DialogTitle>{getTitle()}</DialogTitle>
+                    <DialogTitle>{dialogTitle}</DialogTitle>
                     <DialogContent className={styles.dialogContentColumn}>
                         {/* Parent info for categories */}
                         {showParentCatalogSection && (

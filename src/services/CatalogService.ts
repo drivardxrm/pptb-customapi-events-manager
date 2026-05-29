@@ -1,4 +1,4 @@
-import { Catalog, CatalogCreateable, CatalogUpdateable } from "../models/Catalog";
+import { Catalog, CatalogCreateInput, CatalogUpdateInput } from "../models/Catalog";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { UpdateResult, CreateResult, EntityService } from "./EntityService";
 
@@ -10,7 +10,7 @@ export class CatalogService extends EntityService {
     componenttype = 10017;
 
     // Define lookups here to avoid circular dependency with Catalog model
-    private static get CatalogLookups(): Partial<Record<keyof CatalogCreateable, [string, EntityService]>> {
+    private static get CatalogLookups(): Partial<Record<keyof CatalogCreateInput, [string, EntityService]>> {
         return {
             _parentcatalogid_value: ['ParentCatalogId', new CatalogService()]
         };
@@ -53,9 +53,8 @@ export class CatalogService extends EntityService {
         return typed.value;
     }
 
-    async createCatalog(newCatalog: CatalogCreateable, solutionUniqueName?: string): Promise<CreateResult> {
-            
-        const payload = buildCreatePayload<CatalogCreateable>(newCatalog, {
+    async createCatalog(newCatalog: CatalogCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
+        const payload = buildCreatePayload<CatalogCreateInput>(newCatalog, {
             lookupKeys: CatalogService.CatalogLookups,
         });
 
@@ -70,9 +69,8 @@ export class CatalogService extends EntityService {
     }
 
 
-    async updateCatalog(current: Catalog, next: CatalogUpdateable): Promise<UpdateResult> {
-        
-        const payload = buildUpdatePayload<CatalogUpdateable>(current, next, {
+    async updateCatalog(current: Catalog, next: CatalogUpdateInput): Promise<UpdateResult> {
+        const payload = buildUpdatePayload<CatalogUpdateInput>(current, next, {
             lookupKeys: CatalogService.CatalogLookups,
         });
 

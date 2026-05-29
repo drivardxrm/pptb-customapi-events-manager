@@ -5,11 +5,11 @@ import { useAppStore } from '../../store/useAppStore';
 import { useStyles } from '../../styles/Styles';
 import { CatalogSelector } from '../CatalogSelector';
 import { CatalogTreeView } from './CatalogTreeView';
-import { CatalogModal, CatalogModalMode } from './CatalogModal';
-import { CatalogAssignmentModal } from './CatalogAssignmentModal';
+import { CatalogDialog, CatalogDialogMode } from './CatalogModal';
+import { CatalogAssignmentDialog } from './CatalogAssignmentModal';
 import { TreeItemDetailsPanel, SelectedTreeItem } from './TreeItemDetailsPanel';
 import { useCatalogs } from '../../hooks/useCatalogs';
-import { useCatalogAssignements } from '../../hooks/useCatalogAssignments';
+import { useCatalogAssignments } from '../../hooks/useCatalogAssignments';
 import { Catalog } from '../../models/Catalog';
 import { CatalogAssignment } from '../../models/CatalogAssignment';
 
@@ -50,18 +50,18 @@ export const BusinessEventDetails: React.FC = () => {
         clearGlobalMessage,
     } = useAppStore();
     const { catalogs, isFetching: isFetchingCatalogs } = useCatalogs();
-    const { catalogAssignments, isFetching: isFetchingAssignments } = useCatalogAssignements();
+    const { catalogAssignments, isFetching: isFetchingAssignments } = useCatalogAssignments();
 
     // Selection state for tree items
     const [selectedTreeItem, setSelectedTreeItem] = useState<SelectedTreeItem>(null);
 
-    // Modal states
-    const [catalogModalOpen, setCatalogModalOpen] = useState(false);
-    const [catalogModalMode, setCatalogModalMode] = useState<CatalogModalMode>('create-root');
+    // Dialog state
+    const [catalogDialogOpen, setCatalogDialogOpen] = useState(false);
+    const [catalogDialogMode, setCatalogDialogMode] = useState<CatalogDialogMode>('create-root');
     const [editingCatalog, setEditingCatalog] = useState<Catalog | null>(null);
     const [parentCatalogForCreate, setParentCatalogForCreate] = useState<Catalog | null>(null);
 
-    const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
+    const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
     const [editingAssignment, setEditingAssignment] = useState<CatalogAssignment | null>(null);
     const [parentCatalogForAssignment, setParentCatalogForAssignment] = useState<Catalog | null>(null);
 
@@ -172,28 +172,28 @@ export const BusinessEventDetails: React.FC = () => {
 
     // Handlers for catalog operations
     const handleCreateRoot = () => {
-        setCatalogModalMode('create-root');
+        setCatalogDialogMode('create-root');
         setEditingCatalog(null);
         setParentCatalogForCreate(null);
-        setCatalogModalOpen(true);
+        setCatalogDialogOpen(true);
     };
 
     const handleCreateCategory = (parentCatalog: Catalog) => {
-        setCatalogModalMode('create-category');
+        setCatalogDialogMode('create-category');
         setEditingCatalog(null);
         setParentCatalogForCreate(parentCatalog);
-        setCatalogModalOpen(true);
+        setCatalogDialogOpen(true);
     };
 
     const handleEditCatalog = (catalog: Catalog) => {
-        setCatalogModalMode('edit');
+        setCatalogDialogMode('edit');
         setEditingCatalog(catalog);
         setParentCatalogForCreate(null);
-        setCatalogModalOpen(true);
+        setCatalogDialogOpen(true);
     };
 
-    const handleCatalogModalClose = () => {
-        setCatalogModalOpen(false);
+    const handleCatalogDialogClose = () => {
+        setCatalogDialogOpen(false);
         setEditingCatalog(null);
         setParentCatalogForCreate(null);
     };
@@ -202,17 +202,17 @@ export const BusinessEventDetails: React.FC = () => {
     const handleCreateAssignment = (parentCatalog: Catalog) => {
         setEditingAssignment(null);
         setParentCatalogForAssignment(parentCatalog);
-        setAssignmentModalOpen(true);
+        setAssignmentDialogOpen(true);
     };
 
     const handleEditAssignment = (assignment: CatalogAssignment, parentCatalog: Catalog) => {
         setEditingAssignment(assignment);
         setParentCatalogForAssignment(parentCatalog);
-        setAssignmentModalOpen(true);
+        setAssignmentDialogOpen(true);
     };
 
-    const handleAssignmentModalClose = () => {
-        setAssignmentModalOpen(false);
+    const handleAssignmentDialogClose = () => {
+        setAssignmentDialogOpen(false);
         setEditingAssignment(null);
         setParentCatalogForAssignment(null);
     };
@@ -315,21 +315,21 @@ export const BusinessEventDetails: React.FC = () => {
                 )}
             </Card>
 
-            {/* Catalog Create/Edit Modal */}
-            <CatalogModal
-                open={catalogModalOpen}
-                mode={catalogModalMode}
+            {/* Catalog create/edit dialog */}
+            <CatalogDialog
+                open={catalogDialogOpen}
+                mode={catalogDialogMode}
                 catalog={editingCatalog}
                 parentCatalog={parentCatalogForCreate}
-                onClose={handleCatalogModalClose}
+                onClose={handleCatalogDialogClose}
             />
 
-            {/* Assignment Create/Edit Modal */}
-            <CatalogAssignmentModal
-                open={assignmentModalOpen}
+            {/* Assignment create/edit dialog */}
+            <CatalogAssignmentDialog
+                open={assignmentDialogOpen}
                 assignment={editingAssignment}
                 parentCatalog={parentCatalogForAssignment}
-                onClose={handleAssignmentModalClose}
+                onClose={handleAssignmentDialogClose}
             />
         </>
     );

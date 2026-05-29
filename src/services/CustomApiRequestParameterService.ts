@@ -1,4 +1,4 @@
-import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterLookups, CustomApiRequestParameterUpdateable } from "../models/CustomApiRequestParameter";
+import { CustomApiRequestParameter, CustomApiRequestParameterCreateInput, CustomApiRequestParameterLookups, CustomApiRequestParameterUpdateInput } from "../models/CustomApiRequestParameter";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { EntityService, UpdateResult, CreateResult, } from "./EntityService";
 
@@ -11,9 +11,8 @@ export class CustomApiRequestParameterService extends EntityService {
     componenttype = 10021;
 
 
-    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateable, solutionUniqueName?: string): Promise<CreateResult> {
-            
-        const payload = buildCreatePayload<CustomApiRequestParameterCreateable>(newCustomApiRequestParameter, {
+    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
+        const payload = buildCreatePayload<CustomApiRequestParameterCreateInput>(newCustomApiRequestParameter, {
             lookupKeys: CustomApiRequestParameterLookups,
         });
 
@@ -28,9 +27,8 @@ export class CustomApiRequestParameterService extends EntityService {
     }
 
 
-    async updateCustomApiRequestParameter(current: CustomApiRequestParameter, next: CustomApiRequestParameterUpdateable): Promise<UpdateResult> {
-            
-        const payload = buildUpdatePayload<CustomApiRequestParameterUpdateable>(current, next);
+    async updateCustomApiRequestParameter(current: CustomApiRequestParameter, next: CustomApiRequestParameterUpdateInput): Promise<UpdateResult> {
+        const payload = buildUpdatePayload<CustomApiRequestParameterUpdateInput>(current, next);
 
         if (Object.keys(payload).length === 0) {
             return { updated: false, payload };

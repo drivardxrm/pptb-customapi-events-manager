@@ -21,7 +21,7 @@ export interface Catalog  {
 
 
 // Properties needed at creation time
-export interface CatalogCreateable  extends 
+export interface CatalogCreateInput  extends 
   Pick<Catalog,  
   'uniquename' |
   'name' |   
@@ -33,7 +33,7 @@ export interface CatalogCreateable  extends
 
 
 // Properties that can be modified after creation
-export interface CatalogUpdateable extends 
+export interface CatalogUpdateInput extends 
   Pick<Catalog,  
   'name' |   
   'displayname' | 
@@ -56,7 +56,7 @@ export type Catalogstatuscode = keyof typeof Catalogstatuscode;
 
 
 // TEMPLATE FOR CREATING NEW Catalog
-export const DEFAULT_CATALOG_CREATE_TEMPLATE: CatalogCreateable = {
+export const DEFAULT_CATALOG_CREATE_TEMPLATE: CatalogCreateInput = {
   uniquename: '',
   name: '',
   displayname: '',

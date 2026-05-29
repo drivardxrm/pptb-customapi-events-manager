@@ -3,7 +3,7 @@ import { Field, Input, Textarea, Switch, mergeClasses, Tooltip, Text } from '@fl
 import { LockClosed16Regular, LockOpenRegular, LockClosedRegular, ChevronRight16Regular, ChevronDown16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
 import { ManagedStateToggle, ManagedStateFilter } from '../generic/ManagedStateToggle';
-import { CustomApiCreateable, getBindingTypeOptions, getAllowedCustomProcessingStepTypeOptions, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
+import { CustomApiCreateInput, getBindingTypeOptions, getAllowedCustomProcessingStepTypeOptions, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { usePrivileges } from '../../hooks/usePrivileges';
 import { usePluginTypes } from '../../hooks/usePluginTypes';
@@ -17,8 +17,8 @@ import { produce } from 'immer';
 import { useEntities } from '../../hooks/useEntities';
 
 interface CustomApiDetailsCreateProps {
-    createData: CustomApiCreateable;
-    onChange: (updater: (current: CustomApiCreateable) => CustomApiCreateable) => void;
+    createData: CustomApiCreateInput;
+    onChange: (updater: (current: CustomApiCreateInput) => CustomApiCreateInput) => void;
     onValidationChange?: (validationStatus: ValidationStatus) => void;
 }
 
@@ -82,7 +82,7 @@ export const CustomApiDetailsCreate: React.FC<CustomApiDetailsCreateProps> = ({ 
     }, [validation.isValid, validation.message, onValidationChange]);
 
     // Helper to update fields, can change multiple fields at once
-    const updateFields = (updater: (draft: CustomApiCreateable) => void) => {
+    const updateFields = (updater: (draft: CustomApiCreateInput) => void) => {
         onChange(current => produce(current, draft => updater(draft)));
     };
 

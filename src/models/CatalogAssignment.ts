@@ -24,7 +24,7 @@ export interface CatalogAssignment  {
 
 
 // Properties needed at creation time
-export interface CatalogAssignmentCreateable  extends 
+export interface CatalogAssignmentCreateInput  extends 
   Pick<CatalogAssignment,   
   'name' |   
   '_catalogid_value' | 
@@ -33,7 +33,7 @@ export interface CatalogAssignmentCreateable  extends
 
 
 // Properties that can be modified after creation
-export interface CatalogAssignmentUpdateable extends 
+export interface CatalogAssignmentUpdateInput extends 
   Pick<CatalogAssignment,  
   'name'    
   > {}
@@ -41,7 +41,7 @@ export interface CatalogAssignmentUpdateable extends
 // Lookups map for binding lookup fields to OData format
 // Note: _catalogid_value and _object_value require special handling due to polymorphic nature
 // They are handled directly in CatalogAssignmentService rather than via standard lookups
-export const CatalogAssignmentLookups: Partial<Record<keyof CatalogAssignmentCreateable, [string, EntityService]>> = {
+export const CatalogAssignmentLookups: Partial<Record<keyof CatalogAssignmentCreateInput, [string, EntityService]>> = {
   // Lookups handled in service due to polymorphic object binding
 };
 
@@ -94,7 +94,7 @@ export type CatalogAssignmentstatuscode = keyof typeof CatalogAssignmentstatusco
 
 
 // TEMPLATE FOR CREATING NEW CatalogAssignment
-export const DEFAULT_ASSIGNMENT_CREATE_TEMPLATE: CatalogAssignmentCreateable = {
+export const DEFAULT_ASSIGNMENT_CREATE_TEMPLATE: CatalogAssignmentCreateInput = {
   name: '',
   _catalogid_value: '',
   _object_value: '',

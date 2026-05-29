@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, mergeClasses, Tooltip } from '@fluentui/react-components';
 import { LockClosed16Regular, LockOpen16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { CustomApi, CustomApiUpdateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype, allowedCustomProcessingStepTypeIcons, customapisBindingTypeIcons } from '../../models/CustomApi';
+import { CustomApi, CustomApiUpdateInput, Customapisallowedcustomprocessingsteptype, Customapisbindingtype, allowedCustomProcessingStepTypeIcons, customapisBindingTypeIcons } from '../../models/CustomApi';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { usePrivileges } from '../../hooks/usePrivileges';
 import { usePluginTypes } from '../../hooks/usePluginTypes';
@@ -11,8 +11,8 @@ import { produce } from 'immer';
 
 interface CustomApiDetailsEditProps {
     api: CustomApi;
-    editedData: CustomApiUpdateable;
-    onChange: (updater: (current: CustomApiUpdateable) => CustomApiUpdateable) => void;
+    editedData: CustomApiUpdateInput;
+    onChange: (updater: (current: CustomApiUpdateInput) => CustomApiUpdateInput) => void;
 }
 
 export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api, editedData, onChange }) => {
@@ -38,7 +38,7 @@ export const CustomApiDetailsEdit: React.FC<CustomApiDetailsEditProps> = ({ api,
 
 
     // Helper to update fields, can change multiple fields at once
-    const updateFields = (updater: (draft: CustomApiUpdateable) => void) => {
+    const updateFields = (updater: (draft: CustomApiUpdateInput) => void) => {
         onChange(current => produce(current, draft => updater(draft)));
     };
 
