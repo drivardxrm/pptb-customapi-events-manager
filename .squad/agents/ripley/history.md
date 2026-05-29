@@ -14,6 +14,12 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Tree-return intent: transient per-action callbacks; clear flags on manual escape paths to prevent stale flag leakage
 - Full removal patterns: remove nav item entry, render branch, dedicated component, page-only styles; add fallback for stale state
 
+**Pre-Release Cleanup Decisions (2026-06-XX):**
+- Phase 1 approved and completed: Hook naming consistency (useToolBoxEvents → useToolboxEvents, useWorflows → useWorkflows, useCatalogAssignements → useCatalogAssignments) + Dialog terminology standardization (CatalogModal → CatalogDialog, CatalogAssignmentModal → CatalogAssignmentDialog)
+- Phases 2 & 3 deferred: Generic component extraction and type hygiene polish documented for future consideration
+- Branch: `refactor/pre-release-cleanup-v0.0.1`
+- Build verified ✅; dev mode tested ✅
+
 **Recent Approvals (2026-05-24 to 2026-05-29):**
 - Tree-view Edit actions for request/response parameters (two-phase handoff validated; no React #185 regressions)
 - Response-property hardening for React #185 regression (stale-selection cleanup, picker memoization, idempotent setters)
@@ -83,3 +89,24 @@ Joined the PPTB Dataverse Custom API Manager team as Lead on 2026-02-28.
 - Scribe wrote logs and prepared commit
 
 **Status:** ✅ Complete — README example tuning applied; polish pass approved; decisions merged
+
+---
+
+## Pre-Release Readability Pass (2026-05-28)
+
+### Ripley Lead & Architectural Review
+Led Phase 1 pre-release readability cleanup across team; established architecture approvals and guardrails:
+- **Phase 1 Scope (Approved & Ready for Merge):**
+  1. Hook Naming Consistency: useToolBoxEvents → useToolboxEvents, useWorflows → useWorkflows, useCatalogAssignements → useCatalogAssignments
+  2. Dialog Terminology Standardization: CatalogModal → CatalogDialog, CatalogAssignmentModal → CatalogAssignmentDialog
+  3. Type Spelling Fixes: Createable → Creatable, Updateable → Updatable
+  4. BusinessEventDetails rewiring: 58 lines of mechanical state/handler renames
+- **Accidental Improvements Identified (Phase 2 Consideration):** ConfirmationDialog component extraction (approved conceptually), type safety in data transformations (explicit callback types)
+- **Named Guardrails Established for All Future Work:**
+  - **Hook Naming:** useToolboxEvents (PascalCase), useWorkflows, useCatalogAssignments (no typos)
+  - **Component Naming — Dialog vs Modal:** Use Dialog exclusively; Modal deprecated; aligns with Fluent UI v9 Dialog primitives
+  - **Type Safety:** Always annotate callback parameters in filter/map/sort/reduce chains
+- **Build Verification:** npm run build ✅ PASSED
+- **Risk Assessment:** All changes VERY LOW risk (naming/organization only; zero logic changes)
+- **Status:** ✅ Phase 1 complete and approved for merge; Phase 2 & 3 deferred for future consideration
+- **Branch:** refactor/pre-release-readability-pass

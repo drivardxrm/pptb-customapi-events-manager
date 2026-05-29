@@ -365,3 +365,26 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 **Scope:** Clarify TanStack Query role in tech stack  
 **Change:** Updated README.md line 70 to include data fetching and async state management context while preserving solution-scoped caching information  
 **Status:** ✅ Complete — Tech stack description updated to emphasize data fetching and async state management alongside caching
+
+## Learnings (Recent Session: 2026-05-29)
+
+### Pre-release UI Readability Pass — Safe First Batch
+- In `src/components/BusinessEventDetails/`, keep runtime component/state terminology aligned with Fluent UI by using `Dialog` names (`CatalogDialog`, `CatalogAssignmentDialog`, `catalogDialogOpen`, `assignmentDialogOpen`) even when file names stay stable to avoid noisy file churn.
+- Low-risk readability fixes in the UI layer can safely bundle obvious typo cleanup with terminology cleanup, such as log-message spacing in mutation hooks and sourcing shared types like `LogEntry` from the actual store module that owns the data.
+- `src/hooks/useToolboxEvents.ts` had dead duplicate `refreshConnection()` lines after the connection-event cases; removing that unreachable block is a safe mechanical cleanup that preserves behavior while making the event flow easier to read.
+- Validation: `npm run build` passed after the readability batch, and Ripley re-review found no material issues.
+
+---
+
+## Pre-Release Readability Pass (2026-05-28)
+
+### Dallas UI Layer Cleanup
+Completed Phase 1 UI-layer readability cleanup focusing on Dialog terminology standardization:
+- **Dialog Terminology:** CatalogModal → CatalogDialog, CatalogAssignmentModal → CatalogAssignmentDialog, CatalogModalMode → CatalogDialogMode
+- **State Variables:** catalogModalOpen → catalogDialogOpen, assignmentModalOpen → assignmentDialogOpen
+- **Handler Functions:** handleCatalogModalClose() → handleCatalogDialogClose()
+- **Files Modified:** BusinessEventDetails.tsx (58 lines of mechanical rewiring), Dialog component renames, index.ts exports
+- **Validation:** npm run build ✅; npm run test:e2e (44 passed, 3 skipped) ✅
+- **Risk Assessment:** VERY LOW — pure renaming, no behavioral changes
+- **Branch:** refactor/pre-release-readability-pass
+- **Guardrails Established:** Use Dialog nomenclature exclusively for all new modular content overlays; Modal terminology deprecated

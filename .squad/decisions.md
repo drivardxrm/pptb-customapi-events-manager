@@ -1304,3 +1304,144 @@ User direction on repository structure. `.squad/` contains team memory and opera
 - **Team:** No code changes; documentation only
 
 **Status:** ✅ Complete — README updated; build passed
+
+---
+
+### 2026-05-29: UI Layer Dialog Terminology Standardization
+**By:** Dallas (Frontend Dev)  
+**What:** Standardized Dialog terminology across UI components in BusinessEventDetails. Renamed runtime component names, props, comments, and local state variables while keeping file paths stable to minimize low-risk readability churn.  
+**Why:** These surfaces are implemented with Fluent UI `Dialog` primitives, and the rest of the app already uses `*Dialog` naming for comparable create/edit flows. Updating runtime names improves consistency without introducing broad file-system churn or behavioral risk during a focused readability pass.  
+**Changes Applied:**
+- `CatalogModal.tsx` → `CatalogDialog` (component export)
+- `CatalogAssignmentModal.tsx` → `CatalogAssignmentDialog` (component export)
+- `CatalogModalMode` → `CatalogDialogMode` (type export)
+- State variables: `catalogModalOpen` → `catalogDialogOpen`, `assignmentModalOpen` → `assignmentDialogOpen`
+- Handler functions: `handleCatalogModalClose()` → `handleCatalogDialogClose()`
+- All imports updated in BusinessEventDetails.tsx and index exports  
+**Files Affected:**
+- `src/components/BusinessEventDetails/BusinessEventDetails.tsx`
+- `src/components/BusinessEventDetails/CatalogDialog.tsx` (renamed from CatalogModal)
+- `src/components/BusinessEventDetails/CatalogAssignmentDialog.tsx` (renamed from CatalogAssignmentModal)
+- `src/components/BusinessEventDetails/index.ts`  
+**Design Pattern:** Keep file renames out of safest readability batches unless there is a stronger architectural need than terminology consistency alone. Pair terminology cleanup with only mechanical, behavior-preserving fixes in nearby UI code.  
+**Validation:** npm run build ✅; npm run test:e2e (44 passed, 3 skipped) ✅  
+**Status:** ✅ Complete; approved for merge; UI layer fully aligned with Dialog terminology standard
+
+---
+
+### 2026-05-29: Data Layer Type Spelling & Hook Naming Standardization
+**By:** Kane (Backend Dev)  
+**What:** Limited pre-release readability pass to mechanical spelling and naming corrections in the data layer and direct consumers. Corrected exported type names and obvious typos in hook names.  
+**Why:** This batch improves readability without changing Dataverse contracts, query behavior, or payload semantics. Correcting English spelling (-able suffix convention) and typo fixes make the codebase more maintainable.  
+**Changes Included:**
+- Type spelling fixes: `Createable` → `Creatable`, `Updateable` → `Updatable` (5 models: Catalog, CatalogAssignment, CustomApi, CustomApiRequestParameter, CustomApiResponseProperty)
+- Hook typo fixes: `useCatalogAssignements` → `useCatalogAssignments`, `useWorflows` → `useWorkflows`, `useToolBoxEvents` → `useToolboxEvents`
+- Local helper variable cleanup in `src/utils/diff.ts` (`payloadKey`)  
+**Explicitly Out of Scope:**
+- Dataverse logical names, collection names, OData binding keys, and query keys
+- New abstraction layers or behavioral refactors
+- UI behavior changes beyond import/type-name updates required by the renames  
+**Files Modified:**
+- All model definitions: `src/models/*.ts`
+- All service implementations: `src/services/*.ts`
+- All hook definitions: `src/hooks/*.ts` (imports updated)
+- Utility functions: `src/utils/diff.ts`  
+**Validation:** npm run build ✅  
+**Status:** ✅ Complete; data layer fully aligned; ready for merge
+
+---
+
+### 2026-05-29: Pre-Release Readability Cleanup Diff Validation & QA Sign-Off
+**By:** Lambert (Tester)  
+**What:** Comprehensive diff review and validation of Phase-4 cleanup (pre-release readability pass). Approved all changes for integration; executed full E2E test suite with no regressions detected.  
+**Verdict:** ✅ **APPROVED FOR INTEGRATION**  
+**Executive Summary:** Current diff is high-confidence, low-risk readability/naming cleanup pass. No behavioral changes detected. Build passes successfully. All renames complete and imports correctly updated.  
+**Scope Validated:**
+1. **Dialog/Modal Terminology Alignment (Prime Focus)**
+   - Component renames: CatalogModal → CatalogDialog, CatalogAssignmentModal → CatalogAssignmentDialog
+   - Type exports updated: CatalogModalMode → CatalogDialogMode
+   - State variables renamed consistently
+   - Handler functions renamed for clarity
+   - Regression Risk: VERY LOW
+
+2. **Hook Renames & Typo Fixes**
+   - useToolBoxEvents → useToolboxEvents
+   - useCatalogAssignements → useCatalogAssignments (typo fix)
+   - useWorflows → useWorkflows (typo fix)
+   - All imports updated; call sites verified
+   - Regression Risk: VERY LOW
+
+3. **Type Interface Naming Fixes**
+   - Createable → Creatable, Updateable → Updatable
+   - All model files updated; all service files updated; all component files using types updated
+   - Build compilation passes (TypeScript catches any missed references)
+   - Regression Risk: VERY LOW
+
+**E2E Test Results:** ✅ 44 passed, 3 skipped
+- catalog-selector.spec.ts: ✅ Catalog creation, selection, deletion flows
+- custom-api.spec.ts: ✅ Custom API CRUD flows (uses request/response parameter dialogs)
+- request-parameter.spec.ts: ✅ Parameter create/edit dialog flows
+- response-property.spec.ts: ✅ Response property create/edit dialog flows
+- smoke.spec.ts: ✅ General navigation and layout  
+**Regression Risk Summary:**
+- Component Rendering: 🟢 VERY LOW
+- State Management: 🟢 VERY LOW
+- Dialog Lifecycle: 🟢 VERY LOW
+- Form Validation: 🟢 VERY LOW
+- API Integration: 🟢 VERY LOW
+- Hook Behavior: 🟢 VERY LOW
+- Type Safety: 🟢 VERY LOW  
+**Build Status:** ✅ npm run build PASSED
+- TypeScript compilation: OK
+- Vite bundling: OK (1,508.71 kB final bundle)
+- No errors, only standard warnings  
+**Confidence Level:** 95%  
+**Status:** ✅ Ready for merge; full E2E validation complete; no blockers
+
+---
+
+### 2026-05-29: Pre-Release Readability Cleanup — Architectural Review & Guardrails
+**By:** Ripley (Lead / Architect)  
+**What:** Comprehensive architectural review of pre-release cleanup branches identifying approved Phase 1 work, accidental improvements worth keeping conceptually, and named guardrails for all future work.  
+**Branches Reviewed:**
+- `refactor/pre-release-cleanup-v0.0.1` — approved Phase 1: naming + dialog consistency
+- Identified conceptual improvements for Phase 2 consideration  
+**Phase 1 Approvals (Architecturally Sound & Ready for Merge):**
+1. **Hook Naming Consistency** — LOW RISK, HIGH VALUE
+   - useToolBoxEvents → useToolboxEvents, useWorflows → useWorkflows, useCatalogAssignements → useCatalogAssignments
+   - All 20+ call sites updated
+   - Impact: Improved dev experience; no logic impact
+
+2. **Dialog vs Modal Terminology** — LOW RISK, CLARIFIES ARCHITECTURE
+   - CatalogModal → CatalogDialog, CatalogAssignmentModal → CatalogAssignmentDialog
+   - Aligns with Fluent UI v9 Dialog primitives already used in codebase
+   - Standardizes inconsistent naming across codebase
+
+**Accidental Improvements Identified (Phase 2 Consideration):**
+1. **ConfirmationDialog Component Extraction** ✅ Approved Conceptually
+   - Generic confirmation dialog consolidating create/delete dialog patterns
+   - Reduces duplication without over-architecture
+   - Straightforward integration path
+
+2. **Type Safety Improvements in useCatalogAssignments** ✅ Approved
+   - Explicit parameter types in data transformation chains
+   - Makes intent explicit for future maintainers; prevents silent type erosion
+
+**Named Guardrails Established for All Future Work:**
+1. **Hook Naming Standard**
+   - ✅ useToolboxEvents, useWorkflows, useCatalogAssignments
+   - ❌ useToolBoxEvents, useWorflows, useCatalogAssignements
+
+2. **Component Naming Standard — Dialog vs Modal**
+   - Rule: Use `Dialog` nomenclature exclusively
+   - All Fluent UI v9 components use Dialog* primitives
+   - ✅ CustomApiCreateDialog, CatalogDialog
+   - ❌ CustomApiCreateModal, CatalogModal (deprecated)
+
+3. **Type Safety in Data Transformations**
+   - Always annotate callback parameters in chains
+   - Prevents silent type erosion
+
+**Build Verification:** ✅ npm run build PASSED  
+**Risk Assessment:** All changes VERY LOW risk (naming/organization only; zero logic changes)  
+**Status:** ✅ Phase 1 complete and approved for merge; Phase 2 & 3 deferred for future consideration

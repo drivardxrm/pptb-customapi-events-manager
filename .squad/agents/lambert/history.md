@@ -401,3 +401,22 @@ Modal mode discrimination with conditional field visibility is a reusable patter
 - All GitHub support links verified: Issues ✅, Discussions removed ✅ (disabled), Bug reports ✅
 
 **Status:** ✅ Complete — Review deliverables merged to decisions.md; orchestration and session logs written; Scribe tasks complete
+
+---
+
+## Pre-Release Readability Pass (2026-05-28)
+
+### Lambert QA Validation
+Executed comprehensive QA validation and diff review for Phase 1 pre-release readability cleanup:
+- **E2E Test Execution:** npm run test:e2e: ✅ 44 passed, 3 skipped
+  - catalog-selector.spec.ts: ✅ Catalog creation, selection, deletion flows
+  - custom-api.spec.ts: ✅ Custom API CRUD flows (uses request/response parameter dialogs)
+  - request-parameter.spec.ts: ✅ Parameter create/edit dialog flows
+  - response-property.spec.ts: ✅ Response property create/edit dialog flows
+  - smoke.spec.ts: ✅ General navigation and layout
+- **Regression Analysis:** All regression risks assessed as VERY LOW (component rendering, state management, dialog lifecycle, form validation, API integration, hook behavior, type safety)
+- **Diff Review Scope:** Dialog terminology alignment, hook renames/typo fixes, type interface naming fixes
+- **Build Status:** npm run build ✅ PASSED (TypeScript compilation OK, Vite bundling OK, 1,508.71 kB final bundle)
+- **Confidence Level:** 95%
+- **Status:** ✅ APPROVED FOR INTEGRATION — Ready for merge; full E2E validation complete; no blockers
+- **Branch:** refactor/pre-release-readability-pass
