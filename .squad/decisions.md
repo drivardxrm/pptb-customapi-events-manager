@@ -1466,3 +1466,18 @@ User direction on repository structure. `.squad/` contains team memory and opera
 - Ran `npm install` to repair local node_modules
 **Validation:** ✅ `npm run build` passes; no UI code changes required  
 **Status:** ✅ Dependency ownership claim implemented and verified
+
+---
+
+### 2026-05-29: Package Entry Should Use Built HTML
+**By:** Dallas (Frontend Dev)  
+**What:** Updated the package manifest to publish `dist/index.html` as the package entry instead of the repo-root source `index.html`.  
+**Why:** npm always includes the file referenced by `package.json` `main`, even when it sits outside the `files` whitelist. Keeping `main: "index.html"` caused the Vite source HTML at the repo root to be published alongside the intended built artifact.  
+**Implementation:**
+- Changed `package.json` `main` from `index.html` to `dist/index.html`
+- Left `"files": ["dist", "npm-shrinkwrap.json"]` unchanged so the publish surface stays minimal
+- Kept `.npmignore` as-is; the root source HTML no longer needs special handling once `main` points into `dist`
+**Validation:**
+- ✅ `npm pack --dry-run` no longer includes the root `index.html`
+- ✅ Package entry still resolves to the shipped built HTML at `dist/index.html`
+**Decision:** Route PPTB package entrypoints through built artifacts under `dist/` so npm publish cannot pull in source-only root HTML files.

@@ -406,3 +406,19 @@ Completed Phase 1 UI-layer readability cleanup focusing on Dialog terminology st
 **Solution:** Declared `@fluentui/react-icons@^2.0.328` explicitly in package.json and reinstalled  
 **Validation:** ✅ `npm run build` now passes  
 **Status:** ✅ Complete — Dependency ownership claim implemented; build restored
+
+## Learnings (Recent Session: 2026-06-04)
+
+### PPTB Package Entry Should Target Built HTML
+- PPTB package publishing should point `package.json` `main` at `dist/index.html`, not the repo-root Vite source `index.html`, because npm auto-includes the declared main file even when it sits outside the `files` whitelist.
+- In this repo, keeping `"files": ["dist", "npm-shrinkwrap.json"]` while switching `main` to `dist/index.html` preserves the intended package entry behavior and prevents the extra root `index.html` from shipping.
+- Validation for this packaging-only change is `npm pack --dry-run`; no frontend build rerun is needed when the already-built `dist/index.html` remains the entry artifact.
+- Key files: `package.json`, `.npmignore`, `dist/index.html`.
+
+## Team Updates (Session: 2026-05-29)
+
+**Orchestration Log:** 2026-05-29T16-39-58Z-Dallas.md  
+**Session Log:** 2026-05-29T16-39-58Z-package-entry-fix.md  
+**Scope:** Remove unintended root index.html from published npm package  
+**Requested by:** Scribe (End-of-session wrap-up)  
+**Status:** ✅ Complete — Package entry point corrected to dist/index.html; npm tarball no longer includes root HTML file; dev server unaffected
