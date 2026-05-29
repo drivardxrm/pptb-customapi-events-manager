@@ -4,7 +4,7 @@ import { queryKeys } from '../utils/queryKeys';
 import { Workflow } from '../models/Workflow';
 
 
-export const useWorflows = () => {
+export const useWorkflows = () => {
 
   // Get connection and instanceId from Zustand store
   const connection = useAppStore((state) => state.connection);

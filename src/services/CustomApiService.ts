@@ -1,4 +1,4 @@
-import { CustomApi, CustomApiCreateable, CustomApiLookups, CustomApiUpdateable } from '../models/CustomApi';
+import { CustomApi, CustomApiCreateInput, CustomApiLookups, CustomApiUpdateInput } from '../models/CustomApi';
 import { buildCreatePayload, buildUpdatePayload } from '../utils/diff';
 import { EntityService, CreateResult, UpdateResult } from './EntityService';
 
@@ -33,9 +33,9 @@ export class CustomApiService extends EntityService {
         return typed.value;
     }
 
-    async createCustomApi(newCustomApi: CustomApiCreateable, solutionUniqueName?: string): Promise<CreateResult> {
+    async createCustomApi(newCustomApi: CustomApiCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
         
-        const payload = buildCreatePayload<CustomApiCreateable>(newCustomApi, {
+        const payload = buildCreatePayload<CustomApiCreateInput>(newCustomApi, {
             lookupKeys: CustomApiLookups,
         });
 
@@ -50,9 +50,9 @@ export class CustomApiService extends EntityService {
     }
 
 
-    async updateCustomApi(current: CustomApi, next: CustomApiUpdateable): Promise<UpdateResult> {
+    async updateCustomApi(current: CustomApi, next: CustomApiUpdateInput): Promise<UpdateResult> {
         
-        const payload = buildUpdatePayload<CustomApiUpdateable>(current, next, {
+        const payload = buildUpdatePayload<CustomApiUpdateInput>(current, next, {
             lookupKeys: CustomApiLookups,
         });
 

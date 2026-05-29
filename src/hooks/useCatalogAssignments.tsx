@@ -4,14 +4,14 @@ import { useAppStore } from '../store/useAppStore'
 import { queryKeys } from '../utils/queryKeys';
 
 import { Catalog } from '../models/Catalog';
-import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable, getObjectType } from '../models/CatalogAssignment';
+import { CatalogAssignment, CatalogAssignmentCreateInput, CatalogAssignmentUpdateInput, getObjectType } from '../models/CatalogAssignment';
 import { useAllCatalogs } from './useCatalogs';
 import { catalogAssignmentService } from '../services/CatalogAssignmentService';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
 
 
-export const useCatalogAssignements = () => {
+export const useCatalogAssignments = () => {
 
   // Get connection and instanceId from Zustand store
   const { connection, isLoadingConnection, instanceId, selectedSolutionId }  = useAppStore();
@@ -115,7 +115,7 @@ const buildCatalogPathLabel = (rootCatalog: Catalog | null, category: Catalog | 
 };
 
 export const useCustomApiCatalogAssignments = (customApiId: string | null | undefined) => {
-  const { catalogAssignments, status, error, isFetching } = useCatalogAssignements();
+  const { catalogAssignments, status, error, isFetching } = useCatalogAssignments();
   const { catalogs: allCatalogs, isFetching: isFetchingCatalogs } = useAllCatalogs();
   const catalogsById = useMemo(
     () => new Map(allCatalogs.map((catalog) => [catalog.catalogid, catalog])),
@@ -159,7 +159,7 @@ export const useCustomApiCatalogAssignments = (customApiId: string | null | unde
 
 
 type CreateCatalogAssignmentInput = {
-  next: CatalogAssignmentCreateable;
+  next: CatalogAssignmentCreateInput;
   objectEntityName: string;
   solutionUniqueName?: string;
 };
@@ -199,7 +199,7 @@ export const useCreateCatalogAssignment = () => {
 
 type UpdateCatalogAssignmentInput = {
   current: CatalogAssignment;
-  next: CatalogAssignmentUpdateable;
+  next: CatalogAssignmentUpdateInput;
 };
 
 export const useUpdateCatalogAssignment = () => {

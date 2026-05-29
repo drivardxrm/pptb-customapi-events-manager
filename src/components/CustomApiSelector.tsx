@@ -15,7 +15,7 @@ import { useSolutions } from '../hooks/useSolutions'
 import { GenericTagPicker, SelectableItem } from './generic/GenericTagPicker'
 import { useCustomApis } from '../hooks/useCustomApis'
 import { LockClosedRegular, LockOpenRegular, ChevronRightRegular, FilterFilled, MathFormulaRegular, MathFormulaFilled, FlashFlowRegular, FlashFlowFilled } from '@fluentui/react-icons'
-import { useCatalogAssignements } from '../hooks/useCatalogAssignments'
+import { useCatalogAssignments } from '../hooks/useCatalogAssignments'
 import { ManagedStateToggle, ManagedStateFilter } from './generic/ManagedStateToggle'
 import { useAppSettings } from '../hooks/useAppSettings'
 import { DEFAULT_SETTINGS } from '../models/AppSettings'
@@ -38,7 +38,7 @@ export const CustomApiSelector: React.FC = () => {
     } = useAppStore()
     const solutionsQuery = useSolutions()
     const customapisQuery = useCustomApis()
-    const catalogAssignmentsQuery = useCatalogAssignements()
+    const catalogAssignmentsQuery = useCatalogAssignments()
     const { appsettings } = useAppSettings()
     const isLocked = editingComponent !== 'none';
     

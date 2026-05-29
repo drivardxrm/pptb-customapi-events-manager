@@ -1,4 +1,4 @@
-import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentLookups, CatalogAssignmentUpdateable } from "../models/CatalogAssignment";
+import { CatalogAssignment, CatalogAssignmentCreateInput, CatalogAssignmentLookups, CatalogAssignmentUpdateInput } from "../models/CatalogAssignment";
 import { buildCreatePayload, buildUpdatePayload } from "../utils/diff";
 import { EntityService, CreateResult, UpdateResult } from "./EntityService";
 import { CatalogService } from "./CatalogService";
@@ -10,7 +10,7 @@ export class CatalogAssignmentService extends EntityService {
     componenttype = 10018;
 
     // Lookups for OData binding - note _object_value is polymorphic and handled specially
-    private static get CatalogAssignmentLookups(): Partial<Record<keyof CatalogAssignmentCreateable, [string, EntityService]>> {
+    private static get CatalogAssignmentLookups(): Partial<Record<keyof CatalogAssignmentCreateInput, [string, EntityService]>> {
         return {
             _catalogid_value: ['CatalogId', new CatalogService()],
             // _object_value is polymorphic - handled via custom payload building
@@ -54,12 +54,12 @@ export class CatalogAssignmentService extends EntityService {
     }
 
     async createCatalogAssignment(
-        newAssignment: CatalogAssignmentCreateable, 
+        newAssignment: CatalogAssignmentCreateInput, 
         objectEntityName: string,
         solutionUniqueName?: string
     ): Promise<CreateResult> {
         // Build base payload with standard lookups
-        const payload = buildCreatePayload<CatalogAssignmentCreateable>(newAssignment, {
+        const payload = buildCreatePayload<CatalogAssignmentCreateInput>(newAssignment, {
             lookupKeys: CatalogAssignmentService.CatalogAssignmentLookups,
             skipKeys: ['_object_value'], // Handle polymorphic lookup separately
         });
@@ -86,8 +86,8 @@ export class CatalogAssignmentService extends EntityService {
         return { created: true, payload, id: result.id };
     }
 
-    async updateCatalogAssignment(current: CatalogAssignment, next: CatalogAssignmentUpdateable): Promise<UpdateResult> {
-        const payload = buildUpdatePayload<CatalogAssignmentUpdateable>(current, next, {
+    async updateCatalogAssignment(current: CatalogAssignment, next: CatalogAssignmentUpdateInput): Promise<UpdateResult> {
+        const payload = buildUpdatePayload<CatalogAssignmentUpdateInput>(current, next, {
             lookupKeys: CatalogAssignmentLookups,
         });
 

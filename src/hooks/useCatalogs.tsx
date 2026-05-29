@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
 import { queryKeys } from '../utils/queryKeys';
-import { Catalog, CatalogCreateable, CatalogUpdateable } from '../models/Catalog';
+import { Catalog, CatalogCreateInput, CatalogUpdateInput } from '../models/Catalog';
 import { catalogService } from '../services/CatalogService';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
@@ -73,7 +73,7 @@ export const useCatalogChildren = (parentCatalogId: string | null) => {
 };
 
 type CreateCatalogInput = {
-  next: CatalogCreateable;
+  next: CatalogCreateInput;
   solutionId?: string | null;
   solutionUniqueName?: string;
 };
@@ -120,7 +120,7 @@ export const useCreateCatalog = () => {
 
 type UpdateCatalogInput = {
   current: Catalog;
-  next: CatalogUpdateable;
+  next: CatalogUpdateInput;
 };
 
 export const useUpdateCatalog = () => {

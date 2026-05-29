@@ -2,7 +2,7 @@ import React, {  useCallback, useEffect, useMemo, useRef } from 'react';
 import { Field, Input, Textarea, Switch, Tooltip } from '@fluentui/react-components';
 import { LockClosed16Regular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import {  CustomApiRequestParameterCreateable, Customapirequestparameterstype, getCustomApiRequestParametersTypeOptions } from '../../models/CustomApiRequestParameter';
+import {  CustomApiRequestParameterCreateInput, Customapirequestparameterstype, getCustomApiRequestParametersTypeOptions } from '../../models/CustomApiRequestParameter';
 import { useDynamicColumnWidths } from '../../hooks/useDynamicColumnWidths';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { useCustomApis } from '../../hooks/useCustomApis';
@@ -14,8 +14,8 @@ import { ValidationStatus, hasCaseInsensitiveMatch } from '../../utils/validatio
 import { useCustomApiRequestParameters } from '../../hooks/useCustomApiRequestParameters';
 
 interface RequestParameterCreateProps {
-    createData: CustomApiRequestParameterCreateable;
-    onChange: (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => void;
+    createData: CustomApiRequestParameterCreateInput;
+    onChange: (updater: (current: CustomApiRequestParameterCreateInput) => CustomApiRequestParameterCreateInput) => void;
     onValidationChange?: (validationStatus: ValidationStatus) => void;
 }
 
@@ -107,7 +107,7 @@ export const RequestParameterCreate: React.FC<RequestParameterCreateProps> = ({ 
 
 
      // Helper to update fields, can change multiple fields at once
-    const updateFields = (updater: (draft: CustomApiRequestParameterCreateable) => void) => {
+    const updateFields = (updater: (draft: CustomApiRequestParameterCreateInput) => void) => {
         onChange(current => produce(current, draft => updater(draft)));
     };
 

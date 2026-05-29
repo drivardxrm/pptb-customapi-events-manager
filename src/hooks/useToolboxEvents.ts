@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 
-export const useToolBoxEvents = () => {
+export const useToolboxEvents = () => {
     const addLog = useAppStore((state) => state.addLog);
     const refreshConnection = useAppStore((state) => state.refreshConnection);
 
     useEffect(() => {
         
         const handler = (event: any, payload: ToolBoxAPI.ToolBoxEventPayload) => {
-            console.log('📡 useToolBoxEvents: Event received:', event, payload);
+            console.log('📡 useToolboxEvents: Event received:', event, payload);
 
             
             switch (payload.event) {
@@ -16,12 +16,7 @@ export const useToolBoxEvents = () => {
                 case 'connection:created':
                 case 'connection:deleted':
                     console.log('Connection event detected, refreshing connection...');
-                    addLog(`ToolBox Event: ${JSON.stringify(payload)}`, "info");
-                    refreshConnection();
-                    break;
-
-                
-                    
+                    addLog(`Toolbox Event: ${JSON.stringify(payload)}`, "info");
                     refreshConnection();
                     break;
                 

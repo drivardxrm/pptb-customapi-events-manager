@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApi, CustomApiCreateable, CustomApiUpdateable } from '../models/CustomApi';
+import { CustomApi, CustomApiCreateInput, CustomApiUpdateInput } from '../models/CustomApi';
 import { customApiService } from '../services/CustomApiService';
 import { queryKeys } from '../utils/queryKeys';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
@@ -41,7 +41,7 @@ export const useAllCustomApis = () => useCustomApiCollection(null);
 
 
 type CreateCustomApiInput = {
-  next: CustomApiCreateable;
+  next: CustomApiCreateInput;
   solutionUniqueName?: string;
 };
 
@@ -80,7 +80,7 @@ export const useCreateCustomApi = () => {
 
 type UpdateCustomApiInput = {
   current: CustomApi;
-  next: CustomApiUpdateable;
+  next: CustomApiUpdateInput;
 };
 
 export const useUpdateCustomApi = () => {

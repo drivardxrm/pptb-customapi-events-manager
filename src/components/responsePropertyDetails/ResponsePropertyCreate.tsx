@@ -5,7 +5,7 @@ import { useStyles } from '../../styles/Styles';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { useCustomApis } from '../../hooks/useCustomApis';
 import { useAppStore } from '../../store/useAppStore';
-import { CustomApiResponsePropertyCreateable, getCustomApiResponsePropertiesTypeOptions, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
+import { CustomApiResponsePropertyCreateInput, getCustomApiResponsePropertiesTypeOptions, Customapiresponsepropertiestype } from '../../models/CustomApiResponseProperty';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 import { useEntities } from '../../hooks/useEntities';
 import { produce } from 'immer';
@@ -14,8 +14,8 @@ import { useCustomApiResponseProperties } from '../../hooks/useCustomApiResponse
 
 
 interface ResponsePropertyCreateProps {
-    createData: CustomApiResponsePropertyCreateable;
-    onChange: (updater: (current: CustomApiResponsePropertyCreateable) => CustomApiResponsePropertyCreateable) => void;
+    createData: CustomApiResponsePropertyCreateInput;
+    onChange: (updater: (current: CustomApiResponsePropertyCreateInput) => CustomApiResponsePropertyCreateInput) => void;
     onValidationChange?: (validationStatus: ValidationStatus) => void;
 }
 
@@ -88,7 +88,7 @@ export const ResponsePropertyCreate: React.FC<ResponsePropertyCreateProps> = ({ 
 
 
     // Helper to update fields, can change multiple fields at once
-    const updateFields = (updater: (draft: CustomApiResponsePropertyCreateable) => void) => {
+    const updateFields = (updater: (draft: CustomApiResponsePropertyCreateInput) => void) => {
         onChange(current => produce(current, draft => updater(draft)));
     };
 

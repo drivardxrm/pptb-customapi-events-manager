@@ -18,25 +18,25 @@ import {
 } from '@fluentui/react-components';
 import { LockOpenRegular, LockOpen16Regular, FolderRegular, FolderOpenRegular, ChevronRightRegular } from '@fluentui/react-icons';
 import { useStyles } from '../../styles/Styles';
-import { useCatalogAssignements, useCreateCatalogAssignment, useUpdateCatalogAssignment } from '../../hooks/useCatalogAssignments';
+import { useCatalogAssignments, useCreateCatalogAssignment, useUpdateCatalogAssignment } from '../../hooks/useCatalogAssignments';
 import { useCatalogs } from '../../hooks/useCatalogs';
 import { useAllCustomApis } from '../../hooks/useCustomApis';
 import { useEntities } from '../../hooks/useEntities';
-import { useWorflows } from '../../hooks/useWorkflows';
+import { useWorkflows } from '../../hooks/useWorkflows';
 import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
 import { Catalog } from '../../models/Catalog';
-import { CatalogAssignment, CatalogAssignmentCreateable, CatalogAssignmentUpdateable, DEFAULT_ASSIGNMENT_CREATE_TEMPLATE, ObjectIdTypeLabels, getObjectTypeLabel, getObjectType, objectIdTypeIcons } from '../../models/CatalogAssignment';
+import { CatalogAssignment, CatalogAssignmentCreateInput, CatalogAssignmentUpdateInput, DEFAULT_ASSIGNMENT_CREATE_TEMPLATE, ObjectIdTypeLabels, getObjectTypeLabel, getObjectType, objectIdTypeIcons } from '../../models/CatalogAssignment';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
 
-interface CatalogAssignmentModalProps {
+interface CatalogAssignmentDialogProps {
     open: boolean;
     assignment: CatalogAssignment | null;
     parentCatalog: Catalog | null;
     onClose: () => void;
 }
 
-export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
+export const CatalogAssignmentDialog: React.FC<CatalogAssignmentDialogProps> = ({
     open,
     assignment,
     parentCatalog,
@@ -45,11 +45,11 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     const styles = useStyles();
     const createAssignment = useCreateCatalogAssignment();
     const updateAssignment = useUpdateCatalogAssignment();
-    const { allCatalogAssignments } = useCatalogAssignements();
+    const { allCatalogAssignments } = useCatalogAssignments();
     const { catalogs } = useCatalogs();
     const { customapis: allCustomApis, isFetching: isFetchingCustomApis } = useAllCustomApis();
     const { entities, isFetching: isFetchingEntities } = useEntities();
-    const { entities: workflows, isFetching: isFetchingWorkflows } = useWorflows();
+    const { entities: workflows, isFetching: isFetchingWorkflows } = useWorkflows();
     const { solutions, isFetching: isFetchingSolutions } = useSolutions();
     const { selectedSolutionId } = useAppStore();
 
@@ -61,8 +61,8 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     const isEdit = !!assignment;
 
     // Form state
-    const [formData, setFormData] = useState<CatalogAssignmentCreateable>(DEFAULT_ASSIGNMENT_CREATE_TEMPLATE);
-    const [editData, setEditData] = useState<CatalogAssignmentUpdateable>({ name: '' });
+    const [formData, setFormData] = useState<CatalogAssignmentCreateInput>(DEFAULT_ASSIGNMENT_CREATE_TEMPLATE);
+    const [editData, setEditData] = useState<CatalogAssignmentUpdateInput>({ name: '' });
     const [selectedObjectType, setSelectedObjectType] = useState<string>('customapi'); // Entity logical name
     const [selectedSolutionForCreate, setSelectedSolutionForCreate] = useState<string | null>(null);
 
@@ -84,7 +84,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
         (solution) => solution.solutionid === selectedSolutionForCreate
     );
 
-    // Reset form when modal opens
+    // Reset form when dialog opens
     useEffect(() => {
         if (open) {
             if (isEdit && assignment) {
@@ -162,11 +162,6 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
         }
     };
 
-    const getTitle = () => {
-        if (isEdit) return 'Edit Assignment';
-        return 'Create Assignment';
-    };
-
     const getTypeIcon = (objectType: string) => {
         return objectIdTypeIcons[objectType] || null;
     };
@@ -203,6 +198,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
     }, [allCustomApis, entities, selectedObjectType, workflows]);
 
     const isSaving = createAssignment.isPending || updateAssignment.isPending;
+    const dialogTitle = isEdit ? 'Edit Assignment' : 'Create Assignment';
 
     // Handle object selection - also auto-fill name if empty
     const handleObjectSelect = (id: string | null) => {
@@ -235,7 +231,7 @@ export const CatalogAssignmentModal: React.FC<CatalogAssignmentModalProps> = ({
         <Dialog open={open} onOpenChange={(_, data) => !data.open && onClose()}>
             <DialogSurface className={styles.dialogSurface}>
                 <DialogBody>
-                    <DialogTitle>{getTitle()}</DialogTitle>
+                    <DialogTitle>{dialogTitle}</DialogTitle>
                     <DialogContent className={styles.dialogContentColumn}>
                         {/* Catalog path: Root Catalog → Category */}
                         {parentCatalog && (

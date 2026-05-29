@@ -31,7 +31,7 @@ export const CustomApiResponsePropertyLookups: Partial<Record<keyof CustomApiRes
 };
 
 // A subset of CustomApiRequestParameter properties that used at creation time
-export interface CustomApiResponsePropertyCreateable extends 
+export interface CustomApiResponsePropertyCreateInput extends 
   Pick<CustomApiResponseProperty,  
   'uniquename' |
   'name' |   
@@ -43,7 +43,7 @@ export interface CustomApiResponsePropertyCreateable extends
   > {}
 
 // A subset of CustomApiRequestParameter properties that are updateable
-export interface CustomApiResponsePropertyUpdateable extends 
+export interface CustomApiResponsePropertyUpdateInput extends 
   Pick<CustomApiResponseProperty,  
   'name' |   
   'displayname' | 
@@ -78,7 +78,7 @@ export const getCustomApiResponsePropertiesTypeOptions = (): Array<SelectableIte
 
 
   // TEMPLATE FOR CREATING NEW CustomApi Response Property
-export const getResponsePropertyCreateTemplate = (customApiId: string) : CustomApiResponsePropertyCreateable => ({
+export const getResponsePropertyCreateTemplate = (customApiId: string) : CustomApiResponsePropertyCreateInput => ({
       uniquename: '',
       name: '',
       displayname: '',

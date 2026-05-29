@@ -27,7 +27,7 @@ import {
 import { EventLog } from "./EventLog";
 import { useAppStore } from "../store/useAppStore";
 import { useConnectionSync } from "../hooks/useConnectionSync";
-import { useToolBoxEvents } from "../hooks/useToolBoxEvents";
+import { useToolboxEvents } from "../hooks/useToolboxEvents";
 import { CustomApiDetails } from "./customApiDetails/CustomApiDetails";
 import { CustomApiTester } from "./customApiTester/CustomApiTester";
 import { BusinessEventDetails } from "./BusinessEventDetails/BusinessEventDetails";
@@ -94,7 +94,7 @@ function App() {
    
 
     //subscribe to events
-    useToolBoxEvents();
+    useToolboxEvents();
 
     // Sync connection state with events
     useConnectionSync();

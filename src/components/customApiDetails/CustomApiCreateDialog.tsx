@@ -12,7 +12,7 @@ import {
     Spinner,
 } from '@fluentui/react-components';
 import { Checkmark24Regular, Dismiss24Regular, LockOpen16Regular } from '@fluentui/react-icons';
-import { CustomApiCreateable, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
+import { CustomApiCreateInput, Customapisallowedcustomprocessingsteptype, Customapisbindingtype } from '../../models/CustomApi';
 import { useSolutions } from '../../hooks/useSolutions';
 import { useAppStore } from '../../store/useAppStore';
 import { GenericTagPicker, SelectableItem } from '../generic/GenericTagPicker';
@@ -20,7 +20,7 @@ import { useStyles } from '../../styles/Styles';
 
 interface CustomApiCreateDialogProps {
     open: boolean;
-    createData: CustomApiCreateable;
+    createData: CustomApiCreateInput;
     isSaving: boolean;
     onConfirm: (solutionUniqueName: string | null) => void;
     onCancel: () => void;

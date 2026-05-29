@@ -4,7 +4,7 @@ import { Edit24Regular, Save24Regular, Dismiss24Regular, LockClosed16Regular, Ad
 import { useAppStore } from '../../store/useAppStore';
 import { useCustomApis, useUpdateCustomApi, useCreateCustomApi, useDeleteCustomApi } from '../../hooks/useCustomApis';
 import { useStyles } from '../../styles/Styles';
-import { CustomApi, CustomApiCreateable, CustomApiUpdateable, DEFAULT_CREATE_TEMPLATE } from '../../models/CustomApi';
+import { CustomApi, CustomApiCreateInput, CustomApiUpdateInput, DEFAULT_CREATE_TEMPLATE } from '../../models/CustomApi';
 import { CustomApiDetailsRead } from './CustomApiDetailsRead';
 import { CustomApiDetailsEdit } from './CustomApiDetailsEdit';
 import { CustomApiDetailsCreate } from './CustomApiDetailsCreate';
@@ -31,7 +31,7 @@ type CustomApiDetailsMode = 'read' | 'edit' | 'create';
 
 
 
-const toEditable = (api: CustomApi): CustomApiUpdateable => ({
+const toEditable = (api: CustomApi): CustomApiUpdateInput => ({
     name: api.name || '',
     displayname: api.displayname || '',
     description: api.description || '',
@@ -75,8 +75,8 @@ export const CustomApiDetails: React.FC = () => {
     const [returnToTreeViewAfterCustomApiAction, setReturnToTreeViewAfterCustomApiAction] = useState(false);
     const [returnToTreeViewAfterRequestParameterAction, setReturnToTreeViewAfterRequestParameterAction] = useState(false);
     const [returnToTreeViewAfterResponsePropertyAction, setReturnToTreeViewAfterResponsePropertyAction] = useState(false);
-    const [editedData, setEditedData] = useState<CustomApiUpdateable | null>(null);
-    const [createData, setCreateData] = useState<CustomApiCreateable>(DEFAULT_CREATE_TEMPLATE);
+    const [editedData, setEditedData] = useState<CustomApiUpdateInput | null>(null);
+    const [createData, setCreateData] = useState<CustomApiCreateInput>(DEFAULT_CREATE_TEMPLATE);
     const [createValidation, setCreateValidation] = useState<ValidationStatus>({
         isValid: true,
     });
@@ -359,11 +359,11 @@ export const CustomApiDetails: React.FC = () => {
 
 
 
-    const handleEditedDataChange = (updater: (current: CustomApiUpdateable) => CustomApiUpdateable) => {
+    const handleEditedDataChange = (updater: (current: CustomApiUpdateInput) => CustomApiUpdateInput) => {
         setEditedData((current) => (current ? updater(current) : current));
     };
 
-    const handleCreateDataChange = (updater: (current: CustomApiCreateable) => CustomApiCreateable) => {
+    const handleCreateDataChange = (updater: (current: CustomApiCreateInput) => CustomApiCreateInput) => {
         setCreateData((current) => updater(current));
     };
 

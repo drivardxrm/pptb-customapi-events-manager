@@ -20,7 +20,7 @@ import {
 } from '@fluentui/react-icons';
 import { useAppStore } from '../../store/useAppStore';
 import { RequestParametersList } from './RequestParametersList';
-import { CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable, getRequestParameterCreateTemplate } from '../../models/CustomApiRequestParameter';
+import { CustomApiRequestParameterCreateInput, CustomApiRequestParameterUpdateInput, getRequestParameterCreateTemplate } from '../../models/CustomApiRequestParameter';
 import { useCreateCustomApiRequestParameter, useCustomApiRequestParameters,  useDeleteCustomApiRequestParameter,  useUpdateCustomApiRequestParameter } from '../../hooks/useCustomApiRequestParameters';
 import { RequestParameterRead } from './RequestParameterRead';
 import { RequestParameterEdit } from './RequestParameterEdit';
@@ -59,8 +59,8 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
     const { selectedCustomApiId , selectedRequestParameterId, setSelectedRequestParameterId, setGlobalMessage, clearGlobalMessage, setEditingComponent, editingComponent } = useAppStore();
     const isLocked = editingComponent !== 'none' && editingComponent !== 'requestparameter';
     const [mode, setMode] = useState<RequestParametersMode>('read');
-    const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateable | null>(null);
-    const [createData, setCreateData] = useState<CustomApiRequestParameterCreateable | null>(null);
+    const [editedData, setEditedData] = useState<CustomApiRequestParameterUpdateInput | null>(null);
+    const [createData, setCreateData] = useState<CustomApiRequestParameterCreateInput | null>(null);
     const { customapis } = useCustomApis();
     const {requestParameters } = useCustomApiRequestParameters();
     const updateCustomApiRequestParameter = useUpdateCustomApiRequestParameter();
@@ -178,7 +178,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
         setEditingComponent('requestparameter');
     };
 
-    const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateable) => CustomApiRequestParameterCreateable) => {
+    const handleCreateDataChange = (updater: (current: CustomApiRequestParameterCreateInput) => CustomApiRequestParameterCreateInput) => {
         setCreateData((current) => (current ? updater(current) : current));
     };
 
@@ -187,7 +187,7 @@ export const RequestParameterDetails: React.FC<RequestParameterDetailsProps> = (
     }, []);
 
 
-    const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateable) => CustomApiRequestParameterUpdateable) => {
+    const handleEditedDataChange = (updater: (current: CustomApiRequestParameterUpdateInput) => CustomApiRequestParameterUpdateInput) => {
         setEditedData((current) => (current ? updater(current) : current));
     };
 

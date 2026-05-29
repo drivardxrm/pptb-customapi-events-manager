@@ -21,7 +21,7 @@ export const buildCreatePayload = <T extends Record<string, any>>(
 
     const nextValue = next[key];
 
-    let payloadkey = key as string;
+    let payloadKey = key as string;
     
 
     if (typeof nextValue === 'string') {
@@ -31,15 +31,15 @@ export const buildCreatePayload = <T extends Record<string, any>>(
       if (options.lookupKeys && options.lookupKeys[key]) {
         const service = options.lookupKeys[key][1];
 
-        payloadkey = `${options.lookupKeys[key][0]}@odata.bind`;
+        payloadKey = `${options.lookupKeys[key][0]}@odata.bind`;
         payloadValue = service.getOdataLookupTemplate(payloadValue);
       }
 
-      payload[payloadkey] = payloadValue;
+      payload[payloadKey] = payloadValue;
     }
     else
     {
-      payload[payloadkey] = nextValue;
+      payload[payloadKey] = nextValue;
     }
 
   });
@@ -68,7 +68,7 @@ export const buildUpdatePayload = <T extends Record<string, any>>(
       return;
     }
 
-    let payloadkey = key as string;
+    let payloadKey = key as string;
     
 
     if (typeof nextValue === 'string') {
@@ -78,15 +78,15 @@ export const buildUpdatePayload = <T extends Record<string, any>>(
       if (options.lookupKeys && options.lookupKeys[key]) {
         const service = options.lookupKeys[key][1];
 
-        payloadkey = `${options.lookupKeys[key][0]}@odata.bind`;
+        payloadKey = `${options.lookupKeys[key][0]}@odata.bind`;
         payloadValue = service.getOdataLookupTemplate(payloadValue);
       }
 
-      payload[payloadkey] = payloadValue;
+      payload[payloadKey] = payloadValue;
     }
     else
     {
-      payload[payloadkey] = nextValue;
+      payload[payloadKey] = nextValue;
     }
 
   });

@@ -1,6 +1,6 @@
 import { Card, CardHeader, Divider, Button } from '@fluentui/react-components';
 import { Delete24Regular } from '@fluentui/react-icons';
-import type { LogEntry } from '../hooks/useToolboxAPI';
+import type { LogEntry } from '../store/useAppStore';
 import { useStyles } from '../styles/Styles';
 import { useAppStore } from '../store/useAppStore';
 

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../store/useAppStore'
-import { CustomApiRequestParameter, CustomApiRequestParameterCreateable, CustomApiRequestParameterUpdateable } from '../models/CustomApiRequestParameter';
+import { CustomApiRequestParameter, CustomApiRequestParameterCreateInput, CustomApiRequestParameterUpdateInput } from '../models/CustomApiRequestParameter';
 import { customApiRequestParameterService } from '../services/CustomApiRequestParameterService';
 import { queryKeys } from '../utils/queryKeys';
 import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
@@ -32,7 +32,7 @@ export const useCustomApiRequestParameters = () => {
 }
 
 type CreateCustomApiRequestParameterInput = {
-  next: CustomApiRequestParameterCreateable;
+  next: CustomApiRequestParameterCreateInput;
   solutionUniqueName?: string;
 };
 
@@ -66,7 +66,7 @@ export const useCreateCustomApiRequestParameter = () => {
 
 type UpdateCustomApiRequestParameterInput = {
   current: CustomApiRequestParameter;
-  next: CustomApiRequestParameterUpdateable;
+  next: CustomApiRequestParameterUpdateInput;
 };
 
 export const useUpdateCustomApiRequestParameter = () => {
@@ -84,7 +84,7 @@ export const useUpdateCustomApiRequestParameter = () => {
           return result;
         }
 
-        addLog(`Custom API Request Parameter'${current.uniquename}' updated successfully`, 'success');
+        addLog(`Custom API Request Parameter '${current.uniquename}' updated successfully`, 'success');
         notify({ title: 'Request Parameter Updated', body: `'${current.uniquename}' updated successfully`, type: 'success', duration: 3000 });
         return result;
       } catch (error) {
