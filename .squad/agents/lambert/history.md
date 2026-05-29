@@ -420,3 +420,22 @@ Executed comprehensive QA validation and diff review for Phase 1 pre-release rea
 - **Confidence Level:** 95%
 - **Status:** ✅ APPROVED FOR INTEGRATION — Ready for merge; full E2E validation complete; no blockers
 - **Branch:** refactor/pre-release-readability-pass
+
+---
+
+## Learnings (Session: 2026-05-29)
+
+### Docs Workflow npm Major Drift Review
+- Reproduced the GitHub docs failure exactly by running `npm@10.9.2 ci` in a clean worktree for commit `5ad36e8`; npm 10 reported the same missing React 18-era packages (`react@18.3.1`, `react-dom@18.3.1`, `scheduler@0.23.2`, etc.).
+- The same commit succeeded with local npm 11 (`npm ci`) and completed `npm run docs:build`, so this is workflow/config drift between the runner npm major and the lockfile authoring npm major, not a stale lockfile in the checked-in package pair.
+- `.github/workflows/docs.yml` currently relies on the npm bundled with `actions/setup-node@v4` on Node 22, while `.github/workflows/e2e-tests.yml` also uses `npm ci` and is exposed to the same mismatch pattern.
+- Useful validation paths for future incidents: `package.json`, `package-lock.json`, `.github/workflows/docs.yml`, `.github/workflows/e2e-tests.yml`.
+- Input artifact note: `.github/workflows/squad-docs.yml` was referenced in the request but does not exist in the repo snapshot I validated.
+
+### Docs Workflow Dependency Sync Validation (2026-05-29)
+- Verified that Kane's npm 11 pin in `.github/workflows/docs.yml` and `packageManager` field in `package.json` correctly addresses the root cause
+- Reproduced failure specifically with npm 10.x (failed at `npm ci` with missing React 18-era packages)
+- Confirmed package and lock are in sync under npm 11
+- Flagged `.github/workflows/e2e-tests.yml` as a parallel regression risk because it also runs `npm ci`
+- **Recommendation:** Apply same npm 11 pin to e2e-tests workflow in future work to prevent identical failure
+- **Pattern:** npm major-version mismatch between runner and lockfile authoring causes resolution conflicts; declarative npm pinning via packageManager field + workflow pin ensures alignment

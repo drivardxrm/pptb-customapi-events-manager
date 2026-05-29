@@ -4,6 +4,7 @@
 Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 
 ## Learnings
+- Docs workflow `npm ci` failure on `main` was caused by npm major-version drift, not a stale lockfile: the repo lockfile installs cleanly with npm 11, while GitHub Actions' Node 22 bundled npm 10 tried to re-resolve React 18-era peers and rejected the lock. Pin npm 11 in `.github/workflows/docs.yml` and declare `"packageManager": "npm@11.10.0"` in `package.json` to keep docs installs aligned.
 - Entity services use EntityService base class with abstract entityName, entityCollectionName
 - CRUD via window.dataverseAPI
 - FetchXML for complex queries (e.g., solution-filtered data)
@@ -115,3 +116,14 @@ Completed Phase 1 data-layer readability cleanup focusing on type spelling and h
 - **Risk Assessment:** VERY LOW — mechanical spelling/naming fixes only
 - **Branch:** refactor/pre-release-readability-pass
 - **Guardrails Established:** Hook naming standard (useToolboxEvents, useWorkflows, useCatalogAssignments); always include explicit types in data transformation callback chains
+
+### 2026-05-29: npm Major-Version Docs Workflow Fix
+- Fixed `Docs Site - Build & Deploy` workflow failure caused by npm major-version drift
+- Root cause: Node 22 bundled npm 10, but lockfile created with npm 11; re-resolving with npm 10 failed on React 18-era peer constraints
+- **Changes:**
+  - Updated `.github/workflows/docs.yml` to pin npm 11 before `npm ci`
+  - Added `"packageManager": "npm@11.10.0"` to `package.json`
+  - Refreshed `package-lock.json` with npm 11
+- **Validation:** Reproduced npm 10 failure locally, confirmed npm 11 pass both `npm ci` and `npm run docs:build`
+- **Pattern:** Treat npm version mismatch as npm major-version drift, not lockfile staleness; declare packageManager field to enforce consistency
+- **Guardrail:** `.github/workflows/e2e-tests.yml` has same pattern; apply same npm 11 pin in future work

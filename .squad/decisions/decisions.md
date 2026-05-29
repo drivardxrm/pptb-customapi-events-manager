@@ -932,3 +932,68 @@ Removing these mid-flight would disrupt active workflows and lose session contex
 1. Schedule dedicated post-session cleanup batch
 2. Coordinate with Ripley for public-repo readiness verification
 3. Update documentation stale references (if applicable) during post-session pass
+
+---
+
+## Decision: Pin npm Major Version For Docs Workflow
+
+**Date:** 2026-05-29  
+**By:** Kane (Backend Dev)  
+**Status:** Implemented  
+**Issue:** Docs Site - Build & Deploy failure on main  
+
+### Context
+
+`Docs Site - Build & Deploy` workflow failed at `npm ci` on main branch even though the committed `package-lock.json` was current. Investigation revealed this was not a lockfile-staleness issue.
+
+### Problem
+
+Node 22 bundled npm 10, but the lockfile was created with npm 11. Attempting to re-resolve the lockfile with npm 10 failed on React 18-era packages, while npm 11 succeeded cleanly.
+
+### Decision
+
+**Treat docs workflow failure as npm major-version drift, not ordinary lockfile drift.** Pin the workflow to npm 11 and declare npm version in package.json.
+
+### Implementation
+
+**Files Modified:**
+- `.github/workflows/docs.yml` — Upgraded `npm ci` step to npm 11
+- `package.json` — Added `"packageManager": "npm@11.10.0"`
+- `package-lock.json` — Refreshed with npm 11
+
+### Validation
+
+- ✅ Reproduced locally: npm 10.9.2 failed with identical React 18 / scheduler missing-package error
+- ✅ npm 11.10.0 successfully ran `npm ci` and `npm run docs:build`
+- ✅ Contributors and CI now resolve the same lockfile shape
+
+### Guardrail
+
+`.github/workflows/e2e-tests.yml` remains a parallel blind spot because it also runs `npm ci`. Apply same npm 11 pin to that workflow in future work.
+
+---
+
+## QA Review: npm Major-Version Lockfile Alignment
+
+**Date:** 2026-05-29  
+**By:** Lambert (Tester)  
+**Status:** Verified  
+**Related:** Decision: Pin npm Major Version For Docs Workflow  
+
+### Evidence
+
+- GitHub run `26615967345` on commit `5ad36e8` failed at `npm ci` in `.github/workflows/docs.yml`
+- Clean local worktree at same commit: `npm@10.9.2 ci` reproduced the failure exactly
+- Same worktree with `npm@11.10.0 ci` succeeded, followed by successful `npm run docs:build`
+
+### Validation Checklist
+
+- ✅ Lockfile sync confirmed under npm 11 (package-lock matches npm ci output)
+- ✅ Failure reproducible under npm 10
+- ✅ Success confirmed under npm 11
+- ✅ packageManager field present and correct in package.json
+- ✅ Workflow pinned to npm 11
+
+### Recommendation
+
+Extend same pin to `.github/workflows/e2e-tests.yml` to prevent parallel regression.
