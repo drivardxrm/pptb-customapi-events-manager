@@ -1,12 +1,12 @@
 {
   "name": "@drivardxrm/pptb-customapi-events-manager",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "displayName": "Custom API & Events Manager",
   "description": "All‑in‑one workspace for creating, managing, and testing Dataverse Custom APIs and Business events (Catalogs)",
-  "main": "index.html",
+  "main": "dist/index.html",
   "author": "David Rivard",
   "license": "MIT",
-  "icon": "public/icons/logo.svg",
+  "icon": "icons/logo.svg",
   "contributors": [
     {
       "name": "David Rivard",
@@ -53,7 +53,9 @@
     "test:e2e:ui": "playwright test --config=tests/e2e/playwright.config.ts --ui",
     "test:e2e:report": "npx playwright show-report",
     "validate": "pptb-validate",
-    "finalize-package": "npm shrinkwrap"
+    "finalize-package": "npm shrinkwrap",
+    "version-stable": "npm version patch --no-git-tag-version",
+    "publish-package": "npm run build && npm run version-stable && npm publish --access public"
   },
   "dependencies": {
     "@fluentui/react-components": "9.73.8",

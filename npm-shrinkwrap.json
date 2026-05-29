@@ -1,12 +1,12 @@
 {
   "name": "@drivardxrm/pptb-customapi-events-manager",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@drivardxrm/pptb-customapi-events-manager",
-      "version": "1.0.0",
+      "version": "1.0.4",
       "license": "MIT",
       "dependencies": {
         "@fluentui/react-components": "9.73.8",
