@@ -997,3 +997,37 @@ Node 22 bundled npm 10, but the lockfile was created with npm 11. Attempting to 
 ### Recommendation
 
 Extend same pin to `.github/workflows/e2e-tests.yml` to prevent parallel regression.
+
+---
+
+## Decision: Release 1.0.5 Changelog Entry
+
+**Date:** 2026-06-05  
+**By:** Kane (Backend Dev)  
+**Status:** Completed  
+**Issue:** #74
+
+### Context
+
+Version 1.0.5 required a CHANGELOG.md entry to satisfy release automation validation. GitHub Actions workflows (`squad-preview.yml`, `squad-promote.yml`, `squad-release.yml`) verify that the current `package.json` version exists as a `## [<version>]` heading in the in-repo changelog before proceeding with preview, promote, or release steps.
+
+### Decision
+
+Maintained the in-repo changelog with version 1.0.5 entry documenting dependency and package upgrades while preserving the existing release date and issue #74 fix reference.
+
+### Implementation
+
+Updated `CHANGELOG.md`:
+- Added `## [1.0.5]` section with appropriate date
+- Created Changed section listing package and dependency upgrades
+- Retained existing issue #74 fix documentation
+- Preserved markdown structure and formatting
+
+### Validation
+
+- ✅ Release automation will now pass validation for version 1.0.5
+- ✅ Changelog maintains project upgrade history in durable format
+
+### Guardrail
+
+Release workflow automation does not generate CHANGELOG.md automatically. Version bumps must keep `package.json`, `npm-shrinkwrap.json`, and `CHANGELOG.md` aligned. Changelog maintenance is an in-repo responsibility documented in README developer guidance.

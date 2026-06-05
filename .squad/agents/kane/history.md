@@ -53,6 +53,13 @@ Joined the PPTB Dataverse Custom API Manager team as Backend Dev on 2026-02-28.
 - Added normalization and validation of `objectEntityName` before building payload
 - ✅ Build passed; Lambert's 36-test-case regression QA checklist ready for validation
 
+### 2026-06-05: Release 1.0.5 Changelog Entry
+- Prepared version 1.0.5 release by updating CHANGELOG.md entry
+- Documented package and dependency upgrades in Changed section
+- Preserved release date and issue #74 fix reference
+- Release automation prerequisites satisfied: version 1.0.5 now has matching `## [1.0.5]` heading in changelog
+- **Guardrail:** In-repo changelog maintenance is required for all version bumps; `package.json`, `npm-shrinkwrap.json`, and `CHANGELOG.md` must remain aligned
+
 ### 2026-03-01: Cross-Agent Update from Ripley Review
 - Service pattern validated across CustomApi, RequestParameter, ResponseProperty, Catalog
 - Hook pattern: Query + mutation hooks in single file per entity
