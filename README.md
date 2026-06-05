@@ -55,6 +55,7 @@ npm run build
 ```
 
 The tool builds as a single-file bundle optimized for Power Platform ToolBox integration.
+Release notes are maintained in-repo in `CHANGELOG.md`, so version bumps should include a matching changelog entry.
 
 #### Development
 

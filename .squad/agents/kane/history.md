@@ -130,6 +130,8 @@ Completed Phase 1 data-layer readability cleanup focusing on type spelling and h
 - Runtime solution-component adds should resolve `ComponentType` from Dataverse entity metadata (`objecttypecode`) via `useEntities`, not hardcoded service constants.
 - `src\hooks\useEntities.tsx` now selects `objecttypecode` and exposes helpers for logical-name metadata lookup; create hooks use `queryClient.ensureQueryData(...)` before solution adds so metadata loading races do not break create-in-solution flows.
 - `src\services\EntityService.ts` now accepts runtime `componentType` in `addToSolution()`, and the affected services are `CustomApiService`, `CustomApiRequestParameterService`, `CustomApiResponsePropertyService`, `CatalogService`, and `CatalogAssignmentService`.
+- Release automation does not generate `CHANGELOG.md`; `.github/workflows/squad-preview.yml`, `squad-promote.yml`, and `squad-release.yml` all fail if the current `package.json` version lacks a matching `## [version]` heading in the in-repo changelog.
+- Version bumps should keep `package.json` and `npm-shrinkwrap.json` aligned, and README developer guidance is the natural place to note that changelog maintenance happens in-repo.
 
 ## Team Updates (Session: 2026-06-05)
 

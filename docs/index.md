@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: Custom API & Events Manager
-  text: Manage, configure and testDataverse Custom APIs and Business Events (Catalogs) from a single workspace.
-  tagline: A Power Platform ToolBox app for Dataverse developers, solution architects, and integration builders.
+  text: 
+  tagline: Manage, configure and testDataverse Custom APIs and Business Events (Catalogs) from a single workspace.
   image:
     src: /menu.png
     alt: Custom API & Events Manager logo
