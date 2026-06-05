@@ -5,6 +5,7 @@ import { customApiService } from '../services/CustomApiService';
 import { queryKeys } from '../utils/queryKeys';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
+import { useEntities } from './useEntities';
 
 
 const useCustomApiCollection = (solutionId: string | null | undefined) => {
@@ -49,11 +50,15 @@ export const useCreateCustomApi = () => {
   const queryClient = useQueryClient();
   const {addLog} = useAppStore();
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
+  const { ensureEntityObjectTypeCode } = useEntities();
 
   return useMutation<CreateResult, unknown, CreateCustomApiInput>({
     mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await customApiService.createCustomApi( next, solutionUniqueName);
+        const componentType = solutionUniqueName
+          ? await ensureEntityObjectTypeCode(customApiService.entityName)
+          : undefined;
+        const result = await customApiService.createCustomApi(next, solutionUniqueName, componentType);
 
         
         addLog(`Custom API '${next.uniquename}' created successfully${solutionUniqueName ? ` in solution '${solutionUniqueName}'` : ''}`, 'success');

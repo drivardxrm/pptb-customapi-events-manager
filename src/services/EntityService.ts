@@ -1,10 +1,17 @@
 export abstract class EntityService {
   abstract entityName: string;
   abstract entityCollectionName: string;
-  componenttype?: number;
 
   getOdataLookupTemplate(id: string | null): string | null {
     return id ? `${this.entityCollectionName}(${id})` : null;
+  }
+
+  protected ensureComponentType(componentType?: number | null): number {
+    if (typeof componentType !== 'number') {
+      throw new Error(`Component type metadata could not be resolved for '${this.entityName}'.`);
+    }
+
+    return componentType;
   }
 
   async deleteRecord(id: string): Promise<DeleteResult> {
@@ -12,16 +19,13 @@ export abstract class EntityService {
       return { deleted: true };
   }
 
-  async addToSolution(recordId: string, solutionUniqueName: string): Promise<void> {
-      if (!this.componenttype) {
-          throw new Error('Component type is not defined for this entity service.');
-      }
+  async addToSolution(recordId: string, solutionUniqueName: string, componentType?: number | null): Promise<void> {
       await window.dataverseAPI.execute({
         operationName: 'AddSolutionComponent',
         operationType: 'action',
         parameters: {
           ComponentId: recordId,
-          ComponentType: this.componenttype, // Custom API component type
+          ComponentType: this.ensureComponentType(componentType),
           SolutionUniqueName: solutionUniqueName,
           AddRequiredComponents: false,
           DoNotIncludeSubcomponents: false,

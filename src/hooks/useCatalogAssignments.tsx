@@ -9,6 +9,7 @@ import { useAllCatalogs } from './useCatalogs';
 import { catalogAssignmentService } from '../services/CatalogAssignmentService';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
+import { useEntities } from './useEntities';
 
 
 export const useCatalogAssignments = () => {
@@ -168,11 +169,15 @@ export const useCreateCatalogAssignment = () => {
   const queryClient = useQueryClient();
   const { addLog } = useAppStore();
   const { connection, instanceId, selectedSolutionId } = useAppStore();
+  const { ensureEntityObjectTypeCode } = useEntities();
 
   return useMutation<CreateResult, unknown, CreateCatalogAssignmentInput>({
     mutationFn: async ({ next, objectEntityName, solutionUniqueName }) => {
       try {
-        const result = await catalogAssignmentService.createCatalogAssignment(next, objectEntityName, solutionUniqueName);
+        const componentType = solutionUniqueName
+          ? await ensureEntityObjectTypeCode(catalogAssignmentService.entityName)
+          : undefined;
+        const result = await catalogAssignmentService.createCatalogAssignment(next, objectEntityName, solutionUniqueName, componentType);
 
         addLog(`Catalog Assignment '${next.name}' created successfully${solutionUniqueName ? ` in solution '${solutionUniqueName}'` : ''}`, 'success');
         notify({ title: 'Assignment Created', body: `'${next.name}' created successfully`, type: 'success', duration: 3000 });

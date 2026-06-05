@@ -127,3 +127,23 @@ Completed Phase 1 data-layer readability cleanup focusing on type spelling and h
 - **Validation:** Reproduced npm 10 failure locally, confirmed npm 11 pass both `npm ci` and `npm run docs:build`
 - **Pattern:** Treat npm version mismatch as npm major-version drift, not lockfile staleness; declare packageManager field to enforce consistency
 - **Guardrail:** `.github/workflows/e2e-tests.yml` has same pattern; apply same npm 11 pin in future work
+- Runtime solution-component adds should resolve `ComponentType` from Dataverse entity metadata (`objecttypecode`) via `useEntities`, not hardcoded service constants.
+- `src\hooks\useEntities.tsx` now selects `objecttypecode` and exposes helpers for logical-name metadata lookup; create hooks use `queryClient.ensureQueryData(...)` before solution adds so metadata loading races do not break create-in-solution flows.
+- `src\services\EntityService.ts` now accepts runtime `componentType` in `addToSolution()`, and the affected services are `CustomApiService`, `CustomApiRequestParameterService`, `CustomApiResponsePropertyService`, `CatalogService`, and `CatalogAssignmentService`.
+
+## Team Updates (Session: 2026-06-05)
+
+**Orchestration Log:** 2026-06-05T02-23-17Z-kane.md  
+**Scope:** Issue #74 runtime component-type implementation — Initial backend work  
+**Status:** ✅ Completed — Implementation delivered; first revision rejected by Ripley due to cold-start metadata race; assigned Dallas for revision with deterministic metadata wait guard.
+
+### Issue #74: Runtime Component Type Resolution — Phase 1 (Kane Initial Implementation)
+- Added `objecttypecode` to Entity model and selected in `src/hooks/useEntities.tsx`
+- Exposed metadata lookup helpers from `useEntities`
+- Updated all five solution-aware create hooks to resolve `objecttypecode` at runtime
+- Updated `EntityService.addToSolution()` to accept runtime `componentType` parameter
+- Removed hardcoded `componenttype` constants from all service classes
+
+**Blocking Issue Identified:** Cold-cache create path can still fail. On fresh load, save buttons fire before entity metadata loads, causing `ensureComponentType()` to reach operation without resolved value.
+
+**Guardrail Established:** Solution-scoped create/save must never depend on metadata that may still be loading. Either block save action or make mutation reliably await metadata before record creation.

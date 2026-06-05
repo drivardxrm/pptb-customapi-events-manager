@@ -110,3 +110,46 @@ Led Phase 1 pre-release readability cleanup across team; established architectur
 - **Risk Assessment:** All changes VERY LOW risk (naming/organization only; zero logic changes)
 - **Status:** ✅ Phase 1 complete and approved for merge; Phase 2 & 3 deferred for future consideration
 - **Branch:** refactor/pre-release-readability-pass
+
+## Learnings
+
+- Runtime solution-component membership now resolves from Dataverse entity metadata via `useEntities` (`src/hooks/useEntities.tsx`) and passes `objecttypecode` into `EntityService.addToSolution()` instead of relying on per-service constants.
+- The five solution-aware create flows are `useCustomApis.tsx`, `useCustomApiRequestParameters.ts`, `useCustomApiResponseProperties.ts`, `useCatalogs.tsx`, and `useCatalogAssignments.tsx`; each now uses TanStack Query entity metadata cache plus `ensureQueryData(...)` fallback to avoid hardcoded component types.
+- Architectural guardrail from Issue #74 review: do not allow solution-scoped create/save to depend on metadata that may still be loading. Either block the save action until entity metadata is ready or make the mutation reliably await metadata before record creation so solution-add cannot fail on a cold cache.
+
+## Team Updates (Session: 2026-06-05)
+
+### Issue #74: Runtime Component Type Resolution — Phase 3 & 5 (Ripley Reviews)
+
+**Phase 3 — Initial Review (2026-06-05 — REJECTED)**
+
+**What Passed:**
+- ✅ Hardcoded `componenttype` constants removed
+- ✅ `EntityService.addToSolution()` fails fast when no runtime component type available
+- ✅ All five solution-aware create callers resolve `objecttypecode` from metadata
+- ✅ `npm run build` passes
+
+**Blocking Issue: Cold-Cache Metadata Race**
+- On fresh load, `useEntities()` returns undefined until query settles
+- Save buttons gated only on validation/pending state, not metadata readiness
+- Race condition: user saves before metadata loads → mutation fails
+- Evidence: `useEntities()` undefined until query complete; `EntityService.throws` when componentType not number; save buttons don't check metadata status
+
+**Decision:** Reject implementation; assign Dallas to close cold-cache gap via centralized metadata wait in `ensureEntityObjectTypeCode()` helper.
+
+**Phase 5 — Final Review (2026-06-05 — APPROVED)**
+
+**What Passed:**
+- ✅ Centralized metadata readiness logic in `ensureEntityObjectTypeCode()`
+- ✅ All five create hooks use deterministic metadata wait
+- ✅ No duplicated fallback logic across create paths
+- ✅ Cold-start race condition eliminated
+- ✅ Solution-scoped creates safe on first use
+- ✅ Working tree ready for merge
+
+**Decision:** Approve for merge to issue-74-runtime-objecttypecode branch. Implementation complete.
+
+**Guardrails Established for Future Work:**
+- Solution-scoped create/save operations must deterministically await entity metadata before record creation
+- Centralize shared infrastructure helpers (like metadata resolution) so consuming hooks don't duplicate logic
+- When metadata loading races are possible, explicitly await data in the mutation path rather than relying on pre-load assumptions

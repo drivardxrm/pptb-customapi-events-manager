@@ -8,10 +8,13 @@ import { EntityService, UpdateResult, CreateResult, } from "./EntityService";
 export class CustomApiRequestParameterService extends EntityService {
     entityName = 'customapirequestparameter';
     entityCollectionName = 'customapirequestparameters';
-    componenttype = 10021;
 
 
-    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
+    async createCustomApiRequestParameter(newCustomApiRequestParameter: CustomApiRequestParameterCreateInput, solutionUniqueName?: string, componentType?: number): Promise<CreateResult> {
+        if (solutionUniqueName) {
+            this.ensureComponentType(componentType);
+        }
+
         const payload = buildCreatePayload<CustomApiRequestParameterCreateInput>(newCustomApiRequestParameter, {
             lookupKeys: CustomApiRequestParameterLookups,
         });
@@ -20,7 +23,7 @@ export class CustomApiRequestParameterService extends EntityService {
         
         // If a solution is specified, add the custom API to that solution
         if (solutionUniqueName && result.id) {
-            await this.addToSolution(result.id, solutionUniqueName);
+            await this.addToSolution(result.id, solutionUniqueName, componentType);
         }
 
         return { created: true, payload, id: result.id };

@@ -7,7 +7,6 @@ import { UpdateResult, CreateResult, EntityService } from "./EntityService";
 export class CatalogService extends EntityService {
     entityName = 'catalog';
     entityCollectionName = 'catalogs';
-    componenttype = 10017;
 
     // Define lookups here to avoid circular dependency with Catalog model
     private static get CatalogLookups(): Partial<Record<keyof CatalogCreateInput, [string, EntityService]>> {
@@ -53,7 +52,11 @@ export class CatalogService extends EntityService {
         return typed.value;
     }
 
-    async createCatalog(newCatalog: CatalogCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
+    async createCatalog(newCatalog: CatalogCreateInput, solutionUniqueName?: string, componentType?: number): Promise<CreateResult> {
+        if (solutionUniqueName) {
+            this.ensureComponentType(componentType);
+        }
+
         const payload = buildCreatePayload<CatalogCreateInput>(newCatalog, {
             lookupKeys: CatalogService.CatalogLookups,
         });
@@ -62,7 +65,7 @@ export class CatalogService extends EntityService {
         
         // If a solution is specified, add the catalog to that solution
         if (solutionUniqueName && result.id) {
-            await this.addToSolution(result.id, solutionUniqueName);
+            await this.addToSolution(result.id, solutionUniqueName, componentType);
         }
         
         return { created: true, payload, id: result.id };

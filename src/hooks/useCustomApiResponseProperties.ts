@@ -5,6 +5,7 @@ import { queryKeys } from '../utils/queryKeys';
 import { customApiResponsePropertyService } from '../services/CustomApiResponsePropertyService';
 import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
+import { useEntities } from './useEntities';
 
 
 
@@ -40,11 +41,15 @@ type CreateCustomApiResponsePropertyInput = {
 export const useCreateCustomApiResponseProperty = () => {
   const queryClient = useQueryClient();
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
+  const { ensureEntityObjectTypeCode } = useEntities();
 
   return useMutation<CreateResult, unknown, CreateCustomApiResponsePropertyInput>({
     mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await customApiResponsePropertyService.createCustomApiResponseProperty(next, solutionUniqueName);
+        const componentType = solutionUniqueName
+          ? await ensureEntityObjectTypeCode(customApiResponsePropertyService.entityName)
+          : undefined;
+        const result = await customApiResponsePropertyService.createCustomApiResponseProperty(next, solutionUniqueName, componentType);
 
        
         addLog(`Custom API Response Property '${next.uniquename}' created successfully`, 'success');

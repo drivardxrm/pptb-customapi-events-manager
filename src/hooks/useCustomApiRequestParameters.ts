@@ -5,6 +5,7 @@ import { customApiRequestParameterService } from '../services/CustomApiRequestPa
 import { queryKeys } from '../utils/queryKeys';
 import { UpdateResult, CreateResult, DeleteResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
+import { useEntities } from './useEntities';
 
 
 export const useCustomApiRequestParameters = () => {
@@ -39,13 +40,17 @@ type CreateCustomApiRequestParameterInput = {
 export const useCreateCustomApiRequestParameter = () => {
   const queryClient = useQueryClient();
   const { connection, addLog , instanceId, selectedCustomApiId  } = useAppStore()
+  const { ensureEntityObjectTypeCode } = useEntities();
 
   return useMutation<CreateResult, unknown, CreateCustomApiRequestParameterInput>({
     mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await customApiRequestParameterService.createCustomApiRequestParameter(next, solutionUniqueName);
+        const componentType = solutionUniqueName
+          ? await ensureEntityObjectTypeCode(customApiRequestParameterService.entityName)
+          : undefined;
+        const result = await customApiRequestParameterService.createCustomApiRequestParameter(next, solutionUniqueName, componentType);
 
-       
+        
         addLog(`Custom API Request Parameter '${next.uniquename}' created successfully`, 'success');
         notify({ title: 'Request Parameter Created', body: `'${next.uniquename}' created successfully`, type: 'success', duration: 3000 });
         return result;

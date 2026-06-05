@@ -5,6 +5,7 @@ import { Catalog, CatalogCreateInput, CatalogUpdateInput } from '../models/Catal
 import { catalogService } from '../services/CatalogService';
 import { DeleteResult, UpdateResult, CreateResult } from '../services/EntityService';
 import { notify } from '../utils/notify';
+import { useEntities } from './useEntities';
 
 
 const useCatalogCollection = (solutionId: string | null | undefined) => {
@@ -82,11 +83,15 @@ export const useCreateCatalog = () => {
   const queryClient = useQueryClient();
   const {addLog} = useAppStore();
   const { connection, instanceId, selectedSolutionId }  = useAppStore();
+  const { ensureEntityObjectTypeCode } = useEntities();
 
   return useMutation<CreateResult, unknown, CreateCatalogInput>({
     mutationFn: async ({  next, solutionUniqueName }) => {
       try {
-        const result = await catalogService.createCatalog( next, solutionUniqueName);
+        const componentType = solutionUniqueName
+          ? await ensureEntityObjectTypeCode(catalogService.entityName)
+          : undefined;
+        const result = await catalogService.createCatalog(next, solutionUniqueName, componentType);
 
        
         addLog(`Catalog '${next.uniquename}' created successfully${solutionUniqueName ? ` in solution '${solutionUniqueName}'` : ''}`, 'success');

@@ -6,9 +6,12 @@ import { EntityService, CreateResult, UpdateResult } from "./EntityService";
 export class CustomApiResponsePropertyService extends EntityService {
     entityName = 'customapiresponseproperty';
     entityCollectionName = 'customapiresponseproperties';
-    componenttype = 10022;
 
-    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
+    async createCustomApiResponseProperty(newCustomApiResponseProperty: CustomApiResponsePropertyCreateInput, solutionUniqueName?: string, componentType?: number): Promise<CreateResult> {
+            if (solutionUniqueName) {
+                this.ensureComponentType(componentType);
+            }
+
                 
             const payload = buildCreatePayload<CustomApiResponsePropertyCreateInput>(newCustomApiResponseProperty, {
                 lookupKeys: CustomApiResponsePropertyLookups,
@@ -18,7 +21,7 @@ export class CustomApiResponsePropertyService extends EntityService {
             
             // If a solution is specified, add the custom API to that solution
             if (solutionUniqueName && result.id) {
-                await this.addToSolution(result.id, solutionUniqueName);
+                await this.addToSolution(result.id, solutionUniqueName, componentType);
             }
             
             return { created: true, payload, id: result.id };

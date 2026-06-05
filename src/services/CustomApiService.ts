@@ -7,7 +7,6 @@ import { EntityService, CreateResult, UpdateResult } from './EntityService';
 export class CustomApiService extends EntityService {
     entityName = 'customapi';
     entityCollectionName = 'customapis';
-    componenttype = 10020;
 
     async fetchAllCustomApi(): Promise<CustomApi[]> {
         const result = await window.dataverseAPI.queryData(this.entityCollectionName);
@@ -33,7 +32,10 @@ export class CustomApiService extends EntityService {
         return typed.value;
     }
 
-    async createCustomApi(newCustomApi: CustomApiCreateInput, solutionUniqueName?: string): Promise<CreateResult> {
+    async createCustomApi(newCustomApi: CustomApiCreateInput, solutionUniqueName?: string, componentType?: number): Promise<CreateResult> {
+        if (solutionUniqueName) {
+            this.ensureComponentType(componentType);
+        }
         
         const payload = buildCreatePayload<CustomApiCreateInput>(newCustomApi, {
             lookupKeys: CustomApiLookups,
@@ -43,7 +45,7 @@ export class CustomApiService extends EntityService {
         
         // If a solution is specified, add the custom API to that solution
         if (solutionUniqueName && result.id) {
-            await this.addToSolution(result.id, solutionUniqueName);
+            await this.addToSolution(result.id, solutionUniqueName, componentType);
         }
         
         return { created: true, payload, id: result.id };

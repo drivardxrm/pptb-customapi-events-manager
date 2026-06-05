@@ -1481,3 +1481,163 @@ User direction on repository structure. `.squad/` contains team memory and opera
 - ✅ `npm pack --dry-run` no longer includes the root `index.html`
 - ✅ Package entry still resolves to the shipped built HTML at `dist/index.html`
 **Decision:** Route PPTB package entrypoints through built artifacts under `dist/` so npm publish cannot pull in source-only root HTML files.
+
+---
+
+### 2026-06-05: Runtime Component Type Resolution — Issue #74 Implementation & Review Cycle
+
+#### Phase 1: Kane — Initial Implementation
+**By:** Kane (Backend Dev)  
+**Date:** 2026-06-05  
+**Issue:** #74  
+**Status:** Completed (Initial); Rejected for revision by Ripley
+
+**What:** Resolved solution component types at runtime from Dataverse entity metadata instead of hardcoding `componenttype` values in services.
+
+**Implementation:**
+- Added `objecttypecode` to Entity model and selected it in `src/hooks/useEntities.tsx`
+- Exposed metadata lookup helpers from `useEntities`
+- Updated create hooks to resolve correct `objecttypecode` for each entity logical name
+- Updated `EntityService.addToSolution()` and affected services to accept runtime `componentType`
+
+**Impact:**
+- Custom APIs, request parameters, response properties, catalogs, and catalog assignments now use runtime metadata
+- Eliminated hardcoded component type constants
+- Supports future entities without code changes
+
+**Deliverables:**
+- `.squad/decisions/inbox/kane-runtime-componenttype.md`
+
+---
+
+#### Phase 2: Lambert — QA Analysis
+**By:** Lambert (Tester)  
+**Date:** 2026-06-05  
+**Issue:** #74  
+**Status:** Completed
+
+**What:** Comprehensive QA analysis and regression checklist for runtime component-type resolution.
+
+**QA Scope (11 Risk Areas):**
+1. Metadata gaps & completeness
+2. Logical name mapping accuracy
+3. Component type validation & undefined handling
+4. Solution add operations
+5. Backward compatibility & migration
+6. EntityService base class changes
+7. Integration & end-to-end flows
+8. Error recovery & diagnostics
+9. Performance & resource consumption
+10. Data consistency & integrity across environments
+11. InternalCustomAssignment & future entities
+
+**Deliverables:**
+- **Document:** `.squad/decisions/inbox/lambert-runtime-componenttype.md`
+- **Coverage:** 90+ executable test cases with implementation assumptions
+
+**Status:** QA analysis complete; ready for implementation + manual test execution.
+
+---
+
+#### Phase 3: Ripley — Initial Review (Rejected)
+**By:** Ripley (Lead)  
+**Date:** 2026-06-05  
+**Issue:** #74  
+**Status:** Rejected for revision
+
+**What Passed:**
+- ✅ Hardcoded `componenttype` constants removed
+- ✅ `EntityService.addToSolution()` fails fast when no runtime component type available
+- ✅ All five solution-aware create callers resolve `objecttypecode` from metadata
+- ✅ `npm run build` passes
+
+**Blocking Issue: Cold-cache create path race**
+
+On fresh load, `useEntities()` returns undefined until metadata query settles. Save buttons are only gated on validation/pending state, not metadata readiness. This creates a race condition:
+
+1. User loads app
+2. `useEntities()` query starts (cold metadata cache)
+3. User saves record with solution context before metadata loads
+4. Mutation path reaches `ensureComponentType()` without resolved numeric value
+5. Operation fails
+
+**Evidence:**
+- `src/hooks/useEntities.tsx` exposes undefined until metadata present
+- `src/services/EntityService.ts` throws when componentType not number
+- Save buttons only depend on validation/pending state, not metadata readiness
+
+**Required Revision:**
+Assign Dallas to close cold-cache gap by making solution-scoped create safe on first use. Preferred approach: centralize component-type resolution helper so five hooks use deterministic metadata wait.
+
+**Decision:** Reject current implementation; assign Dallas for revision.
+
+---
+
+#### Phase 4: Dallas — Revision (Deterministic Metadata Readiness)
+**By:** Dallas (Frontend Dev)  
+**Date:** 2026-06-05  
+**Issue:** #74  
+**Status:** Completed
+
+**What:** Revised runtime component-type implementation to close cold-start metadata race condition.
+
+**Implementation:**
+- Added `getEntitiesQueryOptions()` and `ensureEntityObjectTypeCode()` helpers to `src/hooks/useEntities.tsx`
+- `ensureEntityObjectTypeCode()` logic:
+  1. Checks loaded entity metadata first (fast path)
+  2. Awaits `queryClient.fetchQuery()` for shared entities query when cold
+  3. Returns numeric objecttypecode deterministically
+  4. Never returns undefined for valid entity names
+
+- Replaced duplicated fallback blocks in five create hooks:
+  - `src/hooks/useCustomApis.tsx`
+  - `src/hooks/useCustomApiRequestParameters.ts`
+  - `src/hooks/useCustomApiResponseProperties.ts`
+  - `src/hooks/useCatalogs.tsx`
+  - `src/hooks/useCatalogAssignments.tsx`
+
+**Why This Approach:**
+- Centralizes metadata wait logic (reduces duplication)
+- All five create flows use identical cold-start-safe behavior
+- Deterministic: every mutation waits for metadata before create/add-to-solution
+- Surgical fix maintaining runtime resolution approach
+
+**Deliverables:**
+- `.squad/decisions/inbox/dallas-runtime-componenttype-revision.md`
+
+---
+
+#### Phase 5: Ripley — Final Review (Approved)
+**By:** Ripley (Lead)  
+**Date:** 2026-06-05  
+**Issue:** #74  
+**Status:** Approved
+
+**What Passed:**
+- ✅ Centralized metadata readiness logic in `ensureEntityObjectTypeCode()`
+- ✅ All five create hooks use deterministic metadata wait
+- ✅ No duplicated fallback logic
+- ✅ Cold-start race condition eliminated
+- ✅ Working tree ready for merge
+- ✅ Maintains runtime metadata resolution approach
+- ✅ Solution-scoped creates safe on first use
+- ✅ No backward compatibility issues
+
+**Decision:** Approve for merge to issue-74-runtime-objecttypecode branch.
+
+**Next Steps:**
+1. Merge to main
+2. Execute Lambert's QA checklist
+3. Verify no regressions in existing create/update/delete flows
+
+**Deliverables:**
+- `.squad/decisions/inbox/ripley-runtime-componenttype-review.md`
+
+---
+
+**Summary - Issue #74 Complete:**
+✅ Runtime component-type resolution implemented with deterministic cold-start safety
+✅ Hardcoded component types eliminated
+✅ Future entities supported automatically via metadata
+✅ All code reviews passed; QA checklist ready for execution
+✅ Working tree approved for merge

@@ -171,6 +171,14 @@ Joined PPTB Dataverse Custom API Manager team as Frontend Dev on 2026-02-28.
 **Requested by:** David Rivard  
 **Status:** ✅ Complete — Default publisher preselection restored; form owns state; build passed; decision merged
 
+## Learnings (Recent Session: 2026-06-05)
+
+### Runtime Component Type Cold-Start Guard
+- Centralize solution-component metadata lookup in `src/hooks/useEntities.tsx` so create hooks call one shared `ensureEntityObjectTypeCode()` helper instead of duplicating fallback logic.
+- `ensureEntityObjectTypeCode()` should reuse already loaded `entities` data when present, but fall back to `queryClient.fetchQuery(getEntitiesQueryOptions(...))` so fresh-load create-in-solution flows wait for metadata before `AddSolutionComponent`.
+- Applied this shared await pattern across `src/hooks/useCustomApis.tsx`, `src/hooks/useCustomApiRequestParameters.ts`, `src/hooks/useCustomApiResponseProperties.ts`, `src/hooks/useCatalogs.tsx`, and `src/hooks/useCatalogAssignments.tsx`.
+- User-facing expectation preserved: create flows can stay responsive, but solution-scoped saves must not fail just because entity metadata finished loading a moment later.
+
 ## Learnings (Recent Session: 2026-06-03)
 
 ### Validation Scope Should Follow Entity Uniqueness Ownership
@@ -422,3 +430,35 @@ Completed Phase 1 UI-layer readability cleanup focusing on Dialog terminology st
 **Scope:** Remove unintended root index.html from published npm package  
 **Requested by:** Scribe (End-of-session wrap-up)  
 **Status:** ✅ Complete — Package entry point corrected to dist/index.html; npm tarball no longer includes root HTML file; dev server unaffected
+
+## Team Updates (Session: 2026-06-05)
+
+**Orchestration Log:** 2026-06-05T02-23-17Z-dallas.md  
+**Scope:** Issue #74 runtime component-type implementation — Revision with deterministic metadata wait  
+**Status:** ✅ Completed — Centralized metadata readiness guard implemented; approved by Ripley for merge.
+
+### Issue #74: Runtime Component Type Resolution — Phase 4 (Dallas Revision)
+
+**Blocking Issue Resolution:**
+- Added `getEntitiesQueryOptions()` and `ensureEntityObjectTypeCode()` helpers to `src/hooks/useEntities.tsx`
+- `ensureEntityObjectTypeCode(logicalName)` logic:
+  1. Checks loaded entity metadata first (fast path)
+  2. Awaits `queryClient.fetchQuery()` for shared entities query when cold
+  3. Returns numeric objecttypecode deterministically
+  4. Never returns undefined for valid entity names
+
+- Centralized metadata wait by refactoring five create hooks:
+  - `src/hooks/useCustomApis.tsx`
+  - `src/hooks/useCustomApiRequestParameters.ts`
+  - `src/hooks/useCustomApiResponseProperties.ts`
+  - `src/hooks/useCatalogs.tsx`
+  - `src/hooks/useCatalogAssignments.tsx`
+
+**Why This Approach:**
+- Eliminates duplicated fallback logic across five hooks
+- All create flows use identical cold-start-safe behavior
+- Deterministic: every mutation waits for metadata before create/add-to-solution
+- Surgical fix that maintains runtime resolution approach
+- Solution-scoped creates always have metadata ready before `addToSolution()` called
+
+**Guardrail Established:** Centralize component-type resolution helpers so multiple hooks do not duplicate metadata fallback block. All solution-scoped creates must deterministically await entity metadata before create/add-to-solution operations.

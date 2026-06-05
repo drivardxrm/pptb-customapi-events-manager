@@ -43,6 +43,26 @@ Joined PPTB Dataverse Custom API Manager team as Tester on 2026-02-28.
 **Scope:** Multiple sprints: filter expand/collapse, selector init settings, business event jump feature  
 **Status:** ✅ Regression checklists delivered across multiple features; referenced in .squad/decisions.md
 
+## Learnings (Session: 2026-06-XX)
+
+### Runtime Component Type Resolution — QA Analysis for Issue #74
+
+**Issue Context:** Services currently hardcode component types (e.g., CustomApiService.componenttype = 10020). When new entity types are added to Dataverse (e.g., InternalCustomAssignment), services fail because no hardcoded value exists.
+
+**Architecture Insight:** Component types are needed for `EntityService.addToSolution()` to properly add records to solution components. The resolution must handle metadata gaps, logical-name mapping errors, undefined types, solution-add failures, and backward compatibility.
+
+**Service Inventory:** CustomApiService (10020), CustomApiRequestParameterService (10021), CustomApiResponsePropertyService (10022), CatalogService (10017), CatalogAssignmentService (10018)
+
+**Key QA Risks:** Metadata gaps, type mapping errors, polymorphic object confusion, solution orphans, backward compatibility breaks, performance degradation
+
+**Checklist Stats:** 11 sections, 90+ test cases covering metadata resolution, logical name mapping, component type validation, solution operations, end-to-end flows, error recovery, performance, data consistency
+
+**Document Location:** `.squad/decisions/inbox/lambert-runtime-componenttype.md`
+
+**Status:** ✅ QA analysis complete; awaiting implementation decisions on metadata strategy
+
+---
+
 ## Learnings (Session: 2026-06-03)
 
 ### Filter State Handoff QA Checklist — Cross-View Navigation Behavior
@@ -439,3 +459,31 @@ Executed comprehensive QA validation and diff review for Phase 1 pre-release rea
 - Flagged `.github/workflows/e2e-tests.yml` as a parallel regression risk because it also runs `npm ci`
 - **Recommendation:** Apply same npm 11 pin to e2e-tests workflow in future work to prevent identical failure
 - **Pattern:** npm major-version mismatch between runner and lockfile authoring causes resolution conflicts; declarative npm pinning via packageManager field + workflow pin ensures alignment
+
+## Team Updates (Session: 2026-06-05)
+
+**Orchestration Log:** 2026-06-05T02-23-17Z-lambert.md  
+**Scope:** Issue #74 runtime component-type implementation — QA analysis  
+**Status:** ✅ Completed — Comprehensive 90+ test case regression checklist delivered.
+
+### Issue #74: Runtime Component Type Resolution — Phase 2 (Lambert QA Analysis)
+
+**QA Coverage Delivered:**
+- **Metadata Resolution & Completeness:** 5+ test cases covering API returns, field population, metadata loading timing, cache strategy
+- **Logical Name Mapping Accuracy:** 5+ test cases verifying entity names match Dataverse (customapi, customapirequestparameter, etc.), polymorphic handling
+- **Component Type Validation:** 5+ test cases for null/undefined detection, invalid values, missing entities
+- **Solution Add Operations:** 5+ test cases for success paths, failure scenarios, solution uniqueness
+- **Backward Compatibility & Migration:** 5+ test cases for hardcoded fallback strategy, existing value verification, future entity support
+- **EntityService Base Class Changes:** 5+ test cases for componenttype property evolution, runtime resolution integration, metadata context availability
+- **End-to-End Integration:** 25+ test cases for all create flows (CustomApi, RequestParameter, ResponseProperty, Catalog, CatalogAssignment)
+- **Error Recovery & Diagnostics:** 5+ test cases for logging clarity, error messages, recovery mechanisms
+- **Performance & Resource Consumption:** 5+ test cases for resolution latency, API optimization, memory management
+- **Data Consistency:** 5+ test cases for environment parity, solution portability, orphaned records
+- **InternalCustomAssignment & Future Entities:** 5+ test cases for new entity support, extensibility verification
+
+**Total: 90+ executable test cases** with implementation assumptions and pre-fix validation baseline
+
+**Deliverables:**
+- `.squad/decisions/inbox/lambert-runtime-componenttype.md` (merged to decisions.md)
+
+**Guardrail Established:** QA checklists for infrastructure changes should cover metadata resolution timing (cold-start), caching strategy and invalidation triggers, API optimization (N+1 prevention), and end-to-end integration flows across all affected entities.

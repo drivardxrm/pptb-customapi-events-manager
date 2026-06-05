@@ -1,6 +1,7 @@
 export interface Entity {
   entityid: string;
   logicalname: string;
+  objecttypecode: number | null;
 }
 
 // used in customapi tester for entity reference parameters

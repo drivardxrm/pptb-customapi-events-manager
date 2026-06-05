@@ -7,7 +7,6 @@ import { CatalogService } from "./CatalogService";
 export class CatalogAssignmentService extends EntityService {
     entityName = 'catalogassignment';
     entityCollectionName = 'catalogassignments';
-    componenttype = 10018;
 
     // Lookups for OData binding - note _object_value is polymorphic and handled specially
     private static get CatalogAssignmentLookups(): Partial<Record<keyof CatalogAssignmentCreateInput, [string, EntityService]>> {
@@ -56,8 +55,13 @@ export class CatalogAssignmentService extends EntityService {
     async createCatalogAssignment(
         newAssignment: CatalogAssignmentCreateInput, 
         objectEntityName: string,
-        solutionUniqueName?: string
+        solutionUniqueName?: string,
+        componentType?: number
     ): Promise<CreateResult> {
+        if (solutionUniqueName) {
+            this.ensureComponentType(componentType);
+        }
+
         // Build base payload with standard lookups
         const payload = buildCreatePayload<CatalogAssignmentCreateInput>(newAssignment, {
             lookupKeys: CatalogAssignmentService.CatalogAssignmentLookups,
@@ -80,7 +84,7 @@ export class CatalogAssignmentService extends EntityService {
         
         // If a solution is specified, add the assignment to that solution
         if (solutionUniqueName && result.id) {
-            await this.addToSolution(result.id, solutionUniqueName);
+            await this.addToSolution(result.id, solutionUniqueName, componentType);
         }
         
         return { created: true, payload, id: result.id };
