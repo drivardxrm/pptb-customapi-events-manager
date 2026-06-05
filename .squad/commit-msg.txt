@@ -1,0 +1,8 @@
+squad: Orchestration log for Kane 1.0.5 release, session log, and inbox merge
+
+- Added orchestration log: 2026-06-05T02-54-31Z-kane.md (Release 1.0.5 changelog prep)
+- Added session log: 2026-06-05T02-54-31Z-changelog-package-updates.md
+- Merged decision inbox: kane-version-105.md → decisions.md, deleted inbox file
+- Updated Kane history.md with 1.0.5 changelog entry and guardrail
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
