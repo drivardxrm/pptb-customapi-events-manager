@@ -10,6 +10,7 @@
 | Architecture, scope, review, decisions | Ripley | Lead oversight |
 | Logs, memory, decisions file | Scribe | Silent logging |
 | Work queue, backlog, monitoring | Ralph | Work monitor |
+| RAI review, content safety, credentials, bias | Rai | RAI Reviewer |
 
 ## Keyword Triggers
 
@@ -23,3 +24,5 @@
 - Kane's services reviewed by Ripley
 - Dallas's components reviewed by Ripley
 - All PRs get Lambert test coverage check
+- Pre-ship artifacts reviewed by Rai (RAI compliance)
+- Credential/secret detection by Rai (critical - blocks on 🔴)

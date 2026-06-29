@@ -17,6 +17,7 @@
 | Lambert | Tester | Tests, quality assurance, edge cases | 🧪 Tester |
 | Scribe | Session Logger | Memory, decisions, session logs | 📋 Scribe |
 | Ralph | Work Monitor | Work queue, backlog, keep-alive | 🔄 Monitor |
+| Rai | RAI Reviewer | Content safety, credential scanning, ethical review | 🛡️ RAI |
 
 ## Architecture Notes
 
